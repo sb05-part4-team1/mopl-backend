@@ -1,0 +1,82 @@
+name: Assign individual reviewers & Slack DM
+
+on:
+  pull_request:
+    types: [opened]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  assign-and-notify:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/slack-user-map.json
+          sparse-checkout-cone-mode: false
+
+      - name: Get team members (except PR author)
+        id: team
+        env:
+          GH_TOKEN: ${{ secrets.ORG_READ_TOKEN }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          set -e
+
+          members=$(gh api \
+            orgs/${{ github.repository_owner }}/teams/mopl-backend-team/members \
+            --jq '.[] | select(.login != env.PR_AUTHOR) | .login' \
+            || true)
+
+          if [ -z "$members" ]; then
+            echo "No reviewers found or failed to fetch team members."
+            exit 0
+          fi
+
+          echo "members=$(echo "$members" | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
+
+      - name: Add individual reviewers
+        if: steps.team.outputs.members
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          reviewers=(${{ steps.team.outputs.members }})
+
+          jq -n \
+            --argjson reviewers "$(printf '%s\n' "${reviewers[@]}" | jq -R . | jq -s .)" \
+            '{ reviewers: $reviewers }' \
+            | gh api \
+                -X POST \
+                repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/requested_reviewers \
+                --input -
+
+      - name: Slack DM to each reviewer
+        if: steps.team.outputs.members
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: |
+          reviewers=(${{ steps.team.outputs.members }})
+
+          for user in "${reviewers[@]}"; do
+            slack_id=$(jq -r --arg user "$user" '.[$user]' .github/slack-user-map.json)
+
+            if [ "$slack_id" = "null" ] || [ -z "$slack_id" ]; then
+              echo "Slack ID not mapped for $user"
+              continue
+            fi
+
+            curl -s -X POST \
+              -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+              -H "Content-type: application/json" \
+              --data "{
+                \"channel\": \"$slack_id\",
+                \"text\": \"🔔 *새 PR 리뷰 요청*\\n*제목:* ${{ github.event.pull_request.title }}\\n*링크:* ${{ github.event.pull_request.html_url }}\"
+              }" \
+              https://slack.com/api/chat.postMessage \
+              > /dev/null || echo "Failed to notify $user"
+          done
