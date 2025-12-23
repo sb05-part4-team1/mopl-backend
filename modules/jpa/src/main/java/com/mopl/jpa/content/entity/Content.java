@@ -1,6 +1,6 @@
 package com.mopl.jpa.content.entity;
 
-import com.mopl.jpa.global.auditing.BaseTimeEntity;
+import com.mopl.jpa.global.auditing.BaseUpdatableEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "content")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Content extends BaseTimeEntity {
+public class Content extends BaseUpdatableEntity {
 
     @Column(nullable = false)
     private String type;
