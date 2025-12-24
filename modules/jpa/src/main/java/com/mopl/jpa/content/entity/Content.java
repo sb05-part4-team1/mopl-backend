@@ -1,6 +1,6 @@
 package com.mopl.jpa.content.entity;
 
-import com.mopl.jpa.global.auditing.BaseUpdatableEntity;
+import com.mopl.jpa.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

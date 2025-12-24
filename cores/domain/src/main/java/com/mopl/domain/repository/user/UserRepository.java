@@ -1,11 +1,16 @@
 package com.mopl.domain.repository.user;
 
 import com.mopl.domain.model.user.UserModel;
-import com.mopl.domain.repository.base.CrudRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.UUID;
+import java.util.Optional;
 
-public interface UserRepository extends CrudRepository<UserModel, UUID> {
+@Repository
+public interface UserRepository {
+
+    UserModel save(UserModel userModel);
+
+    Optional<UserModel> findByEmail(String email);
 
     boolean existsByEmail(String email);
 }

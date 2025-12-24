@@ -1,7 +1,7 @@
 package com.mopl.jpa.playlist.entity;
 
-import com.mopl.jpa.global.auditing.BaseUpdatableEntity;
-import com.mopl.jpa.user.entity.User;
+import com.mopl.jpa.entity.base.BaseUpdatableEntity;
+import com.mopl.jpa.entity.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -15,7 +15,7 @@ public class Playlist extends BaseUpdatableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private User owner;
+    private UserEntity owner;
 
     @Column(nullable = false, length = 255)
     private String title;

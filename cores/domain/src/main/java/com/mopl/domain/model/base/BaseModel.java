@@ -30,7 +30,15 @@ public abstract class BaseModel {
     }
 
     public void delete() {
-        this.deletedAt = Instant.now();
+        if (!isDeleted()) {
+            this.deletedAt = Instant.now();
+        }
+    }
+
+    public void resotre() {
+        if (isDeleted()) {
+            this.deletedAt = null;
+        }
     }
 
     public boolean isDeleted() {

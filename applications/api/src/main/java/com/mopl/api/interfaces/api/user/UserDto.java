@@ -1,4 +1,4 @@
-package com.mopl.api.application.user;
+package com.mopl.api.interfaces.api.user;
 
 import com.mopl.domain.model.user.Role;
 import com.mopl.domain.model.user.UserModel;
@@ -6,7 +6,7 @@ import com.mopl.domain.model.user.UserModel;
 import java.time.Instant;
 import java.util.UUID;
 
-public record UserInfo(
+public record UserDto(
     UUID id,
     Instant createdAt,
     String email,
@@ -15,8 +15,8 @@ public record UserInfo(
     Role role,
     boolean locked
 ) {
-    public static UserInfo from(UserModel userModel) {
-        return new UserInfo(
+    public static UserDto from(UserModel userModel) {
+        return new UserDto(
             userModel.getId(),
             userModel.getCreatedAt(),
             userModel.getEmail(),
