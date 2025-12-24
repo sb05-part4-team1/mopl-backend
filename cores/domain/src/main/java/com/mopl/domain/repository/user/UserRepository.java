@@ -1,9 +1,7 @@
 package com.mopl.domain.repository.user;
 
 import com.mopl.domain.model.user.UserModel;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public interface UserRepository {
 
     UserModel save(UserModel userModel);
