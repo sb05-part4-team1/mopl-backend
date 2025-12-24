@@ -1,9 +1,18 @@
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
 plugins {
-    id("java")
+    java
     id("org.springframework.boot") version "3.3.3" apply false
     id("io.spring.dependency-management") version "1.1.5"
     id("com.diffplug.spotless") version "6.23.3"
     id("checkstyle")
+    id("jacoco")
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 allprojects {
@@ -16,15 +25,68 @@ allprojects {
 }
 
 subprojects {
-
     apply(plugin = "java")
     apply(plugin = "io.spring.dependency-management")
     apply(plugin = "com.diffplug.spotless")
     apply(plugin = "checkstyle")
+    apply(plugin = "jacoco")
 
-    java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(21)
+    dependencyManagement {
+        imports {
+            mavenBom("org.springframework.boot:spring-boot-dependencies:3.3.3")
+        }
+    }
+
+    dependencies {
+        // Web
+        runtimeOnly("org.springframework.boot:spring-boot-starter-validation")
+        // Spring
+        implementation("org.springframework.boot:spring-boot-starter")
+        // Serialize
+        implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+        // Lombok
+        implementation("org.projectlombok:lombok")
+        annotationProcessor("org.projectlombok:lombok")
+        testCompileOnly("org.projectlombok:lombok")
+        testAnnotationProcessor("org.projectlombok:lombok")
+        // Test
+        testImplementation("org.springframework.boot:spring-boot-starter-test")
+        testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    }
+
+    tasks.withType(Jar::class) { enabled = true }
+    tasks.withType(BootJar::class) { enabled = false }
+
+    configure(allprojects.filter { it.parent?.name.equals("applications") }) {
+        tasks.withType(Jar::class) { enabled = false }
+        tasks.withType(BootJar::class) { enabled = true }
+    }
+
+    tasks.test {
+        maxParallelForks = 1
+        useJUnitPlatform()
+        systemProperty("user.timezone", "Asia/Seoul")
+        systemProperty("spring.profiles.active", "test")
+        jvmArgs("-Xshare:off")
+        finalizedBy(tasks.jacocoTestReport)
+    }
+
+    tasks.withType<JacocoReport> {
+        mustRunAfter("test")
+        executionData(fileTree(layout.buildDirectory.asFile).include("jacoco/*.exec"))
+        reports {
+            xml.required = true
+            csv.required = false
+            html.required = false
+        }
+        afterEvaluate {
+            classDirectories.setFrom(
+                files(
+                    classDirectories.files.map {
+                        fileTree(it)
+                    },
+                ),
+            )
         }
     }
 
@@ -42,27 +104,8 @@ subprojects {
         toolVersion = "10.12.3"
         configFile = file("${rootDir}/config/checkstyle/google_checks.xml")
     }
-
-    // ✅ Kotlin DSL에서는 여기서 설정
-    tasks.withType<Checkstyle>().configureEach {
-        isIgnoreFailures = false
-    }
-
-    dependencyManagement {
-        imports {
-            mavenBom("org.springframework.boot:spring-boot-dependencies:3.3.3")
-        }
-    }
-
-    dependencies {
-        compileOnly("org.projectlombok:lombok")
-        annotationProcessor("org.projectlombok:lombok")
-
-        testCompileOnly("org.projectlombok:lombok")
-        testAnnotationProcessor("org.projectlombok:lombok")
-
-        implementation("org.springframework.boot:spring-boot-starter-validation")
-
-        testImplementation("org.springframework.boot:spring-boot-starter-test")
-    }
 }
+
+project("applications") { tasks.configureEach { enabled = false } }
+project("modules") { tasks.configureEach { enabled = false } }
+project("supports") { tasks.configureEach { enabled = false } }
