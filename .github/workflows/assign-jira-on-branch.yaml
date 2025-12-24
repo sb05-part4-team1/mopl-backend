@@ -1,0 +1,81 @@
+name: Assign Jira Issue on Branch Create
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  assign-jira-on-branch:
+    if: github.event.before == '0000000000000000000000000000000000000000'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/jira-user-map.json
+          sparse-checkout-cone-mode: false
+
+      - name: Extract Jira Issue Key
+        id: extract_key
+        shell: bash
+        run: |
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+
+          PROJECT_KEY="${JIRA_PROJECT_KEY:-MOPL}"
+
+          ISSUE_KEY=$(echo "$BRANCH_NAME" | grep -oE "${PROJECT_KEY}-[0-9]+" | head -n1 || true)
+
+          if [ -z "$ISSUE_KEY" ]; then
+            echo "No Jira issue key found in branch name. Skipping."
+            exit 0
+          fi
+
+          echo "issue_key=$ISSUE_KEY" >> "$GITHUB_OUTPUT"
+        env:
+          JIRA_PROJECT_KEY: ${{ vars.JIRA_PROJECT_KEY }}
+
+      - name: Find Jira User Account ID
+        id: find_user
+        if: steps.extract_key.outputs.issue_key
+        shell: bash
+        run: |
+          SENDER="${GITHUB_ACTOR}"
+          JIRA_ACCOUNT_ID=$(jq -r --arg user "$SENDER" '.[$user] // empty' .github/jira-user-map.json)
+
+          if [ -z "$JIRA_ACCOUNT_ID" ]; then
+            echo "No Jira account mapping for GitHub user: $SENDER"
+            exit 0
+          fi
+
+          echo "account_id=$JIRA_ACCOUNT_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Update Jira Assignee
+        if: steps.find_user.outputs.account_id
+        shell: bash
+        run: |
+          ISSUE_KEY="${{ steps.extract_key.outputs.issue_key }}"
+          ACCOUNT_ID="${{ steps.find_user.outputs.account_id }}"
+
+          echo "Assigning Jira issue $ISSUE_KEY to $ACCOUNT_ID"
+
+          for i in 1 2 3; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+              --request PUT \
+              --url "${{ vars.JIRA_BASE_URL }}/rest/api/3/issue/$ISSUE_KEY/assignee" \
+              --user "${{ vars.JIRA_USER_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}" \
+              --header "Accept: application/json" \
+              --header "Content-Type: application/json" \
+              --data "{ \"accountId\": \"$ACCOUNT_ID\" }")
+
+            if [[ "$HTTP_CODE" =~ ^2 ]]; then
+              echo "✓ Jira issue successfully assigned"
+              exit 0
+            fi
+
+            echo "Attempt $i failed (HTTP $HTTP_CODE). Retrying..."
+            sleep 2
+          done
+
+          echo "⚠ Jira assignment failed after retries. Continuing workflow."
