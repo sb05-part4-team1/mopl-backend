@@ -6,8 +6,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.annotation.CreatedDate;
@@ -20,6 +22,7 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @SuperBuilder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @SQLRestriction("deleted_at IS NULL")
 public abstract class BaseEntity {
@@ -34,13 +37,4 @@ public abstract class BaseEntity {
     private Instant createdAt;
 
     private Instant deletedAt;
-
-    protected BaseEntity() {
-    }
-
-    protected BaseEntity(UUID id, Instant createdAt, Instant deletedAt) {
-        this.id = id;
-        this.createdAt = createdAt;
-        this.deletedAt = deletedAt;
-    }
 }

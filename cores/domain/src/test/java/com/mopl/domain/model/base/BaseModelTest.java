@@ -1,5 +1,7 @@
 package com.mopl.domain.model.base;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -14,11 +16,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class BaseModelTest {
 
     @SuperBuilder
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     static class TestModel extends BaseModel {
-
-        TestModel() {
-            super();
-        }
     }
 
     @Nested
@@ -27,7 +26,7 @@ class BaseModelTest {
 
         @Test
         @DisplayName("모든 필드가 null로 초기화됨")
-        void allFieldsAreNull() {
+        void withDefaultConstructor_initializesAllFieldsToNull() {
             // when
             TestModel model = new TestModel();
 
@@ -44,7 +43,7 @@ class BaseModelTest {
 
         @Test
         @DisplayName("모든 필드가 주어진 값으로 초기화됨")
-        void allFieldsAreInitialized() {
+        void withBuilder_initializesAllFields() {
             // given
             UUID id = UUID.randomUUID();
             Instant createdAt = Instant.now();
@@ -70,7 +69,7 @@ class BaseModelTest {
 
         @Test
         @DisplayName("삭제되지 않은 모델을 삭제하면 deletedAt이 설정됨")
-        void deletesModel() {
+        void withNotDeletedModel_setsDeletedAt() {
             // given
             TestModel model = TestModel.builder()
                 .id(UUID.randomUUID())
@@ -89,7 +88,7 @@ class BaseModelTest {
 
         @Test
         @DisplayName("이미 삭제된 모델을 삭제해도 deletedAt이 변경되지 않음")
-        void doesNotChangeDeletedAtIfAlreadyDeleted() {
+        void withAlreadyDeletedModel_doesNotChangeDeletedAt() {
             // given
             Instant originalDeletedAt = Instant.now().minusSeconds(100);
             TestModel model = TestModel.builder()
@@ -112,7 +111,7 @@ class BaseModelTest {
 
         @Test
         @DisplayName("삭제된 모델을 복원하면 deletedAt이 null이 됨")
-        void restoresModel() {
+        void withDeletedModel_setsDeletedAtToNull() {
             // given
             TestModel model = TestModel.builder()
                 .id(UUID.randomUUID())
@@ -131,7 +130,7 @@ class BaseModelTest {
 
         @Test
         @DisplayName("삭제되지 않은 모델을 복원해도 아무 일도 일어나지 않음")
-        void doesNothingIfNotDeleted() {
+        void withNotDeletedModel_doesNothing() {
             // given
             TestModel model = TestModel.builder()
                 .id(UUID.randomUUID())
@@ -153,7 +152,7 @@ class BaseModelTest {
 
         @Test
         @DisplayName("deletedAt이 null이면 false 반환")
-        void returnsFalseWhenDeletedAtIsNull() {
+        void withDeletedAtNull_returnsFalse() {
             // given
             TestModel model = TestModel.builder()
                 .id(UUID.randomUUID())
@@ -167,7 +166,7 @@ class BaseModelTest {
 
         @Test
         @DisplayName("deletedAt이 설정되어 있으면 true 반환")
-        void returnsTrueWhenDeletedAtIsSet() {
+        void withDeletedAtSet_returnsTrue() {
             // given
             TestModel model = TestModel.builder()
                 .id(UUID.randomUUID())

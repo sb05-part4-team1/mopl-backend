@@ -1,4 +1,4 @@
-package com.mopl.jpa.entity.base;
+package com.mopl.domain.model.base;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -12,12 +12,12 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("BaseUpdatableEntity 단위 테스트")
-class BaseUpdatableEntityTest {
+@DisplayName("BaseUpdatableModel 단위 테스트")
+class BaseUpdatableModelTest {
 
     @SuperBuilder
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    static class TestEntity extends BaseUpdatableEntity {
+    static class TestModel extends BaseUpdatableModel {
     }
 
     @Nested
@@ -28,13 +28,13 @@ class BaseUpdatableEntityTest {
         @DisplayName("모든 필드가 null로 초기화됨")
         void withDefaultConstructor_initializesAllFieldsToNull() {
             // when
-            TestEntity entity = new TestEntity();
+            TestModel model = new TestModel();
 
             // then
-            assertThat(entity.getId()).isNull();
-            assertThat(entity.getCreatedAt()).isNull();
-            assertThat(entity.getDeletedAt()).isNull();
-            assertThat(entity.getUpdatedAt()).isNull();
+            assertThat(model.getId()).isNull();
+            assertThat(model.getCreatedAt()).isNull();
+            assertThat(model.getDeletedAt()).isNull();
+            assertThat(model.getUpdatedAt()).isNull();
         }
     }
 
@@ -52,7 +52,7 @@ class BaseUpdatableEntityTest {
             Instant updatedAt = Instant.now();
 
             // when
-            TestEntity entity = TestEntity.builder()
+            TestModel model = TestModel.builder()
                 .id(id)
                 .createdAt(createdAt)
                 .deletedAt(deletedAt)
@@ -60,15 +60,15 @@ class BaseUpdatableEntityTest {
                 .build();
 
             // then
-            assertThat(entity.getId()).isEqualTo(id);
-            assertThat(entity.getCreatedAt()).isEqualTo(createdAt);
-            assertThat(entity.getDeletedAt()).isNull();
-            assertThat(entity.getUpdatedAt()).isEqualTo(updatedAt);
+            assertThat(model.getId()).isEqualTo(id);
+            assertThat(model.getCreatedAt()).isEqualTo(createdAt);
+            assertThat(model.getDeletedAt()).isNull();
+            assertThat(model.getUpdatedAt()).isEqualTo(updatedAt);
         }
 
         @Test
-        @DisplayName("BaseEntity 필드가 상속됨")
-        void withBuilder_inheritsBaseEntityFields() {
+        @DisplayName("BaseModel 필드가 상속됨")
+        void withBuilder_inheritsBaseModelFields() {
             // given
             UUID id = UUID.randomUUID();
             Instant createdAt = Instant.now();
@@ -76,7 +76,7 @@ class BaseUpdatableEntityTest {
             Instant updatedAt = Instant.now();
 
             // when
-            TestEntity entity = TestEntity.builder()
+            TestModel model = TestModel.builder()
                 .id(id)
                 .createdAt(createdAt)
                 .deletedAt(deletedAt)
@@ -84,10 +84,10 @@ class BaseUpdatableEntityTest {
                 .build();
 
             // then
-            assertThat(entity).isInstanceOf(BaseEntity.class);
-            assertThat(entity.getId()).isEqualTo(id);
-            assertThat(entity.getCreatedAt()).isEqualTo(createdAt);
-            assertThat(entity.getDeletedAt()).isEqualTo(deletedAt);
+            assertThat(model).isInstanceOf(BaseModel.class);
+            assertThat(model.getId()).isEqualTo(id);
+            assertThat(model.getCreatedAt()).isEqualTo(createdAt);
+            assertThat(model.getDeletedAt()).isEqualTo(deletedAt);
         }
     }
 }

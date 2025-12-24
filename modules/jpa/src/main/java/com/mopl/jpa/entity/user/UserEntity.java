@@ -50,7 +50,6 @@ public class UserEntity extends BaseUpdatableEntity {
     @Column(nullable = false)
     private boolean locked;
 
-
     public static UserEntity from(UserModel userModel) {
         return UserEntity.builder()
             .id(userModel.getId())
