@@ -24,7 +24,7 @@ import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UserFacade 단위 테스트")
-public class UserFacadeTest {
+class UserFacadeTest {
 
     @Mock
     private UserService userService;
