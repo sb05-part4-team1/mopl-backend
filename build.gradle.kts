@@ -107,5 +107,6 @@ subprojects {
 }
 
 project("applications") { tasks.configureEach { enabled = false } }
+project("cores") { tasks.configureEach { enabled = false } }
 project("modules") { tasks.configureEach { enabled = false } }
 project("supports") { tasks.configureEach { enabled = false } }
