@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.util.UUID;
 
+import static com.mopl.domain.model.user.UserModel.AUTH_PROVIDER_MAX_LENGTH;
 import static com.mopl.domain.model.user.UserModel.EMAIL_MAX_LENGTH;
 import static com.mopl.domain.model.user.UserModel.ENCODED_PASSWORD_MAX_LENGTH;
 import static com.mopl.domain.model.user.UserModel.NAME_MAX_LENGTH;
@@ -28,7 +29,7 @@ import static com.mopl.domain.model.user.UserModel.PROFILE_IMAGE_URL_MAX_LENGTH;
 public class UserEntity extends BaseUpdatableEntity {
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = AUTH_PROVIDER_MAX_LENGTH)
     private AuthProvider authProvider;
 
     @Column(nullable = false, unique = true, length = EMAIL_MAX_LENGTH)
