@@ -15,6 +15,7 @@ public class UserModel extends BaseUpdatableModel {
     public static final int ENCODED_PASSWORD_MAX_LENGTH = 255;
     public static final int RAW_PASSWORD_MAX_LENGTH = 50;
     public static final int PROFILE_IMAGE_URL_MAX_LENGTH = 1024;
+    public static final int ROLE_MAX_LENGTH = 20;
 
     private final AuthProvider authProvider;
     private final String email;
