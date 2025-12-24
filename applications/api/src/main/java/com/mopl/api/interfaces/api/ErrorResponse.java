@@ -9,6 +9,7 @@ public record ErrorResponse(
     String message,
     Map<String, Object> details
 ) {
+
     public static ErrorResponse of(
         String exceptionName,
         String message,

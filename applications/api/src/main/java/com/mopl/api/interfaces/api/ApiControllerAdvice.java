@@ -28,9 +28,7 @@ public class ApiControllerAdvice {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(
-        HttpMessageNotReadableException exception
-    ) {
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException() {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse.of("InvalidRequestBodyException", "요청 본문을 읽을 수 없습니다.", Map.of()));
@@ -44,7 +42,7 @@ public class ApiControllerAdvice {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception exception) {
+    public ResponseEntity<ErrorResponse> handleException() {
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(ErrorResponse.of("InternalServerError", "서버 오류가 발생했습니다.", Map.of()));
