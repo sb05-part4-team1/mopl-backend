@@ -110,3 +110,41 @@ project("applications") { tasks.configureEach { enabled = false } }
 project("cores") { tasks.configureEach { enabled = false } }
 project("modules") { tasks.configureEach { enabled = false } }
 project("supports") { tasks.configureEach { enabled = false } }
+
+tasks.register<JacocoReport>("jacocoRootReport") {
+    description = "Generates an aggregate report from all subprojects"
+    group = "verification"
+
+    val jacocoReportTasks = subprojects.mapNotNull { it.tasks.findByName("jacocoTestReport") as? JacocoReport }
+
+    dependsOn(jacocoReportTasks)
+
+    executionData.setFrom(
+        files(subprojects.flatMap { subproject ->
+            subproject.layout.buildDirectory.asFile.get()
+                .resolve("jacoco")
+                .listFiles()
+                ?.filter { it.extension == "exec" }
+                ?: emptyList()
+        })
+    )
+
+    sourceDirectories.setFrom(
+        files(subprojects.flatMap { subproject ->
+            subproject.the<SourceSetContainer>()["main"].allSource.srcDirs
+        })
+    )
+
+    classDirectories.setFrom(
+        files(subprojects.flatMap { subproject ->
+            subproject.the<SourceSetContainer>()["main"].output.classesDirs
+        })
+    )
+
+    reports {
+        xml.required = true
+        html.required = true
+        html.outputLocation = layout.buildDirectory.dir("reports/jacoco/aggregate/html")
+        xml.outputLocation = layout.buildDirectory.file("reports/jacoco/aggregate/jacocoRootReport.xml")
+    }
+}
