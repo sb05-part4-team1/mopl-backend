@@ -42,6 +42,7 @@ out/
 .settings/
 .eclipse/
 
+.claude
 
 ###############################
 #        Java / Spring
