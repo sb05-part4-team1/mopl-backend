@@ -35,7 +35,7 @@ public abstract class BaseModel {
         }
     }
 
-    public void resotre() {
+    public void restore() {
         if (isDeleted()) {
             this.deletedAt = null;
         }

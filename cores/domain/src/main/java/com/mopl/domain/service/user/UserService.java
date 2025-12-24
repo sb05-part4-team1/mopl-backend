@@ -1,6 +1,5 @@
 package com.mopl.domain.service.user;
 
-import com.mopl.domain.model.user.AuthProvider;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,16 +11,9 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserModel save(String name, String email, String password) {
+    public UserModel create(UserModel userModel) {
 
-        validateDuplicateEmail(email);
-
-        UserModel userModel = UserModel.create(
-            AuthProvider.EMAIL,
-            name,
-            email,
-            password
-        );
+        validateDuplicateEmail(userModel.getEmail());
 
         return userRepository.save(userModel);
     }

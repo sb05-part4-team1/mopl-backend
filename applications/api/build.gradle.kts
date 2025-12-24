@@ -3,8 +3,7 @@ plugins {
 }
 
 dependencies {
-
-    // 내부 모듈 연결
+    // project modules
     implementation(project(":cores:domain"))
     implementation(project(":modules:jpa"))
 

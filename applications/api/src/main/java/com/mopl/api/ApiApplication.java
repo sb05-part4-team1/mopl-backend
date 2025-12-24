@@ -5,7 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 @ConfigurationPropertiesScan
-@SpringBootApplication(scanBasePackages = "com.mopl")
+@SpringBootApplication(scanBasePackages = {
+    "com.mopl.api",
+    "com.mopl.domain"
+})
 public class ApiApplication {
 
     public static void main(String[] args) {

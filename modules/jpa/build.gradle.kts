@@ -14,4 +14,6 @@ dependencies {
     annotationProcessor("jakarta.annotation:jakarta.annotation-api")
     // jdbc-mysql
     runtimeOnly("com.mysql:mysql-connector-j")
+    // jdbc-h2
+    runtimeOnly("com.h2database:h2")
 }

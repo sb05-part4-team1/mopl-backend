@@ -21,7 +21,6 @@ import static com.mopl.domain.model.user.UserModel.ENCODED_PASSWORD_MAX_LENGTH;
 import static com.mopl.domain.model.user.UserModel.NAME_MAX_LENGTH;
 import static com.mopl.domain.model.user.UserModel.PROFILE_IMAGE_URL_MAX_LENGTH;
 
-
 @Entity
 @Table(name = "users")
 @Getter
