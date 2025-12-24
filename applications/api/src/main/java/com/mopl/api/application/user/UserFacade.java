@@ -26,8 +26,8 @@ public class UserFacade {
 
         UserModel userModel = UserModel.create(
             AuthProvider.EMAIL,
-            name,
             email,
+            name,
             password
         );
 
