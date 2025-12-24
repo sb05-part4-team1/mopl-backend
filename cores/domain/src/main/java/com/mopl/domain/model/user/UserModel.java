@@ -1,5 +1,6 @@
 package com.mopl.domain.model.user;
 
+import com.mopl.domain.exception.user.InvalidUserDataException;
 import com.mopl.domain.model.base.BaseUpdatableModel;
 import lombok.Getter;
 
@@ -75,16 +76,16 @@ public class UserModel extends BaseUpdatableModel {
         String password
     ) {
         if (authProvider == null) {
-            throw new IllegalArgumentException("회원가입 경로는 null일 수 없습니다.");
+            throw new InvalidUserDataException("회원가입 경로는 null일 수 없습니다.");
         }
         if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException("이메일은 비어있을 수 없습니다.");
+            throw new InvalidUserDataException("이메일은 비어있을 수 없습니다.");
         }
         if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("이름은 비어있을 수 없습니다.");
+            throw new InvalidUserDataException("이름은 비어있을 수 없습니다.");
         }
         if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("비밀번호는 비어있을 수 없습니다.");
+            throw new InvalidUserDataException("비밀번호는 비어있을 수 없습니다.");
         }
 
         validateEmail(email);
@@ -134,29 +135,29 @@ public class UserModel extends BaseUpdatableModel {
 
     private static void validateEmail(String email) {
         if (email.length() > EMAIL_MAX_LENGTH) {
-            throw new IllegalArgumentException(
-                "email must not exceed " + EMAIL_MAX_LENGTH);
+            throw new InvalidUserDataException(
+                "이메일은 " + EMAIL_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 
     private static void validateName(String username) {
         if (username.length() > NAME_MAX_LENGTH) {
-            throw new IllegalArgumentException(
-                "username must not exceed " + NAME_MAX_LENGTH);
+            throw new InvalidUserDataException(
+                "이름은 " + NAME_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 
     private static void validatePassword(String password) {
         if (password.length() > ENCODED_PASSWORD_MAX_LENGTH) {
-            throw new IllegalArgumentException(
-                "encoded password must not exceed " + ENCODED_PASSWORD_MAX_LENGTH);
+            throw new InvalidUserDataException(
+                "비밀번호는 " + ENCODED_PASSWORD_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 
     private static void validateProfileImageUrl(String profileImageUrl) {
         if (profileImageUrl.length() > PROFILE_IMAGE_URL_MAX_LENGTH) {
-            throw new IllegalArgumentException(
-                "profile image url must not exceed " + PROFILE_IMAGE_URL_MAX_LENGTH);
+            throw new InvalidUserDataException(
+                "프로필 이미지 URL은 " + PROFILE_IMAGE_URL_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 }
