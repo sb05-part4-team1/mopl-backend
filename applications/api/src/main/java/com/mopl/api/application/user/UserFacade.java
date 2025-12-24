@@ -21,7 +21,9 @@ public class UserFacade {
     public UserDto signUp(UserCreateRequest userCreateRequest) {
         String name = userCreateRequest.name().strip();
         String email = userCreateRequest.email().strip().toLowerCase(Locale.ROOT);
+        // password 암호화 로직 추가 필요
         String password = userCreateRequest.password();
+
         UserModel userModel = UserModel.create(
             AuthProvider.EMAIL,
             name,
