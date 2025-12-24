@@ -1,6 +1,5 @@
 package com.mopl.api.interfaces.api;
 
-import com.mopl.domain.exception.MoplException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -32,13 +31,6 @@ public class ApiControllerAdvice {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse.of("InvalidRequestBodyException", "요청 본문을 읽을 수 없습니다.", Map.of()));
-    }
-
-    @ExceptionHandler(MoplException.class)
-    public ResponseEntity<ErrorResponse> handleMoplException(MoplException exception) {
-        return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse.from(exception));
     }
 
     @ExceptionHandler(Exception.class)
