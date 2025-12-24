@@ -1,11 +1,13 @@
 package com.mopl.domain.model.base;
 
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Getter
+@SuperBuilder
 public abstract class BaseModel {
 
     private final UUID id;
@@ -16,16 +18,6 @@ public abstract class BaseModel {
         this.id = null;
         this.createdAt = null;
         this.deletedAt = null;
-    }
-
-    protected BaseModel(
-        UUID id,
-        Instant createdAt,
-        Instant deletedAt
-    ) {
-        this.id = id;
-        this.createdAt = createdAt;
-        this.deletedAt = deletedAt;
     }
 
     public void delete() {

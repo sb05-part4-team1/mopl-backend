@@ -47,19 +47,19 @@ public class UserFacadeTest {
 
             UUID userId = UUID.randomUUID();
             Instant now = Instant.now();
-            UserModel savedUserModel = new UserModel(
-                userId,
-                now,
-                now,
-                null,
-                AuthProvider.EMAIL,
-                email,
-                name,
-                password,
-                null,
-                Role.USER,
-                false
-            );
+            UserModel savedUserModel = UserModel.builder()
+                .id(userId)
+                .createdAt(now)
+                .deletedAt(null)
+                .updatedAt(now)
+                .authProvider(AuthProvider.EMAIL)
+                .email("test@example.com")
+                .name("홍길동")
+                .password(password)
+                .profileImageUrl(null)
+                .role(Role.USER)
+                .locked(false)
+                .build();
 
             given(userService.create(any(UserModel.class))).willReturn(savedUserModel);
 
@@ -87,19 +87,19 @@ public class UserFacadeTest {
 
             UUID userId = UUID.randomUUID();
             Instant now = Instant.now();
-            UserModel savedUserModel = new UserModel(
-                userId,
-                now,
-                now,
-                null,
-                AuthProvider.EMAIL,
-                "test@example.com",
-                "test",
-                password,
-                null,
-                Role.USER,
-                false
-            );
+            UserModel savedUserModel = UserModel.builder()
+                .id(userId)
+                .createdAt(now)
+                .deletedAt(null)
+                .updatedAt(now)
+                .authProvider(AuthProvider.EMAIL)
+                .email("test@example.com")
+                .name("홍길동")
+                .password(password)
+                .profileImageUrl(null)
+                .role(Role.USER)
+                .locked(false)
+                .build();
 
             given(userService.create(any(UserModel.class))).willReturn(savedUserModel);
 

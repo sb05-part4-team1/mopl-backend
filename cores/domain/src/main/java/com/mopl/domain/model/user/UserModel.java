@@ -3,11 +3,10 @@ package com.mopl.domain.model.user;
 import com.mopl.domain.exception.user.InvalidUserDataException;
 import com.mopl.domain.model.base.BaseUpdatableModel;
 import lombok.Getter;
-
-import java.time.Instant;
-import java.util.UUID;
+import lombok.experimental.SuperBuilder;
 
 @Getter
+@SuperBuilder
 public class UserModel extends BaseUpdatableModel {
 
     public static final int AUTH_PROVIDER_MAX_LENGTH = 20;
@@ -18,17 +17,11 @@ public class UserModel extends BaseUpdatableModel {
     public static final int PROFILE_IMAGE_URL_MAX_LENGTH = 1024;
 
     private final AuthProvider authProvider;
-
     private final String email;
-
     private final String name;
-
     private String password;
-
     private String profileImageUrl;
-
     private Role role;
-
     private boolean locked;
 
     private UserModel(
@@ -44,29 +37,6 @@ public class UserModel extends BaseUpdatableModel {
         this.password = password;
         this.role = Role.USER;
         this.locked = false;
-    }
-
-    public UserModel(
-        UUID id,
-        Instant createdAt,
-        Instant updatedAt,
-        Instant deletedAt,
-        AuthProvider authProvider,
-        String email,
-        String name,
-        String password,
-        String profileImageUrl,
-        Role role,
-        boolean locked
-    ) {
-        super(id, createdAt, deletedAt, updatedAt);
-        this.authProvider = authProvider;
-        this.email = email;
-        this.name = name;
-        this.password = password;
-        this.profileImageUrl = profileImageUrl;
-        this.role = role;
-        this.locked = locked;
     }
 
     public static UserModel create(
