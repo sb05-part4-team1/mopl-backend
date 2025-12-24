@@ -2,11 +2,14 @@ package com.mopl.domain.model.user;
 
 import com.mopl.domain.exception.user.InvalidUserDataException;
 import com.mopl.domain.model.base.BaseUpdatableModel;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserModel extends BaseUpdatableModel {
 
     public static final int AUTH_PROVIDER_MAX_LENGTH = 20;
@@ -17,9 +20,9 @@ public class UserModel extends BaseUpdatableModel {
     public static final int PROFILE_IMAGE_URL_MAX_LENGTH = 1024;
     public static final int ROLE_MAX_LENGTH = 20;
 
-    private final AuthProvider authProvider;
-    private final String email;
-    private final String name;
+    private AuthProvider authProvider;
+    private String email;
+    private String name;
     private String password;
     private String profileImageUrl;
     private Role role;
