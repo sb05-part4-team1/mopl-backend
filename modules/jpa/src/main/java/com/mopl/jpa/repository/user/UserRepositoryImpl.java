@@ -6,8 +6,6 @@ import com.mopl.jpa.entity.user.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
 @Repository
 @RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
@@ -19,12 +17,6 @@ public class UserRepositoryImpl implements UserRepository {
         UserEntity userEntity = UserEntity.from(userModel);
         UserEntity savedUserEntity = jpaUserRepository.save(userEntity);
         return savedUserEntity.toModel();
-    }
-
-    @Override
-    public Optional<UserModel> findByEmail(String email) {
-        return jpaUserRepository.findByEmail(email)
-            .map(UserEntity::toModel);
     }
 
     @Override
