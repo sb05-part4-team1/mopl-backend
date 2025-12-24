@@ -1,0 +1,114 @@
+package com.mopl.api.application.user;
+
+import com.mopl.api.interfaces.api.user.UserCreateRequest;
+import com.mopl.api.interfaces.api.user.UserDto;
+import com.mopl.domain.model.user.AuthProvider;
+import com.mopl.domain.model.user.Role;
+import com.mopl.domain.model.user.UserModel;
+import com.mopl.domain.service.user.UserService;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.Instant;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+
+@ExtendWith(MockitoExtension.class)
+@DisplayName("UserFacade 단위 테스트")
+public class UserFacadeTest {
+
+    @Mock
+    private UserService userService;
+
+    @InjectMocks
+    private UserFacade userFacade;
+
+    @Nested
+    @DisplayName("signUp")
+    class SignUpTest {
+
+        @Test
+        @DisplayName("유효한 요청 시 회원가입 성공")
+        void withValidRequest_signUpSuccess() {
+            // given
+            String name = "test";
+            String email = "test@example.com";
+            String password = "P@ssw0rd!";
+            UserCreateRequest request = new UserCreateRequest(name, email, password);
+
+            UUID userId = UUID.randomUUID();
+            Instant now = Instant.now();
+            UserModel savedUserModel = new UserModel(
+                userId,
+                now,
+                now,
+                null,
+                AuthProvider.EMAIL,
+                email,
+                name,
+                password,
+                null,
+                Role.USER,
+                false
+            );
+
+            given(userService.create(any(UserModel.class))).willReturn(savedUserModel);
+
+            // when
+            UserDto result = userFacade.signUp(request);
+
+            // then
+            assertThat(result.id()).isEqualTo(userId);
+            assertThat(result.email()).isEqualTo(email);
+            assertThat(result.name()).isEqualTo(name);
+            assertThat(result.role()).isEqualTo(Role.USER);
+            assertThat(result.locked()).isFalse();
+
+            then(userService).should().create(any(UserModel.class));
+        }
+
+        @Test
+        @DisplayName("이메일과 이름의 공백이 제거되고 이메일이 소문자로 처리된다")
+        void withWhitespace_shouldTrimAndLowercase() {
+            // given
+            String name = "  test  ";
+            String email = "  TEST@EXAMPLE.COM  ";
+            String password = "P@ssw0rd!";
+            UserCreateRequest request = new UserCreateRequest(name, email, password);
+
+            UUID userId = UUID.randomUUID();
+            Instant now = Instant.now();
+            UserModel savedUserModel = new UserModel(
+                userId,
+                now,
+                now,
+                null,
+                AuthProvider.EMAIL,
+                "test@example.com",
+                "test",
+                password,
+                null,
+                Role.USER,
+                false
+            );
+
+            given(userService.create(any(UserModel.class))).willReturn(savedUserModel);
+
+            // when
+            UserDto result = userFacade.signUp(request);
+
+            // then
+            assertThat(result.email()).isEqualTo("test@example.com");
+            assertThat(result.name()).isEqualTo("test");
+        }
+    }
+}
