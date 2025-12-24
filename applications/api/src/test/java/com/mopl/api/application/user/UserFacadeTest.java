@@ -33,17 +33,17 @@ class UserFacadeTest {
     private UserFacade userFacade;
 
     @Nested
-    @DisplayName("signUp")
+    @DisplayName("signUp()")
     class SignUpTest {
 
         @Test
         @DisplayName("유효한 요청 시 회원가입 성공")
         void withValidRequest_signUpSuccess() {
             // given
-            String name = "test";
             String email = "test@example.com";
+            String name = "test";
             String password = "P@ssw0rd!";
-            UserCreateRequest request = new UserCreateRequest(name, email, password);
+            UserCreateRequest request = new UserCreateRequest(email, name, password);
 
             UUID userId = UUID.randomUUID();
             Instant now = Instant.now();
@@ -53,8 +53,8 @@ class UserFacadeTest {
                 .deletedAt(null)
                 .updatedAt(now)
                 .authProvider(AuthProvider.EMAIL)
-                .email("test@example.com")
-                .name("홍길동")
+                .email(email)
+                .name(name)
                 .password(password)
                 .profileImageUrl(null)
                 .role(Role.USER)
@@ -80,21 +80,24 @@ class UserFacadeTest {
         @DisplayName("이메일과 이름의 공백이 제거되고 이메일이 소문자로 처리된다")
         void withWhitespace_shouldTrimAndLowercase() {
             // given
-            String name = "  test  ";
             String email = "  TEST@EXAMPLE.COM  ";
+            String name = "  test  ";
             String password = "P@ssw0rd!";
-            UserCreateRequest request = new UserCreateRequest(name, email, password);
+            UserCreateRequest request = new UserCreateRequest(email, name, password);
 
             UUID userId = UUID.randomUUID();
             Instant now = Instant.now();
+            String expectedEmail = "test@example.com";
+            String expectedName = "test";
+
             UserModel savedUserModel = UserModel.builder()
                 .id(userId)
                 .createdAt(now)
                 .deletedAt(null)
                 .updatedAt(now)
                 .authProvider(AuthProvider.EMAIL)
-                .email("test@example.com")
-                .name("홍길동")
+                .email(expectedEmail)
+                .name(expectedName)
                 .password(password)
                 .profileImageUrl(null)
                 .role(Role.USER)
@@ -107,8 +110,8 @@ class UserFacadeTest {
             UserDto result = userFacade.signUp(request);
 
             // then
-            assertThat(result.email()).isEqualTo("test@example.com");
-            assertThat(result.name()).isEqualTo("test");
+            assertThat(result.email()).isEqualTo(expectedEmail);
+            assertThat(result.name()).isEqualTo(expectedName);
         }
     }
 }
