@@ -63,7 +63,6 @@ gradle-wrapper.jar
 gradle-wrapper.properties
 
 # Maven
-.settings/
 dependency-reduced-pom.xml
 
 
@@ -76,13 +75,11 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 dist/
-build/
 .cache/
 .eslintcache
 coverage/
 .vite/
 .next/
-out/
 
 # TypeScript
 *.tsbuildinfo
@@ -107,8 +104,6 @@ env/
 venv/
 .venv/
 pip-wheel-metadata/
-dist/
-build/
 .eggs/
 *.egg-info/
 *.egg
@@ -166,10 +161,8 @@ override.tf.json
 #        Logs & Temp Files
 ###############################
 logs/
-*.log
 *.tmp
 *.temp
-tmp/
 *.swp
 *.swo
 
@@ -177,13 +170,11 @@ tmp/
 ###############################
 #        Cache
 ###############################
-.cache/
 .caches/
 npm-cache/
 yarn-cache/
 pip-cache/
 gradle-cache/
-tmp/
 .sass-cache/
 .parcel-cache/
 vite-cache/
@@ -192,7 +183,6 @@ vite-cache/
 ###############################
 #        JavaScript Tools
 ###############################
-.eslintcache
 .stylelintcache
 .cache-loader/
 .jspm/
@@ -202,7 +192,6 @@ vite-cache/
 ###############################
 #        Testing
 ###############################
-coverage/
 .junit/
 test-output/
 cypress/videos/
@@ -226,9 +215,6 @@ private.*
 ###############################
 #        Misc
 ###############################
-*.bak
-*.tmp
-*.swp
 *.orig
 *.lock
 *.old

@@ -1,4 +1,4 @@
-package com.mopl.config.jackson;
+package com.mopl.jackson.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
