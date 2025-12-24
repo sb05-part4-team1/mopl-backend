@@ -19,8 +19,8 @@ public class UserFacade {
 
     @Transactional
     public UserDto signUp(UserCreateRequest userCreateRequest) {
-        String name = userCreateRequest.name().strip();
         String email = userCreateRequest.email().strip().toLowerCase(Locale.ROOT);
+        String name = userCreateRequest.name().strip();
         // password 암호화 로직 추가 필요
         String password = userCreateRequest.password();
 
