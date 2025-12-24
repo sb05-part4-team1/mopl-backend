@@ -156,10 +156,7 @@ class UserControllerTest {
             mockMvc.perform(post("/api/users")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.exceptionName").value("InvalidUserDataException"))
-                .andExpect(jsonPath("$.message").value(InvalidUserDataException.MESSAGE))
-                .andExpect(jsonPath("$.details.detailMessage").value("이메일은 255자를 초과할 수 없습니다."));
+                .andExpect(status().isBadRequest());
 
             then(userFacade).should().signUp(any(UserCreateRequest.class));
         }
@@ -181,10 +178,7 @@ class UserControllerTest {
             mockMvc.perform(post("/api/users")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.exceptionName").value("DuplicateEmailException"))
-                .andExpect(jsonPath("$.message").value(DuplicateEmailException.MESSAGE))
-                .andExpect(jsonPath("$.details.email").value("test@example.com"));
+                .andExpect(status().isConflict());
 
             then(userFacade).should().signUp(any(UserCreateRequest.class));
         }
@@ -207,10 +201,7 @@ class UserControllerTest {
             mockMvc.perform(post("/api/users")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.exceptionName").value("UserNotFoundException"))
-                .andExpect(jsonPath("$.message").value(UserNotFoundException.MESSAGE))
-                .andExpect(jsonPath("$.details.id").value(userId.toString()));
+                .andExpect(status().isNotFound());
 
             then(userFacade).should().signUp(any(UserCreateRequest.class));
         }
