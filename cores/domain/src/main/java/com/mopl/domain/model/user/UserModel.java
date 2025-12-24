@@ -24,21 +24,6 @@ public class UserModel extends BaseUpdatableModel {
     private Role role;
     private boolean locked;
 
-    private UserModel(
-        AuthProvider authProvider,
-        String email,
-        String name,
-        String password
-    ) {
-        super();
-        this.authProvider = authProvider;
-        this.email = email;
-        this.name = name;
-        this.password = password;
-        this.role = Role.USER;
-        this.locked = false;
-    }
-
     public static UserModel create(
         AuthProvider authProvider,
         String email,
@@ -62,12 +47,14 @@ public class UserModel extends BaseUpdatableModel {
         validateName(name);
         validatePassword(password);
 
-        return new UserModel(
-            authProvider,
-            email,
-            name,
-            password
-        );
+        return UserModel.builder()
+            .authProvider(authProvider)
+            .email(email)
+            .name(name)
+            .password(password)
+            .role(Role.USER)
+            .locked(false)
+            .build();
     }
 
     public UserModel updatePassword(String newEncodedPassword) {
