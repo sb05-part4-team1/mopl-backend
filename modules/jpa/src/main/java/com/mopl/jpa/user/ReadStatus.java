@@ -1,6 +1,7 @@
 package com.mopl.jpa.user;
 
-import com.mopl.jpa.global.auditing.BaseDeletableEntity;
+import com.mopl.jpa.entity.base.BaseEntity;
+import com.mopl.jpa.entity.user.UserEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
@@ -19,7 +20,7 @@ import java.time.Instant;
 @Table(name = "read_status")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ReadStatus extends BaseDeletableEntity {
+public class ReadStatus extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "conversation_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
@@ -27,7 +28,7 @@ public class ReadStatus extends BaseDeletableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "participant_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private User participant;
+    private UserEntity participant;
 
     @Column(nullable = false)
     private Instant lastReadAt;

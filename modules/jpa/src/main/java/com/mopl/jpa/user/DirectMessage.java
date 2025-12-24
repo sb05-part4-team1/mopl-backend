@@ -1,6 +1,7 @@
 package com.mopl.jpa.user;
 
-import com.mopl.jpa.global.auditing.BaseDeletableEntity;
+import com.mopl.jpa.entity.base.BaseUpdatableEntity;
+import com.mopl.jpa.entity.user.UserEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
@@ -17,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "direct_message")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class DirectMessage extends BaseDeletableEntity {
+public class DirectMessage extends BaseUpdatableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "conversation_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
@@ -25,7 +26,7 @@ public class DirectMessage extends BaseDeletableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private User sender;
+    private UserEntity sender;
 
     @Column(columnDefinition = "TEXT")
     private String content;

@@ -1,6 +1,6 @@
 package com.mopl.jpa.content.entity;
 
-import com.mopl.jpa.global.auditing.BaseDeletableEntity;
+import com.mopl.jpa.entity.base.BaseEntity;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "content_tag")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ContentTag extends BaseDeletableEntity {
+public class ContentTag extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "content_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))

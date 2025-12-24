@@ -7,7 +7,8 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 @ConfigurationPropertiesScan
 @SpringBootApplication(scanBasePackages = {
     "com.mopl.api",
-    "com.mopl.domain"
+    "com.mopl.domain",
+    "com.mopl.jpa"
 })
 public class ApiApplication {
 

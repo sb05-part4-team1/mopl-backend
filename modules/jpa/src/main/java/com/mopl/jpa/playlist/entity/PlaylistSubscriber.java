@@ -1,7 +1,7 @@
 package com.mopl.jpa.playlist.entity;
 
-import com.mopl.jpa.global.auditing.BaseDeletableEntity;
-import com.mopl.jpa.user.entity.User;
+import com.mopl.jpa.entity.base.BaseEntity;
+import com.mopl.jpa.entity.user.UserEntity;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "playlist_subscriber")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PlaylistSubscriber extends BaseDeletableEntity {
+public class PlaylistSubscriber extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "playlist_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
@@ -25,5 +25,5 @@ public class PlaylistSubscriber extends BaseDeletableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscriber_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private User subscriber;
+    private UserEntity subscriber;
 }

@@ -1,6 +1,7 @@
 package com.mopl.jpa.user;
 
-import com.mopl.jpa.global.auditing.BaseDeletableEntity;
+import com.mopl.jpa.entity.base.BaseEntity;
+import com.mopl.jpa.entity.user.UserEntity;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,13 +17,13 @@ import lombok.NoArgsConstructor;
 @Table(name = "follow")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Follow extends BaseDeletableEntity {
+public class Follow extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "follower_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private User follower;
+    private UserEntity follower;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "followee_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private User followee;
+    private UserEntity followee;
 }
