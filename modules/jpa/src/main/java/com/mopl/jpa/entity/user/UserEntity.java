@@ -63,7 +63,7 @@ public class UserEntity extends BaseUpdatableEntity {
         Role role,
         boolean locked
     ) {
-        super(id, createdAt, updatedAt, deletedAt);
+        super(id, createdAt, deletedAt, updatedAt);
         this.authProvider = authProvider;
         this.email = email;
         this.name = name;
