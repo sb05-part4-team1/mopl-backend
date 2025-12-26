@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Locale;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -31,5 +32,10 @@ public class UserFacade {
         );
 
         return userService.create(userModel);
+    }
+
+    @Transactional(readOnly = true)
+    public UserModel getUser(UUID userId) {
+        return userService.getById(userId);
     }
 }
