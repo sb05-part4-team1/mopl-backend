@@ -114,7 +114,6 @@ class UserFacadeTest {
         }
     }
 
-
     @Nested
     @DisplayName("getUser()")
     class GetUserTest {
