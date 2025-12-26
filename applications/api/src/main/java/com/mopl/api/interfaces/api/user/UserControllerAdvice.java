@@ -15,21 +15,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class UserControllerAdvice {
 
     @ExceptionHandler(InvalidUserDataException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidUser(InvalidUserDataException exception) {
+    public ResponseEntity<ErrorResponse> handleInvalidUserDataException(InvalidUserDataException exception) {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse.from(exception));
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException exception) {
+    public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException exception) {
         return ResponseEntity
             .status(HttpStatus.NOT_FOUND)
             .body(ErrorResponse.from(exception));
     }
 
     @ExceptionHandler(DuplicateEmailException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicateEmail(DuplicateEmailException exception) {
+    public ResponseEntity<ErrorResponse> handleDuplicateEmailException(DuplicateEmailException exception) {
         return ResponseEntity
             .status(HttpStatus.CONFLICT)
             .body(ErrorResponse.from(exception));
