@@ -2,11 +2,14 @@ package com.mopl.api.interfaces.api.user;
 
 import com.mopl.api.interfaces.api.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import java.util.UUID;
 
 @Tag(name = "User API", description = "사용자 API")
 public interface UserApiSpec {
@@ -20,7 +23,7 @@ public interface UserApiSpec {
     )
     @ApiResponse(
         responseCode = "201",
-        description = "User가 성공적으로 생성됨",
+        description = "회원가입 성공",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = UserResponse.class)
@@ -51,4 +54,27 @@ public interface UserApiSpec {
         )
     )
     UserResponse signUp(UserCreateRequest request);
+
+    @Operation(summary = "사용자 상세 조회")
+    @Parameter(
+        name = "userId",
+        description = "조회할 유저 ID"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "사용자 상세 조회 성공",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = UserResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "404",
+        description = "관련 리소스를 찾을 수 없음",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    UserResponse getUser(UUID userId);
 }
