@@ -2,6 +2,7 @@ package com.mopl.jpa.repository.user;
 
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.user.UserRepository;
+import com.mopl.jpa.entity.user.UserEntity;
 import com.mopl.jpa.entity.user.UserEntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -18,11 +19,9 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public UserModel save(UserModel userModel) {
-        return Optional.of(userModel)
-            .map(userEntityMapper::toEntity)
-            .map(jpaUserRepository::save)
-            .map(userEntityMapper::toModel)
-            .orElseThrow();
+        UserEntity userEntity = userEntityMapper.toEntity(userModel);
+        UserEntity savedUserEntity = jpaUserRepository.save(userEntity);
+        return userEntityMapper.toModel(savedUserEntity);
     }
 
     @Override
