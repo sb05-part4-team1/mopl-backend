@@ -45,6 +45,9 @@ class UserControllerTest {
     @MockBean
     private UserFacade userFacade;
 
+    @MockBean
+    private UserResponseMapper userResponseMapper;
+
     @Nested
     @DisplayName("POST /api/users - 회원가입")
     class SignUpTest {
@@ -75,12 +78,23 @@ class UserControllerTest {
                 .locked(false)
                 .build();
 
+            UserResponse userResponse = new UserResponse(
+                userId,
+                now,
+                email,
+                name,
+                null,
+                Role.USER,
+                false
+            );
+
             given(userFacade.signUp(any(UserCreateRequest.class))).willReturn(userModel);
+            given(userResponseMapper.toResponse(userModel)).willReturn(userResponse);
 
             // when & then
             mockMvc.perform(post("/api/users")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(userId.toString()))
                 .andExpect(jsonPath("$.email").value("test@example.com"))
@@ -124,8 +138,8 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/users")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(requestBody))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
                 .andExpect(status().isBadRequest());
 
             then(userFacade).should(never()).signUp(any(UserCreateRequest.class));

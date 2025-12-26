@@ -61,7 +61,14 @@ class UserRepositoryImplTest {
         void withExistingEmail_returnsTrue() {
             // given
             String email = "existing@example.com";
-            userRepository.save(UserModel.create(AuthProvider.EMAIL, email, "홍길동", "encodedPassword"));
+            userRepository.save(
+                UserModel.create(
+                    AuthProvider.EMAIL,
+                    email,
+                    "홍길동",
+                    "encodedPassword"
+                )
+            );
 
             // when
             boolean exists = userRepository.existsByEmail(email);

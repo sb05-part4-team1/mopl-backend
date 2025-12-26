@@ -52,7 +52,6 @@ class UserModelTest {
                 .locked(true)
                 .build();
 
-
             // then
             assertThat(user.getId()).isEqualTo(id);
             assertThat(user.getCreatedAt()).isEqualTo(createdAt);
@@ -395,7 +394,8 @@ class UserModelTest {
                 .satisfies(e -> {
                     InvalidUserDataException ex = (InvalidUserDataException) e;
                     assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("프로필 이미지 URL은 " + PROFILE_IMAGE_URL_MAX_LENGTH + "자를 초과할 수 없습니다.");
+                        .isEqualTo("프로필 이미지 URL은 " + PROFILE_IMAGE_URL_MAX_LENGTH
+                            + "자를 초과할 수 없습니다.");
                 });
         }
 

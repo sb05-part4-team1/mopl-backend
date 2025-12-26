@@ -43,7 +43,10 @@
         <!-- 네이밍 -->
         <module name="PackageName"/>
         <module name="TypeName"/>
-        <module name="MethodName"/>
+        <module name="MethodName">
+            <!-- 테스트 메서드에서 언더스코어 허용 (given_when_then 패턴) -->
+            <property name="format" value="^[a-z][a-zA-Z0-9_]*$"/>
+        </module>
         <module name="MemberName"/>
         <module name="ParameterName"/>
         <module name="LocalVariableName"/>

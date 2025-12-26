@@ -20,7 +20,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class DirectMessage extends BaseEntity {
+public class DirectMessageEntity extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String content;
