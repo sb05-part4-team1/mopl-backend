@@ -2,8 +2,6 @@ package com.mopl.jpa.entity.base;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import lombok.AccessLevel;
@@ -28,7 +26,8 @@ import java.util.UUID;
 public abstract class BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @UuidV7
+    @Column(columnDefinition = "BINARY(16)")
     @EqualsAndHashCode.Include
     private UUID id;
 

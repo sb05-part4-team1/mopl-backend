@@ -16,4 +16,6 @@ dependencies {
     runtimeOnly("com.mysql:mysql-connector-j")
     // jdbc-h2
     runtimeOnly("com.h2database:h2")
+    // uuid v7
+    implementation("com.fasterxml.uuid:java-uuid-generator:${project.properties["javaUuidGeneratorVersion"]}")
 }
