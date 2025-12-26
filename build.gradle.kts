@@ -111,13 +111,10 @@ project("cores") { tasks.configureEach { enabled = false } }
 project("modules") { tasks.configureEach { enabled = false } }
 project("supports") { tasks.configureEach { enabled = false } }
 
-tasks.register<JacocoReport>("jacocoRootReport") {
-    description = "Generates an aggregate report from all subprojects"
-    group = "verification"
+tasks.named<JacocoReport>("jacocoTestReport") {
+    description = "Generates an aggregate JaCoCo report from all subprojects"
 
-    val jacocoReportTasks = subprojects.mapNotNull { it.tasks.findByName("jacocoTestReport") as? JacocoReport }
-
-    dependsOn(jacocoReportTasks)
+    dependsOn(subprojects.mapNotNull { it.tasks.findByName("jacocoTestReport") })
 
     executionData.setFrom(
         files(subprojects.flatMap { subproject ->
@@ -147,6 +144,6 @@ tasks.register<JacocoReport>("jacocoRootReport") {
         xml.required = true
         html.required = true
         html.outputLocation = layout.buildDirectory.dir("reports/jacoco/aggregate/html")
-        xml.outputLocation = layout.buildDirectory.file("reports/jacoco/aggregate/jacocoRootReport.xml")
+        xml.outputLocation = layout.buildDirectory.file("reports/jacoco/aggregate/jacocoTestReport.xml")
     }
 }
