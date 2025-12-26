@@ -1,12 +1,13 @@
 package com.mopl.domain.service.user;
 
 import com.mopl.domain.exception.user.DuplicateEmailException;
+import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
+import java.util.UUID;
+
 @RequiredArgsConstructor
 public class UserService {
 
@@ -15,6 +16,11 @@ public class UserService {
     public UserModel create(UserModel userModel) {
         validateDuplicateEmail(userModel.getEmail());
         return userRepository.save(userModel);
+    }
+
+    public UserModel getById(UUID userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
     private void validateDuplicateEmail(String email) {
