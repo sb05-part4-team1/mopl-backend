@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -28,6 +29,9 @@ class UserFacadeTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private UserFacade userFacade;
 
@@ -42,6 +46,7 @@ class UserFacadeTest {
             String email = "test@example.com";
             String name = "test";
             String password = "P@ssw0rd!";
+            String encodedPassword = "encodedPassword";
             UserCreateRequest request = new UserCreateRequest(email, name, password);
 
             UUID userId = UUID.randomUUID();
@@ -54,12 +59,13 @@ class UserFacadeTest {
                 .authProvider(AuthProvider.EMAIL)
                 .email(email)
                 .name(name)
-                .password(password)
+                .password(encodedPassword)
                 .profileImageUrl(null)
                 .role(Role.USER)
                 .locked(false)
                 .build();
 
+            given(passwordEncoder.encode(password)).willReturn(encodedPassword);
             given(userService.create(any(UserModel.class))).willReturn(savedUserModel);
 
             // when
@@ -82,6 +88,7 @@ class UserFacadeTest {
             String email = "  TEST@EXAMPLE.COM  ";
             String name = "  test  ";
             String password = "P@ssw0rd!";
+            String encodedPassword = "encodedPassword";
             UserCreateRequest request = new UserCreateRequest(email, name, password);
 
             UUID userId = UUID.randomUUID();
@@ -97,12 +104,13 @@ class UserFacadeTest {
                 .authProvider(AuthProvider.EMAIL)
                 .email(expectedEmail)
                 .name(expectedName)
-                .password(password)
+                .password(encodedPassword)
                 .profileImageUrl(null)
                 .role(Role.USER)
                 .locked(false)
                 .build();
 
+            given(passwordEncoder.encode(password)).willReturn(encodedPassword);
             given(userService.create(any(UserModel.class))).willReturn(savedUserModel);
 
             // when
