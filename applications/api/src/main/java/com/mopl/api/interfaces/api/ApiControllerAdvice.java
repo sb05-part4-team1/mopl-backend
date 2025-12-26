@@ -14,6 +14,7 @@ import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestCookieException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -117,6 +118,15 @@ public class ApiControllerAdvice {
         ));
     }
 
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<ErrorResponse> handleMissingRequestHeaderException(
+        MissingRequestHeaderException exception
+    ) {
+        return buildResponse(HttpStatus.BAD_REQUEST, exception, "필수 헤더가 누락되었습니다.", Map.of(
+            "header", exception.getHeaderName()
+        ));
+    }
+
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(
         MethodArgumentTypeMismatchException exception
@@ -186,7 +196,7 @@ public class ApiControllerAdvice {
     //     return buildResponse(HttpStatus.FORBIDDEN, exception, "접근 권한이 없습니다.", Map.of());
     // }
 
-    // --- 6. 기타 ---
+    // --- 6. 서버 에러 ---
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(
