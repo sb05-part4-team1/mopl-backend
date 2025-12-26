@@ -17,7 +17,7 @@ public class SpaCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
-                       Supplier<CsrfToken> csrfToken) {
+        Supplier<CsrfToken> csrfToken) {
         /*
          * Always use XorCsrfTokenRequestAttributeHandler to provide BREACH protection of
          * the CsrfToken when it is rendered in the response body.
@@ -43,7 +43,8 @@ public class SpaCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
          * when a server-side rendered form includes the _csrf request parameter as a
          * hidden input.
          */
-        return (StringUtils.hasText(headerValue) ? this.plain : this.xor).resolveCsrfTokenValue(request,
+        return (StringUtils.hasText(headerValue) ? this.plain : this.xor).resolveCsrfTokenValue(
+            request,
             csrfToken);
     }
 }
