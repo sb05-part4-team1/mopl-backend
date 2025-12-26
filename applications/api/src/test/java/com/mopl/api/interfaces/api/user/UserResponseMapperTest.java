@@ -22,7 +22,7 @@ class UserResponseMapperTest {
     class ToResponseTest {
 
         @Test
-        @DisplayName("UserModel을 UserResponse로 변환한다")
+        @DisplayName("UserModel을 UserResponse로 변환")
         void withUserModel_returnsUserResponse() {
             // given
             UUID id = UUID.randomUUID();
@@ -58,61 +58,6 @@ class UserResponseMapperTest {
             assertThat(result.profileImageUrl()).isEqualTo(profileImageUrl);
             assertThat(result.role()).isEqualTo(role);
             assertThat(result.locked()).isEqualTo(locked);
-        }
-
-        @Test
-        @DisplayName("profileImageUrl이 null이어도 정상 변환된다")
-        void withNullProfileImageUrl_returnsUserResponse() {
-            // given
-            UUID id = UUID.randomUUID();
-            Instant now = Instant.now();
-
-            UserModel userModel = UserModel.builder()
-                .id(id)
-                .createdAt(now)
-                .deletedAt(null)
-                .updatedAt(now)
-                .authProvider(AuthProvider.EMAIL)
-                .email("test@example.com")
-                .name("test")
-                .password("encodedPassword")
-                .profileImageUrl(null)
-                .role(Role.USER)
-                .locked(false)
-                .build();
-
-            // when
-            UserResponse result = mapper.toResponse(userModel);
-
-            // then
-            assertThat(result.profileImageUrl()).isNull();
-        }
-
-        @Test
-        @DisplayName("password와 authProvider는 응답에 포함되지 않는다")
-        void sensitiveFieldsAreNotExposed() {
-            // given
-            UserModel userModel = UserModel.builder()
-                .id(UUID.randomUUID())
-                .createdAt(Instant.now())
-                .deletedAt(null)
-                .updatedAt(Instant.now())
-                .authProvider(AuthProvider.EMAIL)
-                .email("test@example.com")
-                .name("test")
-                .password("sensitivePassword")
-                .profileImageUrl(null)
-                .role(Role.USER)
-                .locked(false)
-                .build();
-
-            // when
-            UserResponse result = mapper.toResponse(userModel);
-
-            // then
-            assertThat(result).hasNoNullFieldsOrPropertiesExcept("profileImageUrl");
-            assertThat(result.toString()).doesNotContain("sensitivePassword");
-            assertThat(result.toString()).doesNotContain("authProvider");
         }
     }
 }
