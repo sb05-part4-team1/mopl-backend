@@ -12,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLRestriction;
 
 import static com.mopl.domain.model.user.UserModel.AUTH_PROVIDER_MAX_LENGTH;
 import static com.mopl.domain.model.user.UserModel.EMAIL_MAX_LENGTH;
@@ -25,6 +26,7 @@ import static com.mopl.domain.model.user.UserModel.ROLE_MAX_LENGTH;
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLRestriction("deleted_at IS NULL")
 public class UserEntity extends BaseUpdatableEntity {
 
     @Enumerated(EnumType.STRING)
