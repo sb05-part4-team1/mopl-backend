@@ -59,7 +59,7 @@ public interface UserApiSpec {
     )
     @ApiResponse(
         responseCode = "400",
-        description = "잘못된 userId 형식",
+        description = "잘못된 요청 데이터",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
