@@ -83,7 +83,7 @@ subprojects {
             classDirectories.setFrom(
                 files(
                     classDirectories.files.map {
-                        fileTree(it)
+                        fileTree(it).exclude("**/Q*.class")
                     },
                 ),
             )
@@ -137,7 +137,9 @@ tasks.register<JacocoReport>("jacocoRootReport") {
 
     classDirectories.setFrom(
         files(subprojects.flatMap { subproject ->
-            subproject.the<SourceSetContainer>()["main"].output.classesDirs
+            subproject.the<SourceSetContainer>()["main"].output.classesDirs.map {
+                fileTree(it).exclude("**/Q*.class")
+            }
         })
     )
 

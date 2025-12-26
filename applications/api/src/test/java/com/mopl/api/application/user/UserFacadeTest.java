@@ -1,7 +1,6 @@
 package com.mopl.api.application.user;
 
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
-import com.mopl.api.interfaces.api.user.UserDto;
 import com.mopl.domain.model.user.AuthProvider;
 import com.mopl.domain.model.user.Role;
 import com.mopl.domain.model.user.UserModel;
@@ -12,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
@@ -28,6 +28,9 @@ class UserFacadeTest {
 
     @Mock
     private UserService userService;
+
+    @Spy
+    private UserDtoMapper userDtoMapper;
 
     @InjectMocks
     private UserFacade userFacade;
@@ -64,7 +67,7 @@ class UserFacadeTest {
             given(userService.create(any(UserModel.class))).willReturn(savedUserModel);
 
             // when
-            UserDto result = userFacade.signUp(request);
+            UserInfo result = userFacade.signUp(request);
 
             // then
             assertThat(result.id()).isEqualTo(userId);
@@ -107,7 +110,7 @@ class UserFacadeTest {
             given(userService.create(any(UserModel.class))).willReturn(savedUserModel);
 
             // when
-            UserDto result = userFacade.signUp(request);
+            UserInfo result = userFacade.signUp(request);
 
             // then
             assertThat(result.email()).isEqualTo(expectedEmail);

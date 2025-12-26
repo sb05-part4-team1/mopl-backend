@@ -1,7 +1,6 @@
 package com.mopl.api.application.user;
 
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
-import com.mopl.api.interfaces.api.user.UserDto;
 import com.mopl.domain.model.user.AuthProvider;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.user.UserService;
@@ -16,9 +15,10 @@ import java.util.Locale;
 public class UserFacade {
 
     private final UserService userService;
+    private final UserDtoMapper userDtoMapper;
 
     @Transactional
-    public UserDto signUp(UserCreateRequest userCreateRequest) {
+    public UserInfo signUp(UserCreateRequest userCreateRequest) {
         String email = userCreateRequest.email().strip().toLowerCase(Locale.ROOT);
         String name = userCreateRequest.name().strip();
         // password 암호화 로직 추가 필요
@@ -33,6 +33,6 @@ public class UserFacade {
 
         UserModel savedUserModel = userService.create(userModel);
 
-        return UserDto.from(savedUserModel);
+        return userDtoMapper.toInfo(savedUserModel);
     }
 }

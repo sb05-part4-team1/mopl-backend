@@ -1,5 +1,6 @@
 package com.mopl.api.interfaces.api.user;
 
+import com.mopl.api.application.user.UserInfo;
 import com.mopl.api.interfaces.api.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,7 +24,7 @@ public interface UserApiSpec {
         description = "User가 성공적으로 생성됨",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = UserDto.class)
+            schema = @Schema(implementation = UserInfo.class)
         )
     )
     @ApiResponse(
@@ -50,5 +51,5 @@ public interface UserApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    UserDto signUp(UserCreateRequest request);
+    UserInfo signUp(UserCreateRequest request);
 }

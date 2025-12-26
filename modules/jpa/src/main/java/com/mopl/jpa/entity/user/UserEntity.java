@@ -2,7 +2,6 @@ package com.mopl.jpa.entity.user;
 
 import com.mopl.domain.model.user.AuthProvider;
 import com.mopl.domain.model.user.Role;
-import com.mopl.domain.model.user.UserModel;
 import com.mopl.jpa.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -50,36 +49,4 @@ public class UserEntity extends BaseUpdatableEntity {
 
     @Column(nullable = false)
     private boolean locked;
-
-    public static UserEntity from(UserModel userModel) {
-        return UserEntity.builder()
-            .id(userModel.getId())
-            .createdAt(userModel.getCreatedAt())
-            .deletedAt(userModel.getDeletedAt())
-            .updatedAt(userModel.getUpdatedAt())
-            .authProvider(userModel.getAuthProvider())
-            .email(userModel.getEmail())
-            .name(userModel.getName())
-            .password(userModel.getPassword())
-            .profileImageUrl(userModel.getProfileImageUrl())
-            .role(userModel.getRole())
-            .locked(userModel.isLocked())
-            .build();
-    }
-
-    public UserModel toModel() {
-        return UserModel.builder()
-            .id(getId())
-            .createdAt(getCreatedAt())
-            .deletedAt(getDeletedAt())
-            .updatedAt(getUpdatedAt())
-            .authProvider(authProvider)
-            .email(email)
-            .name(name)
-            .password(password)
-            .profileImageUrl(profileImageUrl)
-            .role(role)
-            .locked(locked)
-            .build();
-    }
 }

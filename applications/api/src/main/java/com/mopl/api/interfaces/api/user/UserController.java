@@ -1,6 +1,7 @@
 package com.mopl.api.interfaces.api.user;
 
 import com.mopl.api.application.user.UserFacade;
+import com.mopl.api.application.user.UserInfo;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,7 +20,7 @@ public class UserController implements UserApiSpec {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto signUp(@RequestBody @Valid UserCreateRequest request) {
+    public UserInfo signUp(@RequestBody @Valid UserCreateRequest request) {
         return userFacade.signUp(request);
     }
 }

@@ -2,6 +2,7 @@ package com.mopl.api.interfaces.api.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.api.application.user.UserFacade;
+import com.mopl.api.application.user.UserInfo;
 import com.mopl.api.interfaces.api.ApiControllerAdvice;
 import com.mopl.domain.model.user.Role;
 import org.junit.jupiter.api.DisplayName;
@@ -59,7 +60,7 @@ class UserControllerTest {
 
             UUID userId = UUID.randomUUID();
             Instant now = Instant.now();
-            UserDto userDto = new UserDto(
+            UserInfo userInfo = new UserInfo(
                 userId,
                 now,
                 "test@example.com",
@@ -69,7 +70,7 @@ class UserControllerTest {
                 false
             );
 
-            given(userFacade.signUp(any(UserCreateRequest.class))).willReturn(userDto);
+            given(userFacade.signUp(any(UserCreateRequest.class))).willReturn(userInfo);
 
             // when & then
             mockMvc.perform(post("/api/users")
