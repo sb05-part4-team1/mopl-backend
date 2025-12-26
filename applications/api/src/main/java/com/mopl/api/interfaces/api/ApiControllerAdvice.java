@@ -8,9 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestCookieException;
@@ -49,7 +49,11 @@ public class ApiControllerAdvice {
             ? exception.getSupportedHttpMethods().stream().map(HttpMethod::name).toList()
             : List.of());
 
-        return buildResponse(HttpStatus.METHOD_NOT_ALLOWED, exception, "허용되지 않는 HTTP 메서드입니다.", details);
+        return buildResponse(
+            HttpStatus.METHOD_NOT_ALLOWED,
+            exception, "허용되지 않는 HTTP 메서드입니다.",
+            details
+        );
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
@@ -57,12 +61,19 @@ public class ApiControllerAdvice {
         HttpMediaTypeNotSupportedException exception
     ) {
         Map<String, Object> details = new HashMap<>();
-        details.put("contentType", exception.getContentType() != null ? exception.getContentType().toString() : "UNKNOWN");
+        details.put("contentType", exception.getContentType() != null
+            ? exception.getContentType().toString()
+            : "UNKNOWN");
         details.put("supportedMediaTypes", exception.getSupportedMediaTypes().stream()
             .map(MediaType::toString)
             .toList());
 
-        return buildResponse(HttpStatus.UNSUPPORTED_MEDIA_TYPE, exception, "지원하지 않는 Content-Type입니다.", details);
+        return buildResponse(
+            HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+            exception,
+            "지원하지 않는 Content-Type입니다.",
+            details
+        );
     }
 
     @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
@@ -116,7 +127,9 @@ public class ApiControllerAdvice {
 
         return buildResponse(HttpStatus.BAD_REQUEST, exception, "요청 매개변수 타입이 유효하지 않습니다.", Map.of(
             "parameter", exception.getName(),
-            "type", exception.getValue() != null ? exception.getValue().getClass().getSimpleName() : "UNKNOWN",
+            "type", exception.getValue() != null
+                ? exception.getValue().getClass().getSimpleName()
+                : "UNKNOWN",
             "expectedType", expectedType
         ));
     }
@@ -155,7 +168,12 @@ public class ApiControllerAdvice {
             })
             .toList();
 
-        return buildResponse(HttpStatus.BAD_REQUEST, exception, "요청 매개변수 값이 유효하지 않습니다.", Map.of("violations", violations));
+        return buildResponse(
+            HttpStatus.BAD_REQUEST,
+            exception,
+            "요청 매개변수 값이 유효하지 않습니다.",
+            Map.of("violations", violations)
+        );
     }
 
     // --- 5. 인가 ---
@@ -176,20 +194,38 @@ public class ApiControllerAdvice {
         HttpServletRequest request
     ) {
         log.error("[{}] {} {} :{}",
-            exception.getClass().getSimpleName(), request.getMethod(), request.getRequestURI(), exception.getMessage(),
+            exception.getClass().getSimpleName(),
+            request.getMethod(),
+            request.getRequestURI(),
+            exception.getMessage(),
             exception
         );
 
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "InternalServerError", "서버 오류가 발생했습니다.", Map.of());
+        return buildResponse(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            "InternalServerError",
+            "서버 오류가 발생했습니다.",
+            Map.of()
+        );
     }
 
     // --- Helper Methods ---
 
-    private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, Exception exception, String message, Map<String, Object> details) {
+    private ResponseEntity<ErrorResponse> buildResponse(
+        HttpStatus status,
+        Exception exception,
+        String message,
+        Map<String, Object> details
+    ) {
         return buildResponse(status, exception.getClass().getSimpleName(), message, details);
     }
 
-    private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String exceptionName, String message, Map<String, Object> details) {
+    private ResponseEntity<ErrorResponse> buildResponse(
+        HttpStatus status,
+        String exceptionName,
+        String message,
+        Map<String, Object> details
+    ) {
         return ResponseEntity
             .status(status)
             .body(ErrorResponse.of(exceptionName, message, details));
