@@ -3,6 +3,9 @@ package com.mopl.api.interfaces.api.user;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.api.application.user.UserFacade;
 import com.mopl.api.interfaces.api.ApiControllerAdvice;
+import com.mopl.domain.exception.user.DuplicateEmailException;
+import com.mopl.domain.exception.user.InvalidUserDataException;
+import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.domain.model.user.AuthProvider;
 import com.mopl.domain.model.user.Role;
 import com.mopl.domain.model.user.UserModel;
@@ -94,8 +97,8 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/users")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(userId.toString()))
                 .andExpect(jsonPath("$.email").value("test@example.com"))
@@ -139,11 +142,45 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/users")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(requestBody))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
                 .andExpect(status().isBadRequest());
 
             then(userFacade).should(never()).signUp(any(UserCreateRequest.class));
+        }
+
+        @Test
+        @DisplayName("중복 이메일로 가입 시 409 Conflict 응답")
+        void withDuplicateEmail_returns409Conflict() throws Exception {
+            // given
+            String email = "duplicate@example.com";
+            UserCreateRequest request = new UserCreateRequest(email, "test", "P@ssw0rd!");
+
+            given(userFacade.signUp(any(UserCreateRequest.class)))
+                .willThrow(new DuplicateEmailException(email));
+
+            // when & then
+            mockMvc.perform(post("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict());
+        }
+
+        @Test
+        @DisplayName("유효하지 않은 사용자 데이터로 가입 시 400 Bad Request 응답")
+        void withInvalidUserData_returns400BadRequest() throws Exception {
+            // given
+            UserCreateRequest request = new UserCreateRequest("test@example.com", "test",
+                "P@ssw0rd!");
+
+            given(userFacade.signUp(any(UserCreateRequest.class)))
+                .willThrow(new InvalidUserDataException("이메일은 비어있을 수 없습니다."));
+
+            // when & then
+            mockMvc.perform(post("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
         }
     }
 
@@ -197,6 +234,19 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.locked").value(false));
 
             then(userFacade).should().getUser(userId);
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 사용자 ID로 조회 시 404 Not Found 응답")
+        void withNonExistingUserId_returns404NotFound() throws Exception {
+            // given
+            UUID userId = UUID.randomUUID();
+
+            given(userFacade.getUser(userId)).willThrow(new UserNotFoundException(userId));
+
+            // when & then
+            mockMvc.perform(get("/api/users/{userId}", userId))
+                .andExpect(status().isNotFound());
         }
     }
 }

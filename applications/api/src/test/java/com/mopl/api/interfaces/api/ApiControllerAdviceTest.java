@@ -12,13 +12,25 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ApiControllerAdviceTest.TestController.class)
 @Import(ApiControllerAdvice.class)
@@ -33,21 +45,21 @@ public class ApiControllerAdviceTest {
     class RoutingTest {
 
         @Test
-        @DisplayName("존재하지 않는 엔드포인트 요청 시 404 응답")
+        @DisplayName("존재하지 않는 엔드포인트 요청 시 404 Not Found 응답")
         void withNonExistentEndpoint_returns404() throws Exception {
             mockMvc.perform(get("/non-existent"))
                 .andExpect(status().isNotFound());
         }
 
         @Test
-        @DisplayName("허용되지 않는 HTTP 메서드 요청 시 405 응답")
+        @DisplayName("허용되지 않는 HTTP 메서드 요청 시 405 Method Not Allowed 응답")
         void withUnsupportedMethod_returns405() throws Exception {
             mockMvc.perform(delete("/test"))
                 .andExpect(status().isMethodNotAllowed());
         }
 
         @Test
-        @DisplayName("지원하지 않는 Content-Type 요청 시 415 응답")
+        @DisplayName("지원하지 않는 Content-Type 요청 시 415 Unsupported Media Type 응답")
         void withUnsupportedMediaType_returns415() throws Exception {
             mockMvc.perform(post("/test/body")
                 .contentType(MediaType.APPLICATION_XML)
@@ -56,7 +68,7 @@ public class ApiControllerAdviceTest {
         }
 
         @Test
-        @DisplayName("허용되지 않는 Accept 헤더 요청 시 406 응답")
+        @DisplayName("허용되지 않는 Accept 헤더 요청 시 406 Not Acceptable 응답")
         void withNotAcceptableMediaType_returns406() throws Exception {
             mockMvc.perform(get("/test")
                 .accept(MediaType.APPLICATION_XML))
@@ -69,35 +81,35 @@ public class ApiControllerAdviceTest {
     class ParameterBindingTest {
 
         @Test
-        @DisplayName("필수 쿼리 파라미터 누락 시 400 응답")
+        @DisplayName("필수 쿼리 파라미터 누락 시 400 Bad Request 응답")
         void withMissingParameter_returns400() throws Exception {
             mockMvc.perform(get("/test/param"))
                 .andExpect(status().isBadRequest());
         }
 
         @Test
-        @DisplayName("필수 파트 누락 시 400 응답")
+        @DisplayName("필수 파트 누락 시 400 Bad Request 응답")
         void withMissingPart_returns400() throws Exception {
             mockMvc.perform(multipart("/test/part"))
                 .andExpect(status().isBadRequest());
         }
 
         @Test
-        @DisplayName("필수 쿠키 누락 시 400 응답")
+        @DisplayName("필수 쿠키 누락 시 400 Bad Request 응답")
         void withMissingCookie_returns400() throws Exception {
             mockMvc.perform(get("/test/cookie"))
                 .andExpect(status().isBadRequest());
         }
 
         @Test
-        @DisplayName("필수 헤더 누락 시 400 응답")
+        @DisplayName("필수 헤더 누락 시 400 Bad Request 응답")
         void withMissingHeader_returns400() throws Exception {
             mockMvc.perform(get("/test/header"))
                 .andExpect(status().isBadRequest());
         }
 
         @Test
-        @DisplayName("잘못된 타입의 파라미터 요청 시 400 응답")
+        @DisplayName("잘못된 타입의 파라미터 요청 시 400 Bad Request 응답")
         void withTypeMismatch_returns400() throws Exception {
             mockMvc.perform(get("/test/uuid/invalid-uuid"))
                 .andExpect(status().isBadRequest());
@@ -109,7 +121,7 @@ public class ApiControllerAdviceTest {
     class BodyParsingTest {
 
         @Test
-        @DisplayName("잘못된 JSON 형식 요청 시 400 응답")
+        @DisplayName("잘못된 JSON 형식 요청 시 400 Bad Request 응답")
         void withInvalidJson_returns400() throws Exception {
             mockMvc.perform(post("/test/body")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -123,7 +135,7 @@ public class ApiControllerAdviceTest {
     class ValidationTest {
 
         @Test
-        @DisplayName("유효하지 않은 요청 본문 시 400 응답")
+        @DisplayName("유효하지 않은 요청 본문 시 400 Bad Request 응답")
         void withInvalidBody_returns400() throws Exception {
             mockMvc.perform(post("/test/body")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -132,7 +144,7 @@ public class ApiControllerAdviceTest {
         }
 
         @Test
-        @DisplayName("제약 조건 위반 시 400 응답")
+        @DisplayName("제약 조건 위반 시 400 Bad Request 응답")
         void withConstraintViolation_returns400() throws Exception {
             mockMvc.perform(get("/test/validated-param")
                 .param("value", "0"))
@@ -145,7 +157,7 @@ public class ApiControllerAdviceTest {
     class ServerErrorTest {
 
         @Test
-        @DisplayName("예상치 못한 예외 발생 시 500 응답")
+        @DisplayName("예상치 못한 예외 발생 시 500 Internal Server Error 응답")
         void withUnexpectedException_returns500() throws Exception {
             mockMvc.perform(get("/test/error"))
                 .andExpect(status().isInternalServerError());
