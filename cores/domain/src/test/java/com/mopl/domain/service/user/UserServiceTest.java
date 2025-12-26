@@ -1,6 +1,7 @@
 package com.mopl.domain.service.user;
 
 import com.mopl.domain.exception.user.DuplicateEmailException;
+import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.domain.model.user.AuthProvider;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.user.UserRepository;
@@ -11,6 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -79,6 +83,52 @@ class UserServiceTest {
 
             then(userRepository).should().existsByEmail("duplicate@example.com");
             then(userRepository).should(never()).save(any(UserModel.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("getById()")
+    class GetByIdTest {
+
+        @Test
+        @DisplayName("존재하는 사용자 ID로 조회하면 UserModel 반환")
+        void withExistingUserId_returnsUserModel() {
+            // given
+            UUID userId = UUID.randomUUID();
+            UserModel userModel = UserModel.create(
+                AuthProvider.EMAIL,
+                "test@example.com",
+                "홍길동",
+                "encodedPassword"
+            );
+
+            given(userRepository.findById(userId)).willReturn(Optional.of(userModel));
+
+            // when
+            UserModel result = userService.getById(userId);
+
+            // then
+            assertThat(result).isEqualTo(userModel);
+            then(userRepository).should().findById(userId);
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 사용자 ID로 조회하면 UserNotFoundException 발생")
+        void withNonExistingUserId_throwsUserNotFoundException() {
+            // given
+            UUID userId = UUID.randomUUID();
+
+            given(userRepository.findById(userId)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> userService.getById(userId))
+                .isInstanceOf(UserNotFoundException.class)
+                .satisfies(e -> {
+                    UserNotFoundException ex = (UserNotFoundException) e;
+                    assertThat(ex.getDetails().get("id")).isEqualTo(userId);
+                });
+
+            then(userRepository).should().findById(userId);
         }
     }
 }
