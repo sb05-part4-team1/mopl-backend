@@ -1,11 +1,11 @@
-package com.mopl.api.application.user;
+package com.mopl.api.interfaces.api.user;
 
 import com.mopl.domain.model.user.Role;
 
 import java.time.Instant;
 import java.util.UUID;
 
-public record UserInfo(
+public record UserResponse(
     UUID id,
     Instant createdAt,
     String email,

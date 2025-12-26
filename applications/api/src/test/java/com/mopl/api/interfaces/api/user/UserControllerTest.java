@@ -2,9 +2,10 @@ package com.mopl.api.interfaces.api.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.api.application.user.UserFacade;
-import com.mopl.api.application.user.UserInfo;
 import com.mopl.api.interfaces.api.ApiControllerAdvice;
+import com.mopl.domain.model.user.AuthProvider;
 import com.mopl.domain.model.user.Role;
+import com.mopl.domain.model.user.UserModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -52,25 +53,29 @@ class UserControllerTest {
         @DisplayName("유효한 요청 시 201 Created 응답")
         void withValidRequest_returns201Created() throws Exception {
             // given
-            UserCreateRequest request = new UserCreateRequest(
-                "test@example.com",
-                "test",
-                "P@ssw0rd!"
-            );
-
             UUID userId = UUID.randomUUID();
             Instant now = Instant.now();
-            UserInfo userInfo = new UserInfo(
-                userId,
-                now,
-                "test@example.com",
-                "test",
-                null,
-                Role.USER,
-                false
-            );
+            String email = "test@example.com";
+            String name = "test";
+            String password = "P@ssw0rd!";
 
-            given(userFacade.signUp(any(UserCreateRequest.class))).willReturn(userInfo);
+            UserCreateRequest request = new UserCreateRequest(email, name, password);
+
+            UserModel userModel = UserModel.builder()
+                .id(userId)
+                .createdAt(now)
+                .deletedAt(null)
+                .updatedAt(now)
+                .authProvider(AuthProvider.EMAIL)
+                .email(email)
+                .name(name)
+                .password(password)
+                .profileImageUrl(null)
+                .role(Role.USER)
+                .locked(false)
+                .build();
+
+            given(userFacade.signUp(any(UserCreateRequest.class))).willReturn(userModel);
 
             // when & then
             mockMvc.perform(post("/api/users")

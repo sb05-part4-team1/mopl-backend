@@ -15,10 +15,9 @@ import java.util.Locale;
 public class UserFacade {
 
     private final UserService userService;
-    private final UserDtoMapper userDtoMapper;
 
     @Transactional
-    public UserInfo signUp(UserCreateRequest userCreateRequest) {
+    public UserModel signUp(UserCreateRequest userCreateRequest) {
         String email = userCreateRequest.email().strip().toLowerCase(Locale.ROOT);
         String name = userCreateRequest.name().strip();
         // password 암호화 로직 추가 필요
@@ -31,8 +30,6 @@ public class UserFacade {
             password
         );
 
-        UserModel savedUserModel = userService.create(userModel);
-
-        return userDtoMapper.toInfo(savedUserModel);
+        return userService.create(userModel);
     }
 }

@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
@@ -28,9 +27,6 @@ class UserFacadeTest {
 
     @Mock
     private UserService userService;
-
-    @Spy
-    private UserDtoMapper userDtoMapper;
 
     @InjectMocks
     private UserFacade userFacade;
@@ -67,14 +63,14 @@ class UserFacadeTest {
             given(userService.create(any(UserModel.class))).willReturn(savedUserModel);
 
             // when
-            UserInfo result = userFacade.signUp(request);
+            UserModel result = userFacade.signUp(request);
 
             // then
-            assertThat(result.id()).isEqualTo(userId);
-            assertThat(result.email()).isEqualTo(email);
-            assertThat(result.name()).isEqualTo(name);
-            assertThat(result.role()).isEqualTo(Role.USER);
-            assertThat(result.locked()).isFalse();
+            assertThat(result.getId()).isEqualTo(userId);
+            assertThat(result.getEmail()).isEqualTo(email);
+            assertThat(result.getName()).isEqualTo(name);
+            assertThat(result.getRole()).isEqualTo(Role.USER);
+            assertThat(result.isLocked()).isFalse();
 
             then(userService).should().create(any(UserModel.class));
         }
@@ -110,11 +106,11 @@ class UserFacadeTest {
             given(userService.create(any(UserModel.class))).willReturn(savedUserModel);
 
             // when
-            UserInfo result = userFacade.signUp(request);
+            UserModel result = userFacade.signUp(request);
 
             // then
-            assertThat(result.email()).isEqualTo(expectedEmail);
-            assertThat(result.name()).isEqualTo(expectedName);
+            assertThat(result.getEmail()).isEqualTo(expectedEmail);
+            assertThat(result.getName()).isEqualTo(expectedName);
         }
     }
 }
