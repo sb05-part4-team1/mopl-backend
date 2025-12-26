@@ -22,11 +22,11 @@ public record ErrorResponse(
         );
     }
 
-    public static ErrorResponse from(MoplException excpetion) {
+    public static ErrorResponse from(MoplException exception) {
         return new ErrorResponse(
-            excpetion.getClass().getSimpleName(),
-            excpetion.getMessage(),
-            excpetion.getDetails()
+            exception.getClass().getSimpleName(),
+            exception.getMessage(),
+            exception.getDetails()
         );
     }
 }
