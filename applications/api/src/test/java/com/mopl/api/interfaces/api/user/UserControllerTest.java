@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -93,8 +94,8 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(userId.toString()))
                 .andExpect(jsonPath("$.email").value("test@example.com"))
@@ -138,11 +139,64 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody))
                 .andExpect(status().isBadRequest());
 
             then(userFacade).should(never()).signUp(any(UserCreateRequest.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /api/users/{userId} - 사용자 상세 조회")
+    class GetUserTest {
+
+        @Test
+        @DisplayName("유효한 사용자 ID로 조회 시 200 OK 응답")
+        void withValidUserId_returns200OK() throws Exception {
+            // given
+            UUID userId = UUID.randomUUID();
+            Instant now = Instant.now();
+            String email = "test@example.com";
+            String name = "test";
+
+            UserModel userModel = UserModel.builder()
+                .id(userId)
+                .createdAt(now)
+                .deletedAt(null)
+                .updatedAt(now)
+                .authProvider(AuthProvider.EMAIL)
+                .email(email)
+                .name(name)
+                .password("encodedPassword")
+                .profileImageUrl(null)
+                .role(Role.USER)
+                .locked(false)
+                .build();
+
+            UserResponse userResponse = new UserResponse(
+                userId,
+                now,
+                email,
+                name,
+                null,
+                Role.USER,
+                false
+            );
+
+            given(userFacade.getUser(userId)).willReturn(userModel);
+            given(userResponseMapper.toResponse(userModel)).willReturn(userResponse);
+
+            // when & then
+            mockMvc.perform(get("/api/users/{userId}", userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(userId.toString()))
+                .andExpect(jsonPath("$.email").value(email))
+                .andExpect(jsonPath("$.name").value(name))
+                .andExpect(jsonPath("$.role").value("USER"))
+                .andExpect(jsonPath("$.locked").value(false));
+
+            then(userFacade).should().getUser(userId);
         }
     }
 }
