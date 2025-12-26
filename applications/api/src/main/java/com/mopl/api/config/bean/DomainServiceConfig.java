@@ -1,4 +1,4 @@
-package com.mopl.api.config;
+package com.mopl.api.config.bean;
 
 import com.mopl.domain.repository.user.UserRepository;
 import com.mopl.domain.service.user.UserService;

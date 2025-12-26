@@ -14,10 +14,3 @@ spring:
   threads:
     virtual:
       enabled: true
-
-springdoc:
-  use-fqn: true
-  api-docs:
-    path: /api/docs
-  swagger-ui:
-    path: /swagger-ui.html
