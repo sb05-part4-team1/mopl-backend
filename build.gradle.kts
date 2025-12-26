@@ -31,6 +31,10 @@ subprojects {
     apply(plugin = "checkstyle")
     apply(plugin = "jacoco")
 
+    tasks.withType<JavaCompile> {
+        options.compilerArgs.add("-parameters")
+    }
+
     dependencyManagement {
         imports {
             mavenBom("org.springframework.boot:spring-boot-dependencies:3.3.3")
