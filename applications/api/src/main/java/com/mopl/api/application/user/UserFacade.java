@@ -1,7 +1,7 @@
 package com.mopl.api.application.user;
 
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
-import com.mopl.domain.model.user.AuthProvider;
+import com.mopl.domain.model.user.UserModel.AuthProvider;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.user.UserService;
 import lombok.RequiredArgsConstructor;

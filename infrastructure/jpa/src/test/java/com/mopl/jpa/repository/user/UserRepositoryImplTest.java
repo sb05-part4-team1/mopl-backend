@@ -1,6 +1,6 @@
 package com.mopl.jpa.repository.user;
 
-import com.mopl.domain.model.user.AuthProvider;
+import com.mopl.domain.model.user.UserModel.AuthProvider;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.user.UserRepository;
 import com.mopl.jpa.config.JpaConfig;

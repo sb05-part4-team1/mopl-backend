@@ -1,7 +1,5 @@
 package com.mopl.jpa.entity.user;
 
-import com.mopl.domain.model.user.AuthProvider;
-import com.mopl.domain.model.user.Role;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.user.UserRepository;
 import com.mopl.jpa.config.JpaConfig;
@@ -114,11 +112,11 @@ class UserEntityTest {
         void withDeletedAt_excludesFromQuery() {
             // given
             UserEntity entity = UserEntity.builder()
-                .authProvider(AuthProvider.EMAIL)
+                .authProvider(UserModel.AuthProvider.EMAIL)
                 .email("deleted@example.com")
                 .name("삭제된사용자")
                 .password("encodedPassword")
-                .role(Role.USER)
+                .role(UserModel.Role.USER)
                 .locked(false)
                 .deletedAt(Instant.now())
                 .build();
@@ -150,11 +148,11 @@ class UserEntityTest {
 
     private UserEntity createUserEntity() {
         return UserEntity.builder()
-            .authProvider(AuthProvider.EMAIL)
+            .authProvider(UserModel.AuthProvider.EMAIL)
             .email("test@example.com")
             .name("테스트")
             .password("encodedPassword")
-            .role(Role.USER)
+            .role(UserModel.Role.USER)
             .locked(false)
             .build();
     }

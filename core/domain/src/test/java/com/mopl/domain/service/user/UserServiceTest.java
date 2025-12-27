@@ -2,7 +2,7 @@ package com.mopl.domain.service.user;
 
 import com.mopl.domain.exception.user.DuplicateEmailException;
 import com.mopl.domain.exception.user.UserNotFoundException;
-import com.mopl.domain.model.user.AuthProvider;
+import com.mopl.domain.model.user.UserModel.AuthProvider;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.user.UserRepository;
 import org.junit.jupiter.api.DisplayName;

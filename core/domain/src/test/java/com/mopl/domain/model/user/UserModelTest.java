@@ -43,12 +43,12 @@ class UserModelTest {
                 .createdAt(createdAt)
                 .deletedAt(deletedAt)
                 .updatedAt(updatedAt)
-                .authProvider(AuthProvider.GOOGLE)
+                .authProvider(UserModel.AuthProvider.GOOGLE)
                 .email("test@example.com")
                 .name("홍길동")
                 .password("encodedP@ssw0rd!")
                 .profileImageUrl("https://example.com/original.jpg")
-                .role(Role.ADMIN)
+                .role(UserModel.Role.ADMIN)
                 .locked(true)
                 .build();
 
@@ -57,12 +57,12 @@ class UserModelTest {
             assertThat(user.getCreatedAt()).isEqualTo(createdAt);
             assertThat(user.getUpdatedAt()).isEqualTo(updatedAt);
             assertThat(user.getDeletedAt()).isNull();
-            assertThat(user.getAuthProvider()).isEqualTo(AuthProvider.GOOGLE);
+            assertThat(user.getAuthProvider()).isEqualTo(UserModel.AuthProvider.GOOGLE);
             assertThat(user.getEmail()).isEqualTo("test@example.com");
             assertThat(user.getName()).isEqualTo("홍길동");
             assertThat(user.getPassword()).isEqualTo("encodedP@ssw0rd!");
             assertThat(user.getProfileImageUrl()).isEqualTo("https://example.com/original.jpg");
-            assertThat(user.getRole()).isEqualTo(Role.ADMIN);
+            assertThat(user.getRole()).isEqualTo(UserModel.Role.ADMIN);
             assertThat(user.isLocked()).isTrue();
         }
     }
@@ -76,18 +76,18 @@ class UserModelTest {
         void withValidData_createsUserModel() {
             // when
             UserModel user = UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "encodedPassword123"
             );
 
             // then
-            assertThat(user.getAuthProvider()).isEqualTo(AuthProvider.EMAIL);
+            assertThat(user.getAuthProvider()).isEqualTo(UserModel.AuthProvider.EMAIL);
             assertThat(user.getEmail()).isEqualTo("test@example.com");
             assertThat(user.getName()).isEqualTo("홍길동");
             assertThat(user.getPassword()).isEqualTo("encodedPassword123");
-            assertThat(user.getRole()).isEqualTo(Role.USER);
+            assertThat(user.getRole()).isEqualTo(UserModel.Role.USER);
             assertThat(user.isLocked()).isFalse();
             assertThat(user.getProfileImageUrl()).isNull();
         }
@@ -123,7 +123,7 @@ class UserModelTest {
         @DisplayName("이메일이 비어있으면 예외 발생")
         void withEmptyEmail_throwsException(String description, String email) {
             assertThatThrownBy(() -> UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 email,
                 "홍길동",
                 "password"
@@ -142,7 +142,7 @@ class UserModelTest {
             String longEmail = "a".repeat(EMAIL_MAX_LENGTH + 1);
 
             assertThatThrownBy(() -> UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 longEmail,
                 "홍길동",
                 "password"
@@ -168,7 +168,7 @@ class UserModelTest {
         @DisplayName("이름이 비어있으면 예외 발생")
         void withEmptyName_throwsException(String description, String name) {
             assertThatThrownBy(() -> UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 name,
                 "password"
@@ -187,7 +187,7 @@ class UserModelTest {
             String longName = "가".repeat(NAME_MAX_LENGTH + 1);
 
             assertThatThrownBy(() -> UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 longName,
                 "password"
@@ -213,7 +213,7 @@ class UserModelTest {
         @DisplayName("비밀번호가 비어있으면 예외 발생")
         void withEmptyPassword_throwsException(String description, String password) {
             assertThatThrownBy(() -> UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 password
@@ -232,7 +232,7 @@ class UserModelTest {
             String longPassword = "a".repeat(ENCODED_PASSWORD_MAX_LENGTH + 1);
 
             assertThatThrownBy(() -> UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 longPassword
@@ -255,7 +255,7 @@ class UserModelTest {
         void withValidPassword_updatesPassword() {
             // given
             UserModel user = UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "oldPassword"
@@ -275,7 +275,7 @@ class UserModelTest {
         void withEmptyPassword_doesNotUpdate(String newPassword) {
             // given
             UserModel user = UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "originalPassword"
@@ -293,7 +293,7 @@ class UserModelTest {
         void withPasswordExceedingMaxLength_throwsException() {
             // given
             UserModel user = UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -315,7 +315,7 @@ class UserModelTest {
         void withValidPassword_returnsThis() {
             // given
             UserModel user = UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -338,7 +338,7 @@ class UserModelTest {
         void withValidUrl_updatesProfileImageUrl() {
             // given
             UserModel user = UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -360,12 +360,12 @@ class UserModelTest {
                 .createdAt(Instant.now())
                 .deletedAt(null)
                 .updatedAt(Instant.now())
-                .authProvider(AuthProvider.EMAIL)
+                .authProvider(UserModel.AuthProvider.EMAIL)
                 .email("test@example.com")
                 .name("홍길동")
                 .password("P@ssw0rd!")
                 .profileImageUrl("https://example.com/original.jpg")
-                .role(Role.USER)
+                .role(UserModel.Role.USER)
                 .locked(false)
                 .build();
 
@@ -381,7 +381,7 @@ class UserModelTest {
         void withUrlExceedingMaxLength_throwsException() {
             // given
             UserModel user = UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -404,7 +404,7 @@ class UserModelTest {
         void withValidUrl_returnsThis() {
             // given
             UserModel user = UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -427,18 +427,18 @@ class UserModelTest {
         void withValidRole_updatesRole() {
             // given
             UserModel user = UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
             );
-            assertThat(user.getRole()).isEqualTo(Role.USER);
+            assertThat(user.getRole()).isEqualTo(UserModel.Role.USER);
 
             // when
-            user.updateRole(Role.ADMIN);
+            user.updateRole(UserModel.Role.ADMIN);
 
             // then
-            assertThat(user.getRole()).isEqualTo(Role.ADMIN);
+            assertThat(user.getRole()).isEqualTo(UserModel.Role.ADMIN);
         }
 
         @Test
@@ -446,7 +446,7 @@ class UserModelTest {
         void withNullRole_doesNotUpdate() {
             // given
             UserModel user = UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -456,7 +456,7 @@ class UserModelTest {
             user.updateRole(null);
 
             // then
-            assertThat(user.getRole()).isEqualTo(Role.USER);
+            assertThat(user.getRole()).isEqualTo(UserModel.Role.USER);
         }
 
         @Test
@@ -464,14 +464,14 @@ class UserModelTest {
         void withValidRole_returnsThis() {
             // given
             UserModel user = UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
             );
 
             // when
-            UserModel result = user.updateRole(Role.ADMIN);
+            UserModel result = user.updateRole(UserModel.Role.ADMIN);
 
             // then
             assertThat(result).isSameAs(user);
@@ -487,7 +487,7 @@ class UserModelTest {
         void withUnlockedAccount_locksAccount() {
             // given
             UserModel user = UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -506,7 +506,7 @@ class UserModelTest {
         void withUnlockedAccount_returnsThis() {
             // given
             UserModel user = UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -533,12 +533,12 @@ class UserModelTest {
                 .createdAt(Instant.now())
                 .deletedAt(null)
                 .updatedAt(Instant.now())
-                .authProvider(AuthProvider.EMAIL)
+                .authProvider(UserModel.AuthProvider.EMAIL)
                 .email("test@example.com")
                 .name("홍길동")
                 .password("P@ssw0rd!")
                 .profileImageUrl(null)
-                .role(Role.USER)
+                .role(UserModel.Role.USER)
                 .locked(true)
                 .build();
 
@@ -556,7 +556,7 @@ class UserModelTest {
         void withLockedAccount_returnsThis() {
             // given
             UserModel user = UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"

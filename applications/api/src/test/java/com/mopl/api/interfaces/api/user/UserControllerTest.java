@@ -6,8 +6,6 @@ import com.mopl.api.interfaces.api.ApiControllerAdvice;
 import com.mopl.domain.exception.user.DuplicateEmailException;
 import com.mopl.domain.exception.user.InvalidUserDataException;
 import com.mopl.domain.exception.user.UserNotFoundException;
-import com.mopl.domain.model.user.AuthProvider;
-import com.mopl.domain.model.user.Role;
 import com.mopl.domain.model.user.UserModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -75,12 +73,12 @@ class UserControllerTest {
                 .createdAt(now)
                 .deletedAt(null)
                 .updatedAt(now)
-                .authProvider(AuthProvider.EMAIL)
+                .authProvider(UserModel.AuthProvider.EMAIL)
                 .email(email)
                 .name(name)
                 .password(password)
                 .profileImageUrl(null)
-                .role(Role.USER)
+                .role(UserModel.Role.USER)
                 .locked(false)
                 .build();
 
@@ -90,7 +88,7 @@ class UserControllerTest {
                 email,
                 name,
                 null,
-                Role.USER,
+                UserModel.Role.USER,
                 false
             );
 
@@ -204,12 +202,12 @@ class UserControllerTest {
                 .createdAt(now)
                 .deletedAt(null)
                 .updatedAt(now)
-                .authProvider(AuthProvider.EMAIL)
+                .authProvider(UserModel.AuthProvider.EMAIL)
                 .email(email)
                 .name(name)
                 .password("encodedPassword")
                 .profileImageUrl(null)
-                .role(Role.USER)
+                .role(UserModel.Role.USER)
                 .locked(false)
                 .build();
 
@@ -219,7 +217,7 @@ class UserControllerTest {
                 email,
                 name,
                 null,
-                Role.USER,
+                UserModel.Role.USER,
                 false
             );
 

@@ -1,8 +1,6 @@
 package com.mopl.api.application.user;
 
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
-import com.mopl.domain.model.user.AuthProvider;
-import com.mopl.domain.model.user.Role;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.user.UserService;
 import org.junit.jupiter.api.DisplayName;
@@ -56,12 +54,12 @@ class UserFacadeTest {
                 .createdAt(now)
                 .deletedAt(null)
                 .updatedAt(now)
-                .authProvider(AuthProvider.EMAIL)
+                .authProvider(UserModel.AuthProvider.EMAIL)
                 .email(email)
                 .name(name)
                 .password(encodedPassword)
                 .profileImageUrl(null)
-                .role(Role.USER)
+                .role(UserModel.Role.USER)
                 .locked(false)
                 .build();
 
@@ -75,7 +73,7 @@ class UserFacadeTest {
             assertThat(result.getId()).isEqualTo(userId);
             assertThat(result.getEmail()).isEqualTo(email);
             assertThat(result.getName()).isEqualTo(name);
-            assertThat(result.getRole()).isEqualTo(Role.USER);
+            assertThat(result.getRole()).isEqualTo(UserModel.Role.USER);
             assertThat(result.isLocked()).isFalse();
 
             then(userService).should().create(any(UserModel.class));
@@ -101,12 +99,12 @@ class UserFacadeTest {
                 .createdAt(now)
                 .deletedAt(null)
                 .updatedAt(now)
-                .authProvider(AuthProvider.EMAIL)
+                .authProvider(UserModel.AuthProvider.EMAIL)
                 .email(expectedEmail)
                 .name(expectedName)
                 .password(encodedPassword)
                 .profileImageUrl(null)
-                .role(Role.USER)
+                .role(UserModel.Role.USER)
                 .locked(false)
                 .build();
 
@@ -141,12 +139,12 @@ class UserFacadeTest {
                 .createdAt(now)
                 .deletedAt(null)
                 .updatedAt(now)
-                .authProvider(AuthProvider.EMAIL)
+                .authProvider(UserModel.AuthProvider.EMAIL)
                 .email(email)
                 .name(name)
                 .password(password)
                 .profileImageUrl(null)
-                .role(Role.USER)
+                .role(UserModel.Role.USER)
                 .locked(false)
                 .build();
 
@@ -159,7 +157,7 @@ class UserFacadeTest {
             assertThat(result.getId()).isEqualTo(userId);
             assertThat(result.getEmail()).isEqualTo(email);
             assertThat(result.getName()).isEqualTo(name);
-            assertThat(result.getRole()).isEqualTo(Role.USER);
+            assertThat(result.getRole()).isEqualTo(UserModel.Role.USER);
             assertThat(result.isLocked()).isFalse();
 
             then(userService).should().getById(userId);
