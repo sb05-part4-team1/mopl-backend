@@ -1,5 +1,6 @@
-package com.mopl.security.jwt;
+package com.mopl.security.provider;
 
+import com.mopl.security.config.JwtProperties;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;

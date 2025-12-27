@@ -10,6 +10,7 @@ mopl:
       previous-secret: ${JWT_REFRESH_TOKEN_PREVIOUS_SECRET:}
     max-sessions: 1
     registry-type: in-memory # Options: in-memory, redis
+    refresh-token-cookie-name: REFRESH_TOKEN
 
 ---
 spring.config.activate.on-profile: prod
