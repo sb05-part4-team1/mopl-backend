@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.Duration;
@@ -15,15 +14,16 @@ import static org.springframework.util.StringUtils.hasText;
 @ConfigurationProperties("mopl.jwt")
 @Validated
 public record JwtProperties(
-    @DefaultValue @Valid AccessToken accessToken,
-    @DefaultValue @Valid RefreshToken refreshToken,
-    @DefaultValue("1") @Positive int maxSessions,
-    @DefaultValue("in-memory") JwtRegistryType registryType,
+    @NotNull @Valid AccessToken accessToken,
+    @NotNull @Valid RefreshToken refreshToken,
+    @Positive int maxSessions,
+    @NotNull JwtRegistryType registryType,
     @NotBlank String refreshTokenCookieName
 ) {
+
     public record AccessToken(
         @NotBlank String secret,
-        @DefaultValue("30m") Duration expiration,
+        @NotNull Duration expiration,
         String previousSecret
     ) {
         public boolean hasPreviousSecret() {
@@ -33,7 +33,7 @@ public record JwtProperties(
 
     public record RefreshToken(
         @NotBlank String secret,
-        @DefaultValue("7d") Duration expiration,
+        @NotNull Duration expiration,
         String previousSecret
     ) {
         public boolean hasPreviousSecret() {

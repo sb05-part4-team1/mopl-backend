@@ -2,11 +2,11 @@ mopl:
   jwt:
     access-token:
       secret: ${JWT_ACCESS_TOKEN_SECRET:}
-      expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:30m}
+      expiration: 30m
       previous-secret: ${JWT_ACCESS_TOKEN_PREVIOUS_SECRET:}
     refresh-token:
       secret: ${JWT_REFRESH_TOKEN_SECRET:}
-      expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:7d}
+      expiration: 7d
       previous-secret: ${JWT_REFRESH_TOKEN_PREVIOUS_SECRET:}
     max-sessions: 1
     registry-type: in-memory # Options: in-memory, redis
