@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -52,18 +51,11 @@ public record JwtPayload(
         Set<UserModel.Role> roles,
         TokenType type
     ) {
-        if (userId == null) {
-            throw new InvalidTokenException("토큰에 사용자 ID가 포함되어 있지 않습니다.");
-        }
-        if (email == null || email.isBlank()) {
-            throw new InvalidTokenException("토큰에 이메일이 포함되어 있지 않습니다.");
-        }
-        if (roles == null || roles.isEmpty()) {
-            throw new InvalidTokenException("토큰에 사용자 권한이 포함되어 있지 않습니다.");
-        }
-        if (type == null) {
-            throw new InvalidTokenException("토큰에 타입이 포함되어 있지 않습니다.");
-        }
+        validate(userId != null, "사용자 ID가 누락되었습니다.");
+        validate(email != null && !email.isBlank(), "이메일이 누락되었습니다.");
+        validate(roles != null && !roles.isEmpty(), "사용자 권한이 누락되었습니다.");
+        validate(type != null, "토큰 타입이 누락되었습니다.");
+
         return new JwtPayload(userId, email, roles, UUID.randomUUID().toString(), type);
     }
 
@@ -73,7 +65,10 @@ public record JwtPayload(
         String jti = claims.getJWTID();
         String rawType = claims.getStringClaim(CLAIM_TYPE);
 
-        validateRequiredClaims(rawUserId, subject, jti, rawType);
+        validate(rawUserId != null && !rawUserId.isBlank(), "토큰에 사용자 ID가 없습니다.");
+        validate(subject != null && !subject.isBlank(), "토큰에 이메일이 없습니다.");
+        validate(jti != null && !jti.isBlank(), "토큰에 JTI가 없습니다.");
+        validate(rawType != null && !rawType.isBlank(), "토큰에 타입이 없습니다.");
 
         try {
             return new JwtPayload(
@@ -83,30 +78,21 @@ public record JwtPayload(
                 jti,
                 TokenType.from(rawType)
             );
-        } catch (InvalidTokenException invalidTokenException) {
-            throw invalidTokenException;
+        } catch (InvalidTokenException e) {
+            throw e;
         } catch (IllegalArgumentException e) {
             throw new InvalidTokenException(
                 "토큰 데이터 형식이 유효하지 않습니다.",
-                Map.of("userId", Objects.toString(rawUserId, "null"))
+                Map.of("userId", rawUserId)
             );
         } catch (Exception e) {
-            throw new InvalidTokenException("토큰 정보를 읽는 중 오류가 발생했습니다.");
+            throw new InvalidTokenException("토큰 정보를 읽는 중 오류가 발생했습니다.", Map.of("errorMessage", e.getMessage()));
         }
     }
 
-    private static void validateRequiredClaims(String userId, String email, String jti, String type) {
-        if (userId == null || userId.isBlank()) {
-            throw new InvalidTokenException("토큰에 사용자 ID가 없습니다.");
-        }
-        if (email == null || email.isBlank()) {
-            throw new InvalidTokenException("토큰에 이메일이 없습니다.");
-        }
-        if (jti == null || jti.isBlank()) {
-            throw new InvalidTokenException("토큰에 JTI가 없습니다.");
-        }
-        if (type == null || type.isBlank()) {
-            throw new InvalidTokenException("토큰에 타입이 없습니다.");
+    private static void validate(boolean condition, String message) {
+        if (!condition) {
+            throw new InvalidTokenException(message);
         }
     }
 
@@ -117,13 +103,15 @@ public record JwtPayload(
         }
 
         return roleStrings.stream()
-            .map(role -> {
-                try {
-                    return UserModel.Role.valueOf(role);
-                } catch (IllegalArgumentException e) {
-                    throw new InvalidTokenException("알 수 없는 권한입니다.", Map.of("role", role));
-                }
-            })
+            .map(JwtPayload::convertToRole)
             .collect(Collectors.toUnmodifiableSet());
+    }
+
+    private static UserModel.Role convertToRole(String roleName) {
+        try {
+            return UserModel.Role.valueOf(roleName);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidTokenException("알 수 없는 권한입니다.", Map.of("role", roleName));
+        }
     }
 }
