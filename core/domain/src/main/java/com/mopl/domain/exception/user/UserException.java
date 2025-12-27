@@ -6,10 +6,6 @@ import java.util.Map;
 
 public abstract class UserException extends MoplException {
 
-    protected UserException(String message) {
-        super(message);
-    }
-
     protected UserException(String message, Map<String, Object> details) {
         super(message, details);
     }

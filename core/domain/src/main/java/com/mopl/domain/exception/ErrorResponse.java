@@ -1,7 +1,6 @@
-package com.mopl.api.interfaces.api;
+package com.mopl.domain.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.mopl.domain.exception.MoplException;
 
 import java.util.Map;
 

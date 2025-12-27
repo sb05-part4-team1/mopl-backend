@@ -1,6 +1,6 @@
 package com.mopl.api.interfaces.api.user;
 
-import com.mopl.api.interfaces.api.ErrorResponse;
+import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.domain.exception.user.DuplicateEmailException;
 import com.mopl.domain.exception.user.InvalidUserDataException;
 import com.mopl.domain.exception.user.UserNotFoundException;
