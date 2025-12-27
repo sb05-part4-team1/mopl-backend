@@ -1,7 +1,7 @@
 package com.mopl.security.handler;
 
 import com.mopl.domain.service.user.UserService;
-import com.mopl.security.provider.JwtTokenProvider;
+import com.mopl.security.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

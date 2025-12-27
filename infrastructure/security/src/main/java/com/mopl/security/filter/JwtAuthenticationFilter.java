@@ -1,6 +1,6 @@
 package com.mopl.security.filter;
 
-import com.mopl.security.provider.JwtTokenProvider;
+import com.mopl.security.jwt.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
