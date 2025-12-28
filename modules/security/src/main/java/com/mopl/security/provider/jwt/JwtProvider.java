@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumMap;
@@ -53,14 +52,14 @@ public class JwtProvider {
 
     public String generateToken(JwtPayload payload) {
         try {
-            Instant now = Instant.now();
-            Instant expiry = now.plus(expirations.get(payload.type()));
+            Date ist = new Date();
+            Date exp = new Date(ist.getTime() + expirations.get(payload.type()).toMillis());
 
             JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(payload.userId().toString())
                 .jwtID(payload.jti().toString())
-                .issueTime(Date.from(now))
-                .expirationTime(Date.from(expiry))
+                .issueTime(ist)
+                .expirationTime(exp)
                 .claim(JwtPayload.CLAIM_ROLES, payload.roles().stream().map(Enum::name).toList())
                 .claim(JwtPayload.CLAIM_TYPE, payload.type().getValue())
                 .build();
@@ -118,7 +117,7 @@ public class JwtProvider {
     }
 
     private void validateExpiration(Date expiration) {
-        if (expiration == null || expiration.toInstant().isBefore(Instant.now())) {
+        if (expiration == null || expiration.before(new Date())) {
             throw new InvalidTokenException("만료된 토큰입니다.");
         }
     }

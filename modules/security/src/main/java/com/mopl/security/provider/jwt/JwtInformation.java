@@ -1,8 +1,13 @@
 package com.mopl.security.provider.jwt;
 
+import java.util.Date;
+import java.util.UUID;
+
 public record JwtInformation(
-    JwtPayload payload,
-    String accessToken,
-    String refreshToken
+    UUID userId,
+    UUID accessTokenJti,
+    UUID refreshTokenJti,
+    Date accessTokenExpiry,
+    Date refreshTokenExpiry
 ) {
 }
