@@ -131,4 +131,30 @@ class UserServiceTest {
             then(userRepository).should().findById(userId);
         }
     }
+
+    @Nested
+    @DisplayName("update()")
+    class UpdateTest {
+
+        @Test
+        @DisplayName("사용자 정보 업데이트 성공")
+        void withValidUser_updatesUser() {
+            // given
+            UserModel userModel = UserModel.create(
+                AuthProvider.EMAIL,
+                "test@example.com",
+                "홍길동",
+                "encodedPassword"
+            );
+
+            given(userRepository.save(userModel)).willReturn(userModel);
+
+            // when
+            UserModel result = userService.update(userModel);
+
+            // then
+            assertThat(result).isEqualTo(userModel);
+            then(userRepository).should().save(userModel);
+        }
+    }
 }

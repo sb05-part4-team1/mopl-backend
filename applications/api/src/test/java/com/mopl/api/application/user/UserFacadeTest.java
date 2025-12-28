@@ -1,6 +1,7 @@
 package com.mopl.api.application.user;
 
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
+import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.user.UserService;
 import org.junit.jupiter.api.DisplayName;
@@ -161,6 +162,64 @@ class UserFacadeTest {
             assertThat(result.isLocked()).isFalse();
 
             then(userService).should().getById(userId);
+        }
+    }
+
+    @Nested
+    @DisplayName("updateRoleInternal()")
+    class UpdateRoleInternalTest {
+
+        @Test
+        @DisplayName("유효한 요청 시 역할 업데이트 성공")
+        void withValidRequest_updateRoleSuccess() {
+            // given
+            UUID userId = UUID.randomUUID();
+            Instant now = Instant.now();
+            String email = "test@example.com";
+            String name = "test";
+
+            UserModel userModel = UserModel.builder()
+                .id(userId)
+                .createdAt(now)
+                .deletedAt(null)
+                .updatedAt(now)
+                .authProvider(UserModel.AuthProvider.EMAIL)
+                .email(email)
+                .name(name)
+                .password("encodedPassword")
+                .profileImageUrl(null)
+                .role(UserModel.Role.USER)
+                .locked(false)
+                .build();
+
+            UserModel updatedUserModel = UserModel.builder()
+                .id(userId)
+                .createdAt(now)
+                .deletedAt(null)
+                .updatedAt(now)
+                .authProvider(UserModel.AuthProvider.EMAIL)
+                .email(email)
+                .name(name)
+                .password("encodedPassword")
+                .profileImageUrl(null)
+                .role(UserModel.Role.ADMIN)
+                .locked(false)
+                .build();
+
+            UserRoleUpdateRequest request = new UserRoleUpdateRequest(UserModel.Role.ADMIN);
+
+            given(userService.getById(userId)).willReturn(userModel);
+            given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
+
+            // when
+            UserModel result = userFacade.updateRoleInternal(request, userId);
+
+            // then
+            assertThat(result.getId()).isEqualTo(userId);
+            assertThat(result.getRole()).isEqualTo(UserModel.Role.ADMIN);
+
+            then(userService).should().getById(userId);
+            then(userService).should().update(any(UserModel.class));
         }
     }
 }
