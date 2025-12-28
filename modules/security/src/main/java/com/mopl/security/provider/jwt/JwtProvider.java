@@ -95,10 +95,9 @@ public class JwtProvider {
             validateTokenType(payload.type(), expectedType);
 
             return payload;
-        } catch (ParseException e) {
-            throw new InvalidTokenException("토큰 형식이 올바르지 않습니다.");
-        } catch (JOSEException e) {
-            throw new InvalidTokenException("토큰 서명 검증에 실패했습니다.");
+        } catch (ParseException | JOSEException e) {
+            log.error("JWT 검증 실패: {}", e.getMessage());
+            throw new InvalidTokenException("유효하지 않은 토큰입니다.");
         }
     }
 
