@@ -2,7 +2,6 @@ package com.mopl.security.provider.jwt;
 
 import com.mopl.domain.exception.auth.InvalidTokenException;
 import com.mopl.security.config.JwtProperties;
-import com.mopl.security.provider.jwt.JwtPayload.TokenType;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -20,9 +19,8 @@ import java.text.ParseException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
 import static org.springframework.util.StringUtils.hasText;
 
@@ -30,41 +28,43 @@ import static org.springframework.util.StringUtils.hasText;
 @Slf4j
 public class JwtProvider {
 
-    private static final int MIN_SECRET_BYTES = 32;
-    private static final JWSHeader JWS_HEADER = new JWSHeader(JWSAlgorithm.HS256);
+    private final JWSSigner accessTokenSigner;
+    private final JWSSigner refreshTokenSigner;
+    private final List<JWSVerifier> accessTokenVerifiers;
+    private final List<JWSVerifier> refreshTokenVerifiers;
+    private final Duration accessTokenExpiration;
+    private final Duration refreshTokenExpiration;
 
-    private final Map<TokenType, JWSSigner> signers;
-    private final Map<TokenType, List<JWSVerifier>> verifiers;
-    private final Map<TokenType, Duration> expirations;
-
-    public JwtProvider(JwtProperties properties) {
-        this.signers = new EnumMap<>(TokenType.class);
-        this.verifiers = new EnumMap<>(TokenType.class);
-        this.expirations = new EnumMap<>(TokenType.class);
+    public JwtProvider(JwtProperties jwtProperties) {
+        JwtProperties.Config accessConfig = jwtProperties.accessToken();
+        JwtProperties.Config refreshConfig = jwtProperties.refreshToken();
 
         try {
-            initializeTokenConfig(TokenType.ACCESS, properties.accessToken());
-            initializeTokenConfig(TokenType.REFRESH, properties.refreshToken());
+            this.accessTokenSigner = createSigner(accessConfig.secret());
+            this.refreshTokenSigner = createSigner(refreshConfig.secret());
+            this.accessTokenVerifiers = createVerifiers(accessConfig);
+            this.refreshTokenVerifiers = createVerifiers(refreshConfig);
         } catch (JOSEException e) {
-            throw new IllegalStateException("JWT 암호화 엔진 초기화에 실패했습니다.", e);
+            throw new IllegalStateException("Failed to initialize JwtTokenProvider", e);
         }
+
+        this.accessTokenExpiration = accessConfig.expiration();
+        this.refreshTokenExpiration = refreshConfig.expiration();
     }
 
-    public String generateToken(JwtPayload payload) {
+    public String generateToken(UUID userId) {
         try {
             Date ist = new Date();
             Date exp = new Date(ist.getTime() + expirations.get(payload.type()).toMillis());
 
             JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject(payload.userId().toString())
-                .jwtID(payload.jti().toString())
+                .subject(userId.toString())
+                .jwtID(UUID.randomUUID().toString())
                 .issueTime(ist)
                 .expirationTime(exp)
-                .claim(JwtPayload.CLAIM_ROLES, payload.roles().stream().map(Enum::name).toList())
-                .claim(JwtPayload.CLAIM_TYPE, payload.type().getValue())
                 .build();
 
-            SignedJWT signedJWT = new SignedJWT(JWS_HEADER, claimsSet);
+            SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
             signedJWT.sign(signers.get(payload.type()));
 
             return signedJWT.serialize();
@@ -127,14 +127,14 @@ public class JwtProvider {
         }
     }
 
-    private void initializeTokenConfig(TokenType type, JwtProperties.Config config) throws JOSEException {
+    private void initializeTokenConfig(JwtProperties.Config config) throws JOSEException {
         validateSecret(config.secret());
         signers.put(type, new MACSigner(toBytes(config.secret())));
         verifiers.put(type, createVerifiers(config, type));
         expirations.put(type, config.expiration());
     }
 
-    private List<JWSVerifier> createVerifiers(JwtProperties.Config config, TokenType type) throws JOSEException {
+    private List<JWSVerifier> createVerifiers(JwtProperties.Config config) throws JOSEException {
         List<JWSVerifier> list = new ArrayList<>();
         list.add(new MACVerifier(toBytes(config.secret())));
 
@@ -145,14 +145,6 @@ public class JwtProvider {
         }
 
         return List.copyOf(list);
-    }
-
-    private void validateSecret(String secret) {
-        if (!hasText(secret) || toBytes(secret).length < MIN_SECRET_BYTES) {
-            throw new IllegalArgumentException(
-                "JWT 시크릿 키는 최소 " + MIN_SECRET_BYTES + "바이트 이상이어야 합니다."
-            );
-        }
     }
 
     private byte[] toBytes(String secret) {
