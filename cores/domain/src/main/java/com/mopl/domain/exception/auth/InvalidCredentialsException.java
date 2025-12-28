@@ -1,0 +1,12 @@
+package com.mopl.domain.exception.auth;
+
+import java.util.Map;
+
+public class InvalidCredentialsException extends AuthException {
+
+    private static final String MESSAGE = "이메일 또는 비밀번호가 올바르지 않습니다.";
+
+    public InvalidCredentialsException(String email) {
+        super(MESSAGE, Map.of("email", email));
+    }
+}
