@@ -3,6 +3,7 @@ package com.mopl.security.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.security.filter.JwtAuthenticationFilter;
 import com.mopl.security.handler.Http403ForbiddenAccessDeniedHandler;
+import com.mopl.security.handler.JwtLoginSuccessHandler;
 import com.mopl.security.handler.SpaCsrfTokenRequestHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;

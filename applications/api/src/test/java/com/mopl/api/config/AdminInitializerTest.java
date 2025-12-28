@@ -1,93 +1,105 @@
 package com.mopl.api.config;
 
+import com.mopl.api.application.user.UserFacade;
+import com.mopl.api.interfaces.api.user.UserCreateRequest;
+import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
+import com.mopl.domain.exception.user.DuplicateEmailException;
 import com.mopl.domain.model.user.UserModel;
-import com.mopl.domain.model.user.UserModel.Role;
-import com.mopl.domain.repository.user.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.UUID;
+
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AdminInitializer 단위 테스트")
 class AdminInitializerTest {
 
-    @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private PasswordEncoder passwordEncoder;
-
-    @InjectMocks
-    private AdminInitializer adminInitializer;
-
     private static final String ADMIN_EMAIL = "admin@mopl.com";
     private static final String ADMIN_NAME = "Admin";
     private static final String ADMIN_PASSWORD = "admin1234!";
-    private static final String ENCODED_PASSWORD = "encodedPassword";
+    private static final UUID ADMIN_ID = UUID.randomUUID();
 
     @Nested
     @DisplayName("run()")
     class RunTest {
 
         @Test
-        @DisplayName("Admin 계정이 없으면 새로 생성한다")
-        void whenAdminNotExists_shouldCreateAdmin() {
+        @DisplayName("Admin 계정이 없으면 새로 생성하고 ADMIN 역할을 부여한다")
+        void whenAdminNotExists_shouldCreateAdminAndUpdateRole() {
             // given
+            UserFacade userFacade = mock(UserFacade.class);
             AdminProperties adminProperties = new AdminProperties(
                 true, ADMIN_EMAIL, ADMIN_NAME, ADMIN_PASSWORD
             );
-            AdminInitializer initializer = new AdminInitializer(
-                userRepository, passwordEncoder, adminProperties
-            );
+            AdminInitializer initializer = new AdminInitializer(adminProperties, userFacade);
 
-            given(userRepository.existsByEmail(ADMIN_EMAIL)).willReturn(false);
-            given(passwordEncoder.encode(ADMIN_PASSWORD)).willReturn(ENCODED_PASSWORD);
+            UserModel createdUser = mock(UserModel.class);
+            given(createdUser.getId()).willReturn(ADMIN_ID);
+
+            UserModel adminUser = mock(UserModel.class);
+            given(adminUser.getEmail()).willReturn(ADMIN_EMAIL);
+
+            given(userFacade.signUp(any(UserCreateRequest.class))).willReturn(createdUser);
+            given(userFacade.updateRoleInternal(any(UserRoleUpdateRequest.class), eq(ADMIN_ID))).willReturn(adminUser);
 
             // when
             initializer.run(null);
 
             // then
-            ArgumentCaptor<UserModel> captor = ArgumentCaptor.forClass(UserModel.class);
-            then(userRepository).should().save(captor.capture());
-
-            UserModel savedAdmin = captor.getValue();
-            assertThat(savedAdmin.getEmail()).isEqualTo(ADMIN_EMAIL);
-            assertThat(savedAdmin.getName()).isEqualTo(ADMIN_NAME);
-            assertThat(savedAdmin.getPassword()).isEqualTo(ENCODED_PASSWORD);
-            assertThat(savedAdmin.getRole()).isEqualTo(Role.ADMIN);
-            assertThat(savedAdmin.isLocked()).isFalse();
+            then(userFacade).should().signUp(any(UserCreateRequest.class));
+            then(userFacade).should().updateRoleInternal(any(UserRoleUpdateRequest.class), eq(ADMIN_ID));
         }
 
         @Test
         @DisplayName("Admin 계정이 이미 존재하면 생성하지 않는다")
         void whenAdminExists_shouldNotCreateAdmin() {
             // given
+            UserFacade userFacade = mock(UserFacade.class);
             AdminProperties adminProperties = new AdminProperties(
                 true, ADMIN_EMAIL, ADMIN_NAME, ADMIN_PASSWORD
             );
-            AdminInitializer initializer = new AdminInitializer(
-                userRepository, passwordEncoder, adminProperties
-            );
+            AdminInitializer initializer = new AdminInitializer(adminProperties, userFacade);
 
-            given(userRepository.existsByEmail(ADMIN_EMAIL)).willReturn(true);
+            given(userFacade.signUp(any(UserCreateRequest.class)))
+                .willThrow(new DuplicateEmailException(ADMIN_EMAIL));
 
             // when
             initializer.run(null);
 
             // then
-            then(userRepository).should(never()).save(any(UserModel.class));
+            then(userFacade).should().signUp(any(UserCreateRequest.class));
+            then(userFacade).should(never()).updateRoleInternal(any(UserRoleUpdateRequest.class), any());
+        }
+
+        @Test
+        @DisplayName("예외 발생 시 에러 로그를 남기고 종료한다")
+        void whenExceptionOccurs_shouldLogErrorAndContinue() {
+            // given
+            UserFacade userFacade = mock(UserFacade.class);
+            AdminProperties adminProperties = new AdminProperties(
+                true, ADMIN_EMAIL, ADMIN_NAME, ADMIN_PASSWORD
+            );
+            AdminInitializer initializer = new AdminInitializer(adminProperties, userFacade);
+
+            given(userFacade.signUp(any(UserCreateRequest.class)))
+                .willThrow(new RuntimeException("Unexpected error"));
+
+            // when
+            initializer.run(null);
+
+            // then
+            then(userFacade).should().signUp(any(UserCreateRequest.class));
+            then(userFacade).should(never()).updateRoleInternal(any(UserRoleUpdateRequest.class), any());
         }
     }
 }

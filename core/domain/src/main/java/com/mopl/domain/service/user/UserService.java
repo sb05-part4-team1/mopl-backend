@@ -23,6 +23,10 @@ public class UserService {
             .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
+    public UserModel update(UserModel userModel) {
+        return userRepository.save(userModel);
+    }
+
     private void validateDuplicateEmail(String email) {
         if (userRepository.existsByEmail(email)) {
             throw new DuplicateEmailException(email);
