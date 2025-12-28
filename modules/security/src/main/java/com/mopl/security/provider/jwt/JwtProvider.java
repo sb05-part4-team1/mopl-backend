@@ -58,7 +58,7 @@ public class JwtProvider {
 
             JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(payload.userId().toString())
-                .jwtID(payload.jti())
+                .jwtID(payload.jti().toString())
                 .issueTime(Date.from(now))
                 .expirationTime(Date.from(expiry))
                 .claim(JwtPayload.CLAIM_ROLES, payload.roles().stream().map(Enum::name).toList())

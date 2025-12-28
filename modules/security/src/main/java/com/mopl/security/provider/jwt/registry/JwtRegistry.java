@@ -5,7 +5,6 @@ import com.mopl.security.provider.jwt.JwtInformation;
 import java.util.UUID;
 
 public interface JwtRegistry {
-    // 1. 새로운 토큰 세션 등록 (큐 관리 포함)
     void registerJwtInformation(JwtInformation jwtInformation);
 
     // 2. 특정 액세스 토큰 무효화 (로그아웃 시 블랙리스트 등록)

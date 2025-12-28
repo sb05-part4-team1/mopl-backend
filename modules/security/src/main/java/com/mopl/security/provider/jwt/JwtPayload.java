@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public record JwtPayload(
     UUID userId,
     Set<UserModel.Role> roles,
-    String jti,
+    UUID jti,
     TokenType type
 ) {
 
@@ -53,7 +53,7 @@ public record JwtPayload(
         validate(roles != null && !roles.isEmpty(), "사용자 권한이 누락되었습니다.");
         validate(type != null, "토큰 타입이 누락되었습니다.");
 
-        return new JwtPayload(userId, roles, UUID.randomUUID().toString(), type);
+        return new JwtPayload(userId, roles, UUID.randomUUID(), type);
     }
 
     public static JwtPayload from(JWTClaimsSet claims) throws ParseException {
@@ -69,7 +69,7 @@ public record JwtPayload(
             return new JwtPayload(
                 UUID.fromString(sub),
                 extractRoles(claims),
-                jti,
+                UUID.fromString(jti),
                 TokenType.from(rawType)
             );
         } catch (InvalidTokenException e) {
