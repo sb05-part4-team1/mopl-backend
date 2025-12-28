@@ -9,36 +9,21 @@ import org.springframework.validation.annotation.Validated;
 
 import java.time.Duration;
 
-import static org.springframework.util.StringUtils.hasText;
-
 @ConfigurationProperties("mopl.jwt")
 @Validated
 public record JwtProperties(
-    @NotNull @Valid AccessToken accessToken,
-    @NotNull @Valid RefreshToken refreshToken,
+    @NotNull @Valid Config accessToken,
+    @NotNull @Valid Config refreshToken,
     @Positive int maxSessions,
     @NotNull JwtRegistryType registryType,
     @NotBlank String refreshTokenCookieName
 ) {
 
-    public record AccessToken(
+    public record Config(
         @NotBlank String secret,
         @NotNull Duration expiration,
         String previousSecret
     ) {
-        public boolean hasPreviousSecret() {
-            return hasText(previousSecret);
-        }
-    }
-
-    public record RefreshToken(
-        @NotBlank String secret,
-        @NotNull Duration expiration,
-        String previousSecret
-    ) {
-        public boolean hasPreviousSecret() {
-            return hasText(previousSecret);
-        }
     }
 
     public enum JwtRegistryType {

@@ -10,19 +10,18 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 public record JwtPayload(
     UUID userId,
-    String email,
     Set<UserModel.Role> roles,
     String jti,
     TokenType type
 ) {
 
-    public static final String CLAIM_USER_ID = "userId";
     public static final String CLAIM_ROLES = "roles";
     public static final String CLAIM_TYPE = "type";
 
@@ -47,33 +46,28 @@ public record JwtPayload(
 
     public static JwtPayload create(
         UUID userId,
-        String email,
         Set<UserModel.Role> roles,
         TokenType type
     ) {
         validate(userId != null, "사용자 ID가 누락되었습니다.");
-        validate(email != null && !email.isBlank(), "이메일이 누락되었습니다.");
         validate(roles != null && !roles.isEmpty(), "사용자 권한이 누락되었습니다.");
         validate(type != null, "토큰 타입이 누락되었습니다.");
 
-        return new JwtPayload(userId, email, roles, UUID.randomUUID().toString(), type);
+        return new JwtPayload(userId, roles, UUID.randomUUID().toString(), type);
     }
 
     public static JwtPayload from(JWTClaimsSet claims) throws ParseException {
-        String rawUserId = claims.getStringClaim(CLAIM_USER_ID);
-        String subject = claims.getSubject();
+        String sub = claims.getSubject();
         String jti = claims.getJWTID();
         String rawType = claims.getStringClaim(CLAIM_TYPE);
 
-        validate(rawUserId != null && !rawUserId.isBlank(), "토큰에 사용자 ID가 없습니다.");
-        validate(subject != null && !subject.isBlank(), "토큰에 이메일이 없습니다.");
+        validate(sub != null && !sub.isBlank(), "토큰에 사용자 식별자(subject)가 없습니다.");
         validate(jti != null && !jti.isBlank(), "토큰에 JTI가 없습니다.");
         validate(rawType != null && !rawType.isBlank(), "토큰에 타입이 없습니다.");
 
         try {
             return new JwtPayload(
-                UUID.fromString(rawUserId),
-                subject,
+                UUID.fromString(sub),
                 extractRoles(claims),
                 jti,
                 TokenType.from(rawType)
@@ -82,11 +76,12 @@ public record JwtPayload(
             throw e;
         } catch (IllegalArgumentException e) {
             throw new InvalidTokenException(
-                "토큰 데이터 형식이 유효하지 않습니다.",
-                Map.of("userId", rawUserId)
+                "토큰 데이터 형식이 유효하지 않습니다(UUID).",
+                Map.of("subject", Objects.toString(sub, "null"))
             );
         } catch (Exception e) {
-            throw new InvalidTokenException("토큰 정보를 읽는 중 오류가 발생했습니다.", Map.of("errorMessage", e.getMessage()));
+            throw new InvalidTokenException("토큰 정보를 읽는 중 오류가 발생했습니다.",
+                Map.of("errorMessage", Objects.toString(e.getMessage(), "unknown")));
         }
     }
 
