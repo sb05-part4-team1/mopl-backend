@@ -16,3 +16,10 @@ spring:
   threads:
     virtual:
       enabled: true
+
+mopl:
+  admin:
+    enabled: ${ADMIN_ENABLED:false}
+    email: ${ADMIN_EMAIL:}
+    name: ${ADMIN_NAME:}
+    password: ${ADMIN_PASSWORD:}

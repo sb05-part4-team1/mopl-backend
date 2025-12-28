@@ -26,7 +26,6 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 @AutoConfiguration
 @EnableWebSecurity
 @EnableMethodSecurity
-@PropertySource(value = "classpath:security.yaml", factory = YamlPropertySourceFactory.class)
 @EnableConfigurationProperties(JwtProperties.class)
 public class SecurityAutoConfiguration {
 

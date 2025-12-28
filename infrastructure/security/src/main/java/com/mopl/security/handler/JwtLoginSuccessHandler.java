@@ -1,7 +1,8 @@
 package com.mopl.security.handler;
 
 import com.mopl.domain.service.user.UserService;
-import com.mopl.security.jwt.JwtTokenProvider;
+import com.mopl.security.jwt.JwtCookieProvider;
+import com.mopl.security.jwt.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
-    private final JwtTokenProvider tokenProvider;
+    private final JwtProvider tokenProvider;
     private final JwtCookieProvider cookieProvider;
     private final JwtResponseWriter responseWriter;
     private final JwtRegistry jwtRegistry;
@@ -45,7 +46,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
             JwtDto jwtDto = generateAndRegisterTokens(userDetails);
             UserDto userDto = userService.findById(userDetails.getUserDetailsDto().id());
 
-            response.addCookie(cookieProvider.createRefreshTokenCookie(jwtDto.refreshToken()));
+            // response.addCookie(cookieProvider.createRefreshTokenCookie(jwtDto.refreshToken()));
             responseWriter.writeSuccess(response, new JwtResponse(userDto, jwtDto.accessToken()));
 
             eventPublisher.publishEvent(new LoginEvent(
