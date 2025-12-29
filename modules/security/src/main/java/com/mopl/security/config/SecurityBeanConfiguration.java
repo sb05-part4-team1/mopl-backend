@@ -1,6 +1,7 @@
 package com.mopl.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mopl.domain.service.user.UserService;
 import com.mopl.security.filter.jwt.JwtAuthenticationFilter;
 import com.mopl.security.handler.ApiResponseHandler;
 import com.mopl.security.handler.Http401UnauthorizedEntryPoint;
@@ -11,12 +12,14 @@ import com.mopl.security.handler.jwt.JwtLoginSuccessHandler;
 import com.mopl.security.handler.jwt.JwtLogoutHandler;
 import com.mopl.security.provider.jwt.JwtCookieProvider;
 import com.mopl.security.provider.jwt.JwtProvider;
+import com.mopl.security.provider.jwt.MoplUserDetailsService;
 import com.mopl.security.provider.jwt.registry.InMemoryJwtRegistry;
 import com.mopl.security.provider.jwt.registry.JwtRegistry;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 @Configuration
 public class SecurityBeanConfiguration {
@@ -90,5 +93,10 @@ public class SecurityBeanConfiguration {
         JwtRegistry jwtRegistry
     ) {
         return new JwtLoginSuccessHandler(jwtProvider, jwtCookieProvider, jwtRegistry, apiResponseHandler);
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService(UserService userService) {
+        return new MoplUserDetailsService(userService);
     }
 }

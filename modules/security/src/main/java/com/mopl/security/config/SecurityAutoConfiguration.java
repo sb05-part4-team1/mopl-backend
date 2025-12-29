@@ -21,6 +21,7 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,6 +29,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @AutoConfiguration
 @EnableWebSecurity
@@ -56,8 +58,12 @@ public class SecurityAutoConfiguration {
     ) throws Exception {
         http
             .csrf(csrf -> csrf
+                .ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**"))
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .csrfTokenRequestHandler(spaCsrfTokenRequestHandler)
+            )
+            .headers(headers -> headers
+                .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -68,12 +74,12 @@ public class SecurityAutoConfiguration {
             )
             .authorizeHttpRequests(securityRegistry::configure)
             .formLogin(login -> login
-                .loginProcessingUrl("/api/auth/login")
+                .loginProcessingUrl("/api/auth/sign-in")
                 .successHandler(jwtLoginSuccessHandler)
                 .failureHandler(loginFailureHandler)
             )
             .logout(logout -> logout
-                .logoutUrl("/api/auth/logout")
+                .logoutUrl("/api/auth/sign-out")
                 .addLogoutHandler(jwtLogoutHandler)
                 .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
             )
