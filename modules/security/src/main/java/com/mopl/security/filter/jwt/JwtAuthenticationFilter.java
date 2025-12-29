@@ -1,9 +1,6 @@
 package com.mopl.security.filter.jwt;
 
 import com.mopl.domain.exception.auth.InvalidTokenException;
-import com.mopl.domain.exception.user.UserNotFoundException;
-import com.mopl.domain.model.user.UserModel;
-import com.mopl.domain.service.user.UserService;
 import com.mopl.security.provider.jwt.JwtPayload;
 import com.mopl.security.provider.jwt.JwtProvider;
 import com.mopl.security.provider.jwt.MoplUserDetails;
@@ -26,7 +23,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -36,9 +32,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtProvider jwtProvider;
-    private final JwtResponseWriter responseWriter;
     private final JwtRegistry jwtRegistry;
-    private final UserService userService;
+    private final JwtResponseWriter jwtResponseWriter;
 
     @Override
     protected void doFilterInternal(
@@ -46,54 +41,60 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         @NonNull HttpServletResponse response,
         @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
+        String token = resolveToken(request);
+
+        if (token == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
-            String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-
-            if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            String token = authHeader.substring(BEARER_PREFIX.length());
             JwtPayload jwtPayload = jwtProvider.verifyAndParse(token, TokenType.ACCESS);
+
             if (jwtRegistry.isAccessTokenInBlacklist(jwtPayload.jti())) {
-                log.debug("유효하지 않은 JWT 토큰");
-                responseWriter.writeError(response, new InvalidTokenException("유효하지 않은 토큰입니다."));
+                log.warn("블랙리스트에 등록된 토큰 접근 시도: jti={}", jwtPayload.jti());
+                jwtResponseWriter.writeError(response, new InvalidTokenException("로그아웃된 토큰입니다."));
                 return;
             }
 
-            setAuthentication(jwtPayload.sub(), request);
-            log.debug("JWT 인증 설정 완료: userId={}", jwtPayload.sub());
-        } catch (Exception e) {
+            setAuthentication(jwtPayload, request);
+        } catch (InvalidTokenException e) {
             log.debug("JWT 인증 실패: {}", e.getMessage());
             SecurityContextHolder.clearContext();
-            responseWriter.writeError(response, new InvalidTokenException(""));
+            jwtResponseWriter.writeError(response, e);
+            return;
+        } catch (Exception e) {
+            log.error("JWT 필터 처리 중 예기치 않은 오류 발생", e);
+            SecurityContextHolder.clearContext();
+            jwtResponseWriter.writeError(response, new InvalidTokenException("인증 처리 중 오류가 발생했습니다."));
             return;
         }
 
         filterChain.doFilter(request, response);
     }
 
-    private void setAuthentication(UUID userId, HttpServletRequest request) {
-        try {
-            UserModel user = userService.getById(userId);
+    private String resolveToken(HttpServletRequest request) {
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeader != null && authHeader.startsWith(BEARER_PREFIX)) {
+            return authHeader.substring(BEARER_PREFIX.length());
+        }
+        return null;
+    }
 
-            UserDetails userDetails = new MoplUserDetails(
-                user.getId(),
-                user.getRole()
+    private void setAuthentication(JwtPayload jwtPayload, HttpServletRequest request) {
+        UserDetails userDetails = new MoplUserDetails(
+            jwtPayload.sub(),
+            jwtPayload.role()
+        );
+
+        UsernamePasswordAuthenticationToken authentication =
+            new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null,
+                userDetails.getAuthorities()
             );
 
-            UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(
-                    userDetails,
-                    null,
-                    userDetails.getAuthorities()
-                );
-
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (UserNotFoundException e) {
-            throw new InvalidTokenException("");
-        }
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }
