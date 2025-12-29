@@ -29,8 +29,8 @@ public class InMemoryJwtRegistry implements JwtRegistry {
 
     @Override
     public void register(JwtInformation jwtInformation) {
-        UUID userId = jwtInformation.refreshTokenPayload().sub();
-        UUID jti = jwtInformation.refreshTokenPayload().jti();
+        UUID userId = jwtInformation.userId();
+        UUID jti = jwtInformation.refreshTokenJti();
 
         writeLock(() -> {
             LinkedHashMap<UUID, JwtInformation> sessions = whitelist.computeIfAbsent(
@@ -48,21 +48,21 @@ public class InMemoryJwtRegistry implements JwtRegistry {
 
     @Override
     public void rotate(UUID oldRefreshTokenJti, JwtInformation newJwtInformation) {
-        UUID userId = newJwtInformation.refreshTokenPayload().sub();
+        UUID userId = newJwtInformation.userId();
 
         writeLock(() -> {
             LinkedHashMap<UUID, JwtInformation> sessions = whitelist.get(userId);
             if (isInvalidSession(sessions, oldRefreshTokenJti)) {
                 log.error("유효하지 않은 리프레시 토큰으로 로테이션 시도됨. " +
                     "해당 유저의 모든 세션을 무효화합니다. userId={}, jti={}", userId, oldRefreshTokenJti);
-                revokeAllByUserId(newJwtInformation.refreshTokenPayload().sub());
+                revokeAllByUserId(userId);
                 throw new InvalidTokenException("세션이 만료되었습니다. 다시 로그인해 주세요.");
             }
 
             JwtInformation oldInfo = sessions.remove(oldRefreshTokenJti);
             addToBlacklist(oldInfo);
 
-            sessions.put(newJwtInformation.refreshTokenPayload().jti(), newJwtInformation);
+            sessions.put(newJwtInformation.refreshTokenJti(), newJwtInformation);
             log.debug("JWT 로테이션 완료: userId={}", userId);
         });
     }
@@ -89,10 +89,10 @@ public class InMemoryJwtRegistry implements JwtRegistry {
         writeLock(() -> {
             addToBlacklist(jwtInformation);
 
-            LinkedHashMap<UUID, JwtInformation> sessions = whitelist.get(jwtInformation.refreshTokenPayload().sub());
+            LinkedHashMap<UUID, JwtInformation> sessions = whitelist.get(jwtInformation.userId());
             if (sessions != null) {
-                sessions.remove(jwtInformation.refreshTokenPayload().jti());
-                if (sessions.isEmpty()) whitelist.remove(jwtInformation.refreshTokenPayload().sub());
+                sessions.remove(jwtInformation.refreshTokenJti());
+                if (sessions.isEmpty()) whitelist.remove(jwtInformation.userId());
             }
         });
     }

@@ -49,27 +49,19 @@ public class JwtProvider {
         }
     }
 
-    public String generateToken(UUID userId, UserModel.Role role, TokenType tokenType) {
-        try {
-            Date iat = new Date();
-            Date exp = new Date(iat.getTime() + expirations.get(tokenType).toMillis());
+    public JwtInformation issueTokenPair(UUID userId, UserModel.Role role) {
+        String accessToken = generateToken(userId, role, TokenType.ACCESS);
+        String refreshToken = generateToken(userId, role, TokenType.REFRESH);
 
-            JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject(userId.toString())
-                .jwtID(UUID.randomUUID().toString())
-                .issueTime(iat)
-                .expirationTime(exp)
-                .claim("role", role.name())
-                .build();
+        JwtPayload accessTokenPayload = verifyAndParse(accessToken, TokenType.ACCESS);
+        JwtPayload refreshTokenPayload = verifyAndParse(refreshToken, TokenType.REFRESH);
 
-            SignedJWT signedJWT = new SignedJWT(JWS_HEADER, claimsSet);
-            signedJWT.sign(signers.get(tokenType));
-
-            return signedJWT.serialize();
-        } catch (JOSEException e) {
-            log.error("{} 토큰 생성 실패: userId={}", tokenType, userId, e);
-            throw new IllegalStateException("토큰 발행 중 오류가 발생했습니다.", e);
-        }
+        return new JwtInformation(
+            accessToken,
+            refreshToken,
+            accessTokenPayload,
+            refreshTokenPayload
+        );
     }
 
     public JwtPayload verifyAndParse(String token, TokenType expectedType) {
@@ -93,6 +85,29 @@ public class JwtProvider {
         } catch (ParseException | JOSEException e) {
             log.error("JWT 검증 실패: {}", e.getMessage());
             throw new InvalidTokenException("유효하지 않은 토큰입니다.");
+        }
+    }
+
+    private String generateToken(UUID userId, UserModel.Role role, TokenType tokenType) {
+        try {
+            Date iat = new Date();
+            Date exp = new Date(iat.getTime() + expirations.get(tokenType).toMillis());
+
+            JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject(userId.toString())
+                .jwtID(UUID.randomUUID().toString())
+                .issueTime(iat)
+                .expirationTime(exp)
+                .claim("role", role.name())
+                .build();
+
+            SignedJWT signedJWT = new SignedJWT(JWS_HEADER, claimsSet);
+            signedJWT.sign(signers.get(tokenType));
+
+            return signedJWT.serialize();
+        } catch (JOSEException e) {
+            log.error("{} 토큰 생성 실패: userId={}", tokenType, userId, e);
+            throw new IllegalStateException("토큰 발행 중 오류가 발생했습니다.", e);
         }
     }
 

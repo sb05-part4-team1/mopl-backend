@@ -22,8 +22,13 @@ public class MoplUserDetailsService implements UserDetailsService {
 
             return new MoplUserDetails(
                 user.getId(),
+                user.getCreatedAt(),
                 user.getPassword(),
-                user.getRole()
+                user.getEmail(),
+                user.getName(),
+                user.getProfileImageUrl(),
+                user.getRole(),
+                user.isLocked()
             );
         } catch (UserNotFoundException e) {
             throw new UsernameNotFoundException("존재하지 않는 사용자 이메일입니다: " + email);

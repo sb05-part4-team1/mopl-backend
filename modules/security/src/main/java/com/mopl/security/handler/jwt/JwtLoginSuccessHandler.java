@@ -1,7 +1,9 @@
 package com.mopl.security.handler.jwt;
 
+import com.mopl.domain.model.user.UserModel;
 import com.mopl.security.handler.ApiResponseHandler;
 import com.mopl.security.provider.jwt.JwtCookieProvider;
+import com.mopl.security.provider.jwt.JwtInformation;
 import com.mopl.security.provider.jwt.JwtProvider;
 import com.mopl.security.provider.jwt.MoplUserDetails;
 import com.mopl.security.provider.jwt.registry.JwtRegistry;
@@ -14,15 +16,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Slf4j
 public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
-    private final JwtProvider tokenProvider;
+    private final JwtProvider jwtProvider;
     private final JwtCookieProvider cookieProvider;
-    private final ApiResponseHandler responseWriter;
     private final JwtRegistry jwtRegistry;
+    private final ApiResponseHandler apiResponseHandler;
 
     @Override
     public void onAuthenticationSuccess(
@@ -36,39 +40,47 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
         }
 
         try {
-            JwtDto jwtDto = generateAndRegisterTokens(userDetails);
-            UserDto userDto = userService.findById(userDetails.getUserDetailsDto().id());
+            JwtInformation jwtInformation = jwtProvider.issueTokenPair(
+                userDetails.userId(),
+                userDetails.role()
+            );
+            jwtRegistry.register(jwtInformation);
 
-            // response.addCookie(cookieProvider.createRefreshTokenCookie(jwtDto.refreshToken()));
-            responseWriter.writeSuccess(response, new JwtResponse(userDto, jwtDto.accessToken()));
+            UserDetailsDto userDetailsDto = new UserDetailsDto(
+                userDetails.userId(),
+                userDetails.createdAt(),
+                userDetails.email(),
+                userDetails.name(),
+                userDetails.profileImageUrl(),
+                userDetails.role(),
+                userDetails.locked()
+            );
 
-            eventPublisher.publishEvent(new LoginEvent(
-                userDto.id(),
-                userDto.username(),
-                extractIpAddress(request),
-                extractUserAgent(request),
-                duration
-            ));
+            JwtResponse jwtResponse = new JwtResponse(
+                userDetailsDto,
+                jwtInformation.accessToken()
+            );
+
+            response.addCookie(cookieProvider.createRefreshTokenCookie(jwtInformation.refreshToken()));
+            apiResponseHandler.writeSuccess(response, jwtResponse);
 
             log.info("JWT 토큰 발급 완료: username={}", userDetails.getUsername());
         } catch (Exception e) {
-            eventPublisher.publishEvent(new LoginFailureEvent(duration));
-
             log.error("JWT 토큰 생성 실패: username={}", userDetails.getUsername(), e);
         }
     }
 
-    private JwtDto generateAndRegisterTokens(DiscodeitUserDetails userDetails) {
-        String accessToken = tokenProvider.generateAccessToken(userDetails);
-        String refreshToken = tokenProvider.generateRefreshToken(userDetails);
+    private record JwtResponse(UserDetailsDto userDto, String accessToken) {
+    }
 
-        JwtDto jwtDto = new JwtDto(
-            userDetails.getUserDetailsDto(),
-            accessToken,
-            refreshToken
-        );
-
-        jwtRegistry.registerJwtInformation(jwtDto);
-        return jwtDto;
+    private record UserDetailsDto(
+        UUID id,
+        Instant createdAt,
+        String email,
+        String name,
+        String profileImageUrl,
+        UserModel.Role role,
+        boolean locked
+    ) {
     }
 }
