@@ -1,7 +1,5 @@
 package com.mopl.security.provider.jwt.registry;
 
-import com.mopl.security.provider.jwt.JwtInformation;
-
 import java.util.UUID;
 
 public interface JwtRegistry {

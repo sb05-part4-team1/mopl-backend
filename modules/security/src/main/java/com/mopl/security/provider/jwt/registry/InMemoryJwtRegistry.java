@@ -1,7 +1,6 @@
 package com.mopl.security.provider.jwt.registry;
 
 import com.mopl.security.config.JwtProperties;
-import com.mopl.security.provider.jwt.JwtInformation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;

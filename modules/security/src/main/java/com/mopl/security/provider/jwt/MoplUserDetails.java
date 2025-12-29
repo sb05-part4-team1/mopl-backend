@@ -1,8 +1,6 @@
 package com.mopl.security.provider.jwt;
 
 import com.mopl.domain.model.user.UserModel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,12 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-@Getter
-@RequiredArgsConstructor
-public class MoplUserDetails implements UserDetails {
-
-    private final UUID userId;
-    private final UserModel.Role role;
+public record MoplUserDetails(UUID userId, UserModel.Role role) implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
