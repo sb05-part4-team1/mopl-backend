@@ -1,12 +1,12 @@
 package com.mopl.security.filter.jwt;
 
 import com.mopl.domain.exception.auth.InvalidTokenException;
+import com.mopl.security.handler.ApiResponseHandler;
 import com.mopl.security.provider.jwt.JwtPayload;
 import com.mopl.security.provider.jwt.JwtProvider;
 import com.mopl.security.provider.jwt.MoplUserDetails;
 import com.mopl.security.provider.jwt.TokenType;
 import com.mopl.security.provider.jwt.registry.JwtRegistry;
-import com.mopl.security.handler.ApiResponseHandler;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -80,10 +80,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void setAuthentication(JwtPayload jwtPayload, HttpServletRequest request) {
-        UserDetails userDetails = new MoplUserDetails(
-            jwtPayload.sub(),
-            jwtPayload.role()
-        );
+        UserDetails userDetails = MoplUserDetails.builder()
+            .userId(jwtPayload.sub())
+            .role(jwtPayload.role())
+            .createdAt(null)
+            .password(null)
+            .email(null)
+            .name(null)
+            .profileImageUrl(null)
+            .locked(false)
+            .build();
 
         UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(

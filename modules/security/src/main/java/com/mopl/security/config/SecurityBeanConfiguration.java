@@ -89,6 +89,6 @@ public class SecurityBeanConfiguration {
         ApiResponseHandler apiResponseHandler,
         JwtRegistry jwtRegistry
     ) {
-        return new JwtLoginSuccessHandler(jwtProvider, jwtCookieProvider, apiResponseHandler, jwtRegistry);
+        return new JwtLoginSuccessHandler(jwtProvider, jwtCookieProvider, jwtRegistry, apiResponseHandler);
     }
 }

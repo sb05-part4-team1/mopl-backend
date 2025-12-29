@@ -85,14 +85,27 @@ public class InMemoryJwtRegistry implements JwtRegistry {
     }
 
     @Override
-    public void revoke(JwtInformation jwtInformation) {
+    public void revokeAccessToken(UUID accessTokenJti, Date expiration) {
         writeLock(() -> {
-            addToBlacklist(jwtInformation);
+            if (expiration.after(new Date())) {
+                blacklist.put(accessTokenJti, expiration);
+                log.debug("Access 토큰 블랙리스트 등록: jti={}", accessTokenJti);
+            }
+        });
+    }
 
-            LinkedHashMap<UUID, JwtInformation> sessions = whitelist.get(jwtInformation.userId());
+    @Override
+    public void revokeRefreshToken(UUID userId, UUID refreshTokenJti) {
+        writeLock(() -> {
+            LinkedHashMap<UUID, JwtInformation> sessions = whitelist.get(userId);
             if (sessions != null) {
-                sessions.remove(jwtInformation.refreshTokenJti());
-                if (sessions.isEmpty()) whitelist.remove(jwtInformation.userId());
+                JwtInformation removed = sessions.remove(refreshTokenJti);
+                if (removed != null) {
+                    log.debug("Refresh 토큰 화이트리스트에서 제거: userId={}, jti={}", userId, refreshTokenJti);
+                }
+                if (sessions.isEmpty()) {
+                    whitelist.remove(userId);
+                }
             }
         });
     }

@@ -2,6 +2,7 @@ package com.mopl.security.provider.jwt.registry;
 
 import com.mopl.security.provider.jwt.JwtInformation;
 
+import java.util.Date;
 import java.util.UUID;
 
 public interface JwtRegistry {
@@ -14,7 +15,9 @@ public interface JwtRegistry {
 
     boolean isRefreshTokenNotInWhitelist(UUID userId, UUID refreshTokenJti);
 
-    void revoke(JwtInformation jwtInformation);
+    void revokeAccessToken(UUID accessTokenJti, Date expiration);
+
+    void revokeRefreshToken(UUID userId, UUID refreshTokenJti);
 
     void revokeAllByUserId(UUID userId);
 

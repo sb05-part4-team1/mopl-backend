@@ -15,7 +15,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.util.UUID;
 
