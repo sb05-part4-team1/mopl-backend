@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.mopl.domain.exception.user.SelfFollowException;
 import com.mopl.domain.model.user.FollowModel;
 import com.mopl.domain.repository.user.FollowRepository;
 
@@ -47,7 +48,7 @@ class FollowServiceTest {
 
             given(followRepository.findByFollowerIdAndFolloweeId(followerId, followeeId))
                 .willReturn(Optional.empty());
-            given(followRepository.save(any(FollowModel.class)))
+            given(followRepository.save(followModel))
                 .willReturn(savedFollow);
 
             // when
@@ -58,29 +59,14 @@ class FollowServiceTest {
             assertThat(result.getId()).isNotNull();
             assertThat(result.getFollowerId()).isEqualTo(followerId);
             assertThat(result.getFolloweeId()).isEqualTo(followeeId);
+
             then(followRepository).should().findByFollowerIdAndFolloweeId(followerId, followeeId);
-            then(followRepository).should().save(any(FollowModel.class));
+            then(followRepository).should().save(followModel);
         }
 
         @Test
-        @DisplayName("자기 자신을 팔로우하면 예외 발생")
-        void givenSelfFollowRequest_whenCreate_thenThrowsIllegalArgumentException() {
-            // given
-            UUID sameUserId = UUID.randomUUID();
-            FollowModel selfFollowModel = FollowModel.create(sameUserId, sameUserId);
-
-            // when & then
-            assertThatThrownBy(() -> followService.create(selfFollowModel))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("자기 자신을 팔로우할 수 없습니다.");
-
-            then(followRepository).should(never()).findByFollowerIdAndFolloweeId(any(), any());
-            then(followRepository).should(never()).save(any());
-        }
-
-        @Test
-        @DisplayName("이미 팔로우 중이면 예외 발생")
-        void givenAlreadyExistingFollow_whenCreate_thenThrowsIllegalStateException() {
+        @DisplayName("이미 팔로우 중이면 예외 없이 기존 관계 반환")
+        void givenAlreadyExistingFollow_whenCreate_thenReturnExistingFollow() {
             // given
             UUID followerId = UUID.randomUUID();
             UUID followeeId = UUID.randomUUID();
@@ -95,51 +81,31 @@ class FollowServiceTest {
             given(followRepository.findByFollowerIdAndFolloweeId(followerId, followeeId))
                 .willReturn(Optional.of(existingFollow));
 
-            // when & then
-            assertThatThrownBy(() -> followService.create(followModel))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("이미 팔로우 중인 사용자입니다.");
+            // when
+            FollowModel result = followService.create(followModel);
+
+            // then
+            assertThat(result).isEqualTo(existingFollow);
+            assertThat(result.getId()).isEqualTo(existingFollow.getId());
 
             then(followRepository).should().findByFollowerIdAndFolloweeId(followerId, followeeId);
             then(followRepository).should(never()).save(any());
         }
 
         @Test
-        @DisplayName("삭제된 팔로우 관계를 복구하여 저장")
-        void givenDeletedFollowHistory_whenCreate_thenRestoresAndSaves() {
+        @DisplayName("자기 자신을 팔로우 하면 SelfFollowException 발생")
+        void givenSelfFollowRequest_whenCreate_thenThrowsSelfFollowException() {
             // given
-            UUID followerId = UUID.randomUUID();
-            UUID followeeId = UUID.randomUUID();
-            FollowModel followModel = FollowModel.create(followeeId, followerId);
-            FollowModel deletedFollow = FollowModel.builder()
-                .id(UUID.randomUUID())
-                .followeeId(followeeId)
-                .followerId(followerId)
-                .build();
-            deletedFollow.delete();
+            UUID sameUserId = UUID.randomUUID();
+            FollowModel selfFollowModel = FollowModel.create(sameUserId, sameUserId);
 
-            FollowModel restoredFollow = FollowModel.builder()
-                .id(deletedFollow.getId())
-                .followeeId(followeeId)
-                .followerId(followerId)
-                .deletedAt(null)
-                .build();
+            // when & then
+            assertThatThrownBy(() -> followService.create(selfFollowModel))
+                .isInstanceOf(SelfFollowException.class)
+                .hasMessage(SelfFollowException.MESSAGE);
 
-            given(followRepository.findByFollowerIdAndFolloweeId(followerId, followeeId))
-                .willReturn(Optional.of(deletedFollow));
-            given(followRepository.save(deletedFollow))
-                .willReturn(restoredFollow);
-
-            // when
-            FollowModel result = followService.create(followModel);
-
-            // then
-            assertThat(result).isNotNull();
-            assertThat(result.getId()).isEqualTo(deletedFollow.getId());
-            assertThat(result.getFollowerId()).isEqualTo(followerId);
-            assertThat(result.getFolloweeId()).isEqualTo(followeeId);
-            then(followRepository).should().findByFollowerIdAndFolloweeId(followerId, followeeId);
-            then(followRepository).should().save(deletedFollow);
+            then(followRepository).should(never()).findByFollowerIdAndFolloweeId(any(), any());
+            then(followRepository).should(never()).save(any());
         }
     }
 }
