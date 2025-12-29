@@ -33,7 +33,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
         @NonNull HttpServletRequest request,
         @NonNull HttpServletResponse response,
         @NonNull Authentication authentication
-    ) throws IOException {
+    ) {
         if (!(authentication.getPrincipal() instanceof MoplUserDetails userDetails)) {
             log.error("인증 실패: 예상치 못한 Principal 타입");
             return;
