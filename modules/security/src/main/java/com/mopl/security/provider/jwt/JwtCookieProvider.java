@@ -2,11 +2,9 @@ package com.mopl.security.provider.jwt;
 
 import com.mopl.security.config.JwtProperties;
 import jakarta.servlet.http.Cookie;
-import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 
-@Component
 public class JwtCookieProvider {
 
     private final String refreshTokenCookieName;

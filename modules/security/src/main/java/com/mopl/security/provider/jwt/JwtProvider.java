@@ -13,7 +13,6 @@ import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
@@ -27,7 +26,6 @@ import java.util.UUID;
 
 import static org.springframework.util.StringUtils.hasText;
 
-@Component
 @Slf4j
 public class JwtProvider {
 

@@ -6,12 +6,10 @@ import com.mopl.domain.exception.MoplException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-@Component
 @RequiredArgsConstructor
 public class ApiResponseHandler {
 

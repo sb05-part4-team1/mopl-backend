@@ -1,11 +1,10 @@
 package com.mopl.security.handler.jwt;
 
-import com.mopl.domain.service.user.UserService;
+import com.mopl.security.handler.ApiResponseHandler;
 import com.mopl.security.provider.jwt.JwtCookieProvider;
 import com.mopl.security.provider.jwt.JwtProvider;
 import com.mopl.security.provider.jwt.MoplUserDetails;
 import com.mopl.security.provider.jwt.registry.JwtRegistry;
-import com.mopl.security.handler.ApiResponseHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -13,11 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-@Component
 @RequiredArgsConstructor
 @Slf4j
 public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
@@ -26,7 +23,6 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
     private final JwtCookieProvider cookieProvider;
     private final ApiResponseHandler responseWriter;
     private final JwtRegistry jwtRegistry;
-    private final UserService userService;
 
     @Override
     public void onAuthenticationSuccess(

@@ -4,9 +4,7 @@ import com.mopl.domain.exception.auth.InvalidTokenException;
 import com.mopl.security.config.JwtProperties;
 import com.mopl.security.provider.jwt.JwtInformation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -16,8 +14,6 @@ import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 
-@Component
-@ConditionalOnProperty(name = "mopl.jwt.registry-type", havingValue = "in-memory", matchIfMissing = true)
 @Slf4j
 public class InMemoryJwtRegistry implements JwtRegistry {
 

@@ -1,6 +1,7 @@
 package com.mopl.security.handler.jwt;
 
 import com.mopl.domain.exception.auth.InvalidTokenException;
+import com.mopl.security.config.JwtProperties;
 import com.mopl.security.provider.jwt.JwtCookieProvider;
 import com.mopl.security.provider.jwt.JwtPayload;
 import com.mopl.security.provider.jwt.JwtProvider;
@@ -8,28 +9,33 @@ import com.mopl.security.provider.jwt.registry.JwtRegistry;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
-import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
 @Slf4j
-@Component
-@RequiredArgsConstructor
 public class JwtLogoutHandler implements LogoutHandler {
 
     private static final String BEARER_PREFIX = "Bearer ";
 
-    @Value("${mopl.jwt.refresh-token-cookie-name}")
-    private String refreshTokenCookieName;
-
+    private final String refreshTokenCookieName;
     private final JwtProvider jwtProvider;
     private final JwtCookieProvider cookieProvider;
     private final JwtRegistry jwtRegistry;
+
+    public JwtLogoutHandler(
+        JwtProvider jwtProvider,
+        JwtCookieProvider cookieProvider,
+        JwtRegistry jwtRegistry,
+        JwtProperties jwtProperties
+    ) {
+        this.jwtProvider = jwtProvider;
+        this.cookieProvider = cookieProvider;
+        this.jwtRegistry = jwtRegistry;
+        this.refreshTokenCookieName = jwtProperties.refreshTokenCookieName();
+    }
 
     @Override
     public void logout(
