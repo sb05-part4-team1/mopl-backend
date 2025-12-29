@@ -6,7 +6,7 @@ import com.mopl.security.provider.jwt.JwtProvider;
 import com.mopl.security.provider.jwt.MoplUserDetails;
 import com.mopl.security.provider.jwt.TokenType;
 import com.mopl.security.provider.jwt.registry.JwtRegistry;
-import com.mopl.security.util.jwt.JwtResponseWriter;
+import com.mopl.security.handler.ApiResponseHandler;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final JwtRegistry jwtRegistry;
-    private final JwtResponseWriter jwtResponseWriter;
+    private final ApiResponseHandler apiResponseHandler;
 
     @Override
     protected void doFilterInternal(
@@ -53,7 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (jwtRegistry.isAccessTokenInBlacklist(jwtPayload.jti())) {
                 log.warn("블랙리스트에 등록된 토큰 접근 시도: jti={}", jwtPayload.jti());
-                jwtResponseWriter.writeError(response, new InvalidTokenException("로그아웃된 토큰입니다."));
+                apiResponseHandler.writeError(response, new InvalidTokenException("로그아웃된 토큰입니다."));
                 return;
             }
 
@@ -61,12 +61,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (InvalidTokenException e) {
             log.debug("JWT 인증 실패: {}", e.getMessage());
             SecurityContextHolder.clearContext();
-            jwtResponseWriter.writeError(response, e);
+            apiResponseHandler.writeError(response, e);
             return;
         } catch (Exception e) {
             log.error("JWT 필터 처리 중 예기치 않은 오류 발생", e);
             SecurityContextHolder.clearContext();
-            jwtResponseWriter.writeError(response, new InvalidTokenException("인증 처리 중 오류가 발생했습니다."));
+            apiResponseHandler.writeError(response, new InvalidTokenException("인증 처리 중 오류가 발생했습니다."));
             return;
         }
 

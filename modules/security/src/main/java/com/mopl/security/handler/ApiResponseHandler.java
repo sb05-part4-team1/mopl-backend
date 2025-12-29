@@ -1,4 +1,4 @@
-package com.mopl.security.util.jwt;
+package com.mopl.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.domain.exception.ErrorResponse;
@@ -13,23 +13,24 @@ import java.nio.charset.StandardCharsets;
 
 @Component
 @RequiredArgsConstructor
-public class JwtResponseWriter {
+public class ApiResponseHandler {
 
     private final ObjectMapper objectMapper;
 
+    // 추후 ErrorCode에서 status 추출
+    public void writeError(HttpServletResponse response, MoplException exception) throws IOException {
+        ErrorResponse errorResponse = ErrorResponse.from(exception);
+        write(response, HttpServletResponse.SC_BAD_REQUEST, errorResponse);
+    }
+
     public void writeSuccess(HttpServletResponse response, Object body) throws IOException {
-        response.setStatus(HttpServletResponse.SC_OK);
+        write(response, HttpServletResponse.SC_OK, body);
+    }
+
+    private void write(HttpServletResponse response, int status, Object body) throws IOException {
+        response.setStatus(status);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.getWriter().write(objectMapper.writeValueAsString(body));
-    }
-
-    public void writeError(HttpServletResponse response, MoplException exception) throws IOException {
-        ErrorResponse errorResponse = ErrorResponse.from(exception);
-
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }

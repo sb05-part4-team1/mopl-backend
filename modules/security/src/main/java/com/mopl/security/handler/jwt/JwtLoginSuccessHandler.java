@@ -5,7 +5,7 @@ import com.mopl.security.provider.jwt.JwtCookieProvider;
 import com.mopl.security.provider.jwt.JwtProvider;
 import com.mopl.security.provider.jwt.MoplUserDetails;
 import com.mopl.security.provider.jwt.registry.JwtRegistry;
-import com.mopl.security.util.jwt.JwtResponseWriter;
+import com.mopl.security.handler.ApiResponseHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtProvider tokenProvider;
     private final JwtCookieProvider cookieProvider;
-    private final JwtResponseWriter responseWriter;
+    private final ApiResponseHandler responseWriter;
     private final JwtRegistry jwtRegistry;
     private final UserService userService;
 
