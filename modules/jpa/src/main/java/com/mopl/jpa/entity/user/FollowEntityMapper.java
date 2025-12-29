@@ -5,13 +5,15 @@ import org.springframework.stereotype.Component;
 import com.mopl.domain.model.user.FollowModel;
 import com.mopl.jpa.repository.user.JpaUserRepository;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class FollowEntityMapper {
 
-    private final JpaUserRepository jpaUserRepository;
+    // Proxy를 사용해서 성능 최적화하기
+    private final EntityManager em;
 
     public FollowModel toModel(FollowEntity followEntity) {
         if (followEntity == null) {
@@ -29,11 +31,8 @@ public class FollowEntityMapper {
 
     public FollowEntity toEntity(FollowModel followModel) {
 
-        UserEntity followee = jpaUserRepository.findById(followModel.getFolloweeId())
-            .orElseThrow(() -> new IllegalArgumentException("팔로우할 사용자가 없습니다."));
-
-        UserEntity follower = jpaUserRepository.findById(followModel.getFollowerId())
-            .orElseThrow(() -> new IllegalArgumentException("팔로워가 없습니다."));
+        UserEntity followee = em.getReference(UserEntity.class, followModel.getFolloweeId());
+        UserEntity follower = em.getReference(UserEntity.class, followModel.getFollowerId());
 
         return FollowEntity.builder()
             .followee(followee)
