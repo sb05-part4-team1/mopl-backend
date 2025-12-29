@@ -7,11 +7,13 @@ import com.mopl.jpa.entity.content.ContentEntity;
 import com.mopl.jpa.entity.content.ContentEntityMapper;
 import com.mopl.jpa.entity.content.ContentTagEntity;
 import com.mopl.jpa.entity.tag.TagEntity;
+import com.mopl.jpa.repository.tag.JpaContentTagRepository; 
 import com.mopl.jpa.repository.tag.JpaTagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -47,6 +49,12 @@ public class ContentRepositoryImpl implements ContentRepository {
 
         List<String> tagNames = (tags == null) ? List.of() : tags.stream().map(TagModel::getName)
             .toList();
+        
         return contentEntityMapper.toModel(savedContent, tagNames);
+    } 
+
+    @Override
+    public boolean existsById(UUID contentId) {
+        return jpaContentRepository.existsById(contentId);
     }
 }

@@ -27,6 +27,9 @@ public class UserEntityMapper {
     }
 
     public UserEntity toEntity(UserModel userModel) {
+        if (userModel == null) {
+            return null;
+        }
         return UserEntity.builder()
             .id(userModel.getId())
             .createdAt(userModel.getCreatedAt())
