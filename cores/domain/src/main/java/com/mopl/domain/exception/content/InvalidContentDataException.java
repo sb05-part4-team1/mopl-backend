@@ -1,7 +1,5 @@
 package com.mopl.domain.exception.content;
 
-import com.mopl.domain.exception.user.UserException;
-
 import java.util.Map;
 
 public class InvalidContentDataException extends ContentException {

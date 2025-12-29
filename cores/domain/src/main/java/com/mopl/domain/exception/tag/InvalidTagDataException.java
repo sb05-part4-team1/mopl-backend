@@ -1,10 +1,8 @@
 package com.mopl.domain.exception.tag;
 
-import com.mopl.domain.exception.user.UserException;
-
 import java.util.Map;
 
-public class InvalidTagDataException extends UserException {
+public class InvalidTagDataException extends TagException {
 
     public static final String MESSAGE = "태그 데이터가 유효하지 않습니다.";
 
