@@ -21,13 +21,6 @@ public class FollowService {
 
         return followRepository.findByFollowerIdAndFolloweeId(followModel.getFollowerId(),
             followModel.getFolloweeId())
-            .map(follow -> {
-                if (follow.isDeleted()) {
-                    follow.restore(); // 삭제된 경우 복구
-                    return followRepository.save(follow);
-                }
-                throw new IllegalStateException("이미 팔로우 중인 사용자입니다.");
-            })
             .orElseGet(() -> followRepository.save(FollowModel.create(followModel.getFolloweeId(),
                 followModel.getFollowerId())));
     }
