@@ -9,7 +9,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public record MoplUserDetails(UUID userId, UserModel.Role role) implements UserDetails {
+public record MoplUserDetails(
+    UUID userId,
+    String password,
+    UserModel.Role role
+) implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -18,7 +22,7 @@ public record MoplUserDetails(UUID userId, UserModel.Role role) implements UserD
 
     @Override
     public String getPassword() {
-        return null;
+        return password;
     }
 
     @Override

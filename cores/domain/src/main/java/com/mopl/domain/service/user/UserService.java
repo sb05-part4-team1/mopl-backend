@@ -20,7 +20,12 @@ public class UserService {
 
     public UserModel getById(UUID userId) {
         return userRepository.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException(userId));
+            .orElseThrow(() -> UserNotFoundException.withId(userId));
+    }
+
+    public UserModel getByEmail(String email) {
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> UserNotFoundException.withEmail(email));
     }
 
     public UserModel update(UserModel userModel) {

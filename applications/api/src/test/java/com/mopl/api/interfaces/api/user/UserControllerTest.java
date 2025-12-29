@@ -242,7 +242,7 @@ class UserControllerTest {
             // given
             UUID userId = UUID.randomUUID();
 
-            given(userFacade.getUser(userId)).willThrow(new UserNotFoundException(userId));
+            given(userFacade.getUser(userId)).willThrow(UserNotFoundException.withId(userId));
 
             // when & then
             mockMvc.perform(get("/api/users/{userId}", userId))
