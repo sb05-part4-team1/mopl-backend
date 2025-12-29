@@ -21,6 +21,7 @@ public class ContentController implements ContentApiSpec {
     private final ContentFacade contentFacade;
     private final ContentResponseMapper contentResponseMapper; // 매퍼를 여기서 사용
 
+    @Override
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public ContentResponse upload(
@@ -30,10 +31,7 @@ public class ContentController implements ContentApiSpec {
         ContentModel contentModel = contentFacade.upload(request, thumbnail);
 
         return contentResponseMapper.toResponse(
-            contentModel,
-            0.0,
-            0,
-            0L
+            contentModel
         );
     }
 }
