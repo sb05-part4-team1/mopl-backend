@@ -11,13 +11,13 @@ import com.mopl.domain.service.user.UserService;
 @Configuration
 public class DomainServiceConfig {
 
-	@Bean
-	public UserService userService(UserRepository userRepository) {
-		return new UserService(userRepository);
-	}
+    @Bean
+    public UserService userService(UserRepository userRepository) {
+        return new UserService(userRepository);
+    }
 
-	@Bean
-	public FollowService followService(FollowRepository followRepository) {
-		return new FollowService(followRepository);
-	}
+    @Bean
+    public FollowService followService(FollowRepository followRepository) {
+        return new FollowService(followRepository);
+    }
 }

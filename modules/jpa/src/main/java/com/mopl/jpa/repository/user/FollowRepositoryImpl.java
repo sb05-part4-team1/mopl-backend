@@ -16,26 +16,26 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FollowRepositoryImpl implements FollowRepository {
 
-	private final JpaFollowRepository jpaFollowRepository;
-	private final FollowEntityMapper followEntityMapper;
+    private final JpaFollowRepository jpaFollowRepository;
+    private final FollowEntityMapper followEntityMapper;
 
-	@Override
-	public FollowModel save(FollowModel followModel) {
-		FollowEntity followEntity = followEntityMapper.toEntity(followModel);
-		FollowEntity savedFollowEntity = jpaFollowRepository.save(followEntity);
-		return followEntityMapper.toModel(savedFollowEntity);
-	}
+    @Override
+    public FollowModel save(FollowModel followModel) {
+        FollowEntity followEntity = followEntityMapper.toEntity(followModel);
+        FollowEntity savedFollowEntity = jpaFollowRepository.save(followEntity);
+        return followEntityMapper.toModel(savedFollowEntity);
+    }
 
-	@Override
-	public Optional<FollowModel> findByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId) {
-		return jpaFollowRepository.findByFollowerIdAndFolloweeId(followerId, followeeId)
-			.map(followEntityMapper::toModel);
-	}
+    @Override
+    public Optional<FollowModel> findByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId) {
+        return jpaFollowRepository.findByFollowerIdAndFolloweeId(followerId, followeeId)
+            .map(followEntityMapper::toModel);
+    }
 
-	@Override
-	public boolean existsByFollowerIdAndFolloweeId(UUID followerId,
-		UUID followeeId) {
-		return jpaFollowRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
-	}
+    @Override
+    public boolean existsByFollowerIdAndFolloweeId(UUID followerId,
+        UUID followeeId) {
+        return jpaFollowRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
+    }
 
 }

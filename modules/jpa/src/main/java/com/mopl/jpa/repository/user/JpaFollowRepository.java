@@ -9,7 +9,7 @@ import com.mopl.jpa.entity.user.FollowEntity;
 
 public interface JpaFollowRepository extends JpaRepository<FollowEntity, UUID> {
 
-	Optional<FollowEntity> findByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId);
+    Optional<FollowEntity> findByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId);
 
-	boolean existsByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId);
+    boolean existsByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId);
 }
