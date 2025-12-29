@@ -4,8 +4,10 @@ import com.mopl.domain.exception.auth.InvalidTokenException;
 import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.user.UserService;
+import com.mopl.security.provider.jwt.JwtPayload;
 import com.mopl.security.provider.jwt.JwtProvider;
 import com.mopl.security.provider.jwt.MoplUserDetails;
+import com.mopl.security.provider.jwt.TokenType;
 import com.mopl.security.provider.jwt.registry.JwtRegistry;
 import com.mopl.security.util.jwt.JwtResponseWriter;
 import jakarta.servlet.FilterChain;
@@ -53,15 +55,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             String token = authHeader.substring(BEARER_PREFIX.length());
-            JwtPayload jwtPayload = jwtProvider.verifyAccessToken(token);
-            if (!jwtRegistry.isAccessTokenBlacklisted(jwtPayload.jti())) {
+            JwtPayload jwtPayload = jwtProvider.verifyAndParse(token, TokenType.ACCESS);
+            if (jwtRegistry.isAccessTokenInBlacklist(jwtPayload.jti())) {
                 log.debug("유효하지 않은 JWT 토큰");
                 responseWriter.writeError(response, new InvalidTokenException("유효하지 않은 토큰입니다."));
                 return;
             }
 
-            setAuthentication(jwtPayload.userId(), request);
-            log.debug("JWT 인증 설정 완료: userId={}", jwtPayload.userId());
+            setAuthentication(jwtPayload.sub(), request);
+            log.debug("JWT 인증 설정 완료: userId={}", jwtPayload.sub());
         } catch (Exception e) {
             log.debug("JWT 인증 실패: {}", e.getMessage());
             SecurityContextHolder.clearContext();

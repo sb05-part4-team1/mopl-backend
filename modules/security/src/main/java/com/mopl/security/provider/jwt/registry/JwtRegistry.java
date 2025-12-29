@@ -1,5 +1,7 @@
 package com.mopl.security.provider.jwt.registry;
 
+import com.mopl.security.provider.jwt.JwtInformation;
+
 import java.util.UUID;
 
 public interface JwtRegistry {
@@ -8,11 +10,11 @@ public interface JwtRegistry {
 
     void rotate(UUID oldRefreshTokenJti, JwtInformation newJwtInformation);
 
-    boolean isAccessTokenBlacklisted(UUID accessTokenJti);
+    boolean isAccessTokenInBlacklist(UUID accessTokenJti);
 
-    boolean isRefreshTokenValid(UUID userId, UUID refreshTokenJti);
+    boolean isRefreshTokenNotInWhitelist(UUID userId, UUID refreshTokenJti);
 
-    void revokeTokenPair(JwtInformation jwtInformation);
+    void revoke(JwtInformation jwtInformation);
 
     void revokeAllByUserId(UUID userId);
 

@@ -1,17 +1,20 @@
 package com.mopl.security.provider.jwt.registry;
 
+import com.mopl.domain.exception.auth.InvalidTokenException;
 import com.mopl.security.config.JwtProperties;
+import com.mopl.security.provider.jwt.JwtInformation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Supplier;
 
 @Component
 @ConditionalOnProperty(name = "mopl.jwt.registry-type", havingValue = "in-memory", matchIfMissing = true)
@@ -19,8 +22,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class InMemoryJwtRegistry implements JwtRegistry {
 
     private final int maxSessions;
-    private final Map<UUID, LinkedHashMap<UUID, JwtInformation>> whitelist = new ConcurrentHashMap<>();
-    private final Map<UUID, Date> blacklist = new ConcurrentHashMap<>();
+    private final Map<UUID, LinkedHashMap<UUID, JwtInformation>> whitelist = new HashMap<>();
+    private final Map<UUID, Date> blacklist = new HashMap<>();
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     public InMemoryJwtRegistry(JwtProperties jwtProperties) {
@@ -30,130 +33,131 @@ public class InMemoryJwtRegistry implements JwtRegistry {
 
     @Override
     public void register(JwtInformation jwtInformation) {
-        lock.writeLock().lock();
-        try {
+        UUID userId = jwtInformation.refreshTokenPayload().sub();
+        UUID jti = jwtInformation.refreshTokenPayload().jti();
+
+        writeLock(() -> {
             LinkedHashMap<UUID, JwtInformation> sessions = whitelist.computeIfAbsent(
-                jwtInformation.userId(),
-                k -> new LinkedHashMap<>()
+                userId, key -> new LinkedHashMap<>(16, 0.75f, false)
             );
 
             if (sessions.size() >= maxSessions) {
-                var it = sessions.entrySet().iterator();
-                if (it.hasNext()) {
-                    JwtInformation evicted = it.next().getValue();
-                    blacklist.put(evicted.accessTokenJti(), evicted.accessTokenExpiry());
-                    it.remove();
-                    log.info("최대 세션 초과로 인한 강제 로그아웃: userId={}, evictedAccessJti={}",
-                        jwtInformation.userId(), evicted.accessTokenJti());
-                }
+                evictOldestSession(userId, sessions);
             }
 
-            sessions.put(jwtInformation.refreshTokenJti(), jwtInformation);
-            log.debug("JWT 등록 완료: {}", jwtInformation);
-        } finally {
-            lock.writeLock().unlock();
-        }
+            sessions.put(jti, jwtInformation);
+            log.debug("JWT 등록 완료: userId={}, jti={}", userId, jti);
+        });
     }
 
     @Override
     public void rotate(UUID oldRefreshTokenJti, JwtInformation newJwtInformation) {
-        lock.writeLock().lock();
-        try {
-            LinkedHashMap<UUID, JwtInformation> sessions = whitelist.get(newJwtInformation.userId());
-            if (sessions == null || !sessions.containsKey(oldRefreshTokenJti)) {
-                log.warn("JWT 로테이션 실패 - 유효하지 않은 리프레시 토큰: userId={}, jti={}",
-                    newJwtInformation.userId(), oldRefreshTokenJti);
-                return;
+        UUID userId = newJwtInformation.refreshTokenPayload().sub();
+
+        writeLock(() -> {
+            LinkedHashMap<UUID, JwtInformation> sessions = whitelist.get(userId);
+            if (isInvalidSession(sessions, oldRefreshTokenJti)) {
+                log.error("유효하지 않은 리프레시 토큰으로 로테이션 시도됨. " +
+                    "해당 유저의 모든 세션을 무효화합니다. userId={}, jti={}", userId, oldRefreshTokenJti);
+                revokeAllByUserId(newJwtInformation.refreshTokenPayload().sub());
+                throw new InvalidTokenException("세션이 만료되었습니다. 다시 로그인해 주세요.");
             }
 
-            JwtInformation oldJwtInformation = sessions.remove(oldRefreshTokenJti);
-            blacklist.put(oldJwtInformation.accessTokenJti(), oldJwtInformation.accessTokenExpiry());
-            sessions.put(newJwtInformation.refreshTokenJti(), newJwtInformation);
-            log.debug("JWT 로테이션 완료: userId={}", newJwtInformation.userId());
-        } finally {
-            lock.writeLock().unlock();
-        }
+            JwtInformation oldInfo = sessions.remove(oldRefreshTokenJti);
+            addToBlacklist(oldInfo);
+
+            sessions.put(newJwtInformation.refreshTokenPayload().jti(), newJwtInformation);
+            log.debug("JWT 로테이션 완료: userId={}", userId);
+        });
     }
 
     @Override
-    public boolean isAccessTokenBlacklisted(UUID accessTokenJti) {
-        lock.readLock().lock();
-        try {
-            return blacklist.containsKey(accessTokenJti);
-        } finally {
-            lock.readLock().unlock();
-        }
+    public boolean isAccessTokenInBlacklist(UUID accessTokenJti) {
+        return readLock(() -> blacklist.containsKey(accessTokenJti));
     }
 
     @Override
-    public boolean isRefreshTokenValid(UUID userId, UUID refreshTokenJti) {
-        Date now = new Date();
-        lock.readLock().lock();
-        try {
+    public boolean isRefreshTokenNotInWhitelist(UUID userId, UUID refreshTokenJti) {
+        return readLock(() -> {
             LinkedHashMap<UUID, JwtInformation> sessions = whitelist.get(userId);
             if (sessions == null) {
-                return false;
+                return true;
             }
-            JwtInformation jwtInformation = sessions.get(refreshTokenJti);
-            return jwtInformation != null && jwtInformation.refreshTokenExpiry().after(now);
-        } finally {
-            lock.readLock().unlock();
-        }
+
+            return !sessions.containsKey(refreshTokenJti);
+        });
     }
 
     @Override
-    public void revokeTokenPair(JwtInformation jwtInformation) {
-        lock.writeLock().lock();
-        try {
-            blacklist.put(jwtInformation.accessTokenJti(), jwtInformation.accessTokenExpiry());
+    public void revoke(JwtInformation jwtInformation) {
+        writeLock(() -> {
+            addToBlacklist(jwtInformation);
 
-            LinkedHashMap<UUID, JwtInformation> sessions = whitelist.get(jwtInformation.userId());
+            LinkedHashMap<UUID, JwtInformation> sessions = whitelist.get(jwtInformation.refreshTokenPayload().sub());
             if (sessions != null) {
-                sessions.remove(jwtInformation.refreshTokenJti());
-                if (sessions.isEmpty()) {
-                    whitelist.remove(jwtInformation.userId());
-                }
+                sessions.remove(jwtInformation.refreshTokenPayload().jti());
+                if (sessions.isEmpty()) whitelist.remove(jwtInformation.refreshTokenPayload().sub());
             }
-            log.debug("토큰 페어 무효화 완료: userId={}, accessJti={}, refreshJti={}",
-                jwtInformation.userId(), jwtInformation.accessTokenJti(), jwtInformation.refreshTokenJti());
-        } finally {
-            lock.writeLock().unlock();
-        }
+        });
     }
 
     @Override
     public void revokeAllByUserId(UUID userId) {
-        lock.writeLock().lock();
-        try {
+        writeLock(() -> {
             LinkedHashMap<UUID, JwtInformation> sessions = whitelist.remove(userId);
             if (sessions != null) {
-                for (JwtInformation jwtInformation : sessions.values()) {
-                    blacklist.put(jwtInformation.accessTokenJti(), jwtInformation.accessTokenExpiry());
-                }
+                sessions.values().forEach(this::addToBlacklist);
             }
-            log.info("유저의 모든 세션 무효화 완료: userId={}", userId);
-        } finally {
-            lock.writeLock().unlock();
-        }
+            log.info("유저 모든 세션 무효화: userId={}", userId);
+        });
     }
 
     @Override
     @Scheduled(fixedDelay = 1000 * 60 * 5)
     public void clearExpired() {
+        writeLock(() -> {
+            Date now = new Date();
+            blacklist.entrySet().removeIf(entry -> entry.getValue().before(now));
+            whitelist.values().removeIf(sessions -> {
+                sessions.values().removeIf(info -> info.refreshTokenPayload().exp().before(now));
+                return sessions.isEmpty();
+            });
+            log.debug("만료 데이터 정리 완료");
+        });
+    }
+
+    private void evictOldestSession(UUID userId, LinkedHashMap<UUID, JwtInformation> sessions) {
+        var firstEntry = sessions.entrySet().iterator().next();
+        addToBlacklist(firstEntry.getValue());
+        sessions.remove(firstEntry.getKey());
+        log.info("최대 세션 초과 퇴출: userId={}, jti={}", userId, firstEntry.getKey());
+    }
+
+    private void addToBlacklist(JwtInformation info) {
+        if (info.accessTokenPayload().exp().after(new Date())) {
+            blacklist.put(info.accessTokenPayload().jti(), info.accessTokenPayload().exp());
+        }
+    }
+
+    private boolean isInvalidSession(Map<UUID, JwtInformation> sessions, UUID jti) {
+        return sessions == null || !sessions.containsKey(jti);
+    }
+
+    private void writeLock(Runnable action) {
         lock.writeLock().lock();
         try {
-            Date now = new Date();
-
-            blacklist.entrySet().removeIf(entry -> entry.getValue().before(now));
-
-            whitelist.values().removeIf(sessions -> {
-                sessions.values().removeIf(info -> info.refreshTokenExpiry().before(now));
-                return sessions.isEmpty(); // 비어버린 유저 세션 맵도 즉시 제거 대상이 됨
-            });
-
-            log.debug("만료된 JWT 정보 정리 완료 (at {})", now);
+            action.run();
         } finally {
             lock.writeLock().unlock();
+        }
+    }
+
+    private <T> T readLock(Supplier<T> action) {
+        lock.readLock().lock();
+        try {
+            return action.get();
+        } finally {
+            lock.readLock().unlock();
         }
     }
 }

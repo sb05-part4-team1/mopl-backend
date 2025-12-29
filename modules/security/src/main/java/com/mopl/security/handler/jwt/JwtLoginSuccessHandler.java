@@ -3,9 +3,13 @@ package com.mopl.security.handler.jwt;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.security.provider.jwt.JwtCookieProvider;
 import com.mopl.security.provider.jwt.JwtProvider;
+import com.mopl.security.provider.jwt.MoplUserDetails;
+import com.mopl.security.provider.jwt.registry.JwtRegistry;
+import com.mopl.security.util.jwt.JwtResponseWriter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -15,6 +19,7 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtProvider tokenProvider;
@@ -29,17 +34,9 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
         @NonNull HttpServletResponse response,
         @NonNull Authentication authentication
     ) throws IOException {
-        if (!(authentication.getPrincipal() instanceof DiscodeitUserDetails userDetails)) {
+        if (!(authentication.getPrincipal() instanceof MoplUserDetails userDetails)) {
             log.error("인증 실패: 예상치 못한 Principal 타입");
             return;
-        }
-
-        String startTimeStr = MDC.get(KEY_REQUEST_START_TIME);
-        long duration = -1L;
-        try {
-            duration = System.currentTimeMillis() - Long.parseLong(startTimeStr);
-        } catch (NumberFormatException | NullPointerException e) {
-            log.warn("로그인 감사: 로그인 시작 시간 파싱 실패", e);
         }
 
         try {

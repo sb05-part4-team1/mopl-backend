@@ -52,13 +52,13 @@ public class JwtProvider {
 
     public String generateToken(UUID userId, TokenType tokenType) {
         try {
-            Date ist = new Date();
-            Date exp = new Date(ist.getTime() + expirations.get(tokenType).toMillis());
+            Date iat = new Date();
+            Date exp = new Date(iat.getTime() + expirations.get(tokenType).toMillis());
 
             JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(userId.toString())
                 .jwtID(UUID.randomUUID().toString())
-                .issueTime(ist)
+                .issueTime(iat)
                 .expirationTime(exp)
                 .build();
 

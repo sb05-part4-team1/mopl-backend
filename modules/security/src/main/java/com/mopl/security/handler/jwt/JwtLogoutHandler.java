@@ -2,6 +2,7 @@ package com.mopl.security.handler.jwt;
 
 import com.mopl.domain.exception.auth.InvalidTokenException;
 import com.mopl.security.provider.jwt.JwtCookieProvider;
+import com.mopl.security.provider.jwt.JwtPayload;
 import com.mopl.security.provider.jwt.JwtProvider;
 import com.mopl.security.provider.jwt.registry.JwtRegistry;
 import jakarta.servlet.http.Cookie;
@@ -60,7 +61,7 @@ public class JwtLogoutHandler implements LogoutHandler {
 
             String token = authHeader.substring(BEARER_PREFIX.length());
             JwtPayload jwtPayload = jwtProvider.verifyAccessToken(token);
-            if (!jwtRegistry.isAccessTokenBlacklisted(jwtPayload.jti())) {
+            if (jwtRegistry.isAccessTokenInBlacklist(jwtPayload.jti())) {
                 log.debug("유효하지 않은 JWT 토큰");
                 responseWriter.writeError(response, new InvalidTokenException("유효하지 않은 토큰입니다."));
                 return;

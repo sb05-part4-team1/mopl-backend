@@ -6,7 +6,7 @@ import java.util.UUID;
 public record JwtPayload(
     UUID sub,
     UUID jti,
-    Date ist,
+    Date iat,
     Date exp
 ) {
 }
