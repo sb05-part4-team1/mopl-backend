@@ -13,12 +13,12 @@ import com.mopl.domain.exception.user.SelfFollowException;
 @RestControllerAdvice(basePackages = "com.mopl.api.interfaces.api.user")
 public class FollowControllerAdvice {
 
-	@ExceptionHandler(SelfFollowException.class)
-	public ResponseEntity<ErrorResponse> handleSelfFollowException(
-		SelfFollowException exception
-	) {
-		return ResponseEntity
-			.status(HttpStatus.BAD_REQUEST)
-			.body(ErrorResponse.from(exception));
-	}
+    @ExceptionHandler(SelfFollowException.class)
+    public ResponseEntity<ErrorResponse> handleSelfFollowException(
+        SelfFollowException exception
+    ) {
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse.from(exception));
+    }
 }
