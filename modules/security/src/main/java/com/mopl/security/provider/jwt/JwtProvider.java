@@ -68,29 +68,30 @@ public class JwtProvider {
             return signedJWT.serialize();
         } catch (JOSEException e) {
             log.error("{} 토큰 생성 실패: userId={}", tokenType, userId, e);
-            throw new InvalidTokenException("토큰 발행 중 오류가 발생했습니다.");
+            throw new IllegalStateException("토큰 발행 중 오류가 발생했습니다.", e);
         }
     }
 
-    public JWTClaimsSet verifyAndParse(String token, TokenType expectedType) {
+    public JwtPayload verifyAndParse(String token, TokenType expectedType) {
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);
             verifySignature(signedJWT, expectedType);
 
             JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
-            validateSubject(claims.getSubject());
+            UUID sub = parseUuidClaim(claims.getSubject(), "subject");
+            UUID jti = parseUuidClaim(claims.getJWTID(), "jti");
             validateExpiration(claims.getExpirationTime());
 
-            return claims;
+            return new JwtPayload(
+                sub,
+                jti,
+                claims.getIssueTime(),
+                claims.getExpirationTime()
+            );
         } catch (ParseException | JOSEException e) {
             log.error("JWT 검증 실패: {}", e.getMessage());
             throw new InvalidTokenException("유효하지 않은 토큰입니다.");
         }
-    }
-
-    public UUID extractUserId(String token, TokenType tokenType) {
-        JWTClaimsSet claims = verifyAndParse(token, tokenType);
-        return UUID.fromString(claims.getSubject());
     }
 
     private void verifySignature(SignedJWT jwt, TokenType type) throws JOSEException {
@@ -107,14 +108,14 @@ public class JwtProvider {
         throw new InvalidTokenException("유효하지 않은 토큰 서명입니다.");
     }
 
-    private void validateSubject(String subject) {
-        if (!hasText(subject)) {
-            throw new InvalidTokenException("토큰의 subject가 유효하지 않습니다.");
+    private UUID parseUuidClaim(String value, String claimName) {
+        if (!hasText(value)) {
+            throw new InvalidTokenException("토큰의 " + claimName + "가 포함되어 있지 않습니다.");
         }
         try {
-            UUID.fromString(subject);
+            return UUID.fromString(value);
         } catch (IllegalArgumentException e) {
-            throw new InvalidTokenException("토큰의 subject가 유효하지 않습니다.");
+            throw new InvalidTokenException("토큰의 " + claimName + " 형식이 유효하지 않습니다.");
         }
     }
 
