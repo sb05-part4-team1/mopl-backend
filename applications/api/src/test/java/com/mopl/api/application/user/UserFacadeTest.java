@@ -113,4 +113,48 @@ class UserFacadeTest {
             assertThat(result.getName()).isEqualTo(expectedName);
         }
     }
+
+    @Nested
+    @DisplayName("getUser()")
+    class GetUserTest {
+
+        @Test
+        @DisplayName("유효한 요청 시 사용자 상세 조회 성공")
+        void withValidRequest_getUserSuccess() {
+            // given
+            UUID userId = UUID.randomUUID();
+            Instant now = Instant.now();
+            String email = "test@example.com";
+            String name = "test";
+            String password = "P@ssw0rd!";
+
+            UserModel userModel = UserModel.builder()
+                .id(userId)
+                .createdAt(now)
+                .deletedAt(null)
+                .updatedAt(now)
+                .authProvider(AuthProvider.EMAIL)
+                .email(email)
+                .name(name)
+                .password(password)
+                .profileImageUrl(null)
+                .role(Role.USER)
+                .locked(false)
+                .build();
+
+            given(userService.getById(userId)).willReturn(userModel);
+
+            // when
+            UserModel result = userFacade.getUser(userId);
+
+            // then
+            assertThat(result.getId()).isEqualTo(userId);
+            assertThat(result.getEmail()).isEqualTo(email);
+            assertThat(result.getName()).isEqualTo(name);
+            assertThat(result.getRole()).isEqualTo(Role.USER);
+            assertThat(result.isLocked()).isFalse();
+
+            then(userService).should().getById(userId);
+        }
+    }
 }

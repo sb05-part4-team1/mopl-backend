@@ -31,6 +31,10 @@ subprojects {
     apply(plugin = "checkstyle")
     apply(plugin = "jacoco")
 
+    tasks.withType<JavaCompile> {
+        options.compilerArgs.add("-parameters")
+    }
+
     dependencyManagement {
         imports {
             mavenBom("org.springframework.boot:spring-boot-dependencies:3.3.3")
@@ -68,7 +72,6 @@ subprojects {
         systemProperty("user.timezone", "Asia/Seoul")
         systemProperty("spring.profiles.active", "test")
         jvmArgs("-Xshare:off")
-        finalizedBy(tasks.jacocoTestReport)
     }
 
     tasks.withType<JacocoReport> {

@@ -7,6 +7,9 @@ import com.mopl.jpa.entity.user.UserEntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Repository
 @RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
@@ -19,6 +22,12 @@ public class UserRepositoryImpl implements UserRepository {
         UserEntity userEntity = userEntityMapper.toEntity(userModel);
         UserEntity savedUserEntity = jpaUserRepository.save(userEntity);
         return userEntityMapper.toModel(savedUserEntity);
+    }
+
+    @Override
+    public Optional<UserModel> findById(UUID userId) {
+        return jpaUserRepository.findById(userId)
+            .map(userEntityMapper::toModel);
     }
 
     @Override

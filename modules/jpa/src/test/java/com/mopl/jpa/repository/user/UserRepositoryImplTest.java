@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -49,6 +52,47 @@ class UserRepositoryImplTest {
             assertThat(savedUser.getEmail()).isEqualTo("test@example.com");
             assertThat(savedUser.getName()).isEqualTo("홍길동");
             assertThat(savedUser.getCreatedAt()).isNotNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("findById()")
+    class FindByIdTest {
+
+        @Test
+        @DisplayName("존재하는 사용자 ID로 조회하면 UserModel 반환")
+        void withExistingUserId_returnsUserModel() {
+            // given
+            UserModel savedUser = userRepository.save(
+                UserModel.create(
+                    AuthProvider.EMAIL,
+                    "test@example.com",
+                    "홍길동",
+                    "encodedPassword"
+                )
+            );
+
+            // when
+            Optional<UserModel> foundUser = userRepository.findById(savedUser.getId());
+
+            // then
+            assertThat(foundUser).isPresent();
+            assertThat(foundUser.get().getId()).isEqualTo(savedUser.getId());
+            assertThat(foundUser.get().getEmail()).isEqualTo("test@example.com");
+            assertThat(foundUser.get().getName()).isEqualTo("홍길동");
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 사용자 ID로 조회하면 빈 Optional 반환")
+        void withNonExistingUserId_returnsEmptyOptional() {
+            // given
+            UUID nonExistingId = UUID.randomUUID();
+
+            // when
+            Optional<UserModel> foundUser = userRepository.findById(nonExistingId);
+
+            // then
+            assertThat(foundUser).isEmpty();
         }
     }
 
