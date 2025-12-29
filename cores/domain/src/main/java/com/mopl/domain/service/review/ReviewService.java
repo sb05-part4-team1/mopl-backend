@@ -14,6 +14,7 @@ import java.util.UUID;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
+    // TODO: 추후 ContentService로 리팩토링
     private final ContentRepository contentRepository;
 
     public ReviewModel create(
@@ -24,14 +25,14 @@ public class ReviewService {
     ) {
         validateContentExists(contentId);
 
-        ReviewModel reviewModel = ReviewModel.create(contentId, author, text, rating);
+        ReviewModel reviewModel = ReviewModel.create(contentId, author.getId(), text, rating);
 
         return reviewRepository.save(reviewModel);
     }
 
     private void validateContentExists(UUID contentId) {
         if (!contentRepository.existsById(contentId)) {
-            // 임시로 이렇게 두고 나중에 ContentNotFoundException(contentId);로 바꾸기
+            // TODO: 임시로 이렇게 두고 나중에 ContentNotFoundException(contentId);로 바꾸기
             throw new InvalidReviewDataException(
                 "존재하지 않는 콘텐츠입니다. contentId=" + contentId
             );

@@ -4,12 +4,17 @@ import com.mopl.domain.model.review.ReviewModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.jpa.entity.content.ContentEntity;
 import com.mopl.jpa.entity.user.UserEntity;
+import com.mopl.jpa.entity.user.UserEntityMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
 @Component
+@RequiredArgsConstructor
 public class ReviewEntityMapper {
+
+//    private final UserEntityMapper userEntityMapper;
 
     public ReviewModel toModel(ReviewEntity reviewEntity) {
         if (reviewEntity == null) {
@@ -22,7 +27,9 @@ public class ReviewEntityMapper {
             .deletedAt(reviewEntity.getDeletedAt())
             .updatedAt(reviewEntity.getUpdatedAt())
             .contentId(reviewEntity.getContent().getId())
-            .author(toAuthorModel(reviewEntity.getAuthor()))
+            // .author(userEntityMapper.toModel(reviewEntity.getAuthor()))
+            // [수정] UserEntityMapper를 쓰는 게 아니라 ID만 꺼냅니다.
+            .authorId(reviewEntity.getAuthor() != null ? reviewEntity.getAuthor().getId() : null)
             .text(reviewEntity.getText())
             .rating(reviewEntity.getRating())
             .build();
@@ -39,34 +46,25 @@ public class ReviewEntityMapper {
             .deletedAt(reviewModel.getDeletedAt())
             .updatedAt(reviewModel.getUpdatedAt())
             .content(toContentEntity(reviewModel.getContentId()))
-            .author(toAuthorEntity(reviewModel.getAuthor()))
+            //.author(userEntityMapper.toEntity(reviewModel.getAuthor()))
+            // [수정] ID를 이용해 Author Entity 생성 (private 메서드 활용)
+            .author(toAuthorEntity(reviewModel.getAuthorId()))
             .text(reviewModel.getText())
             .rating(reviewModel.getRating())
             .build();
     }
 
-    // ============ 여기 아래서부터는 추후 리팩토링 가능할 수 있음========================
-
-    private UserEntity toAuthorEntity(UserModel author) {
-        if (author == null) {
+    // [추가] Content와 똑같은 방식으로 User도 ID만 가진 엔티티 생성 (이것은 전체 객체가 아니라 ID만 빼워서 의존성 지움)
+    private UserEntity toAuthorEntity(UUID authorId) {
+        if (authorId == null) {
             return null;
         }
-
         return UserEntity.builder()
-            .id(author.getId())
-            .build();
+                .id(authorId)
+                .build();
     }
 
-    private UserModel toAuthorModel(UserEntity authorEntity) {
-        if (authorEntity == null) {
-            return null;
-        }
-
-        return UserModel.builder()
-            .id(authorEntity.getId())
-            .build();
-    }
-
+    // TODO: 팀원이 ContentEntityMapper 구현 완료 시, 주입받아 처리하도록 수정 필요
     private ContentEntity toContentEntity(UUID contentId) {
         if (contentId == null) {
             return null;

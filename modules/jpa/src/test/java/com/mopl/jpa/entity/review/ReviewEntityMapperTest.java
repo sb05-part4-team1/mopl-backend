@@ -1,7 +1,6 @@
 package com.mopl.jpa.entity.review;
 
 import com.mopl.domain.model.review.ReviewModel;
-import com.mopl.domain.model.user.UserModel;
 import com.mopl.jpa.entity.content.ContentEntity;
 import com.mopl.jpa.entity.user.UserEntity;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("ReviewEntityMapper 단위 테스트")
 class ReviewEntityMapperTest {
 
+    // [변경] UserEntityMapper 의존성이 제거되었으므로 단독 생성
     private final ReviewEntityMapper reviewEntityMapper = new ReviewEntityMapper();
 
     @Nested
@@ -37,7 +37,7 @@ class ReviewEntityMapperTest {
         }
 
         @Test
-        @DisplayName("유효한 ReviewEntity를 ReviewModel로 변환한다 (contentId/authorId 포함)")
+        @DisplayName("유효한 ReviewEntity를 ReviewModel로 변환한다 (authorId 매핑 확인)")
         void withValidEntity_mapsToModel() {
             // given
             UUID reviewId = UUID.randomUUID();
@@ -52,23 +52,23 @@ class ReviewEntityMapperTest {
             BigDecimal rating = BigDecimal.valueOf(4);
 
             ContentEntity contentEntity = ContentEntity.builder()
-                .id(contentId)
-                .build();
+                    .id(contentId)
+                    .build();
 
             UserEntity authorEntity = UserEntity.builder()
-                .id(authorId)
-                .build();
+                    .id(authorId)
+                    .build();
 
             ReviewEntity reviewEntity = ReviewEntity.builder()
-                .id(reviewId)
-                .createdAt(createdAt)
-                .updatedAt(updatedAt)
-                .deletedAt(deletedAt)
-                .content(contentEntity)
-                .author(authorEntity)
-                .text(text)
-                .rating(rating)
-                .build();
+                    .id(reviewId)
+                    .createdAt(createdAt)
+                    .updatedAt(updatedAt)
+                    .deletedAt(deletedAt)
+                    .content(contentEntity)
+                    .author(authorEntity)
+                    .text(text)
+                    .rating(rating)
+                    .build();
 
             // when
             ReviewModel result = reviewEntityMapper.toModel(reviewEntity);
@@ -82,38 +82,39 @@ class ReviewEntityMapperTest {
 
             assertThat(result.getContentId()).isEqualTo(contentId);
 
-            assertThat(result.getAuthor()).isNotNull();
-            assertThat(result.getAuthor().getId()).isEqualTo(authorId);
+            // [변경] Model은 이제 User 객체가 아닌 ID만 가집니다.
+            assertThat(result.getAuthorId()).isEqualTo(authorId);
 
             assertThat(result.getText()).isEqualTo(text);
             assertThat(result.getRating()).isEqualTo(rating);
         }
 
         @Test
-        @DisplayName("author가 null이면 author는 null로 변환된다")
+        @DisplayName("Entity의 author가 null이면 Model의 authorId도 null이다")
         void withNullAuthor_mapsNullAuthor() {
             // given
             UUID reviewId = UUID.randomUUID();
             UUID contentId = UUID.randomUUID();
 
             ContentEntity contentEntity = ContentEntity.builder()
-                .id(contentId)
-                .build();
+                    .id(contentId)
+                    .build();
 
             ReviewEntity reviewEntity = ReviewEntity.builder()
-                .id(reviewId)
-                .content(contentEntity)
-                .author(null)
-                .text("리뷰")
-                .rating(BigDecimal.valueOf(3))
-                .build();
+                    .id(reviewId)
+                    .content(contentEntity)
+                    .author(null) // author가 없음
+                    .text("리뷰")
+                    .rating(BigDecimal.valueOf(3))
+                    .build();
 
             // when
             ReviewModel result = reviewEntityMapper.toModel(reviewEntity);
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getAuthor()).isNull();
+            // [변경] getAuthor() -> getAuthorId()
+            assertThat(result.getAuthorId()).isNull();
             assertThat(result.getContentId()).isEqualTo(contentId);
         }
     }
@@ -136,7 +137,7 @@ class ReviewEntityMapperTest {
         }
 
         @Test
-        @DisplayName("유효한 ReviewModel을 ReviewEntity로 변환한다 (content/author는 id만 세팅)")
+        @DisplayName("유효한 ReviewModel을 ReviewEntity로 변환한다 (UserEntity 생성 확인)")
         void withValidModel_mapsToEntity() {
             // given
             UUID reviewId = UUID.randomUUID();
@@ -150,20 +151,17 @@ class ReviewEntityMapperTest {
             String text = "리뷰 내용";
             BigDecimal rating = BigDecimal.valueOf(5);
 
-            UserModel authorModel = UserModel.builder()
-                .id(authorId)
-                .build();
-
+            // [변경] UserModel 생성 로직 삭제 -> 바로 빌더에 ID 주입
             ReviewModel reviewModel = ReviewModel.builder()
-                .id(reviewId)
-                .createdAt(createdAt)
-                .updatedAt(updatedAt)
-                .deletedAt(deletedAt)
-                .contentId(contentId)
-                .author(authorModel)
-                .text(text)
-                .rating(rating)
-                .build();
+                    .id(reviewId)
+                    .createdAt(createdAt)
+                    .updatedAt(updatedAt)
+                    .deletedAt(deletedAt)
+                    .contentId(contentId)
+                    .authorId(authorId) // [변경] ID 직접 주입
+                    .text(text)
+                    .rating(rating)
+                    .build();
 
             // when
             ReviewEntity result = reviewEntityMapper.toEntity(reviewModel);
@@ -178,6 +176,7 @@ class ReviewEntityMapperTest {
             assertThat(result.getContent()).isNotNull();
             assertThat(result.getContent().getId()).isEqualTo(contentId);
 
+            // [확인] Entity의 author 필드가 ID를 가진 UserEntity로 잘 생성되었는지 확인
             assertThat(result.getAuthor()).isNotNull();
             assertThat(result.getAuthor().getId()).isEqualTo(authorId);
 
@@ -186,19 +185,19 @@ class ReviewEntityMapperTest {
         }
 
         @Test
-        @DisplayName("author가 null이면 author는 null로 변환된다")
+        @DisplayName("authorId가 null이면 Entity의 author는 null로 변환된다")
         void withNullAuthor_mapsNullAuthor() {
             // given
             UUID reviewId = UUID.randomUUID();
             UUID contentId = UUID.randomUUID();
 
             ReviewModel reviewModel = ReviewModel.builder()
-                .id(reviewId)
-                .contentId(contentId)
-                .author(null)
-                .text("리뷰")
-                .rating(BigDecimal.valueOf(2))
-                .build();
+                    .id(reviewId)
+                    .contentId(contentId)
+                    .authorId(null) // [변경] ID가 null
+                    .text("리뷰")
+                    .rating(BigDecimal.valueOf(2))
+                    .build();
 
             // when
             ReviewEntity result = reviewEntityMapper.toEntity(reviewModel);
@@ -217,17 +216,13 @@ class ReviewEntityMapperTest {
             UUID reviewId = UUID.randomUUID();
             UUID authorId = UUID.randomUUID();
 
-            UserModel authorModel = UserModel.builder()
-                .id(authorId)
-                .build();
-
             ReviewModel reviewModel = ReviewModel.builder()
-                .id(reviewId)
-                .contentId(null)
-                .author(authorModel)
-                .text("리뷰")
-                .rating(BigDecimal.valueOf(1))
-                .build();
+                    .id(reviewId)
+                    .contentId(null)
+                    .authorId(authorId) // [변경] ID 주입
+                    .text("리뷰")
+                    .rating(BigDecimal.valueOf(1))
+                    .build();
 
             // when
             ReviewEntity result = reviewEntityMapper.toEntity(reviewModel);

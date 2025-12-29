@@ -1,32 +1,25 @@
 package com.mopl.api.interfaces.api.review;
 
 import com.mopl.api.interfaces.api.user.UserSummary;
+import com.mopl.api.interfaces.api.user.UserSummaryMapper;
 import com.mopl.domain.model.review.ReviewModel;
 import com.mopl.domain.model.user.UserModel;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class ReviewResponseMapper {
 
-    public ReviewResponse toResponse(ReviewModel reviewModel) {
+    private final UserSummaryMapper userSummaryMapper;
+
+    public ReviewResponse toResponse(ReviewModel reviewModel, UserModel author) {
         return new ReviewResponse(
             reviewModel.getId(),
             reviewModel.getContentId(),
-            toUserSummary(reviewModel.getAuthor()),
+            userSummaryMapper.toSummary(author),
             reviewModel.getText(),
             reviewModel.getRating()
-        );
-    }
-
-    private UserSummary toUserSummary(UserModel author) {
-        if (author == null) {
-            return null;
-        }
-
-        return new UserSummary(
-            author.getId(),
-            author.getName(),
-            author.getProfileImageUrl()
         );
     }
 }
