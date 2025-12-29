@@ -1,6 +1,9 @@
 package com.mopl.jpa.entity.user;
 
+import org.hibernate.annotations.SQLRestriction;
+
 import com.mopl.jpa.entity.base.BaseEntity;
+
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,6 +21,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLRestriction("deleted_at IS NULL")
 public class FollowEntity extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
