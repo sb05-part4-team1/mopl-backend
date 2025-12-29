@@ -8,6 +8,9 @@ import java.util.List;
 @Component
 public class ContentEntityMapper {
 
+    /**
+     * 조회 유스케이스에서 Content + Tag 조합 시 사용
+     */
     public ContentModel toModel(ContentEntity entity, List<String> tags) {
         if (entity == null) {
             return null;
@@ -24,6 +27,10 @@ public class ContentEntityMapper {
             .updatedAt(entity.getUpdatedAt())
             .deletedAt(entity.getDeletedAt())
             .build();
+    }
+
+    public ContentModel toModel(ContentEntity entity) {
+        return toModel(entity, List.of());
     }
 
     public ContentEntity toEntity(ContentModel model) {

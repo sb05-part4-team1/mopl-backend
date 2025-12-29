@@ -3,18 +3,24 @@ package com.mopl.domain.service.content;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.tag.TagModel;
 import com.mopl.domain.repository.content.ContentRepository;
+import com.mopl.domain.repository.content.ContentTagRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 @RequiredArgsConstructor
 public class ContentService {
 
     private final ContentRepository contentRepository;
+    private final ContentTagRepository contentTagRepository;
 
-    public ContentModel create(ContentModel contentModel, List<TagModel> tags) {
-        return contentRepository.save(contentModel, tags);
+    public ContentModel create(ContentModel content, List<TagModel> tags) {
+        ContentModel savedContent = contentRepository.save(content);
+
+        if (tags != null && !tags.isEmpty()) {
+            contentTagRepository.saveAll(savedContent.getId(), tags);
+        }
+
+        return savedContent;
     }
 }

@@ -63,7 +63,7 @@ class ContentResponseMapperTest {
                 .build();
 
             // when
-            ContentResponse result = mapper.toResponse(model, 0.0, 0, 0L);
+            ContentResponse result = mapper.toResponse(model);
 
             // then
             assertThat(result.tags()).isEmpty();
@@ -78,12 +78,30 @@ class ContentResponseMapperTest {
                 .build();
 
             // when
-            ContentResponse result = mapper.toResponse(model, 0.0, 0, 0L);
+            ContentResponse result = mapper.toResponse(model);
 
             // then
             assertThat(result.toString()).doesNotContain("createdAt");
             assertThat(result.toString()).doesNotContain("updatedAt");
             assertThat(result.toString()).doesNotContain("deletedAt");
+        }
+
+        @Test
+        @DisplayName("기본 toResponse는 통계 값을 0으로 설정한다")
+        void defaultToResponse_setsDefaultStats() {
+            // given
+            ContentModel model = ContentModel.builder()
+                .id(UUID.randomUUID())
+                .tags(List.of("SF"))
+                .build();
+
+            // when
+            ContentResponse result = mapper.toResponse(model);
+
+            // then
+            assertThat(result.averageRating()).isEqualTo(0.0);
+            assertThat(result.reviewCount()).isEqualTo(0);
+            assertThat(result.watcherCount()).isEqualTo(0L);
         }
     }
 }

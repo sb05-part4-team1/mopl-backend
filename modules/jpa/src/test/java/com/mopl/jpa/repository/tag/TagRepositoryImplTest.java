@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,6 +45,33 @@ class TagRepositoryImplTest {
             // then
             assertThat(savedTag.getId()).isNotNull();
             assertThat(savedTag.getName()).isEqualTo("SF");
+        }
+    }
+
+    @Nested
+    @DisplayName("saveAll()")
+    class SaveAllTest {
+
+        @Test
+        @DisplayName("여러 태그를 한 번에 저장한다")
+        void saveAll_savesMultipleTags() {
+            // given
+            List<TagModel> tags = List.of(
+                TagModel.create("SF"),
+                TagModel.create("액션")
+            );
+
+            // when
+            List<TagModel> savedTags = tagRepository.saveAll(tags);
+
+            // then
+            assertThat(savedTags).hasSize(2);
+            assertThat(savedTags)
+                .extracting(TagModel::getId)
+                .allMatch(Objects::nonNull);
+            assertThat(savedTags)
+                .extracting(TagModel::getName)
+                .containsExactlyInAnyOrder("SF", "액션");
         }
     }
 
