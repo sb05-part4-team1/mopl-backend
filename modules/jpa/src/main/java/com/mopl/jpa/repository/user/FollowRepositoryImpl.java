@@ -9,8 +9,6 @@ import com.mopl.domain.model.user.FollowModel;
 import com.mopl.domain.repository.user.FollowRepository;
 import com.mopl.jpa.entity.user.FollowEntity;
 import com.mopl.jpa.entity.user.FollowEntityMapper;
-import com.mopl.jpa.entity.user.QFollowEntity;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,43 +16,26 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FollowRepositoryImpl implements FollowRepository {
 
-    private final JpaFollowRepository jpaFollowRepository;
-    private final FollowEntityMapper followEntityMapper;
+	private final JpaFollowRepository jpaFollowRepository;
+	private final FollowEntityMapper followEntityMapper;
 
-    private final JPAQueryFactory queryFactory;
-    private final QFollowEntity follow = QFollowEntity.followEntity;
+	@Override
+	public FollowModel save(FollowModel followModel) {
+		FollowEntity followEntity = followEntityMapper.toEntity(followModel);
+		FollowEntity savedFollowEntity = jpaFollowRepository.save(followEntity);
+		return followEntityMapper.toModel(savedFollowEntity);
+	}
 
-    @Override
-    public FollowModel save(FollowModel followModel) {
-        FollowEntity followEntity = followEntityMapper.toEntity(followModel);
-        FollowEntity savedFollowEntity = jpaFollowRepository.save(followEntity);
-        return followEntityMapper.toModel(savedFollowEntity);
-    }
+	@Override
+	public Optional<FollowModel> findByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId) {
+		return jpaFollowRepository.findByFollowerIdAndFolloweeId(followerId, followeeId)
+			.map(followEntityMapper::toModel);
+	}
 
-    @Override
-    public Optional<FollowModel> findByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId) {
-        FollowEntity result = queryFactory
-            .selectFrom(follow)
-            .where(
-                follow.follower.id.eq(followerId),
-                follow.followee.id.eq(followeeId)
-            )
-            .fetchOne();
+	@Override
+	public boolean existsByFollowerIdAndFolloweeId(UUID followerId,
+		UUID followeeId) {
+		return jpaFollowRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
+	}
 
-        return Optional.ofNullable(followEntityMapper.toModel(result));
-    }
-
-    @Override
-    public boolean existsByFollowerIdAndFolloweeIdAndDeletedAtIsNull(UUID followerId,
-        UUID followeeId) {
-        return queryFactory
-            .selectOne()
-            .from(follow)
-            .where(
-                follow.follower.id.eq(followerId),
-                follow.followee.id.eq(followeeId),
-                follow.deletedAt.isNull()
-            )
-            .fetchFirst() != null;
-    }
 }

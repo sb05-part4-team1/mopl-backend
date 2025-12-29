@@ -17,5 +17,5 @@ public interface FollowRepository {
     /**
      * 팔로우 관계가 존재하는지 확인 (soft delete 제외)
      */
-    boolean existsByFollowerIdAndFolloweeIdAndDeletedAtIsNull(UUID followerId, UUID followeeId);
+    boolean existsByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId);
 }
