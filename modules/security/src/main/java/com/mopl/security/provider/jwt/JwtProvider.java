@@ -1,6 +1,7 @@
 package com.mopl.security.provider.jwt;
 
 import com.mopl.domain.exception.auth.InvalidTokenException;
+import com.mopl.domain.model.user.UserModel;
 import com.mopl.security.config.JwtProperties;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -50,7 +51,7 @@ public class JwtProvider {
         }
     }
 
-    public String generateToken(UUID userId, TokenType tokenType) {
+    public String generateToken(UUID userId, UserModel.Role role, TokenType tokenType) {
         try {
             Date iat = new Date();
             Date exp = new Date(iat.getTime() + expirations.get(tokenType).toMillis());
@@ -60,6 +61,7 @@ public class JwtProvider {
                 .jwtID(UUID.randomUUID().toString())
                 .issueTime(iat)
                 .expirationTime(exp)
+                .claim("role", role.name())
                 .build();
 
             SignedJWT signedJWT = new SignedJWT(JWS_HEADER, claimsSet);
@@ -81,12 +83,14 @@ public class JwtProvider {
             UUID sub = parseUuidClaim(claims.getSubject(), "subject");
             UUID jti = parseUuidClaim(claims.getJWTID(), "jti");
             validateExpiration(claims.getExpirationTime());
+            UserModel.Role role = parseRoleClaim(claims.getStringClaim("role"));
 
             return new JwtPayload(
                 sub,
                 jti,
                 claims.getIssueTime(),
-                claims.getExpirationTime()
+                claims.getExpirationTime(),
+                role
             );
         } catch (ParseException | JOSEException e) {
             log.error("JWT 검증 실패: {}", e.getMessage());
@@ -122,6 +126,17 @@ public class JwtProvider {
     private void validateExpiration(Date expiration) {
         if (expiration == null || expiration.before(new Date())) {
             throw new InvalidTokenException("만료된 토큰입니다.");
+        }
+    }
+
+    private UserModel.Role parseRoleClaim(String value) {
+        if (!hasText(value)) {
+            throw new InvalidTokenException("토큰에 role이 포함되어 있지 않습니다.");
+        }
+        try {
+            return UserModel.Role.valueOf(value);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidTokenException("토큰의 role 형식이 유효하지 않습니다.");
         }
     }
 
