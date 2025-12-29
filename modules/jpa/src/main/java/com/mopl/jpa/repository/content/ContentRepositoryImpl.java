@@ -8,7 +8,6 @@ import com.mopl.jpa.entity.content.ContentEntityMapper;
 import com.mopl.jpa.entity.content.ContentTagEntity;
 import com.mopl.jpa.entity.tag.TagEntity;
 import com.mopl.jpa.repository.tag.JpaTagRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -24,7 +23,6 @@ public class ContentRepositoryImpl implements ContentRepository {
     private final ContentEntityMapper contentEntityMapper;
 
     @Override
-    @Transactional
     public ContentModel save(ContentModel contentModel, List<TagModel> tags) {
         ContentEntity contentEntity = contentEntityMapper.toEntity(contentModel);
         ContentEntity savedContent = jpaContentRepository.save(contentEntity);

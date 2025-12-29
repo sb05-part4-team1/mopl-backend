@@ -5,8 +5,8 @@ import com.mopl.domain.repository.tag.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -14,16 +14,30 @@ public class TagService {
 
     private final TagRepository tagRepository;
 
-    public List<TagModel> findOrCreateTags(List<String> tags) {
-        List<TagModel> tagModels = new ArrayList<>();
+    public List<TagModel> findOrCreateTags(List<String> tagNames) {
+        if (tagNames == null || tagNames.isEmpty()) {
+            return List.of();
+        }
 
-        tags.forEach(tag -> {
-            TagModel tagModel = tagRepository.findByName(tag.strip())
-                .orElseGet(() -> tagRepository.save(TagModel.create(tag)));
+        List<TagModel> tags = tagNames.stream()
+            .filter(Objects::nonNull)
+            .map(String::strip)
+            .filter(name -> !name.isEmpty())
+            .distinct()
+            .map(this::findOrCreateTag)
+            .toList();
 
-            tagModels.add(tagModel);
-        });
+        return tagRepository.saveAll(tags);
+    }
 
-        return tagModels;
+    public TagModel findOrCreateTag(String name) {
+        return tagRepository.findByName(name)
+            .map(tag -> {
+                if (tag.isDeleted()) {
+                    tag.restore();
+                }
+                return tag;
+            })
+            .orElseGet(() -> TagModel.create(name));
     }
 }

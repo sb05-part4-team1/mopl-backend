@@ -14,6 +14,8 @@ public class TagEntityMapper {
         return TagModel.builder()
             .id(entity.getId())
             .name(entity.getName())
+            .createdAt(entity.getCreatedAt())
+            .deletedAt(entity.getDeletedAt())
             .build();
     }
 
@@ -25,6 +27,8 @@ public class TagEntityMapper {
         return TagEntity.builder()
             .id(model.getId())
             .name(model.getName())
+            .createdAt(model.getCreatedAt())
+            .deletedAt(model.getDeletedAt())
             .build();
     }
 }

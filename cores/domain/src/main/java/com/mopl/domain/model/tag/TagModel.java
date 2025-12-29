@@ -1,21 +1,19 @@
 package com.mopl.domain.model.tag;
 
 import com.mopl.domain.exception.tag.InvalidTagDataException;
+import com.mopl.domain.model.base.BaseModel;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.util.UUID;
-
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class TagModel {
+public class TagModel extends BaseModel {
 
     public static final int NAME_MAX_LENGTH = 20;
 
-    private UUID id;
     private String name;
 
     public static TagModel create(String name) {

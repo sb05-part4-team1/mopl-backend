@@ -56,13 +56,14 @@ class ContentFacadeTest {
             given(thumbnail.isEmpty()).willReturn(false);
             given(thumbnail.getOriginalFilename()).willReturn("inception.png");
 
+            Instant now = Instant.now();
+
             List<TagModel> tags = List.of(
-                TagModel.builder().id(UUID.randomUUID()).name("SF").build(),
-                TagModel.builder().id(UUID.randomUUID()).name("액션").build()
+                TagModel.builder().id(UUID.randomUUID()).name("SF").createdAt(now).build(),
+                TagModel.builder().id(UUID.randomUUID()).name("액션").createdAt(now).build()
             );
 
             UUID id = UUID.randomUUID();
-            Instant now = Instant.now();
 
             ContentModel savedModel = ContentModel.builder()
                 .id(id)
@@ -73,6 +74,7 @@ class ContentFacadeTest {
                 .tags(tags.stream().map(TagModel::getName).toList())
                 .createdAt(now)
                 .updatedAt(now)
+                .deletedAt(null)
                 .build();
 
             given(tagService.findOrCreateTags(anyList())).willReturn(tags);
@@ -88,11 +90,10 @@ class ContentFacadeTest {
             assertThat(result.getDescription()).isEqualTo("꿈속의 꿈");
             assertThat(result.getThumbnailUrl()).isEqualTo("https://mopl.com/inception.png");
             assertThat(result.getTags()).containsExactly("SF", "액션");
-            assertThat(result.getCreatedAt()).isNotNull();
+            assertThat(result.getCreatedAt()).isEqualTo(now);
             assertThat(result.getUpdatedAt()).isNotNull();
             assertThat(result.getDeletedAt()).isNull();
 
-            // 서비스 간의 상호작용 검증
             then(tagService).should().findOrCreateTags(request.tags());
             then(contentService).should().create(any(ContentModel.class), eq(tags));
         }

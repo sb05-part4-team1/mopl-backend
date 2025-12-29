@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,9 +24,12 @@ class TagEntityMapperTest {
         void withTagEntity_returnsTagModel() {
             // given
             UUID id = UUID.randomUUID();
+            Instant createdAt = Instant.now();
             TagEntity entity = TagEntity.builder()
                 .id(id)
                 .name("SF")
+                .createdAt(createdAt)
+                .deletedAt(null)
                 .build();
 
             // when
@@ -34,6 +38,9 @@ class TagEntityMapperTest {
             // then
             assertThat(result.getId()).isEqualTo(id);
             assertThat(result.getName()).isEqualTo("SF");
+            assertThat(result.getCreatedAt()).isEqualTo(createdAt);
+            assertThat(result.getDeletedAt()).isNull();
+            assertThat(result.isDeleted()).isFalse();
         }
 
         @Test
@@ -56,9 +63,12 @@ class TagEntityMapperTest {
         void withTagModel_returnsTagEntity() {
             // given
             UUID id = UUID.randomUUID();
+            Instant createdAt = Instant.now();
             TagModel model = TagModel.builder()
                 .id(id)
                 .name("액션")
+                .createdAt(createdAt)
+                .deletedAt(null)
                 .build();
 
             // when
@@ -67,15 +77,21 @@ class TagEntityMapperTest {
             // then
             assertThat(result.getId()).isEqualTo(id);
             assertThat(result.getName()).isEqualTo("액션");
+            assertThat(result.getCreatedAt()).isEqualTo(createdAt);
+            assertThat(result.getDeletedAt()).isNull();
         }
 
         @Test
         @DisplayName("양방향 변환 시 데이터 유지")
         void roundTrip_preservesData() {
             // given
+            UUID id = UUID.randomUUID();
+            Instant createdAt = Instant.now();
             TagModel originalModel = TagModel.builder()
-                .id(UUID.randomUUID())
+                .id(id)
                 .name("액션")
+                .createdAt(createdAt)
+                .deletedAt(null)
                 .build();
 
             // when
@@ -85,6 +101,8 @@ class TagEntityMapperTest {
             // then
             assertThat(resultModel.getId()).isEqualTo(originalModel.getId());
             assertThat(resultModel.getName()).isEqualTo(originalModel.getName());
+            assertThat(resultModel.getCreatedAt()).isEqualTo(originalModel.getCreatedAt());
+            assertThat(resultModel.getDeletedAt()).isNull();
         }
     }
 }
