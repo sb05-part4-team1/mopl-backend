@@ -38,9 +38,9 @@ public class AdminInitializer implements ApplicationRunner {
                 new UserRoleUpdateRequest(UserModel.Role.ADMIN),
                 user.getId()
             );
-            log.info("관리자 계정이 생성되었습니다: [email={}]", admin.getEmail());
+            log.info("관리자 계정이 생성되었습니다: email={}", admin.getEmail());
         } catch (DuplicateEmailException e) {
-            log.debug("관리자 계정이 이미 존재합니다: [email={}]", adminProperties.email());
+            log.debug("관리자 계정이 이미 존재합니다: email={}", adminProperties.email());
         } catch (Exception e) {
             log.error("관리자 계정 생성 중 예상치 못한 오류가 발생했습니다.", e);
         }

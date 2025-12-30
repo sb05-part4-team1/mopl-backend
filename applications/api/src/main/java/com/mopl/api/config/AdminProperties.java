@@ -1,5 +1,6 @@
 package com.mopl.api.config;
 
+import lombok.ToString;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.util.Assert;
@@ -9,7 +10,7 @@ public record AdminProperties(
     @DefaultValue("false") boolean enabled,
     String email,
     String name,
-    String password
+    @ToString.Exclude String password
 ) {
 
     public AdminProperties {
