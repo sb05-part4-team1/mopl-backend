@@ -52,11 +52,12 @@ public class InMemoryJwtRegistry implements JwtRegistry {
 
         writeLock(() -> {
             LinkedHashMap<UUID, JwtInformation> sessions = whitelist.get(userId);
+
             if (isInvalidSession(sessions, oldRefreshTokenJti)) {
                 log.error("유효하지 않은 리프레시 토큰으로 로테이션 시도됨. " +
                     "해당 유저의 모든 세션을 무효화합니다. userId={}, jti={}", userId, oldRefreshTokenJti);
                 revokeAllByUserId(userId);
-                throw new InvalidTokenException("세션이 만료되었습니다. 다시 로그인해 주세요.");
+                throw new InvalidTokenException("유효하지 않은 세션입니다. 다시 로그인해 주세요.");
             }
 
             JwtInformation oldInfo = sessions.remove(oldRefreshTokenJti);
@@ -76,11 +77,7 @@ public class InMemoryJwtRegistry implements JwtRegistry {
     public boolean isRefreshTokenNotInWhitelist(UUID userId, UUID refreshTokenJti) {
         return readLock(() -> {
             LinkedHashMap<UUID, JwtInformation> sessions = whitelist.get(userId);
-            if (sessions == null) {
-                return true;
-            }
-
-            return !sessions.containsKey(refreshTokenJti);
+            return isInvalidSession(sessions, refreshTokenJti);
         });
     }
 
@@ -89,7 +86,6 @@ public class InMemoryJwtRegistry implements JwtRegistry {
         writeLock(() -> {
             if (expiration.after(new Date())) {
                 blacklist.put(accessTokenJti, expiration);
-                log.debug("Access 토큰 블랙리스트 등록: jti={}", accessTokenJti);
             }
         });
     }
@@ -99,10 +95,7 @@ public class InMemoryJwtRegistry implements JwtRegistry {
         writeLock(() -> {
             LinkedHashMap<UUID, JwtInformation> sessions = whitelist.get(userId);
             if (sessions != null) {
-                JwtInformation removed = sessions.remove(refreshTokenJti);
-                if (removed != null) {
-                    log.debug("Refresh 토큰 화이트리스트에서 제거: userId={}, jti={}", userId, refreshTokenJti);
-                }
+                sessions.remove(refreshTokenJti);
                 if (sessions.isEmpty()) {
                     whitelist.remove(userId);
                 }
@@ -117,22 +110,29 @@ public class InMemoryJwtRegistry implements JwtRegistry {
             if (sessions != null) {
                 sessions.values().forEach(this::addToBlacklist);
             }
-            log.info("유저 모든 세션 무효화: userId={}", userId);
         });
     }
 
     @Override
     @Scheduled(fixedDelay = 1000 * 60 * 5)
     public void clearExpired() {
-        writeLock(() -> {
-            Date now = new Date();
-            blacklist.entrySet().removeIf(entry -> entry.getValue().before(now));
-            whitelist.values().removeIf(sessions -> {
-                sessions.values().removeIf(info -> info.refreshTokenPayload().exp().before(now));
-                return sessions.isEmpty();
+        try {
+            writeLock(() -> {
+                Date now = new Date();
+                // 블랙리스트 정리
+                blacklist.entrySet().removeIf(entry -> entry.getValue().before(now));
+
+                // 화이트리스트 정리 (내부 엔트리가 비면 유저 키 자체를 삭제)
+                whitelist.entrySet().removeIf(entry -> {
+                    LinkedHashMap<UUID, JwtInformation> sessions = entry.getValue();
+                    sessions.values().removeIf(info -> info.refreshTokenPayload().exp().before(now));
+                    return sessions.isEmpty();
+                });
+                log.debug("만료 데이터 정리 완료");
             });
-            log.debug("만료 데이터 정리 완료");
-        });
+        } catch (Exception e) {
+            log.error("만료 데이터 정리 중 오류 발생", e);
+        }
     }
 
     private void evictOldestSession(UUID userId, LinkedHashMap<UUID, JwtInformation> sessions) {
