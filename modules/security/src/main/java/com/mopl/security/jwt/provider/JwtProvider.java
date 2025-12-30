@@ -106,16 +106,6 @@ public class JwtProvider {
         }
     }
 
-    private JwtPayload extractPayload(JWTClaimsSet claims) throws ParseException {
-        return new JwtPayload(
-            parseUuidClaim(claims.getSubject(), "sub"),
-            parseUuidClaim(claims.getJWTID(), "jti"),
-            claims.getIssueTime(),
-            claims.getExpirationTime(),
-            parseRoleClaim(claims.getStringClaim("role"))
-        );
-    }
-
     private void verifySignature(SignedJWT jwt, TokenType type) throws JOSEException {
         List<JWSVerifier> typeVerifiers = verifiers.get(type);
 
@@ -130,6 +120,22 @@ public class JwtProvider {
         throw new InvalidTokenException("유효하지 않은 토큰 서명입니다.");
     }
 
+    private JwtPayload extractPayload(JWTClaimsSet claims) throws ParseException {
+        return new JwtPayload(
+            parseUuidClaim(claims.getSubject(), "sub"),
+            parseUuidClaim(claims.getJWTID(), "jti"),
+            claims.getIssueTime(),
+            claims.getExpirationTime(),
+            parseRoleClaim(claims.getStringClaim("role"))
+        );
+    }
+
+    private void validateExpiration(Date expiration) {
+        if (expiration == null || expiration.before(new Date())) {
+            throw new InvalidTokenException("만료된 토큰입니다.");
+        }
+    }
+
     private UUID parseUuidClaim(String value, String claimName) {
         if (!hasText(value)) {
             throw new InvalidTokenException("토큰의 " + claimName + "가 포함되어 있지 않습니다.");
@@ -138,12 +144,6 @@ public class JwtProvider {
             return UUID.fromString(value);
         } catch (IllegalArgumentException e) {
             throw new InvalidTokenException("토큰의 " + claimName + " 형식이 유효하지 않습니다.");
-        }
-    }
-
-    private void validateExpiration(Date expiration) {
-        if (expiration == null || expiration.before(new Date())) {
-            throw new InvalidTokenException("만료된 토큰입니다.");
         }
     }
 
