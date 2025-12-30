@@ -7,6 +7,8 @@ import java.time.Duration;
 
 public class JwtCookieProvider {
 
+    private static final String AUTH_PATH = "/api/auth";
+
     private final String refreshTokenCookieName;
     private final Duration refreshTokenExpiration;
 
@@ -19,7 +21,7 @@ public class JwtCookieProvider {
         Cookie cookie = new Cookie(refreshTokenCookieName, refreshToken);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
-        cookie.setPath("/");
+        cookie.setPath(AUTH_PATH);
         cookie.setMaxAge((int) refreshTokenExpiration.toSeconds());
         return cookie;
     }
@@ -28,7 +30,7 @@ public class JwtCookieProvider {
         Cookie cookie = new Cookie(refreshTokenCookieName, "");
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
-        cookie.setPath("/");
+        cookie.setPath(AUTH_PATH);
         cookie.setMaxAge(0);
         return cookie;
     }
