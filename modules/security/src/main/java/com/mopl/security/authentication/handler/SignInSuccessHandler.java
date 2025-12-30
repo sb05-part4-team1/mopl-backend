@@ -64,9 +64,9 @@ public class SignInSuccessHandler implements AuthenticationSuccessHandler {
             );
             apiResponseHandler.writeSuccess(response, jwtResponse);
 
-            log.info("JWT 토큰 발급 완료: username={}", userDetails.getUsername());
+            log.info("JWT 토큰 발급 완료: userId={}", userDetails.userId());
         } catch (Exception e) {
-            log.error("JWT 토큰 생성 실패: username={}", userDetails.getUsername(), e);
+            log.error("JWT 토큰 생성 실패: userId={}", userDetails.userId(), e);
             apiResponseHandler.writeError(response, new InternalServerException());
         }
     }
