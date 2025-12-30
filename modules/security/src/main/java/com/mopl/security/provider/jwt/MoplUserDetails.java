@@ -23,6 +23,19 @@ public record MoplUserDetails(
     Boolean locked
 ) implements UserDetails {
 
+    public static MoplUserDetails from(UserModel user) {
+        return MoplUserDetails.builder()
+            .userId(user.getId())
+            .role(user.getRole())
+            .createdAt(user.getCreatedAt())
+            .password(user.getPassword())
+            .email(user.getEmail())
+            .name(user.getName())
+            .profileImageUrl(user.getProfileImageUrl())
+            .locked(user.isLocked())
+            .build();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
@@ -36,5 +49,10 @@ public record MoplUserDetails(
     @Override
     public String getUsername() {
         return userId.toString();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return !Boolean.TRUE.equals(locked);
     }
 }
