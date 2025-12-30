@@ -30,6 +30,7 @@ public class UserEntityMapper {
         if (userModel == null) {
             return null;
         }
+
         return UserEntity.builder()
             .id(userModel.getId())
             .createdAt(userModel.getCreatedAt())

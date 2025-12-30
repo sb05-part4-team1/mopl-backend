@@ -133,6 +133,52 @@ class UserServiceTest {
     }
 
     @Nested
+    @DisplayName("getByEmail()")
+    class GetByEmailTest {
+
+        @Test
+        @DisplayName("존재하는 이메일로 조회하면 UserModel 반환")
+        void withExistingEmail_returnsUserModel() {
+            // given
+            String email = "test@example.com";
+            UserModel userModel = UserModel.create(
+                AuthProvider.EMAIL,
+                email,
+                "홍길동",
+                "encodedPassword"
+            );
+
+            given(userRepository.findByEmail(email)).willReturn(Optional.of(userModel));
+
+            // when
+            UserModel result = userService.getByEmail(email);
+
+            // then
+            assertThat(result).isEqualTo(userModel);
+            then(userRepository).should().findByEmail(email);
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 이메일로 조회하면 UserNotFoundException 발생")
+        void withNonExistingEmail_throwsUserNotFoundException() {
+            // given
+            String email = "nonexistent@example.com";
+
+            given(userRepository.findByEmail(email)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> userService.getByEmail(email))
+                .isInstanceOf(UserNotFoundException.class)
+                .satisfies(e -> {
+                    UserNotFoundException ex = (UserNotFoundException) e;
+                    assertThat(ex.getDetails().get("email")).isEqualTo(email);
+                });
+
+            then(userRepository).should().findByEmail(email);
+        }
+    }
+
+    @Nested
     @DisplayName("update()")
     class UpdateTest {
 

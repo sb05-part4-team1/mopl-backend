@@ -119,6 +119,16 @@ class UserEntityMapperTest {
         }
 
         @Test
+        @DisplayName("null 입력 시 null 반환")
+        void withNull_returnsNull() {
+            // when
+            UserEntity result = mapper.toEntity(null);
+
+            // then
+            assertThat(result).isNull();
+        }
+
+        @Test
         @DisplayName("양방향 변환 시 데이터 유지")
         void roundTrip_preservesData() {
             // given

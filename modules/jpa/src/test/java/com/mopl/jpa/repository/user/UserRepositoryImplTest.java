@@ -118,6 +118,45 @@ class UserRepositoryImplTest {
     }
 
     @Nested
+    @DisplayName("findByEmail()")
+    class FindByEmailTest {
+
+        @Test
+        @DisplayName("존재하는 이메일로 조회하면 UserModel 반환")
+        void withExistingEmail_returnsUserModel() {
+            // given
+            String email = "test@example.com";
+            UserModel savedUser = userRepository.save(
+                UserModel.create(
+                    AuthProvider.EMAIL,
+                    email,
+                    "홍길동",
+                    "encodedPassword"
+                )
+            );
+
+            // when
+            Optional<UserModel> foundUser = userRepository.findByEmail(email);
+
+            // then
+            assertThat(foundUser).isPresent();
+            assertThat(foundUser.get().getId()).isEqualTo(savedUser.getId());
+            assertThat(foundUser.get().getEmail()).isEqualTo(email);
+            assertThat(foundUser.get().getName()).isEqualTo("홍길동");
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 이메일로 조회하면 빈 Optional 반환")
+        void withNonExistingEmail_returnsEmptyOptional() {
+            // when
+            Optional<UserModel> foundUser = userRepository.findByEmail("nonexisting@example.com");
+
+            // then
+            assertThat(foundUser).isEmpty();
+        }
+    }
+
+    @Nested
     @DisplayName("existsByEmail()")
     class ExistsByEmailTest {
 
