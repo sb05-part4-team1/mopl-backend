@@ -3,7 +3,8 @@ package com.mopl.domain.service.review;
 import com.mopl.domain.exception.review.InvalidReviewDataException;
 import com.mopl.domain.model.review.ReviewModel;
 import com.mopl.domain.model.user.UserModel;
-import com.mopl.domain.repository.content.ContentRepository;
+// [변경] Repository 대신 Service import
+import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.repository.review.ReviewRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -30,8 +31,9 @@ class ReviewServiceTest {
     @Mock
     private ReviewRepository reviewRepository;
 
+    // [변경] ContentRepository -> ContentService로 교체
     @Mock
-    private ContentRepository contentRepository;
+    private ContentService contentService;
 
     @InjectMocks
     private ReviewService reviewService;
@@ -48,17 +50,18 @@ class ReviewServiceTest {
             UUID authorId = UUID.randomUUID();
 
             UserModel author = UserModel.builder()
-                .id(authorId)
-                .build();
+                    .id(authorId)
+                    .build();
 
             String text = "리뷰 내용";
             BigDecimal rating = BigDecimal.valueOf(4);
 
-            given(contentRepository.existsById(contentId)).willReturn(true);
+            // [변경] repository.existsById -> service.exists
+            given(contentService.exists(contentId)).willReturn(true);
 
             // save() 호출 시 들어온 객체를 그대로 반환하도록 설정
             given(reviewRepository.save(any(ReviewModel.class)))
-                .willAnswer(invocation -> invocation.getArgument(0, ReviewModel.class));
+                    .willAnswer(invocation -> invocation.getArgument(0, ReviewModel.class));
 
             // when
             ReviewModel result = reviewService.create(contentId, author, text, rating);
@@ -66,12 +69,12 @@ class ReviewServiceTest {
             // then
             assertThat(result).isNotNull();
             assertThat(result.getContentId()).isEqualTo(contentId);
-            // [수정] 객체 비교가 아니라 ID 비교로 변경
             assertThat(result.getAuthorId()).isEqualTo(authorId);
             assertThat(result.getText()).isEqualTo(text);
             assertThat(result.getRating()).isEqualTo(rating);
 
-            then(contentRepository).should().existsById(contentId);
+            // [변경] 검증 대상도 service로 변경
+            then(contentService).should().exists(contentId);
             then(reviewRepository).should().save(any(ReviewModel.class));
         }
 
@@ -82,24 +85,25 @@ class ReviewServiceTest {
             UUID contentId = UUID.randomUUID();
             UserModel author = UserModel.builder().id(UUID.randomUUID()).build();
 
-            given(contentRepository.existsById(contentId)).willReturn(false);
+            // [변경] service.exists가 false를 리턴하도록 설정
+            given(contentService.exists(contentId)).willReturn(false);
 
             // when & then
             assertThatThrownBy(() -> reviewService.create(
-                contentId,
-                author,
-                "리뷰",
-                BigDecimal.valueOf(4)
+                    contentId,
+                    author,
+                    "리뷰",
+                    BigDecimal.valueOf(4)
             ))
-                .isInstanceOf(InvalidReviewDataException.class)
-                .satisfies(e -> {
-                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                    // ReviewService에서 던지는 메시지는 기존과 동일
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("존재하지 않는 콘텐츠입니다. contentId=" + contentId);
-                });
+                    .isInstanceOf(InvalidReviewDataException.class)
+                    .satisfies(e -> {
+                        InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                        assertThat(ex.getDetails().get("detailMessage"))
+                                .isEqualTo("존재하지 않는 콘텐츠입니다. contentId=" + contentId);
+                    });
 
-            then(contentRepository).should().existsById(contentId);
+            // [변경] 검증 대상 변경
+            then(contentService).should().exists(contentId);
             then(reviewRepository).should(never()).save(any(ReviewModel.class));
         }
 
@@ -108,27 +112,26 @@ class ReviewServiceTest {
         void withNullAuthorId_throwsException() {
             // given
             UUID contentId = UUID.randomUUID();
-            given(contentRepository.existsById(contentId)).willReturn(true);
+            // [변경] 유효성 검사 전에 콘텐츠 존재 확인을 먼저 하므로 true 리턴 필요
+            given(contentService.exists(contentId)).willReturn(true);
 
-            // [수정] Service가 author.getId()를 호출하므로, 객체는 있되 ID가 null인 상태로 테스트
             UserModel authorWithNullId = UserModel.builder().id(null).build();
 
             // when & then
             assertThatThrownBy(() -> reviewService.create(
-                contentId,
-                authorWithNullId,
-                "리뷰",
-                BigDecimal.valueOf(4)
+                    contentId,
+                    authorWithNullId,
+                    "리뷰",
+                    BigDecimal.valueOf(4)
             ))
-                .isInstanceOf(InvalidReviewDataException.class)
-                .satisfies(e -> {
-                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                    // [수정] ReviewModel의 변경된 메시지 반영
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("작성자 ID는 null일 수 없습니다.");
-                });
+                    .isInstanceOf(InvalidReviewDataException.class)
+                    .satisfies(e -> {
+                        InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                        assertThat(ex.getDetails().get("detailMessage"))
+                                .isEqualTo("작성자 ID는 null일 수 없습니다.");
+                    });
 
-            then(contentRepository).should().existsById(contentId);
+            then(contentService).should().exists(contentId);
             then(reviewRepository).should(never()).save(any(ReviewModel.class));
         }
 
@@ -139,24 +142,23 @@ class ReviewServiceTest {
             UUID contentId = UUID.randomUUID();
             UserModel author = UserModel.builder().id(UUID.randomUUID()).build();
 
-            given(contentRepository.existsById(contentId)).willReturn(true);
+            given(contentService.exists(contentId)).willReturn(true);
 
             // when & then
             assertThatThrownBy(() -> reviewService.create(
-                contentId,
-                author,
-                "리뷰",
-                null
+                    contentId,
+                    author,
+                    "리뷰",
+                    null
             ))
-                .isInstanceOf(InvalidReviewDataException.class)
-                .satisfies(e -> {
-                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                    // [수정] ReviewModel의 변경된 메시지 반영
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("평점은 null일 수 없습니다.");
-                });
+                    .isInstanceOf(InvalidReviewDataException.class)
+                    .satisfies(e -> {
+                        InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                        assertThat(ex.getDetails().get("detailMessage"))
+                                .isEqualTo("평점은 null일 수 없습니다.");
+                    });
 
-            then(contentRepository).should().existsById(contentId);
+            then(contentService).should().exists(contentId);
             then(reviewRepository).should(never()).save(any(ReviewModel.class));
         }
 
@@ -167,24 +169,23 @@ class ReviewServiceTest {
             UUID contentId = UUID.randomUUID();
             UserModel author = UserModel.builder().id(UUID.randomUUID()).build();
 
-            given(contentRepository.existsById(contentId)).willReturn(true);
+            given(contentService.exists(contentId)).willReturn(true);
 
             // when & then
             assertThatThrownBy(() -> reviewService.create(
-                contentId,
-                author,
-                "리뷰",
-                BigDecimal.valueOf(6)
+                    contentId,
+                    author,
+                    "리뷰",
+                    BigDecimal.valueOf(6)
             ))
-                .isInstanceOf(InvalidReviewDataException.class)
-                .satisfies(e -> {
-                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                    // 기존 메시지와 동일
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("평점은 0.0 이상 5.0 이하만 가능합니다.");
-                });
+                    .isInstanceOf(InvalidReviewDataException.class)
+                    .satisfies(e -> {
+                        InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                        assertThat(ex.getDetails().get("detailMessage"))
+                                .isEqualTo("평점은 0.0 이상 5.0 이하만 가능합니다.");
+                    });
 
-            then(contentRepository).should().existsById(contentId);
+            then(contentService).should().exists(contentId);
             then(reviewRepository).should(never()).save(any(ReviewModel.class));
         }
     }

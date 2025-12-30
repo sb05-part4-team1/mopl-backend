@@ -2,8 +2,10 @@ package com.mopl.api.config;
 
 import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
+import com.mopl.domain.repository.review.ReviewRepository;
 import com.mopl.domain.repository.tag.TagRepository;
 import com.mopl.domain.service.content.ContentService;
+import com.mopl.domain.service.review.ReviewService;
 import com.mopl.domain.service.tag.TagService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,5 +39,16 @@ public class DomainServiceConfig {
     @Bean
     public TagService tagService(TagRepository tagRepository) {
         return new TagService(tagRepository);
+    }
+
+    @Bean
+    public ReviewService reviewService(
+            ReviewRepository reviewRepository,
+            ContentService contentService
+    ) {
+        return new ReviewService(
+                reviewRepository,
+                contentService
+        );
     }
 }
