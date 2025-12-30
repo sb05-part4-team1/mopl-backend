@@ -19,6 +19,7 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -36,6 +37,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @AutoConfiguration
 @EnableWebSecurity
 @EnableMethodSecurity
+@EnableScheduling
 @EnableConfigurationProperties(JwtProperties.class)
 @Import(SecurityBeanConfig.class)
 public class SecurityAutoConfig {
