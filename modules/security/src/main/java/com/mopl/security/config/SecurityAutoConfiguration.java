@@ -1,9 +1,9 @@
 package com.mopl.security.config;
 
 import com.mopl.domain.model.user.UserModel;
-import com.mopl.security.authentication.handler.LoginFailureHandler;
-import com.mopl.security.authentication.handler.LoginSuccessHandler;
-import com.mopl.security.authentication.handler.LogoutHandler;
+import com.mopl.security.authentication.handler.SignInFailureHandler;
+import com.mopl.security.authentication.handler.SignInSuccessHandler;
+import com.mopl.security.authentication.handler.SignOutHandler;
 import com.mopl.security.csrf.SpaCsrfTokenRequestHandler;
 import com.mopl.security.exception.AccessDeniedExceptionHandler;
 import com.mopl.security.exception.UnauthorizedEntryPoint;
@@ -57,9 +57,9 @@ public class SecurityAutoConfiguration {
         SpaCsrfTokenRequestHandler spaCsrfTokenRequestHandler,
         UnauthorizedEntryPoint unauthorizedEntryPoint,
         AccessDeniedExceptionHandler accessDeniedHandler,
-        LoginSuccessHandler loginSuccessHandler,
-        LoginFailureHandler loginFailureHandler,
-        LogoutHandler logoutHandler,
+        SignInSuccessHandler signInSuccessHandler,
+        SignInFailureHandler signInFailureHandler,
+        SignOutHandler signOutHandler,
         JwtAuthenticationFilter jwtAuthenticationFilter
     ) throws Exception {
         http
@@ -81,12 +81,12 @@ public class SecurityAutoConfiguration {
             .authorizeHttpRequests(securityRegistry::configure)
             .formLogin(login -> login
                 .loginProcessingUrl("/api/auth/sign-in")
-                .successHandler(loginSuccessHandler)
-                .failureHandler(loginFailureHandler)
+                .successHandler(signInSuccessHandler)
+                .failureHandler(signInFailureHandler)
             )
             .logout(logout -> logout
                 .logoutUrl("/api/auth/sign-out")
-                .addLogoutHandler(logoutHandler)
+                .addLogoutHandler(signOutHandler)
                 .logoutSuccessHandler(
                     new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT)
                 )

@@ -12,10 +12,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.web.util.WebUtils;
 
 @Slf4j
-public class LogoutHandler implements org.springframework.security.web.authentication.logout.LogoutHandler {
+public class SignOutHandler implements LogoutHandler {
 
     private static final String BEARER_PREFIX = "Bearer ";
 
@@ -24,7 +25,7 @@ public class LogoutHandler implements org.springframework.security.web.authentic
     private final JwtCookieProvider cookieProvider;
     private final JwtRegistry jwtRegistry;
 
-    public LogoutHandler(
+    public SignOutHandler(
         JwtProvider jwtProvider,
         JwtCookieProvider cookieProvider,
         JwtRegistry jwtRegistry,

@@ -23,7 +23,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Slf4j
-public class LoginSuccessHandler implements AuthenticationSuccessHandler {
+public class SignInSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtProvider jwtProvider;
     private final JwtCookieProvider cookieProvider;
@@ -71,6 +71,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     }
 
     private record JwtResponse(UserDetailsDto userDto, String accessToken) {
+
         public static JwtResponse from(
             MoplUserDetails userDetails,
             String accessToken
@@ -87,6 +88,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
             UserModel.Role role,
             Boolean locked
         ) {
+
             public static UserDetailsDto from(MoplUserDetails userDetails) {
                 return new UserDetailsDto(
                     userDetails.userId(),

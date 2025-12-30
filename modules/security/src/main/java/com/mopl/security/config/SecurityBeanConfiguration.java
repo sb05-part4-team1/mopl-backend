@@ -2,9 +2,9 @@ package com.mopl.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.domain.service.user.UserService;
-import com.mopl.security.authentication.handler.LoginFailureHandler;
-import com.mopl.security.authentication.handler.LoginSuccessHandler;
-import com.mopl.security.authentication.handler.LogoutHandler;
+import com.mopl.security.authentication.handler.SignInFailureHandler;
+import com.mopl.security.authentication.handler.SignInSuccessHandler;
+import com.mopl.security.authentication.handler.SignOutHandler;
 import com.mopl.security.csrf.SpaCsrfTokenRequestHandler;
 import com.mopl.security.exception.AccessDeniedExceptionHandler;
 import com.mopl.security.exception.ApiResponseHandler;
@@ -75,29 +75,29 @@ public class SecurityBeanConfiguration {
     }
 
     @Bean
-    public LoginFailureHandler loginFailureHandler(ApiResponseHandler apiResponseHandler) {
-        return new LoginFailureHandler(apiResponseHandler);
+    public SignInFailureHandler loginFailureHandler(ApiResponseHandler apiResponseHandler) {
+        return new SignInFailureHandler(apiResponseHandler);
     }
 
     @Bean
-    public LoginSuccessHandler loginSuccessHandler(
+    public SignInSuccessHandler loginSuccessHandler(
         JwtProvider jwtProvider,
         JwtCookieProvider jwtCookieProvider,
         ApiResponseHandler apiResponseHandler,
         JwtRegistry jwtRegistry
     ) {
-        return new LoginSuccessHandler(jwtProvider, jwtCookieProvider, jwtRegistry,
+        return new SignInSuccessHandler(jwtProvider, jwtCookieProvider, jwtRegistry,
             apiResponseHandler);
     }
 
     @Bean
-    public LogoutHandler logoutHandler(
+    public SignOutHandler logoutHandler(
         JwtProvider jwtProvider,
         JwtCookieProvider jwtCookieProvider,
         JwtRegistry jwtRegistry,
         JwtProperties jwtProperties
     ) {
-        return new LogoutHandler(jwtProvider, jwtCookieProvider, jwtRegistry, jwtProperties);
+        return new SignOutHandler(jwtProvider, jwtCookieProvider, jwtRegistry, jwtProperties);
     }
 
     @Bean

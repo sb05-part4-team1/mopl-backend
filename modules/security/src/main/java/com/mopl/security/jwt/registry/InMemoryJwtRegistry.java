@@ -119,13 +119,13 @@ public class InMemoryJwtRegistry implements JwtRegistry {
         try {
             writeLock(() -> {
                 Date now = new Date();
-                // 블랙리스트 정리
                 blacklist.entrySet().removeIf(entry -> entry.getValue().before(now));
 
-                // 화이트리스트 정리 (내부 엔트리가 비면 유저 키 자체를 삭제)
                 whitelist.entrySet().removeIf(entry -> {
                     LinkedHashMap<UUID, JwtInformation> sessions = entry.getValue();
-                    sessions.values().removeIf(info -> info.refreshTokenPayload().exp().before(now));
+                    sessions.values().removeIf(info -> info
+                        .refreshTokenPayload().exp().before(now)
+                    );
                     return sessions.isEmpty();
                 });
                 log.debug("만료 데이터 정리 완료");

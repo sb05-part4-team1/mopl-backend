@@ -16,7 +16,7 @@ import java.io.IOException;
 
 @RequiredArgsConstructor
 @Slf4j
-public class LoginFailureHandler implements AuthenticationFailureHandler {
+public class SignInFailureHandler implements AuthenticationFailureHandler {
 
     private final ApiResponseHandler apiResponseHandler;
 
