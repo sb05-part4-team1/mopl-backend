@@ -38,7 +38,12 @@ class AdminInitializerTest {
 
     @BeforeEach
     void setUp() {
-        AdminProperties adminProperties = new AdminProperties(true, ADMIN_EMAIL, ADMIN_NAME, ADMIN_PASSWORD);
+        AdminProperties adminProperties = new AdminProperties(
+            true,
+            ADMIN_EMAIL,
+            ADMIN_NAME,
+            ADMIN_PASSWORD
+        );
         adminInitializer = new AdminInitializer(adminProperties, userFacade);
     }
 
@@ -57,14 +62,16 @@ class AdminInitializerTest {
             given(adminUser.getEmail()).willReturn(ADMIN_EMAIL);
 
             given(userFacade.signUp(any(UserCreateRequest.class))).willReturn(createdUser);
-            given(userFacade.updateRoleInternal(any(UserRoleUpdateRequest.class), eq(ADMIN_ID))).willReturn(adminUser);
+            given(userFacade.updateRoleInternal(any(UserRoleUpdateRequest.class), eq(ADMIN_ID)))
+                .willReturn(adminUser);
 
             // when
             adminInitializer.run(null);
 
             // then
             then(userFacade).should().signUp(any(UserCreateRequest.class));
-            then(userFacade).should().updateRoleInternal(any(UserRoleUpdateRequest.class), eq(ADMIN_ID));
+            then(userFacade).should().updateRoleInternal(any(UserRoleUpdateRequest.class), eq(
+                ADMIN_ID));
         }
 
         @Test
@@ -79,7 +86,8 @@ class AdminInitializerTest {
 
             // then
             then(userFacade).should().signUp(any(UserCreateRequest.class));
-            then(userFacade).should(never()).updateRoleInternal(any(UserRoleUpdateRequest.class), any());
+            then(userFacade).should(never()).updateRoleInternal(any(UserRoleUpdateRequest.class),
+                any());
         }
 
         @Test
@@ -94,7 +102,8 @@ class AdminInitializerTest {
 
             // then
             then(userFacade).should().signUp(any(UserCreateRequest.class));
-            then(userFacade).should(never()).updateRoleInternal(any(UserRoleUpdateRequest.class), any());
+            then(userFacade).should(never()).updateRoleInternal(any(UserRoleUpdateRequest.class),
+                any());
         }
     }
 }

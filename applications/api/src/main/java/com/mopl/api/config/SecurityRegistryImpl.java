@@ -12,7 +12,8 @@ import org.springframework.stereotype.Component;
 public class SecurityRegistryImpl implements SecurityRegistry {
 
     @Override
-    public void configure(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
+    public void configure(
+        AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
         auth
             .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
             .requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
@@ -22,7 +23,9 @@ public class SecurityRegistryImpl implements SecurityRegistry {
                 "/api/auth/reset-password"
             ).permitAll()
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-            .requestMatchers(new NegatedRequestMatcher(new AntPathRequestMatcher("/api/**"))).permitAll()
+            .requestMatchers(new NegatedRequestMatcher(
+                new AntPathRequestMatcher("/api/**"))
+            ).permitAll()
             .anyRequest().authenticated();
     }
 }

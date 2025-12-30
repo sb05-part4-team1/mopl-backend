@@ -64,7 +64,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             log.error("JWT 필터 처리 중 예기치 않은 오류 발생", e);
             SecurityContextHolder.clearContext();
-            apiResponseHandler.writeError(response, new InvalidTokenException("인증 처리 중 오류가 발생했습니다."));
+            apiResponseHandler.writeError(
+                response,
+                new InvalidTokenException("인증 처리 중 오류가 발생했습니다.")
+            );
             return;
         }
 
@@ -91,12 +94,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             .locked(false)
             .build();
 
-        UsernamePasswordAuthenticationToken authentication =
-            new UsernamePasswordAuthenticationToken(
-                userDetails,
-                null,
-                userDetails.getAuthorities()
-            );
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+            userDetails,
+            null,
+            userDetails.getAuthorities()
+        );
 
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);

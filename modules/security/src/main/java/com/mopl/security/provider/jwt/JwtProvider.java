@@ -153,14 +153,20 @@ public class JwtProvider {
         }
     }
 
-    private void initializeTokenConfig(TokenType type, JwtProperties.Config config) throws JOSEException {
+    private void initializeTokenConfig(
+        TokenType type,
+        JwtProperties.Config config
+    ) throws JOSEException {
         validateSecret(config.secret());
         signers.put(type, new MACSigner(toBytes(config.secret())));
         verifiers.put(type, createVerifiers(config, type));
         expirations.put(type, config.expiration());
     }
 
-    private List<JWSVerifier> createVerifiers(JwtProperties.Config config, TokenType type) throws JOSEException {
+    private List<JWSVerifier> createVerifiers(
+        JwtProperties.Config config,
+        TokenType type
+    ) throws JOSEException {
         List<JWSVerifier> list = new ArrayList<>();
         list.add(new MACVerifier(toBytes(config.secret())));
 

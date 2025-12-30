@@ -60,7 +60,11 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
                 jwtInformation.accessToken()
             );
 
-            response.addCookie(cookieProvider.createRefreshTokenCookie(jwtInformation.refreshToken()));
+            response.addCookie(
+                cookieProvider.createRefreshTokenCookie(
+                    jwtInformation.refreshToken()
+                )
+            );
             apiResponseHandler.writeSuccess(response, jwtResponse);
 
             log.info("JWT 토큰 발급 완료: username={}", userDetails.getUsername());

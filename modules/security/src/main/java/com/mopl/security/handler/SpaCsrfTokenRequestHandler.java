@@ -16,8 +16,11 @@ public class SpaCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
     private final CsrfTokenRequestHandler xor = new XorCsrfTokenRequestAttributeHandler();
 
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response,
-                       Supplier<CsrfToken> csrfToken) {
+    public void handle(
+        HttpServletRequest request,
+        HttpServletResponse response,
+        Supplier<CsrfToken> csrfToken
+    ) {
         /*
          * Always use XorCsrfTokenRequestAttributeHandler to provide BREACH protection of
          * the CsrfToken when it is rendered in the response body.
@@ -30,7 +33,10 @@ public class SpaCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
     }
 
     @Override
-    public String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
+    public String resolveCsrfTokenValue(
+        HttpServletRequest request,
+        CsrfToken csrfToken
+    ) {
         String headerValue = request.getHeader(csrfToken.getHeaderName());
         /*
          * If the request contains a request header, use CsrfTokenRequestAttributeHandler

@@ -35,12 +35,16 @@ public class SecurityBeanConfiguration {
     }
 
     @Bean
-    public Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint(ApiResponseHandler apiResponseHandler) {
+    public Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint(
+        ApiResponseHandler apiResponseHandler
+    ) {
         return new Http401UnauthorizedEntryPoint(apiResponseHandler);
     }
 
     @Bean
-    public Http403ForbiddenAccessDeniedHandler http403ForbiddenAccessDeniedHandler(ApiResponseHandler apiResponseHandler) {
+    public Http403ForbiddenAccessDeniedHandler http403ForbiddenAccessDeniedHandler(
+        ApiResponseHandler apiResponseHandler
+    ) {
         return new Http403ForbiddenAccessDeniedHandler(apiResponseHandler);
     }
 
@@ -60,7 +64,11 @@ public class SecurityBeanConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(name = "mopl.jwt.registry-type", havingValue = "in-memory", matchIfMissing = true)
+    @ConditionalOnProperty(
+        name = "mopl.jwt.registry-type",
+        havingValue = "in-memory",
+        matchIfMissing = true
+    )
     @ConditionalOnMissingBean(JwtRegistry.class)
     public JwtRegistry inMemoryJwtRegistry(JwtProperties jwtProperties) {
         return new InMemoryJwtRegistry(jwtProperties);
@@ -92,7 +100,8 @@ public class SecurityBeanConfiguration {
         ApiResponseHandler apiResponseHandler,
         JwtRegistry jwtRegistry
     ) {
-        return new JwtLoginSuccessHandler(jwtProvider, jwtCookieProvider, jwtRegistry, apiResponseHandler);
+        return new JwtLoginSuccessHandler(jwtProvider, jwtCookieProvider, jwtRegistry,
+            apiResponseHandler);
     }
 
     @Bean

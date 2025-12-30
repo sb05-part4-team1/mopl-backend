@@ -11,6 +11,7 @@ public record AdminProperties(
     String name,
     String password
 ) {
+
     public AdminProperties {
         if (enabled) {
             Assert.hasText(email, "mopl.admin.email must not be empty when enabled is true");

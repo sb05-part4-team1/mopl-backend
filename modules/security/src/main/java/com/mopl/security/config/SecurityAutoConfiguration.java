@@ -81,7 +81,9 @@ public class SecurityAutoConfiguration {
             .logout(logout -> logout
                 .logoutUrl("/api/auth/sign-out")
                 .addLogoutHandler(jwtLogoutHandler)
-                .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
+                .logoutSuccessHandler(
+                    new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT)
+                )
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         // MDC Filter, ExceptionTranslationFilter, Rate Limiting Filters can be added here as needed
@@ -95,7 +97,9 @@ public class SecurityAutoConfiguration {
     }
 
     @Bean
-    public static MethodSecurityExpressionHandler methodSecurityExpressionHandler(RoleHierarchy roleHierarchy) {
+    public static MethodSecurityExpressionHandler methodSecurityExpressionHandler(
+        RoleHierarchy roleHierarchy
+    ) {
         DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
         handler.setRoleHierarchy(roleHierarchy);
         return handler;
