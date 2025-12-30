@@ -71,8 +71,7 @@ class ContentTagRepositoryImplTest {
             );
 
             // then
-            List<ContentTagEntity> contentTags =
-                jpaContentTagRepository.findAll();
+            List<ContentTagEntity> contentTags = jpaContentTagRepository.findAll();
 
             assertThat(contentTags).hasSize(2);
 

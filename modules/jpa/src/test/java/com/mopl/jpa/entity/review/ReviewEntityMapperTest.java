@@ -52,23 +52,23 @@ class ReviewEntityMapperTest {
             BigDecimal rating = BigDecimal.valueOf(4);
 
             ContentEntity contentEntity = ContentEntity.builder()
-                    .id(contentId)
-                    .build();
+                .id(contentId)
+                .build();
 
             UserEntity authorEntity = UserEntity.builder()
-                    .id(authorId)
-                    .build();
+                .id(authorId)
+                .build();
 
             ReviewEntity reviewEntity = ReviewEntity.builder()
-                    .id(reviewId)
-                    .createdAt(createdAt)
-                    .updatedAt(updatedAt)
-                    .deletedAt(deletedAt)
-                    .content(contentEntity)
-                    .author(authorEntity)
-                    .text(text)
-                    .rating(rating)
-                    .build();
+                .id(reviewId)
+                .createdAt(createdAt)
+                .updatedAt(updatedAt)
+                .deletedAt(deletedAt)
+                .content(contentEntity)
+                .author(authorEntity)
+                .text(text)
+                .rating(rating)
+                .build();
 
             // when
             ReviewModel result = reviewEntityMapper.toModel(reviewEntity);
@@ -97,16 +97,16 @@ class ReviewEntityMapperTest {
             UUID contentId = UUID.randomUUID();
 
             ContentEntity contentEntity = ContentEntity.builder()
-                    .id(contentId)
-                    .build();
+                .id(contentId)
+                .build();
 
             ReviewEntity reviewEntity = ReviewEntity.builder()
-                    .id(reviewId)
-                    .content(contentEntity)
-                    .author(null) // author가 없음
-                    .text("리뷰")
-                    .rating(BigDecimal.valueOf(3))
-                    .build();
+                .id(reviewId)
+                .content(contentEntity)
+                .author(null) // author가 없음
+                .text("리뷰")
+                .rating(BigDecimal.valueOf(3))
+                .build();
 
             // when
             ReviewModel result = reviewEntityMapper.toModel(reviewEntity);
@@ -153,15 +153,15 @@ class ReviewEntityMapperTest {
 
             // [변경] UserModel 생성 로직 삭제 -> 바로 빌더에 ID 주입
             ReviewModel reviewModel = ReviewModel.builder()
-                    .id(reviewId)
-                    .createdAt(createdAt)
-                    .updatedAt(updatedAt)
-                    .deletedAt(deletedAt)
-                    .contentId(contentId)
-                    .authorId(authorId) // [변경] ID 직접 주입
-                    .text(text)
-                    .rating(rating)
-                    .build();
+                .id(reviewId)
+                .createdAt(createdAt)
+                .updatedAt(updatedAt)
+                .deletedAt(deletedAt)
+                .contentId(contentId)
+                .authorId(authorId) // [변경] ID 직접 주입
+                .text(text)
+                .rating(rating)
+                .build();
 
             // when
             ReviewEntity result = reviewEntityMapper.toEntity(reviewModel);
@@ -192,12 +192,12 @@ class ReviewEntityMapperTest {
             UUID contentId = UUID.randomUUID();
 
             ReviewModel reviewModel = ReviewModel.builder()
-                    .id(reviewId)
-                    .contentId(contentId)
-                    .authorId(null) // [변경] ID가 null
-                    .text("리뷰")
-                    .rating(BigDecimal.valueOf(2))
-                    .build();
+                .id(reviewId)
+                .contentId(contentId)
+                .authorId(null) // [변경] ID가 null
+                .text("리뷰")
+                .rating(BigDecimal.valueOf(2))
+                .build();
 
             // when
             ReviewEntity result = reviewEntityMapper.toEntity(reviewModel);
@@ -217,12 +217,12 @@ class ReviewEntityMapperTest {
             UUID authorId = UUID.randomUUID();
 
             ReviewModel reviewModel = ReviewModel.builder()
-                    .id(reviewId)
-                    .contentId(null)
-                    .authorId(authorId) // [변경] ID 주입
-                    .text("리뷰")
-                    .rating(BigDecimal.valueOf(1))
-                    .build();
+                .id(reviewId)
+                .contentId(null)
+                .authorId(authorId) // [변경] ID 주입
+                .text("리뷰")
+                .rating(BigDecimal.valueOf(1))
+                .build();
 
             // when
             ReviewEntity result = reviewEntityMapper.toEntity(reviewModel);

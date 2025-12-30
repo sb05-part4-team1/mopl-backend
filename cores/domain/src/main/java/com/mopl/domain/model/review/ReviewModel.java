@@ -2,7 +2,6 @@ package com.mopl.domain.model.review;
 
 import com.mopl.domain.exception.review.InvalidReviewDataException;
 import com.mopl.domain.model.base.BaseUpdatableModel;
-import com.mopl.domain.model.user.UserModel;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

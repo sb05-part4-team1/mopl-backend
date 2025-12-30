@@ -46,26 +46,26 @@ class ReviewControllerTest {
         UUID reviewId = UUID.randomUUID();
 
         ReviewCreateRequest request = new ReviewCreateRequest(
-                contentId,
-                "H2 테스트 리뷰",
-                BigDecimal.valueOf(4)
+            contentId,
+            "H2 테스트 리뷰",
+            BigDecimal.valueOf(4)
         );
 
         // [변경] ReviewModel 생성 로직 삭제 (컨트롤러는 몰라도 됨)
 
         // 결과로 내려줄 응답 객체 생성
         UserSummary authorSummary = new UserSummary(
-                requesterId,
-                "홍길동",
-                "https://example.com/profile.png"
+            requesterId,
+            "홍길동",
+            "https://example.com/profile.png"
         );
 
         ReviewResponse response = new ReviewResponse(
-                reviewId,
-                contentId,
-                authorSummary,
-                "H2 테스트 리뷰",
-                BigDecimal.valueOf(4)
+            reviewId,
+            contentId,
+            authorSummary,
+            "H2 테스트 리뷰",
+            BigDecimal.valueOf(4)
         );
 
         // [변경] Facade가 바로 Response를 반환하도록 스터빙
@@ -73,18 +73,18 @@ class ReviewControllerTest {
 
         // when & then
         mockMvc.perform(
-                        post("/api/reviews")
-                                .header(REQUESTER_ID_HEADER, requesterId.toString())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(reviewId.toString()))
-                .andExpect(jsonPath("$.contentId").value(contentId.toString()))
-                .andExpect(jsonPath("$.text").value("H2 테스트 리뷰"))
-                .andExpect(jsonPath("$.rating").value(4))
-                .andExpect(jsonPath("$.author.userId").value(requesterId.toString()))
-                .andExpect(jsonPath("$.author.name").value("홍길동"));
+            post("/api/reviews")
+                .header(REQUESTER_ID_HEADER, requesterId.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        )
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").value(reviewId.toString()))
+            .andExpect(jsonPath("$.contentId").value(contentId.toString()))
+            .andExpect(jsonPath("$.text").value("H2 테스트 리뷰"))
+            .andExpect(jsonPath("$.rating").value(4))
+            .andExpect(jsonPath("$.author.userId").value(requesterId.toString()))
+            .andExpect(jsonPath("$.author.name").value("홍길동"));
 
         then(reviewFacade).should().createReview(requesterId, request);
         // [삭제] Mapper 호출 검증 삭제
@@ -95,18 +95,18 @@ class ReviewControllerTest {
     void createReview_withoutRequesterHeader_returns400() throws Exception {
         // given
         ReviewCreateRequest request = new ReviewCreateRequest(
-                UUID.randomUUID(),
-                "리뷰",
-                BigDecimal.valueOf(4)
+            UUID.randomUUID(),
+            "리뷰",
+            BigDecimal.valueOf(4)
         );
 
         // when & then
         mockMvc.perform(
-                        post("/api/reviews")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(status().isBadRequest());
+            post("/api/reviews")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        )
+            .andExpect(status().isBadRequest());
 
         then(reviewFacade).shouldHaveNoInteractions();
     }
@@ -116,19 +116,19 @@ class ReviewControllerTest {
     void createReview_withInvalidRequesterHeader_returns400() throws Exception {
         // given
         ReviewCreateRequest request = new ReviewCreateRequest(
-                UUID.randomUUID(),
-                "리뷰",
-                BigDecimal.valueOf(4)
+            UUID.randomUUID(),
+            "리뷰",
+            BigDecimal.valueOf(4)
         );
 
         // when & then
         mockMvc.perform(
-                        post("/api/reviews")
-                                .header(REQUESTER_ID_HEADER, "not-a-uuid")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(status().isBadRequest());
+            post("/api/reviews")
+                .header(REQUESTER_ID_HEADER, "not-a-uuid")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        )
+            .andExpect(status().isBadRequest());
 
         then(reviewFacade).shouldHaveNoInteractions();
     }

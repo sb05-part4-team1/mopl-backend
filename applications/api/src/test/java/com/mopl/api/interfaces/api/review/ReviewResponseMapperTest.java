@@ -16,7 +16,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ReviewResponseMapperTest {
 
     private final UserSummaryMapper userSummaryMapper = new UserSummaryMapper();
-    private final ReviewResponseMapper reviewResponseMapper = new ReviewResponseMapper(userSummaryMapper);
+    private final ReviewResponseMapper reviewResponseMapper = new ReviewResponseMapper(
+        userSummaryMapper);
 
     @Test
     @DisplayName("ReviewModel과 UserModel을 받아 ReviewResponse로 변환한다")
@@ -28,19 +29,19 @@ class ReviewResponseMapperTest {
 
         // 작성자 정보 (Service나 Facade에서 조회했다고 가정)
         UserModel author = UserModel.builder()
-                .id(authorId)
-                .name("홍길동")
-                .profileImageUrl("https://example.com/profile.png")
-                .build();
+            .id(authorId)
+            .name("홍길동")
+            .profileImageUrl("https://example.com/profile.png")
+            .build();
 
         // 리뷰 모델 (ID만 가지고 있음)
         ReviewModel reviewModel = ReviewModel.builder()
-                .id(reviewId)
-                .contentId(contentId)
-                .authorId(authorId) // [변경] author 객체 대신 ID
-                .text("리뷰 내용")
-                .rating(BigDecimal.valueOf(4))
-                .build();
+            .id(reviewId)
+            .contentId(contentId)
+            .authorId(authorId) // [변경] author 객체 대신 ID
+            .text("리뷰 내용")
+            .rating(BigDecimal.valueOf(4))
+            .build();
 
         // when
         // [변경] 두 개의 인자(리뷰 + 작성자)를 넘김
@@ -56,7 +57,8 @@ class ReviewResponseMapperTest {
         assertThat(response.author()).isInstanceOf(UserSummary.class);
         assertThat(response.author().userId()).isEqualTo(authorId);
         assertThat(response.author().name()).isEqualTo("홍길동");
-        assertThat(response.author().profileImageUrl()).isEqualTo("https://example.com/profile.png");
+        assertThat(response.author().profileImageUrl()).isEqualTo(
+            "https://example.com/profile.png");
     }
 
     @Test
@@ -67,12 +69,12 @@ class ReviewResponseMapperTest {
         UUID contentId = UUID.randomUUID();
 
         ReviewModel reviewModel = ReviewModel.builder()
-                .id(reviewId)
-                .contentId(contentId)
-                .authorId(UUID.randomUUID()) // ID는 있지만, 조회된 유저 객체가 없는 상황 가정
-                .text("리뷰 내용")
-                .rating(BigDecimal.valueOf(3))
-                .build();
+            .id(reviewId)
+            .contentId(contentId)
+            .authorId(UUID.randomUUID()) // ID는 있지만, 조회된 유저 객체가 없는 상황 가정
+            .text("리뷰 내용")
+            .rating(BigDecimal.valueOf(3))
+            .build();
 
         // when
         // [변경] author 자리에 null을 넘김
@@ -98,18 +100,18 @@ class ReviewResponseMapperTest {
 
         // 이름과 이미지가 없는 유저
         UserModel author = UserModel.builder()
-                .id(authorId)
-                .name(null)
-                .profileImageUrl(null)
-                .build();
+            .id(authorId)
+            .name(null)
+            .profileImageUrl(null)
+            .build();
 
         ReviewModel reviewModel = ReviewModel.builder()
-                .id(reviewId)
-                .contentId(contentId)
-                .authorId(authorId)
-                .text("리뷰 내용")
-                .rating(BigDecimal.valueOf(5))
-                .build();
+            .id(reviewId)
+            .contentId(contentId)
+            .authorId(authorId)
+            .text("리뷰 내용")
+            .rating(BigDecimal.valueOf(5))
+            .build();
 
         // when
         ReviewResponse response = reviewResponseMapper.toResponse(reviewModel, author);

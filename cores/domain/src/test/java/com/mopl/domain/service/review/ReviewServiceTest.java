@@ -48,8 +48,8 @@ class ReviewServiceTest {
             UUID authorId = UUID.randomUUID();
 
             UserModel author = UserModel.builder()
-                    .id(authorId)
-                    .build();
+                .id(authorId)
+                .build();
 
             String text = "리뷰 내용";
             BigDecimal rating = BigDecimal.valueOf(4);
@@ -58,7 +58,7 @@ class ReviewServiceTest {
 
             // save() 호출 시 들어온 객체를 그대로 반환하도록 설정
             given(reviewRepository.save(any(ReviewModel.class)))
-                    .willAnswer(invocation -> invocation.getArgument(0, ReviewModel.class));
+                .willAnswer(invocation -> invocation.getArgument(0, ReviewModel.class));
 
             // when
             ReviewModel result = reviewService.create(contentId, author, text, rating);
@@ -86,18 +86,18 @@ class ReviewServiceTest {
 
             // when & then
             assertThatThrownBy(() -> reviewService.create(
-                    contentId,
-                    author,
-                    "리뷰",
-                    BigDecimal.valueOf(4)
+                contentId,
+                author,
+                "리뷰",
+                BigDecimal.valueOf(4)
             ))
-                    .isInstanceOf(InvalidReviewDataException.class)
-                    .satisfies(e -> {
-                        InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                        // ReviewService에서 던지는 메시지는 기존과 동일
-                        assertThat(ex.getDetails().get("detailMessage"))
-                                .isEqualTo("존재하지 않는 콘텐츠입니다. contentId=" + contentId);
-                    });
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    // ReviewService에서 던지는 메시지는 기존과 동일
+                    assertThat(ex.getDetails().get("detailMessage"))
+                        .isEqualTo("존재하지 않는 콘텐츠입니다. contentId=" + contentId);
+                });
 
             then(contentRepository).should().existsById(contentId);
             then(reviewRepository).should(never()).save(any(ReviewModel.class));
@@ -115,18 +115,18 @@ class ReviewServiceTest {
 
             // when & then
             assertThatThrownBy(() -> reviewService.create(
-                    contentId,
-                    authorWithNullId,
-                    "리뷰",
-                    BigDecimal.valueOf(4)
+                contentId,
+                authorWithNullId,
+                "리뷰",
+                BigDecimal.valueOf(4)
             ))
-                    .isInstanceOf(InvalidReviewDataException.class)
-                    .satisfies(e -> {
-                        InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                        // [수정] ReviewModel의 변경된 메시지 반영
-                        assertThat(ex.getDetails().get("detailMessage"))
-                                .isEqualTo("작성자 ID는 null일 수 없습니다.");
-                    });
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    // [수정] ReviewModel의 변경된 메시지 반영
+                    assertThat(ex.getDetails().get("detailMessage"))
+                        .isEqualTo("작성자 ID는 null일 수 없습니다.");
+                });
 
             then(contentRepository).should().existsById(contentId);
             then(reviewRepository).should(never()).save(any(ReviewModel.class));
@@ -143,18 +143,18 @@ class ReviewServiceTest {
 
             // when & then
             assertThatThrownBy(() -> reviewService.create(
-                    contentId,
-                    author,
-                    "리뷰",
-                    null
+                contentId,
+                author,
+                "리뷰",
+                null
             ))
-                    .isInstanceOf(InvalidReviewDataException.class)
-                    .satisfies(e -> {
-                        InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                        // [수정] ReviewModel의 변경된 메시지 반영
-                        assertThat(ex.getDetails().get("detailMessage"))
-                                .isEqualTo("평점은 null일 수 없습니다.");
-                    });
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    // [수정] ReviewModel의 변경된 메시지 반영
+                    assertThat(ex.getDetails().get("detailMessage"))
+                        .isEqualTo("평점은 null일 수 없습니다.");
+                });
 
             then(contentRepository).should().existsById(contentId);
             then(reviewRepository).should(never()).save(any(ReviewModel.class));
@@ -171,18 +171,18 @@ class ReviewServiceTest {
 
             // when & then
             assertThatThrownBy(() -> reviewService.create(
-                    contentId,
-                    author,
-                    "리뷰",
-                    BigDecimal.valueOf(6)
+                contentId,
+                author,
+                "리뷰",
+                BigDecimal.valueOf(6)
             ))
-                    .isInstanceOf(InvalidReviewDataException.class)
-                    .satisfies(e -> {
-                        InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                        // 기존 메시지와 동일
-                        assertThat(ex.getDetails().get("detailMessage"))
-                                .isEqualTo("평점은 0.0 이상 5.0 이하만 가능합니다.");
-                    });
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    // 기존 메시지와 동일
+                    assertThat(ex.getDetails().get("detailMessage"))
+                        .isEqualTo("평점은 0.0 이상 5.0 이하만 가능합니다.");
+                });
 
             then(contentRepository).should().existsById(contentId);
             then(reviewRepository).should(never()).save(any(ReviewModel.class));

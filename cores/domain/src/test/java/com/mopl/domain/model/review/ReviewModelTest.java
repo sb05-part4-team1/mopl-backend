@@ -46,13 +46,13 @@ class ReviewModelTest {
 
             // when & then
             assertThatThrownBy(() -> ReviewModel.create(null, authorId, "text", BigDecimal.ONE))
-                    .isInstanceOf(InvalidReviewDataException.class)
-                    .satisfies(e -> {
-                        InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                        // [수정] 모델의 실제 메시지와 일치시킴
-                        assertThat(ex.getDetails().get("detailMessage"))
-                                .isEqualTo("콘텐츠 ID는 null일 수 없습니다.");
-                    });
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    // [수정] 모델의 실제 메시지와 일치시킴
+                    assertThat(ex.getDetails().get("detailMessage"))
+                        .isEqualTo("콘텐츠 ID는 null일 수 없습니다.");
+                });
         }
 
         @Test
@@ -60,14 +60,14 @@ class ReviewModelTest {
         void withNullAuthor_throwsException() {
             // when & then
             assertThatThrownBy(() -> ReviewModel.create(UUID.randomUUID(), null, "text",
-                    BigDecimal.ONE))
-                    .isInstanceOf(InvalidReviewDataException.class)
-                    .satisfies(e -> {
-                        InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                        // [수정] 모델의 실제 메시지와 일치시킴
-                        assertThat(ex.getDetails().get("detailMessage"))
-                                .isEqualTo("작성자 ID는 null일 수 없습니다.");
-                    });
+                BigDecimal.ONE))
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    // [수정] 모델의 실제 메시지와 일치시킴
+                    assertThat(ex.getDetails().get("detailMessage"))
+                        .isEqualTo("작성자 ID는 null일 수 없습니다.");
+                });
         }
 
         @Test
@@ -78,13 +78,13 @@ class ReviewModelTest {
 
             // when & then
             assertThatThrownBy(() -> ReviewModel.create(UUID.randomUUID(), authorId, "text", null))
-                    .isInstanceOf(InvalidReviewDataException.class)
-                    .satisfies(e -> {
-                        InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                        // [수정] 모델의 실제 메시지와 일치시킴
-                        assertThat(ex.getDetails().get("detailMessage"))
-                                .isEqualTo("평점은 null일 수 없습니다.");
-                    });
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    // [수정] 모델의 실제 메시지와 일치시킴
+                    assertThat(ex.getDetails().get("detailMessage"))
+                        .isEqualTo("평점은 null일 수 없습니다.");
+                });
         }
 
         @Test
@@ -97,13 +97,13 @@ class ReviewModelTest {
 
             // when & then
             assertThatThrownBy(() -> ReviewModel.create(contentId, authorId, longText,
-                    BigDecimal.ONE))
-                    .isInstanceOf(InvalidReviewDataException.class)
-                    .satisfies(e -> {
-                        InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                        assertThat(ex.getDetails().get("detailMessage"))
-                                .isEqualTo("리뷰 내용은 " + ReviewModel.TEXT_MAX_LENGTH + "자를 초과할 수 없습니다.");
-                    });
+                BigDecimal.ONE))
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    assertThat(ex.getDetails().get("detailMessage"))
+                        .isEqualTo("리뷰 내용은 " + ReviewModel.TEXT_MAX_LENGTH + "자를 초과할 수 없습니다.");
+                });
         }
 
         @Test
@@ -114,13 +114,13 @@ class ReviewModelTest {
 
             // when & then
             assertThatThrownBy(() -> ReviewModel.create(UUID.randomUUID(), authorId, "text",
-                    BigDecimal.valueOf(-1)))
-                    .isInstanceOf(InvalidReviewDataException.class)
-                    .satisfies(e -> {
-                        InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                        assertThat(ex.getDetails().get("detailMessage"))
-                                .isEqualTo("평점은 0.0 이상 5.0 이하만 가능합니다.");
-                    });
+                BigDecimal.valueOf(-1)))
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    assertThat(ex.getDetails().get("detailMessage"))
+                        .isEqualTo("평점은 0.0 이상 5.0 이하만 가능합니다.");
+                });
         }
 
         @Test
@@ -131,13 +131,13 @@ class ReviewModelTest {
 
             // when & then
             assertThatThrownBy(() -> ReviewModel.create(UUID.randomUUID(), authorId, "text",
-                    BigDecimal.valueOf(6)))
-                    .isInstanceOf(InvalidReviewDataException.class)
-                    .satisfies(e -> {
-                        InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                        assertThat(ex.getDetails().get("detailMessage"))
-                                .isEqualTo("평점은 0.0 이상 5.0 이하만 가능합니다.");
-                    });
+                BigDecimal.valueOf(6)))
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    assertThat(ex.getDetails().get("detailMessage"))
+                        .isEqualTo("평점은 0.0 이상 5.0 이하만 가능합니다.");
+                });
         }
 
         @Test
@@ -148,14 +148,14 @@ class ReviewModelTest {
 
             // when & then
             assertThatThrownBy(() -> ReviewModel.create(UUID.randomUUID(), authorId, "text",
-                    BigDecimal.valueOf(4.5)))
-                    .isInstanceOf(InvalidReviewDataException.class)
-                    .satisfies(e -> {
-                        InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                        // [수정] 모델의 실제 메시지와 일치시킴 (괄호 포함)
-                        assertThat(ex.getDetails().get("detailMessage"))
-                                .isEqualTo("평점은 정수만 가능합니다. (0.5 단위는 허용되지 않습니다.)");
-                    });
+                BigDecimal.valueOf(4.5)))
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    // [수정] 모델의 실제 메시지와 일치시킴 (괄호 포함)
+                    assertThat(ex.getDetails().get("detailMessage"))
+                        .isEqualTo("평점은 정수만 가능합니다. (0.5 단위는 허용되지 않습니다.)");
+                });
         }
     }
 }

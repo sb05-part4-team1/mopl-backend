@@ -58,34 +58,34 @@ class ReviewFacadeTest {
 
             // Service가 반환할 모델 (ID만 가지고 있음)
             ReviewModel savedModel = ReviewModel.builder()
-                    .id(UUID.randomUUID())
-                    .contentId(contentId)
-                    .authorId(requesterId) // [변경] author 객체 대신 ID
-                    .text(text)
-                    .rating(rating)
-                    .build();
+                .id(UUID.randomUUID())
+                .contentId(contentId)
+                .authorId(requesterId) // [변경] author 객체 대신 ID
+                .text(text)
+                .rating(rating)
+                .build();
 
             // Mapper가 반환할 최종 응답
             ReviewResponse expectedResponse = new ReviewResponse(
-                    savedModel.getId(),
-                    contentId,
-                    null, // 테스트에선 중요하지 않으므로 null 혹은 더미 객체
-                    text,
-                    rating
+                savedModel.getId(),
+                contentId,
+                null, // 테스트에선 중요하지 않으므로 null 혹은 더미 객체
+                text,
+                rating
             );
 
             // 1. Service Mocking
             given(reviewService.create(
-                    eq(contentId),
-                    any(UserModel.class), // Facade가 내부에서 생성한 UserModel
-                    eq(text),
-                    eq(rating)
+                eq(contentId),
+                any(UserModel.class), // Facade가 내부에서 생성한 UserModel
+                eq(text),
+                eq(rating)
             )).willReturn(savedModel);
 
             // 2. Mapper Mocking
             given(reviewResponseMapper.toResponse(
-                    eq(savedModel),
-                    any(UserModel.class)
+                eq(savedModel),
+                any(UserModel.class)
             )).willReturn(expectedResponse);
 
             // when
@@ -97,10 +97,10 @@ class ReviewFacadeTest {
             // Verify Service Call (authorCaptor로 Facade가 만든 UserModel 검증)
             ArgumentCaptor<UserModel> authorCaptor = ArgumentCaptor.forClass(UserModel.class);
             then(reviewService).should().create(
-                    eq(contentId),
-                    authorCaptor.capture(),
-                    eq(text),
-                    eq(rating)
+                eq(contentId),
+                authorCaptor.capture(),
+                eq(text),
+                eq(rating)
             );
 
             // Facade가 ID를 기반으로 UserModel을 잘 만들어서 넘겼는지 확인
@@ -108,8 +108,8 @@ class ReviewFacadeTest {
 
             // Verify Mapper Call (모델과 유저 정보를 잘 넘겼는지 확인)
             then(reviewResponseMapper).should().toResponse(
-                    eq(savedModel),
-                    eq(authorCaptor.getValue()) // 위에서 캡쳐한 바로 그 author 객체여야 함
+                eq(savedModel),
+                eq(authorCaptor.getValue()) // 위에서 캡쳐한 바로 그 author 객체여야 함
             );
         }
 
@@ -121,11 +121,12 @@ class ReviewFacadeTest {
             ReviewCreateRequest request = new ReviewCreateRequest(contentId, "리뷰", BigDecimal.ONE);
 
             ReviewModel savedModel = ReviewModel.builder()
-                    .id(UUID.randomUUID())
-                    .authorId(null) // ID 없음
-                    .build();
+                .id(UUID.randomUUID())
+                .authorId(null) // ID 없음
+                .build();
 
-            ReviewResponse expectedResponse = new ReviewResponse(savedModel.getId(), contentId, null, "리뷰", BigDecimal.ONE);
+            ReviewResponse expectedResponse = new ReviewResponse(savedModel.getId(), contentId,
+                null, "리뷰", BigDecimal.ONE);
 
             given(reviewService.create(any(), any(), any(), any())).willReturn(savedModel);
             given(reviewResponseMapper.toResponse(any(), any())).willReturn(expectedResponse);
@@ -138,10 +139,10 @@ class ReviewFacadeTest {
 
             ArgumentCaptor<UserModel> authorCaptor = ArgumentCaptor.forClass(UserModel.class);
             then(reviewService).should().create(
-                    eq(contentId),
-                    authorCaptor.capture(),
-                    any(),
-                    any()
+                eq(contentId),
+                authorCaptor.capture(),
+                any(),
+                any()
             );
 
             // ID가 null인 UserModel이 생성되어 서비스로 넘어갔는지 확인

@@ -1,7 +1,6 @@
 package com.mopl.api.interfaces.api.review;
 
 import com.mopl.api.application.review.ReviewFacade;
-import com.mopl.domain.model.review.ReviewModel;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -33,8 +32,8 @@ public class ReviewController {
     ) {
         // [수정] 파사드가 이미 Response를 반환하므로 바로 리턴하면 끝!
         return reviewFacade.createReview(
-                requesterId,
-                request
+            requesterId,
+            request
         );
     }
 }

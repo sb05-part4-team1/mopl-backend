@@ -1,10 +1,8 @@
 package com.mopl.jpa.entity.review;
 
 import com.mopl.domain.model.review.ReviewModel;
-import com.mopl.domain.model.user.UserModel;
 import com.mopl.jpa.entity.content.ContentEntity;
 import com.mopl.jpa.entity.user.UserEntity;
-import com.mopl.jpa.entity.user.UserEntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -13,8 +11,6 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class ReviewEntityMapper {
-
-//    private final UserEntityMapper userEntityMapper;
 
     public ReviewModel toModel(ReviewEntity reviewEntity) {
         if (reviewEntity == null) {
@@ -60,8 +56,8 @@ public class ReviewEntityMapper {
             return null;
         }
         return UserEntity.builder()
-                .id(authorId)
-                .build();
+            .id(authorId)
+            .build();
     }
 
     // TODO: 팀원이 ContentEntityMapper 구현 완료 시, 주입받아 처리하도록 수정 필요

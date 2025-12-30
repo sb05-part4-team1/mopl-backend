@@ -6,7 +6,6 @@ import com.mopl.api.interfaces.api.review.ReviewResponseMapper;
 import com.mopl.domain.model.review.ReviewModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.review.ReviewService;
-import com.mopl.domain.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
