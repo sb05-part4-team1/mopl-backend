@@ -1,14 +1,14 @@
-package com.mopl.security.handler.jwt;
+package com.mopl.security.authentication.handler;
 
 import com.mopl.domain.exception.InternalServerException;
 import com.mopl.domain.exception.auth.AccountLockedException;
 import com.mopl.domain.model.user.UserModel;
-import com.mopl.security.handler.ApiResponseHandler;
-import com.mopl.security.provider.jwt.JwtCookieProvider;
-import com.mopl.security.provider.jwt.JwtInformation;
-import com.mopl.security.provider.jwt.JwtProvider;
-import com.mopl.security.provider.jwt.MoplUserDetails;
-import com.mopl.security.provider.jwt.registry.JwtRegistry;
+import com.mopl.security.exception.ApiResponseHandler;
+import com.mopl.security.jwt.provider.JwtCookieProvider;
+import com.mopl.security.jwt.provider.JwtInformation;
+import com.mopl.security.jwt.provider.JwtProvider;
+import com.mopl.security.jwt.registry.JwtRegistry;
+import com.mopl.security.userdetails.MoplUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Slf4j
-public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
+public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtProvider jwtProvider;
     private final JwtCookieProvider cookieProvider;

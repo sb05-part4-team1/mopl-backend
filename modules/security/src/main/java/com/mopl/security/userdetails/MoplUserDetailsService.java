@@ -1,4 +1,4 @@
-package com.mopl.security.provider.jwt;
+package com.mopl.security.userdetails;
 
 import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.domain.service.user.UserService;

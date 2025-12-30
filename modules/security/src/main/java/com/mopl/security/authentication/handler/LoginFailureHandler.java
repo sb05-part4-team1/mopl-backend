@@ -1,8 +1,9 @@
-package com.mopl.security.handler;
+package com.mopl.security.authentication.handler;
 
 import com.mopl.domain.exception.MoplException;
 import com.mopl.domain.exception.auth.AccountLockedException;
 import com.mopl.domain.exception.auth.InvalidCredentialsException;
+import com.mopl.security.exception.ApiResponseHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

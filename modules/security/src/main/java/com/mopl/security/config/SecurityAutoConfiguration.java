@@ -1,13 +1,13 @@
 package com.mopl.security.config;
 
 import com.mopl.domain.model.user.UserModel;
-import com.mopl.security.filter.jwt.JwtAuthenticationFilter;
-import com.mopl.security.handler.Http401UnauthorizedEntryPoint;
-import com.mopl.security.handler.Http403ForbiddenAccessDeniedHandler;
-import com.mopl.security.handler.LoginFailureHandler;
-import com.mopl.security.handler.SpaCsrfTokenRequestHandler;
-import com.mopl.security.handler.jwt.JwtLoginSuccessHandler;
-import com.mopl.security.handler.jwt.JwtLogoutHandler;
+import com.mopl.security.authentication.handler.LoginFailureHandler;
+import com.mopl.security.authentication.handler.LoginSuccessHandler;
+import com.mopl.security.authentication.handler.LogoutHandler;
+import com.mopl.security.csrf.SpaCsrfTokenRequestHandler;
+import com.mopl.security.exception.AccessDeniedExceptionHandler;
+import com.mopl.security.exception.UnauthorizedEntryPoint;
+import com.mopl.security.jwt.filter.JwtAuthenticationFilter;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -55,11 +55,11 @@ public class SecurityAutoConfiguration {
         HttpSecurity http,
         SecurityRegistry securityRegistry,
         SpaCsrfTokenRequestHandler spaCsrfTokenRequestHandler,
-        Http401UnauthorizedEntryPoint unauthorizedEntryPoint,
-        Http403ForbiddenAccessDeniedHandler accessDeniedHandler,
-        JwtLoginSuccessHandler jwtLoginSuccessHandler,
+        UnauthorizedEntryPoint unauthorizedEntryPoint,
+        AccessDeniedExceptionHandler accessDeniedHandler,
+        LoginSuccessHandler loginSuccessHandler,
         LoginFailureHandler loginFailureHandler,
-        JwtLogoutHandler jwtLogoutHandler,
+        LogoutHandler logoutHandler,
         JwtAuthenticationFilter jwtAuthenticationFilter
     ) throws Exception {
         http
@@ -81,12 +81,12 @@ public class SecurityAutoConfiguration {
             .authorizeHttpRequests(securityRegistry::configure)
             .formLogin(login -> login
                 .loginProcessingUrl("/api/auth/sign-in")
-                .successHandler(jwtLoginSuccessHandler)
+                .successHandler(loginSuccessHandler)
                 .failureHandler(loginFailureHandler)
             )
             .logout(logout -> logout
                 .logoutUrl("/api/auth/sign-out")
-                .addLogoutHandler(jwtLogoutHandler)
+                .addLogoutHandler(logoutHandler)
                 .logoutSuccessHandler(
                     new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT)
                 )

@@ -1,4 +1,4 @@
-package com.mopl.security.handler;
+package com.mopl.security.exception;
 
 import com.mopl.domain.exception.auth.InsufficientRoleException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,7 +10,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import java.io.IOException;
 
 @RequiredArgsConstructor
-public class Http403ForbiddenAccessDeniedHandler implements AccessDeniedHandler {
+public class AccessDeniedExceptionHandler implements AccessDeniedHandler {
 
     private final ApiResponseHandler apiResponseHandler;
 

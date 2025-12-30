@@ -1,6 +1,6 @@
-package com.mopl.security.provider.jwt.registry;
+package com.mopl.security.jwt.registry;
 
-import com.mopl.security.provider.jwt.JwtInformation;
+import com.mopl.security.jwt.provider.JwtInformation;
 
 import java.util.Date;
 import java.util.UUID;

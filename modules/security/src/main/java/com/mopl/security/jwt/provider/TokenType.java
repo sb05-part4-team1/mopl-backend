@@ -1,4 +1,4 @@
-package com.mopl.security.provider.jwt;
+package com.mopl.security.jwt.provider;
 
 public enum TokenType {
     ACCESS, REFRESH

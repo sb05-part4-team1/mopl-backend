@@ -1,4 +1,4 @@
-package com.mopl.security.handler;
+package com.mopl.security.exception;
 
 import com.mopl.domain.exception.auth.UnauthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,7 +10,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import java.io.IOException;
 
 @RequiredArgsConstructor
-public class Http401UnauthorizedEntryPoint implements AuthenticationEntryPoint {
+public class UnauthorizedEntryPoint implements AuthenticationEntryPoint {
 
     private final ApiResponseHandler apiResponseHandler;
 

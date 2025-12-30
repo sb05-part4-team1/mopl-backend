@@ -1,22 +1,21 @@
-package com.mopl.security.handler.jwt;
+package com.mopl.security.authentication.handler;
 
 import com.mopl.security.config.JwtProperties;
-import com.mopl.security.provider.jwt.JwtCookieProvider;
-import com.mopl.security.provider.jwt.JwtPayload;
-import com.mopl.security.provider.jwt.JwtProvider;
-import com.mopl.security.provider.jwt.TokenType;
-import com.mopl.security.provider.jwt.registry.JwtRegistry;
+import com.mopl.security.jwt.provider.JwtCookieProvider;
+import com.mopl.security.jwt.provider.JwtPayload;
+import com.mopl.security.jwt.provider.JwtProvider;
+import com.mopl.security.jwt.provider.TokenType;
+import com.mopl.security.jwt.registry.JwtRegistry;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.web.util.WebUtils;
 
 @Slf4j
-public class JwtLogoutHandler implements LogoutHandler {
+public class LogoutHandler implements org.springframework.security.web.authentication.logout.LogoutHandler {
 
     private static final String BEARER_PREFIX = "Bearer ";
 
@@ -25,7 +24,7 @@ public class JwtLogoutHandler implements LogoutHandler {
     private final JwtCookieProvider cookieProvider;
     private final JwtRegistry jwtRegistry;
 
-    public JwtLogoutHandler(
+    public LogoutHandler(
         JwtProvider jwtProvider,
         JwtCookieProvider cookieProvider,
         JwtRegistry jwtRegistry,

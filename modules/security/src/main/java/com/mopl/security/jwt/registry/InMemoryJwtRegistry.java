@@ -1,8 +1,8 @@
-package com.mopl.security.provider.jwt.registry;
+package com.mopl.security.jwt.registry;
 
 import com.mopl.domain.exception.auth.InvalidTokenException;
 import com.mopl.security.config.JwtProperties;
-import com.mopl.security.provider.jwt.JwtInformation;
+import com.mopl.security.jwt.provider.JwtInformation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 

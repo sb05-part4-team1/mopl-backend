@@ -1,4 +1,4 @@
-package com.mopl.security.handler;
+package com.mopl.security.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.domain.exception.ErrorResponse;

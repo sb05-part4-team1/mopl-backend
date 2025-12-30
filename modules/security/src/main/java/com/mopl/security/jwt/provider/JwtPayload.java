@@ -1,4 +1,4 @@
-package com.mopl.security.provider.jwt;
+package com.mopl.security.jwt.provider;
 
 import com.mopl.domain.model.user.UserModel;
 

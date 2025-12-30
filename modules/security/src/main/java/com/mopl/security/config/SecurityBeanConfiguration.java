@@ -2,19 +2,19 @@ package com.mopl.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.domain.service.user.UserService;
-import com.mopl.security.filter.jwt.JwtAuthenticationFilter;
-import com.mopl.security.handler.ApiResponseHandler;
-import com.mopl.security.handler.Http401UnauthorizedEntryPoint;
-import com.mopl.security.handler.Http403ForbiddenAccessDeniedHandler;
-import com.mopl.security.handler.LoginFailureHandler;
-import com.mopl.security.handler.SpaCsrfTokenRequestHandler;
-import com.mopl.security.handler.jwt.JwtLoginSuccessHandler;
-import com.mopl.security.handler.jwt.JwtLogoutHandler;
-import com.mopl.security.provider.jwt.JwtCookieProvider;
-import com.mopl.security.provider.jwt.JwtProvider;
-import com.mopl.security.provider.jwt.MoplUserDetailsService;
-import com.mopl.security.provider.jwt.registry.InMemoryJwtRegistry;
-import com.mopl.security.provider.jwt.registry.JwtRegistry;
+import com.mopl.security.authentication.handler.LoginFailureHandler;
+import com.mopl.security.authentication.handler.LoginSuccessHandler;
+import com.mopl.security.authentication.handler.LogoutHandler;
+import com.mopl.security.csrf.SpaCsrfTokenRequestHandler;
+import com.mopl.security.exception.AccessDeniedExceptionHandler;
+import com.mopl.security.exception.ApiResponseHandler;
+import com.mopl.security.exception.UnauthorizedEntryPoint;
+import com.mopl.security.jwt.filter.JwtAuthenticationFilter;
+import com.mopl.security.jwt.provider.JwtCookieProvider;
+import com.mopl.security.jwt.provider.JwtProvider;
+import com.mopl.security.jwt.registry.InMemoryJwtRegistry;
+import com.mopl.security.jwt.registry.JwtRegistry;
+import com.mopl.security.userdetails.MoplUserDetailsService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -61,17 +61,17 @@ public class SecurityBeanConfiguration {
     }
 
     @Bean
-    public Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint(
+    public UnauthorizedEntryPoint unauthorizedEntryPoint(
         ApiResponseHandler apiResponseHandler
     ) {
-        return new Http401UnauthorizedEntryPoint(apiResponseHandler);
+        return new UnauthorizedEntryPoint(apiResponseHandler);
     }
 
     @Bean
-    public Http403ForbiddenAccessDeniedHandler http403ForbiddenAccessDeniedHandler(
+    public AccessDeniedExceptionHandler accessDeniedExceptionHandler(
         ApiResponseHandler apiResponseHandler
     ) {
-        return new Http403ForbiddenAccessDeniedHandler(apiResponseHandler);
+        return new AccessDeniedExceptionHandler(apiResponseHandler);
     }
 
     @Bean
@@ -80,24 +80,24 @@ public class SecurityBeanConfiguration {
     }
 
     @Bean
-    public JwtLoginSuccessHandler jwtLoginSuccessHandler(
+    public LoginSuccessHandler loginSuccessHandler(
         JwtProvider jwtProvider,
         JwtCookieProvider jwtCookieProvider,
         ApiResponseHandler apiResponseHandler,
         JwtRegistry jwtRegistry
     ) {
-        return new JwtLoginSuccessHandler(jwtProvider, jwtCookieProvider, jwtRegistry,
+        return new LoginSuccessHandler(jwtProvider, jwtCookieProvider, jwtRegistry,
             apiResponseHandler);
     }
 
     @Bean
-    public JwtLogoutHandler jwtLogoutHandler(
+    public LogoutHandler logoutHandler(
         JwtProvider jwtProvider,
         JwtCookieProvider jwtCookieProvider,
         JwtRegistry jwtRegistry,
         JwtProperties jwtProperties
     ) {
-        return new JwtLogoutHandler(jwtProvider, jwtCookieProvider, jwtRegistry, jwtProperties);
+        return new LogoutHandler(jwtProvider, jwtCookieProvider, jwtRegistry, jwtProperties);
     }
 
     @Bean
