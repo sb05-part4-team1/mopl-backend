@@ -21,7 +21,7 @@ public class ApiResponseHandler {
         MoplException exception
     ) throws IOException {
         ErrorResponse errorResponse = ErrorResponse.from(exception);
-        write(response, HttpServletResponse.SC_BAD_REQUEST, errorResponse);
+        write(response, HttpServletResponse.SC_UNAUTHORIZED, errorResponse);
     }
 
     public void writeSuccess(HttpServletResponse response, Object body) throws IOException {

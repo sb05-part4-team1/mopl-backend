@@ -20,7 +20,7 @@ public record MoplUserDetails(
     String email,
     String name,
     String profileImageUrl,
-    boolean locked
+    Boolean locked
 ) implements UserDetails {
 
     @Override

@@ -22,6 +22,9 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.UUID;
+
+import static org.springframework.util.StringUtils.hasText;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -47,60 +50,58 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         try {
-            JwtPayload jwtPayload = jwtProvider.verifyAndParse(token, TokenType.ACCESS);
+            JwtPayload payload = jwtProvider.verifyAndParse(token, TokenType.ACCESS);
 
-            if (jwtRegistry.isAccessTokenInBlacklist(jwtPayload.jti())) {
-                log.warn("블랙리스트에 등록된 토큰 접근 시도: jti={}", jwtPayload.jti());
-                apiResponseHandler.writeError(response, new InvalidTokenException("로그아웃된 토큰입니다."));
-                return;
-            }
+            checkBlacklist(payload.jti());
 
-            setAuthentication(jwtPayload, request);
+            authenticateUser(payload, request);
+
+            filterChain.doFilter(request, response);
+
         } catch (InvalidTokenException e) {
             log.debug("JWT 인증 실패: {}", e.getMessage());
-            SecurityContextHolder.clearContext();
-            apiResponseHandler.writeError(response, e);
-            return;
+            handleAuthenticationException(response, e);
         } catch (Exception e) {
             log.error("JWT 필터 처리 중 예기치 않은 오류 발생", e);
-            SecurityContextHolder.clearContext();
-            apiResponseHandler.writeError(
-                response,
-                new InvalidTokenException("인증 처리 중 오류가 발생했습니다.")
-            );
-            return;
+            handleAuthenticationException(response, new InvalidTokenException("인증 처리 중 오류가 발생했습니다."));
         }
-
-        filterChain.doFilter(request, response);
     }
 
     private String resolveToken(HttpServletRequest request) {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader != null && authHeader.startsWith(BEARER_PREFIX)) {
+        if (hasText(authHeader) && authHeader.startsWith(BEARER_PREFIX)) {
             return authHeader.substring(BEARER_PREFIX.length());
         }
         return null;
     }
 
-    private void setAuthentication(JwtPayload jwtPayload, HttpServletRequest request) {
-        UserDetails userDetails = MoplUserDetails.builder()
-            .userId(jwtPayload.sub())
-            .role(jwtPayload.role())
-            .createdAt(null)
-            .password(null)
-            .email(null)
-            .name(null)
-            .profileImageUrl(null)
-            .locked(false)
-            .build();
+    private void checkBlacklist(UUID jti) {
+        if (jwtRegistry.isAccessTokenInBlacklist(jti)) {
+            log.warn("블랙리스트 토큰 접근 시도: jti={}", jti);
+            throw new InvalidTokenException("유효하지 않은 토큰입니다.");
+        }
+    }
+
+    private void authenticateUser(JwtPayload payload, HttpServletRequest request) {
+        UserDetails userDetails = createUserDetails(payload);
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-            userDetails,
-            null,
-            userDetails.getAuthorities()
+            userDetails, null, userDetails.getAuthorities()
         );
 
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    private UserDetails createUserDetails(JwtPayload payload) {
+        return MoplUserDetails.builder()
+            .userId(payload.sub())
+            .role(payload.role())
+            .build();
+    }
+
+    private void handleAuthenticationException(HttpServletResponse response, InvalidTokenException e) throws IOException {
+        SecurityContextHolder.clearContext();
+        apiResponseHandler.writeError(response, e);
     }
 }
