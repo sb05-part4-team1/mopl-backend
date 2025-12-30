@@ -43,12 +43,11 @@ public class DomainServiceConfig {
 
     @Bean
     public ReviewService reviewService(
-            ReviewRepository reviewRepository,
-            ContentService contentService
+            ReviewRepository reviewRepository
+
     ) {
         return new ReviewService(
-                reviewRepository,
-                contentService
+                reviewRepository
         );
     }
 }

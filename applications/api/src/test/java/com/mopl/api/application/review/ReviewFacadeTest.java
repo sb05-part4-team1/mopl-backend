@@ -3,15 +3,16 @@ package com.mopl.api.application.review;
 import com.mopl.api.interfaces.api.review.ReviewCreateRequest;
 import com.mopl.api.interfaces.api.review.ReviewResponse;
 import com.mopl.api.interfaces.api.review.ReviewResponseMapper;
+import com.mopl.domain.exception.review.InvalidReviewDataException;
 import com.mopl.domain.model.review.ReviewModel;
 import com.mopl.domain.model.user.UserModel;
+import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.review.ReviewService;
 import com.mopl.domain.service.user.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,10 +21,12 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ReviewFacade 단위 테스트")
@@ -33,10 +36,13 @@ class ReviewFacadeTest {
     private ReviewService reviewService;
 
     @Mock
-    private UserService userService; // 현재는 사용되지 않지만 구조상 유지
+    private UserService userService;
 
     @Mock
-    private ReviewResponseMapper reviewResponseMapper; // [추가] 매퍼 모킹
+    private ContentService contentService; // [핵심] 이제 Facade가 ContentService를 씁니다
+
+    @Mock
+    private ReviewResponseMapper reviewResponseMapper;
 
     @InjectMocks
     private ReviewFacade reviewFacade;
@@ -46,107 +52,57 @@ class ReviewFacadeTest {
     class CreateReviewTest {
 
         @Test
-        @DisplayName("요청자 ID로 author를 생성하여 저장하고, 결과를 Response로 변환하여 반환한다")
-        void withValidRequest_callsServiceAndMapper() {
+        @DisplayName("콘텐츠가 존재하고 유저가 유효하면 리뷰를 생성한다")
+        void withValidData_createsReview() {
             // given
             UUID requesterId = UUID.randomUUID();
             UUID contentId = UUID.randomUUID();
-            String text = "리뷰 내용";
-            BigDecimal rating = BigDecimal.valueOf(4);
+            ReviewCreateRequest request = new ReviewCreateRequest(contentId, "굿", BigDecimal.valueOf(5));
 
-            ReviewCreateRequest request = new ReviewCreateRequest(contentId, text, rating);
+            UserModel author = UserModel.builder().id(requesterId).build();
+            ReviewModel savedReview = ReviewModel.builder().id(UUID.randomUUID()).build();
+            ReviewResponse response = new ReviewResponse(savedReview.getId(), contentId, null, "굿", BigDecimal.valueOf(5));
 
-            // Service가 반환할 모델 (ID만 가지고 있음)
-            ReviewModel savedModel = ReviewModel.builder()
-                .id(UUID.randomUUID())
-                .contentId(contentId)
-                .authorId(requesterId) // [변경] author 객체 대신 ID
-                .text(text)
-                .rating(rating)
-                .build();
-
-            // Mapper가 반환할 최종 응답
-            ReviewResponse expectedResponse = new ReviewResponse(
-                savedModel.getId(),
-                contentId,
-                null, // 테스트에선 중요하지 않으므로 null 혹은 더미 객체
-                text,
-                rating
-            );
-
-            // 1. Service Mocking
-            given(reviewService.create(
-                eq(contentId),
-                any(UserModel.class), // Facade가 내부에서 생성한 UserModel
-                eq(text),
-                eq(rating)
-            )).willReturn(savedModel);
-
-            // 2. Mapper Mocking
-            given(reviewResponseMapper.toResponse(
-                eq(savedModel),
-                any(UserModel.class)
-            )).willReturn(expectedResponse);
+            // Mocking
+            given(userService.getById(requesterId)).willReturn(author);
+            given(contentService.exists(contentId)).willReturn(true); // [체크] 콘텐츠 존재함
+            given(reviewService.create(eq(contentId), eq(author), any(), any())).willReturn(savedReview);
+            given(reviewResponseMapper.toResponse(savedReview, author)).willReturn(response);
 
             // when
             ReviewResponse result = reviewFacade.createReview(requesterId, request);
 
             // then
-            assertThat(result).isEqualTo(expectedResponse);
+            assertThat(result).isEqualTo(response);
 
-            // Verify Service Call (authorCaptor로 Facade가 만든 UserModel 검증)
-            ArgumentCaptor<UserModel> authorCaptor = ArgumentCaptor.forClass(UserModel.class);
-            then(reviewService).should().create(
-                eq(contentId),
-                authorCaptor.capture(),
-                eq(text),
-                eq(rating)
-            );
-
-            // Facade가 ID를 기반으로 UserModel을 잘 만들어서 넘겼는지 확인
-            assertThat(authorCaptor.getValue().getId()).isEqualTo(requesterId);
-
-            // Verify Mapper Call (모델과 유저 정보를 잘 넘겼는지 확인)
-            then(reviewResponseMapper).should().toResponse(
-                eq(savedModel),
-                eq(authorCaptor.getValue()) // 위에서 캡쳐한 바로 그 author 객체여야 함
-            );
+            // 검증 로직 호출 확인
+            then(contentService).should().exists(contentId);
+            then(reviewService).should().create(eq(contentId), eq(author), any(), any());
         }
 
         @Test
-        @DisplayName("요청자 ID가 null이면 author.id도 null인 상태로 처리된다")
-        void withNullRequesterId_passesNullAuthorId() {
+        @DisplayName("존재하지 않는 콘텐츠 ID면 예외가 발생하고 서비스는 호출되지 않는다")
+        void withNonExistingContent_throwsException() {
             // given
+            UUID requesterId = UUID.randomUUID();
             UUID contentId = UUID.randomUUID();
-            ReviewCreateRequest request = new ReviewCreateRequest(contentId, "리뷰", BigDecimal.ONE);
+            ReviewCreateRequest request = new ReviewCreateRequest(contentId, "굿", BigDecimal.valueOf(5));
 
-            ReviewModel savedModel = ReviewModel.builder()
-                .id(UUID.randomUUID())
-                .authorId(null) // ID 없음
-                .build();
+            UserModel author = UserModel.builder().id(requesterId).build();
 
-            ReviewResponse expectedResponse = new ReviewResponse(savedModel.getId(), contentId,
-                null, "리뷰", BigDecimal.ONE);
+            // Mocking
+            given(userService.getById(requesterId)).willReturn(author);
+            given(contentService.exists(contentId)).willReturn(false); // [체크] 콘텐츠 없음!
 
-            given(reviewService.create(any(), any(), any(), any())).willReturn(savedModel);
-            given(reviewResponseMapper.toResponse(any(), any())).willReturn(expectedResponse);
+            // when & then
+            assertThatThrownBy(() -> reviewFacade.createReview(requesterId, request))
+                    // 🚨 [수정됨] IllegalArgumentException -> InvalidReviewDataException
+                    .isInstanceOf(InvalidReviewDataException.class)
 
-            // when
-            ReviewResponse result = reviewFacade.createReview(null, request);
+                    .hasMessageContaining("리뷰 데이터가 유효하지 않습니다.");
 
-            // then
-            assertThat(result).isEqualTo(expectedResponse);
-
-            ArgumentCaptor<UserModel> authorCaptor = ArgumentCaptor.forClass(UserModel.class);
-            then(reviewService).should().create(
-                eq(contentId),
-                authorCaptor.capture(),
-                any(),
-                any()
-            );
-
-            // ID가 null인 UserModel이 생성되어 서비스로 넘어갔는지 확인
-            assertThat(authorCaptor.getValue().getId()).isNull();
+            // [검증] ReviewService.create는 절대 실행되면 안 됨!
+            then(reviewService).should(never()).create(any(), any(), any(), any());
         }
     }
 }
