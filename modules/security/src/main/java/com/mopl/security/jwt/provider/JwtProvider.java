@@ -50,17 +50,14 @@ public class JwtProvider {
     }
 
     public JwtInformation issueTokenPair(UUID userId, UserModel.Role role) {
-        String accessToken = generateToken(userId, role, TokenType.ACCESS);
-        String refreshToken = generateToken(userId, role, TokenType.REFRESH);
-
-        JwtPayload accessTokenPayload = verifyAndParse(accessToken, TokenType.ACCESS);
-        JwtPayload refreshTokenPayload = verifyAndParse(refreshToken, TokenType.REFRESH);
+        IssuedToken accessToken = generateToken(userId, role, TokenType.ACCESS);
+        IssuedToken refreshToken = generateToken(userId, role, TokenType.REFRESH);
 
         return new JwtInformation(
-            accessToken,
-            refreshToken,
-            accessTokenPayload,
-            refreshTokenPayload
+            accessToken.encoded(),
+            refreshToken.encoded(),
+            accessToken.payload(),
+            refreshToken.payload()
         );
     }
 
@@ -70,32 +67,27 @@ public class JwtProvider {
             verifySignature(signedJWT, expectedType);
 
             JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
-            UUID sub = parseUuidClaim(claims.getSubject(), "subject");
-            UUID jti = parseUuidClaim(claims.getJWTID(), "jti");
             validateExpiration(claims.getExpirationTime());
-            UserModel.Role role = parseRoleClaim(claims.getStringClaim("role"));
 
-            return new JwtPayload(
-                sub,
-                jti,
-                claims.getIssueTime(),
-                claims.getExpirationTime(),
-                role
-            );
+            return extractPayload(claims);
         } catch (ParseException | JOSEException e) {
-            log.error("JWT 검증 실패: {}", e.getMessage());
+            log.debug("JWT 검증 실패: {}", e.getMessage());
             throw new InvalidTokenException("유효하지 않은 토큰입니다.");
         }
     }
 
-    private String generateToken(UUID userId, UserModel.Role role, TokenType tokenType) {
+    private record IssuedToken(String encoded, JwtPayload payload) {
+    }
+
+    private IssuedToken generateToken(UUID userId, UserModel.Role role, TokenType tokenType) {
         try {
+            UUID jti = UUID.randomUUID();
             Date iat = new Date();
             Date exp = new Date(iat.getTime() + expirations.get(tokenType).toMillis());
 
             JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(userId.toString())
-                .jwtID(UUID.randomUUID().toString())
+                .jwtID(jti.toString())
                 .issueTime(iat)
                 .expirationTime(exp)
                 .claim("role", role.name())
@@ -104,11 +96,24 @@ public class JwtProvider {
             SignedJWT signedJWT = new SignedJWT(JWS_HEADER, claimsSet);
             signedJWT.sign(signers.get(tokenType));
 
-            return signedJWT.serialize();
+            String encoded = signedJWT.serialize();
+            JwtPayload payload = new JwtPayload(userId, jti, iat, exp, role);
+
+            return new IssuedToken(encoded, payload);
         } catch (JOSEException e) {
             log.error("{} 토큰 생성 실패: userId={}", tokenType, userId, e);
             throw new IllegalStateException("토큰 발행 중 오류가 발생했습니다.", e);
         }
+    }
+
+    private JwtPayload extractPayload(JWTClaimsSet claims) throws ParseException {
+        return new JwtPayload(
+            parseUuidClaim(claims.getSubject(), "sub"),
+            parseUuidClaim(claims.getJWTID(), "jti"),
+            claims.getIssueTime(),
+            claims.getExpirationTime(),
+            parseRoleClaim(claims.getStringClaim("role"))
+        );
     }
 
     private void verifySignature(SignedJWT jwt, TokenType type) throws JOSEException {

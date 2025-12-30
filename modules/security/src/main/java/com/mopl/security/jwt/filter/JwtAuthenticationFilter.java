@@ -81,7 +81,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void checkBlacklist(UUID jti) {
         if (jwtRegistry.isAccessTokenInBlacklist(jti)) {
             log.warn("블랙리스트 토큰 접근 시도: jti={}", jti);
-            throw new InvalidTokenException("로그아웃된 토큰입니다.");
+            throw new InvalidTokenException("유효하지 않은 토큰입니다.");
         }
     }
 

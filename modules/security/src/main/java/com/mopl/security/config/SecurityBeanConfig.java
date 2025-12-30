@@ -75,12 +75,12 @@ public class SecurityBeanConfig {
     }
 
     @Bean
-    public SignInFailureHandler loginFailureHandler(ApiResponseHandler apiResponseHandler) {
+    public SignInFailureHandler signInFailureHandler(ApiResponseHandler apiResponseHandler) {
         return new SignInFailureHandler(apiResponseHandler);
     }
 
     @Bean
-    public SignInSuccessHandler loginSuccessHandler(
+    public SignInSuccessHandler signInSuccessHandler(
         JwtProvider jwtProvider,
         JwtCookieProvider jwtCookieProvider,
         ApiResponseHandler apiResponseHandler,
@@ -91,7 +91,7 @@ public class SecurityBeanConfig {
     }
 
     @Bean
-    public SignOutHandler logoutHandler(
+    public SignOutHandler signOutHandler(
         JwtProvider jwtProvider,
         JwtCookieProvider jwtCookieProvider,
         JwtRegistry jwtRegistry,
