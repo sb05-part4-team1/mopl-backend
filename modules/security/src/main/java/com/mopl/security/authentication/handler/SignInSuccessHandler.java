@@ -1,7 +1,6 @@
 package com.mopl.security.authentication.handler;
 
 import com.mopl.domain.exception.InternalServerException;
-import com.mopl.domain.exception.auth.AccountLockedException;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.security.exception.ApiResponseHandler;
 import com.mopl.security.jwt.provider.JwtCookieProvider;
