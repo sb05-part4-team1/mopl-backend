@@ -42,12 +42,6 @@ public class SignInSuccessHandler implements AuthenticationSuccessHandler {
             return;
         }
 
-        if (Boolean.TRUE.equals(userDetails.locked())) {
-            log.warn("잠긴 계정 로그인 시도 차단: userId={}", userDetails.userId());
-            apiResponseHandler.writeError(response, new AccountLockedException());
-            return;
-        }
-
         try {
             JwtInformation jwtInformation = jwtProvider.issueTokenPair(
                 userDetails.userId(),

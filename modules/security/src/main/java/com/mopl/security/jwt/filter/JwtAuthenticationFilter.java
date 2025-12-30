@@ -1,5 +1,7 @@
 package com.mopl.security.jwt.filter;
 
+import com.mopl.domain.exception.InternalServerException;
+import com.mopl.domain.exception.MoplException;
 import com.mopl.domain.exception.auth.InvalidTokenException;
 import com.mopl.security.exception.ApiResponseHandler;
 import com.mopl.security.jwt.provider.JwtPayload;
@@ -65,7 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             log.error("JWT 필터 처리 중 예기치 않은 오류 발생", e);
             handleAuthenticationException(
                 response,
-                new InvalidTokenException("인증 처리 중 오류가 발생했습니다.")
+                new InternalServerException()
             );
         }
     }
@@ -105,7 +107,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private void handleAuthenticationException(
         HttpServletResponse response,
-        InvalidTokenException exception
+        MoplException exception
     ) throws IOException {
         SecurityContextHolder.clearContext();
         apiResponseHandler.writeError(response, exception);
