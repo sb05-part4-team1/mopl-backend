@@ -35,22 +35,8 @@ public class SecurityBeanConfiguration {
     }
 
     @Bean
-    public Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint(
-        ApiResponseHandler apiResponseHandler
-    ) {
-        return new Http401UnauthorizedEntryPoint(apiResponseHandler);
-    }
-
-    @Bean
-    public Http403ForbiddenAccessDeniedHandler http403ForbiddenAccessDeniedHandler(
-        ApiResponseHandler apiResponseHandler
-    ) {
-        return new Http403ForbiddenAccessDeniedHandler(apiResponseHandler);
-    }
-
-    @Bean
-    public LoginFailureHandler loginFailureHandler(ApiResponseHandler apiResponseHandler) {
-        return new LoginFailureHandler(apiResponseHandler);
+    public UserDetailsService userDetailsService(UserService userService) {
+        return new MoplUserDetailsService(userService);
     }
 
     @Bean
@@ -75,22 +61,22 @@ public class SecurityBeanConfiguration {
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(
-        JwtProvider jwtProvider,
-        JwtRegistry jwtRegistry,
+    public Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint(
         ApiResponseHandler apiResponseHandler
     ) {
-        return new JwtAuthenticationFilter(jwtProvider, jwtRegistry, apiResponseHandler);
+        return new Http401UnauthorizedEntryPoint(apiResponseHandler);
     }
 
     @Bean
-    public JwtLogoutHandler jwtLogoutHandler(
-        JwtProvider jwtProvider,
-        JwtCookieProvider jwtCookieProvider,
-        JwtRegistry jwtRegistry,
-        JwtProperties jwtProperties
+    public Http403ForbiddenAccessDeniedHandler http403ForbiddenAccessDeniedHandler(
+        ApiResponseHandler apiResponseHandler
     ) {
-        return new JwtLogoutHandler(jwtProvider, jwtCookieProvider, jwtRegistry, jwtProperties);
+        return new Http403ForbiddenAccessDeniedHandler(apiResponseHandler);
+    }
+
+    @Bean
+    public LoginFailureHandler loginFailureHandler(ApiResponseHandler apiResponseHandler) {
+        return new LoginFailureHandler(apiResponseHandler);
     }
 
     @Bean
@@ -105,7 +91,21 @@ public class SecurityBeanConfiguration {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(UserService userService) {
-        return new MoplUserDetailsService(userService);
+    public JwtLogoutHandler jwtLogoutHandler(
+        JwtProvider jwtProvider,
+        JwtCookieProvider jwtCookieProvider,
+        JwtRegistry jwtRegistry,
+        JwtProperties jwtProperties
+    ) {
+        return new JwtLogoutHandler(jwtProvider, jwtCookieProvider, jwtRegistry, jwtProperties);
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter(
+        JwtProvider jwtProvider,
+        JwtRegistry jwtRegistry,
+        ApiResponseHandler apiResponseHandler
+    ) {
+        return new JwtAuthenticationFilter(jwtProvider, jwtRegistry, apiResponseHandler);
     }
 }

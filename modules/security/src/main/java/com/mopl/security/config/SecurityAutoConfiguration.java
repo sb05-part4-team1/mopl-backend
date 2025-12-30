@@ -10,6 +10,7 @@ import com.mopl.security.handler.jwt.JwtLoginSuccessHandler;
 import com.mopl.security.handler.jwt.JwtLogoutHandler;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -21,6 +22,7 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -41,7 +43,11 @@ public class SecurityAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(SecurityRegistry.class)
     public SecurityRegistry defaultSecurityRegistry() {
-        return auth -> auth.anyRequest().authenticated();
+        return auth -> auth
+            .requestMatchers(
+                new AntPathRequestMatcher("h2-console/**")
+            ).permitAll()
+            .anyRequest().authenticated();
     }
 
     @Bean
@@ -89,6 +95,12 @@ public class SecurityAutoConfiguration {
         // MDC Filter, ExceptionTranslationFilter, Rate Limiting Filters can be added here as needed
 
         return http.build();
+    }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring()
+            .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 
     @Bean
