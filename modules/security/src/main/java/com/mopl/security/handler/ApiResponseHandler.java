@@ -32,6 +32,6 @@ public class ApiResponseHandler {
         response.setStatus(status);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        response.getWriter().write(objectMapper.writeValueAsString(body));
+        objectMapper.writeValue(response.getWriter(), body);
     }
 }

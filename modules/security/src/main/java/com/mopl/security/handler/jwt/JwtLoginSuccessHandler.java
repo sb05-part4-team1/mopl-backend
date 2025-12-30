@@ -1,5 +1,7 @@
 package com.mopl.security.handler.jwt;
 
+import com.mopl.domain.exception.InternalServerException;
+import com.mopl.domain.exception.auth.AccountLockedException;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.security.handler.ApiResponseHandler;
 import com.mopl.security.provider.jwt.JwtCookieProvider;
@@ -15,6 +17,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -32,9 +35,15 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
         @NonNull HttpServletRequest request,
         @NonNull HttpServletResponse response,
         @NonNull Authentication authentication
-    ) {
+    ) throws IOException {
         if (!(authentication.getPrincipal() instanceof MoplUserDetails userDetails)) {
             log.error("인증 실패: 예상치 못한 Principal 타입");
+            return;
+        }
+
+        if (Boolean.TRUE.equals(userDetails.locked())) {
+            log.warn("잠긴 계정 로그인 시도 차단: userId={}", userDetails.userId());
+            apiResponseHandler.writeError(response, new AccountLockedException());
             return;
         }
 
@@ -45,20 +54,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
             );
             jwtRegistry.register(jwtInformation);
 
-            UserDetailsDto userDetailsDto = new UserDetailsDto(
-                userDetails.userId(),
-                userDetails.createdAt(),
-                userDetails.email(),
-                userDetails.name(),
-                userDetails.profileImageUrl(),
-                userDetails.role(),
-                userDetails.locked()
-            );
-
-            JwtResponse jwtResponse = new JwtResponse(
-                userDetailsDto,
-                jwtInformation.accessToken()
-            );
+            JwtResponse jwtResponse = JwtResponse.from(userDetails, jwtInformation.accessToken());
 
             response.addCookie(
                 cookieProvider.createRefreshTokenCookie(
@@ -70,20 +66,38 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
             log.info("JWT 토큰 발급 완료: username={}", userDetails.getUsername());
         } catch (Exception e) {
             log.error("JWT 토큰 생성 실패: username={}", userDetails.getUsername(), e);
+            apiResponseHandler.writeError(response, new InternalServerException());
         }
     }
 
     private record JwtResponse(UserDetailsDto userDto, String accessToken) {
-    }
+        public static JwtResponse from(
+            MoplUserDetails userDetails,
+            String accessToken
+        ) {
+            return new JwtResponse(UserDetailsDto.from(userDetails), accessToken);
+        }
 
-    private record UserDetailsDto(
-        UUID id,
-        Instant createdAt,
-        String email,
-        String name,
-        String profileImageUrl,
-        UserModel.Role role,
-        boolean locked
-    ) {
+        private record UserDetailsDto(
+            UUID id,
+            Instant createdAt,
+            String email,
+            String name,
+            String profileImageUrl,
+            UserModel.Role role,
+            Boolean locked
+        ) {
+            public static UserDetailsDto from(MoplUserDetails userDetails) {
+                return new UserDetailsDto(
+                    userDetails.userId(),
+                    userDetails.createdAt(),
+                    userDetails.email(),
+                    userDetails.name(),
+                    userDetails.profileImageUrl(),
+                    userDetails.role(),
+                    userDetails.locked()
+                );
+            }
+        }
     }
 }

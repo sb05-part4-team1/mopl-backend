@@ -51,6 +51,7 @@ public class SpaCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
          */
         return (StringUtils.hasText(headerValue) ? this.plain : this.xor).resolveCsrfTokenValue(
             request,
-            csrfToken);
+            csrfToken
+        );
     }
 }
