@@ -37,8 +37,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 @EnableMethodSecurity
 @EnableConfigurationProperties(JwtProperties.class)
-@Import(SecurityBeanConfiguration.class)
-public class SecurityAutoConfiguration {
+@Import(SecurityBeanConfig.class)
+public class SecurityAutoConfig {
 
     @Bean
     @ConditionalOnMissingBean(SecurityRegistry.class)

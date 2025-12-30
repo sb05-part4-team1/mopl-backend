@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 @Configuration
-public class SecurityBeanConfiguration {
+public class SecurityBeanConfig {
 
     @Bean
     public ApiResponseHandler apiResponseHandler(ObjectMapper objectMapper) {
