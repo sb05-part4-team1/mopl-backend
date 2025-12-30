@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import static com.mopl.domain.model.tag.TagModel.NAME_MAX_LENGTH;
+
 @Entity
 @Table(name = "tags")
 @Getter
@@ -16,6 +18,6 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TagEntity extends BaseEntity {
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false, unique = true, length = NAME_MAX_LENGTH)
     private String name;
 }
