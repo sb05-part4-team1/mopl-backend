@@ -1,6 +1,6 @@
 package com.mopl.api.interfaces.api.review;
 
-import com.mopl.api.interfaces.api.ErrorResponse;
+import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.domain.exception.review.InvalidReviewDataException;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
