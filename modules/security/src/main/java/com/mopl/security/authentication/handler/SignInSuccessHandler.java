@@ -39,7 +39,10 @@ public class SignInSuccessHandler implements AuthenticationSuccessHandler {
         JwtInformation jwtInformation = issueAndRegisterToken(userDetails);
 
         response.addCookie(cookieProvider.createRefreshTokenCookie(jwtInformation.refreshToken()));
-        apiResponseHandler.writeSuccess(response, JwtResponse.from(userDetails, jwtInformation.accessToken()));
+        apiResponseHandler.writeSuccess(
+            response,
+            JwtResponse.from(userDetails, jwtInformation.accessToken())
+        );
 
         log.info("JWT 토큰 발급 완료: userId={}", userDetails.userId());
     }
@@ -53,7 +56,10 @@ public class SignInSuccessHandler implements AuthenticationSuccessHandler {
     }
 
     private JwtInformation issueAndRegisterToken(MoplUserDetails userDetails) {
-        JwtInformation jwtInformation = jwtProvider.issueTokenPair(userDetails.userId(), userDetails.role());
+        JwtInformation jwtInformation = jwtProvider.issueTokenPair(
+            userDetails.userId(),
+            userDetails.role()
+        );
         jwtRegistry.register(jwtInformation);
         return jwtInformation;
     }
