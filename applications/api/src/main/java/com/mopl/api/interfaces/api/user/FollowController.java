@@ -4,6 +4,8 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,5 +34,15 @@ public class FollowController implements FollowApiSpec {
         FollowModel follow = followFacade.follow(followerId, request.followeeId());
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(followResponseMapper.toResponse(follow));
+    }
+
+    @Override
+    @DeleteMapping("/{followId}")
+    public ResponseEntity<Void> unFollow(
+        /*@AuthenticationPrincipal*/ UUID userId,
+        @PathVariable UUID followId
+    ) {
+        followFacade.unFollow(userId, followId);
+        return ResponseEntity.noContent().build();
     }
 }
