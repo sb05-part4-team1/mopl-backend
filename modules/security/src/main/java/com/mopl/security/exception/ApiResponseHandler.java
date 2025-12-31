@@ -15,13 +15,12 @@ public class ApiResponseHandler {
 
     private final ObjectMapper objectMapper;
 
-    // 추후 ErrorCode에서 status 추출
     public void writeError(
         HttpServletResponse response,
         MoplException exception
     ) throws IOException {
         ErrorResponse errorResponse = ErrorResponse.from(exception);
-        write(response, HttpServletResponse.SC_UNAUTHORIZED, errorResponse);
+        write(response, exception.getErrorCode().getStatus(), errorResponse);
     }
 
     public void writeSuccess(HttpServletResponse response, Object body) throws IOException {
