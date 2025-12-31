@@ -51,8 +51,8 @@ subprojects {
         testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     }
 
-    // cores 모듈 제외하고 Spring 의존성 적용
-    if (!project.path.startsWith(":cores")) {
+    // core 모듈 제외하고 Spring 의존성 적용
+    if (!project.path.startsWith(":core")) {
         dependencies {
             implementation("org.springframework.boot:spring-boot-starter")
             testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -111,9 +111,9 @@ subprojects {
 }
 
 project("applications") { tasks.configureEach { enabled = false } }
-project("cores") { tasks.configureEach { enabled = false } }
-project("modules") { tasks.configureEach { enabled = false } }
-project("supports") { tasks.configureEach { enabled = false } }
+project("core") { tasks.configureEach { enabled = false } }
+project("infrastructure") { tasks.configureEach { enabled = false } }
+project("shared") { tasks.configureEach { enabled = false } }
 
 tasks.named<JacocoReport>("jacocoTestReport") {
     description = "Generates an aggregate JaCoCo report from all subprojects"

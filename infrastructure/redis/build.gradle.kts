@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":modules:jpa"))
+    implementation(project(":infrastructure:jpa"))
 
     // Jackson (필수)
     implementation("com.fasterxml.jackson.core:jackson-core")
