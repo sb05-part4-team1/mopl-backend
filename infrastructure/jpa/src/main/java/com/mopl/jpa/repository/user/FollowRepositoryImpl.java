@@ -38,4 +38,14 @@ public class FollowRepositoryImpl implements FollowRepository {
         return jpaFollowRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
     }
 
+    @Override
+    public Optional<FollowModel> findById(UUID followId) {
+        return jpaFollowRepository.findById(followId)
+            .map(followEntityMapper::toModel);
+    }
+
+    @Override
+    public void delete(FollowModel followModel) {
+        jpaFollowRepository.deleteById(followModel.getId());
+    }
 }
