@@ -1,5 +1,8 @@
 package com.mopl.domain.service.user;
 
+import java.util.UUID;
+
+import com.mopl.domain.exception.user.FollowNotFoundException;
 import com.mopl.domain.exception.user.SelfFollowException;
 import com.mopl.domain.model.user.FollowModel;
 import com.mopl.domain.repository.user.FollowRepository;
@@ -20,5 +23,14 @@ public class FollowService {
         return followRepository.findByFollowerIdAndFolloweeId(followModel.getFollowerId(),
             followModel.getFolloweeId())
             .orElseGet(() -> followRepository.save(followModel));
+    }
+
+    public void delete(FollowModel followModel) {
+        followRepository.delete(followModel);
+    }
+
+    public FollowModel getById(UUID followId) {
+        return followRepository.findById(followId)
+            .orElseThrow(() -> new FollowNotFoundException(followId));
     }
 }
