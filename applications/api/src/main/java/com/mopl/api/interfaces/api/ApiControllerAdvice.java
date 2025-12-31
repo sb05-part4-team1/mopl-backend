@@ -23,6 +23,7 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import com.mopl.domain.exception.ErrorResponse;
+import com.mopl.domain.exception.MoplException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -187,15 +188,14 @@ public class ApiControllerAdvice {
         );
     }
 
-    // --- 5. 인가 ---
+    // --- 5. 비즈니스 예외 ---
 
-    // Security 관련 예외 핸들러는 추후 구현합니다.
-    // @ExceptionHandler(AuthorizationDeniedException.class)
-    // public ResponseEntity<ErrorResponse> handleAuthorizationDeniedException(
-    //     AuthorizationDeniedException exception
-    // ) {
-    //     return buildResponse(HttpStatus.FORBIDDEN, exception, "접근 권한이 없습니다.", Map.of());
-    // }
+    @ExceptionHandler(MoplException.class)
+    public ResponseEntity<ErrorResponse> handleMoplException(MoplException exception) {
+        return ResponseEntity
+            .status(exception.getErrorCode().getStatus())
+            .body(ErrorResponse.from(exception));
+    }
 
     // --- 6. 서버 에러 ---
 
