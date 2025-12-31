@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     // project module
-    implementation(project(":cores:domain"))
+    implementation(project(":core:domain"))
     // jpa
     api("org.springframework.boot:spring-boot-starter-data-jpa")
     // querydsl
