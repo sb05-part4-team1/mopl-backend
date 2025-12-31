@@ -52,21 +52,25 @@ public class ReviewModel extends BaseUpdatableModel {
             .build();
     }
 
-    //    // 수정 메서드인데 뭔가 오류가 많아서 우선 주석처리 추후 리팩토링 예정
-    //    public ReviewModel update(
-    //            String newText,
-    //            BigDecimal newRating
-    //    ) {
-    //        if (newText != null) {
-    //            validateText(newText);
-    //            this.text = newText;
-    //        }
-    //        if (newRating != null) {
-    //            validateRating(newRating);
-    //            this.rating = newRating;
-    //        }
-    //        return this;
-    //    }
+    public ReviewModel update(
+        String newText,
+        BigDecimal newRating
+    ) {
+        if (newText == null) {
+            throw new InvalidReviewDataException("리뷰 내용은 null일 수 없습니다.");
+        }
+        if (newRating == null) {
+            throw new InvalidReviewDataException("평점은 null일 수 없습니다.");
+        }
+
+        validateText(newText);
+        validateRating(newRating);
+
+        this.text = newText;
+        this.rating = newRating;
+
+        return this;
+    }
 
     // 리뷰 내용 검증 로직 구현
     private static void validateText(String text) {
