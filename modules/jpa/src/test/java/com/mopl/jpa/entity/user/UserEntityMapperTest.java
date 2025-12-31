@@ -1,7 +1,5 @@
 package com.mopl.jpa.entity.user;
 
-import com.mopl.domain.model.user.AuthProvider;
-import com.mopl.domain.model.user.Role;
 import com.mopl.domain.model.user.UserModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -37,12 +35,12 @@ class UserEntityMapperTest {
                 .createdAt(now)
                 .deletedAt(null)
                 .updatedAt(now)
-                .authProvider(AuthProvider.EMAIL)
+                .authProvider(UserModel.AuthProvider.EMAIL)
                 .email(email)
                 .name(name)
                 .password(password)
                 .profileImageUrl(profileImageUrl)
-                .role(Role.USER)
+                .role(UserModel.Role.USER)
                 .locked(false)
                 .build();
 
@@ -54,12 +52,12 @@ class UserEntityMapperTest {
             assertThat(result.getCreatedAt()).isEqualTo(now);
             assertThat(result.getDeletedAt()).isNull();
             assertThat(result.getUpdatedAt()).isEqualTo(now);
-            assertThat(result.getAuthProvider()).isEqualTo(AuthProvider.EMAIL);
+            assertThat(result.getAuthProvider()).isEqualTo(UserModel.AuthProvider.EMAIL);
             assertThat(result.getEmail()).isEqualTo(email);
             assertThat(result.getName()).isEqualTo(name);
             assertThat(result.getPassword()).isEqualTo(password);
             assertThat(result.getProfileImageUrl()).isEqualTo(profileImageUrl);
-            assertThat(result.getRole()).isEqualTo(Role.USER);
+            assertThat(result.getRole()).isEqualTo(UserModel.Role.USER);
             assertThat(result.isLocked()).isFalse();
         }
 
@@ -94,12 +92,12 @@ class UserEntityMapperTest {
                 .createdAt(now)
                 .deletedAt(null)
                 .updatedAt(now)
-                .authProvider(AuthProvider.EMAIL)
+                .authProvider(UserModel.AuthProvider.EMAIL)
                 .email(email)
                 .name(name)
                 .password(password)
                 .profileImageUrl(profileImageUrl)
-                .role(Role.USER)
+                .role(UserModel.Role.USER)
                 .locked(false)
                 .build();
 
@@ -111,13 +109,23 @@ class UserEntityMapperTest {
             assertThat(result.getCreatedAt()).isEqualTo(now);
             assertThat(result.getDeletedAt()).isNull();
             assertThat(result.getUpdatedAt()).isEqualTo(now);
-            assertThat(result.getAuthProvider()).isEqualTo(AuthProvider.EMAIL);
+            assertThat(result.getAuthProvider()).isEqualTo(UserModel.AuthProvider.EMAIL);
             assertThat(result.getEmail()).isEqualTo(email);
             assertThat(result.getName()).isEqualTo(name);
             assertThat(result.getPassword()).isEqualTo(password);
             assertThat(result.getProfileImageUrl()).isEqualTo(profileImageUrl);
-            assertThat(result.getRole()).isEqualTo(Role.USER);
+            assertThat(result.getRole()).isEqualTo(UserModel.Role.USER);
             assertThat(result.isLocked()).isFalse();
+        }
+
+        @Test
+        @DisplayName("null 입력 시 null 반환")
+        void withNull_returnsNull() {
+            // when
+            UserEntity result = mapper.toEntity(null);
+
+            // then
+            assertThat(result).isNull();
         }
 
         @Test
@@ -132,12 +140,12 @@ class UserEntityMapperTest {
                 .createdAt(now)
                 .deletedAt(null)
                 .updatedAt(now)
-                .authProvider(AuthProvider.GOOGLE)
+                .authProvider(UserModel.AuthProvider.GOOGLE)
                 .email("test@example.com")
                 .name("test")
                 .password("encodedPassword")
                 .profileImageUrl("https://example.com/image.png")
-                .role(Role.ADMIN)
+                .role(UserModel.Role.ADMIN)
                 .locked(true)
                 .build();
 

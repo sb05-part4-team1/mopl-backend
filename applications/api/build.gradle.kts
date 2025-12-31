@@ -2,6 +2,7 @@ dependencies {
     // project modules
     implementation(project(":cores:domain"))
     implementation(project(":modules:jpa"))
+    implementation(project(":modules:security"))
     implementation(project(":supports:jackson"))
 
     // web

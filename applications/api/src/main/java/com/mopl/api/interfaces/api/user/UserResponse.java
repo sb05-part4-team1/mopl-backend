@@ -1,6 +1,6 @@
 package com.mopl.api.interfaces.api.user;
 
-import com.mopl.domain.model.user.Role;
+import com.mopl.domain.model.user.UserModel;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -11,7 +11,7 @@ public record UserResponse(
     String email,
     String name,
     String profileImageUrl,
-    Role role,
+    UserModel.Role role,
     boolean locked
 ) {
 }

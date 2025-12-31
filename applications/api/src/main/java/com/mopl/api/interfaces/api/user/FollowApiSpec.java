@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 
-import com.mopl.api.interfaces.api.ErrorResponse;
+import com.mopl.domain.exception.ErrorResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

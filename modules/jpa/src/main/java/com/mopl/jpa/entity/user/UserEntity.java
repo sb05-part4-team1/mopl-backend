@@ -1,7 +1,7 @@
 package com.mopl.jpa.entity.user;
 
-import com.mopl.domain.model.user.AuthProvider;
-import com.mopl.domain.model.user.Role;
+import com.mopl.domain.model.user.UserModel;
+import com.mopl.domain.model.user.UserModel.AuthProvider;
 import com.mopl.jpa.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -47,7 +47,7 @@ public class UserEntity extends BaseUpdatableEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = ROLE_MAX_LENGTH)
-    private Role role;
+    private UserModel.Role role;
 
     @Column(nullable = false)
     private boolean locked;

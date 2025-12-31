@@ -7,6 +7,7 @@ include(
     // ":applications:streamer",
     ":cores:domain",
     ":modules:jpa",
+    ":modules:security",
     // ":modules:redis",
     // ":modules:kafka",
     // ":modules:external",

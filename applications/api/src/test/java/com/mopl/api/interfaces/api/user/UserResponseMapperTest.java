@@ -1,8 +1,7 @@
 package com.mopl.api.interfaces.api.user;
 
-import com.mopl.domain.model.user.AuthProvider;
-import com.mopl.domain.model.user.Role;
 import com.mopl.domain.model.user.UserModel;
+import com.mopl.domain.model.user.UserModel.AuthProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -30,7 +29,7 @@ class UserResponseMapperTest {
             String email = "test@example.com";
             String name = "test";
             String profileImageUrl = "https://example.com/image.png";
-            Role role = Role.USER;
+            UserModel.Role role = UserModel.Role.USER;
             boolean locked = false;
 
             UserModel userModel = UserModel.builder()

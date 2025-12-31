@@ -1,11 +1,7 @@
-package com.mopl.api.interfaces.api;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.mopl.domain.exception.MoplException;
+package com.mopl.domain.exception;
 
 import java.util.Map;
 
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public record ErrorResponse(
     String exceptionName,
     String message,

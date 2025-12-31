@@ -20,6 +20,14 @@ public class UserModel extends BaseUpdatableModel {
     public static final int PROFILE_IMAGE_URL_MAX_LENGTH = 1024;
     public static final int ROLE_MAX_LENGTH = 20;
 
+    public enum AuthProvider {
+        EMAIL, GOOGLE, KAKAO
+    }
+
+    public enum Role {
+        USER, ADMIN
+    }
+
     private AuthProvider authProvider;
     private String email;
     private String name;
