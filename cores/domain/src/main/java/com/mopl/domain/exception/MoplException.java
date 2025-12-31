@@ -8,18 +8,20 @@ import java.util.Map;
 @Getter
 public abstract class MoplException extends RuntimeException {
 
+    private final ErrorCode errorCode;
     private final Map<String, Object> details;
 
-    public MoplException(String message) {
-        this(message, null);
+    public MoplException(ErrorCode errorCode) {
+        this(errorCode, null);
     }
 
     public MoplException(
-        String message,
+        ErrorCode errorCode,
         Map<String, Object> details
     ) {
-        super(message);
+        super(errorCode.getMessage());
 
+        this.errorCode = errorCode;
         this.details = details != null
             ? Collections.unmodifiableMap(details)
             : Collections.emptyMap();

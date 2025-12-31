@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.mopl.domain.exception.user.SelfFollowException;
+import com.mopl.domain.exception.user.UserErrorCode;
 import com.mopl.domain.model.user.FollowModel;
 import com.mopl.domain.repository.user.FollowRepository;
 
@@ -105,7 +106,7 @@ class FollowServiceTest {
             // when & then
             assertThatThrownBy(() -> followService.create(selfFollowModel))
                 .isInstanceOf(SelfFollowException.class)
-                .hasMessage(SelfFollowException.MESSAGE);
+                .hasMessage(UserErrorCode.SELF_FOLLOW_NOT_ALLOWED.getMessage());
 
             then(followRepository).should(never()).findByFollowerIdAndFolloweeId(any(), any());
             then(followRepository).should(never()).save(any());

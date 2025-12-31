@@ -4,11 +4,11 @@ import java.util.Map;
 
 public class InvalidTokenException extends AuthException {
 
-    public InvalidTokenException(String message) {
-        super(message);
+    public InvalidTokenException() {
+        super(AuthErrorCode.INVALID_TOKEN);
     }
 
-    public InvalidTokenException(String message, Map<String, Object> details) {
-        super(message, details);
+    public InvalidTokenException(String detailMessage) {
+        super(AuthErrorCode.INVALID_TOKEN, Map.of("detailMessage", detailMessage));
     }
 }
