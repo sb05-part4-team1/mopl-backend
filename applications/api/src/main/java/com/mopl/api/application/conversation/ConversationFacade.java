@@ -1,6 +1,8 @@
 package com.mopl.api.application.conversation;
 
+import com.mopl.api.interfaces.api.conversation.ConversationCreateRequest;
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
+import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.model.user.AuthProvider;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.user.UserService;
@@ -13,24 +15,26 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @RequiredArgsConstructor
 public  class ConversationFacade {
+    //controller에서 받은 데이터를 service로 전달만 시키는 곳, 비즈니스 로직은 작성하지 않는다.
 
 //    private final ConversationService conversationService;
 
-//    @Transactional
-//    public ConversationModel create(ConversationCreateRequest conversationCreateRequest) {
-//
-//        // conversation에 맞게 수정 필요.
-//        //conversationCreateRequest에 상대방의 userId만 온다.
-//        //최종적으로는 conversationdto에 converstaion id와 with에 상대방 정보
-//        //lastestMessage에 메시지 내용과 보낸 사용자, 받는 사용자
-//        //마지막에 읽지 않은 메시지가 있는지 true/false 여부 로 흘러가는 걸 생각하기
-//
-//        ConversationModel conversationModel = conversationModel.create(
-//
-//        );
-//
+    @Transactional
+    public ConversationModel createConversation(ConversationCreateRequest request) {
+
+        //conversationCreateRequest에 상대방의 userId만 온다.
+        //최종적으로는 conversationResponse(Dto)에 converstaionId와 상대방 정보
+        //lastestMessage
+        //마지막에 읽지 않은 메시지가 있는지 true/false 가 포함
+        //내 정보는 security에서 가지고 오는걸로 작성
+        //ConversationModel을 만들어서 service에 던지는 역할
+
+
+        ConversationModel conversationModel = ConversationModel.create(request.withUserId());
+
 //        return conversationService.create(conversationModel);
-//    }
+        return null;
+    }
 
 //    @Transactional(readOnly = true)
 //    public ConversationModel getConversation(UUID conversationId) {
