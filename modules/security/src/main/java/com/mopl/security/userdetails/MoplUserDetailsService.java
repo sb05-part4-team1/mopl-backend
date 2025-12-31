@@ -17,7 +17,7 @@ public class MoplUserDetailsService implements UserDetailsService {
         try {
             return MoplUserDetails.from(userService.getByEmail(email));
         } catch (UserNotFoundException e) {
-            throw new UsernameNotFoundException("존재하지 않는 사용자 이메일입니다: " + email);
+            throw new UsernameNotFoundException("이메일 또는 비밀번호가 올바르지 않습니다");
         }
     }
 }
