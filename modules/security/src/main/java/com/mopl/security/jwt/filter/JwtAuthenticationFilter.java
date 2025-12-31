@@ -46,10 +46,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         String token = resolveToken(request);
 
-        if (token != null) {
+        if (hasText(token)) {
             try {
                 JwtPayload payload = jwtProvider.verifyAndParse(token, TokenType.ACCESS);
-                checkBlacklist(payload.jti());
+                validateNotBlacklisted(payload.jti());
                 authenticateUser(payload, request);
             } catch (InvalidTokenException e) {
                 log.debug("JWT 인증 실패: {}", e.getMessage());
@@ -65,7 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private void checkBlacklist(UUID jti) {
+    private void validateNotBlacklisted(UUID jti) {
         if (jwtRegistry.isAccessTokenInBlacklist(jti)) {
             log.warn("블랙리스트 토큰 접근 시도: jti={}", jti);
             throw new InvalidTokenException("유효하지 않은 토큰입니다.");
