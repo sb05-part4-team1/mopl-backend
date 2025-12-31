@@ -117,7 +117,8 @@ public class JwtProvider {
                 return;
             }
         }
-        throw new InvalidTokenException("유효하지 않은 토큰 서명입니다.");
+        log.debug("토큰 서명 검증 실패: type={}", type);
+        throw new InvalidTokenException();
     }
 
     private JwtPayload extractPayload(JWTClaimsSet claims) throws ParseException {
@@ -132,29 +133,34 @@ public class JwtProvider {
 
     private void validateExpiration(Date expiration) {
         if (expiration == null || expiration.before(new Date())) {
-            throw new InvalidTokenException("만료된 토큰입니다.");
+            log.debug("토큰 만료됨");
+            throw new InvalidTokenException();
         }
     }
 
     private UUID parseUuidClaim(String value, String claimName) {
         if (!hasText(value)) {
-            throw new InvalidTokenException("토큰의 " + claimName + "가 포함되어 있지 않습니다.");
+            log.debug("토큰에 {} 클레임 누락", claimName);
+            throw new InvalidTokenException();
         }
         try {
             return UUID.fromString(value);
         } catch (IllegalArgumentException e) {
-            throw new InvalidTokenException("토큰의 " + claimName + " 형식이 유효하지 않습니다.");
+            log.debug("토큰의 {} 클레임 형식 오류: {}", claimName, value);
+            throw new InvalidTokenException();
         }
     }
 
     private UserModel.Role parseRoleClaim(String value) {
         if (!hasText(value)) {
-            throw new InvalidTokenException("토큰에 role이 포함되어 있지 않습니다.");
+            log.debug("토큰에 role 클레임 누락");
+            throw new InvalidTokenException();
         }
         try {
             return UserModel.Role.valueOf(value);
         } catch (IllegalArgumentException e) {
-            throw new InvalidTokenException("토큰의 role 형식이 유효하지 않습니다.");
+            log.debug("토큰의 role 클레임 형식 오류: {}", value);
+            throw new InvalidTokenException();
         }
     }
 
