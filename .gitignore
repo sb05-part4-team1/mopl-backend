@@ -56,6 +56,9 @@ bin/
 *.log
 *.hprof
 
+# QueryDSL generated Q classes
+**/generated/
+
 # Gradle
 .gradle/
 gradle-app.setting
