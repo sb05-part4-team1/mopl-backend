@@ -1,10 +1,13 @@
 package com.mopl.api.interfaces.api;
 
+import com.mopl.domain.exception.ApiErrorCode;
+import com.mopl.domain.exception.ErrorCode;
+import com.mopl.domain.exception.ErrorResponse;
+import com.mopl.domain.exception.MoplException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -22,8 +25,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-import com.mopl.domain.exception.ErrorResponse;
-import com.mopl.domain.exception.MoplException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -36,10 +37,8 @@ public class ApiControllerAdvice {
     // --- 1. 라우팅 ---
 
     @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
-    public ResponseEntity<ErrorResponse> handleEndPointNotFoundException(
-        Exception exception
-    ) {
-        return buildResponse(HttpStatus.NOT_FOUND, exception, "존재하지 않는 API 엔드포인트입니다.", Map.of());
+    public ResponseEntity<ErrorResponse> handleEndPointNotFoundException(Exception exception) {
+        return buildResponse(ApiErrorCode.ENDPOINT_NOT_FOUND, exception, Map.of());
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
@@ -52,11 +51,7 @@ public class ApiControllerAdvice {
             ? exception.getSupportedHttpMethods().stream().map(HttpMethod::name).toList()
             : List.of());
 
-        return buildResponse(
-            HttpStatus.METHOD_NOT_ALLOWED,
-            exception, "허용되지 않는 HTTP 메서드입니다.",
-            details
-        );
+        return buildResponse(ApiErrorCode.METHOD_NOT_ALLOWED, exception, details);
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
@@ -71,23 +66,19 @@ public class ApiControllerAdvice {
             .map(MediaType::toString)
             .toList());
 
-        return buildResponse(
-            HttpStatus.UNSUPPORTED_MEDIA_TYPE,
-            exception,
-            "지원하지 않는 Content-Type입니다.",
-            details
-        );
+        return buildResponse(ApiErrorCode.UNSUPPORTED_MEDIA_TYPE, exception, details);
     }
 
     @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMediaTypeNotAcceptableException(
         HttpMediaTypeNotAcceptableException exception
     ) {
-        return buildResponse(HttpStatus.NOT_ACCEPTABLE, exception, "허용되지 않는 Accept 헤더입니다.", Map.of(
+        Map<String, Object> details = Map.of(
             "supportedMediaTypes", exception.getSupportedMediaTypes().stream()
                 .map(MediaType::toString)
                 .toList()
-        ));
+        );
+        return buildResponse(ApiErrorCode.NOT_ACCEPTABLE, exception, details);
     }
 
     // --- 2. 파라미터 바인딩 ---
@@ -96,37 +87,41 @@ public class ApiControllerAdvice {
     public ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(
         MissingServletRequestParameterException exception
     ) {
-        return buildResponse(HttpStatus.BAD_REQUEST, exception, "필수 요청 매개변수가 누락되었습니다.", Map.of(
+        Map<String, Object> details = Map.of(
             "parameter", exception.getParameterName(),
             "expectedType", exception.getParameterType()
-        ));
+        );
+        return buildResponse(ApiErrorCode.MISSING_PARAMETER, exception, details);
     }
 
     @ExceptionHandler(MissingServletRequestPartException.class)
     public ResponseEntity<ErrorResponse> handleMissingServletRequestPartException(
         MissingServletRequestPartException exception
     ) {
-        return buildResponse(HttpStatus.BAD_REQUEST, exception, "필수 요청 파트가 누락되었습니다.", Map.of(
+        Map<String, Object> details = Map.of(
             "part", exception.getRequestPartName()
-        ));
+        );
+        return buildResponse(ApiErrorCode.MISSING_PART, exception, details);
     }
 
     @ExceptionHandler(MissingRequestCookieException.class)
     public ResponseEntity<ErrorResponse> handleMissingRequestCookieException(
         MissingRequestCookieException exception
     ) {
-        return buildResponse(HttpStatus.BAD_REQUEST, exception, "필수 쿠키가 누락되었습니다.", Map.of(
+        Map<String, Object> details = Map.of(
             "cookie", exception.getCookieName()
-        ));
+        );
+        return buildResponse(ApiErrorCode.MISSING_COOKIE, exception, details);
     }
 
     @ExceptionHandler(MissingRequestHeaderException.class)
     public ResponseEntity<ErrorResponse> handleMissingRequestHeaderException(
         MissingRequestHeaderException exception
     ) {
-        return buildResponse(HttpStatus.BAD_REQUEST, exception, "필수 헤더가 누락되었습니다.", Map.of(
+        Map<String, Object> details = Map.of(
             "header", exception.getHeaderName()
-        ));
+        );
+        return buildResponse(ApiErrorCode.MISSING_HEADER, exception, details);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -136,14 +131,14 @@ public class ApiControllerAdvice {
         String expectedType = exception.getRequiredType() != null
             ? exception.getRequiredType().getSimpleName()
             : "unknown";
-
-        return buildResponse(HttpStatus.BAD_REQUEST, exception, "요청 매개변수 타입이 유효하지 않습니다.", Map.of(
+        Map<String, Object> details = Map.of(
             "parameter", exception.getName(),
             "type", exception.getValue() != null
                 ? exception.getValue().getClass().getSimpleName()
                 : "UNKNOWN",
             "expectedType", expectedType
-        ));
+        );
+        return buildResponse(ApiErrorCode.INVALID_PARAMETER_TYPE, exception, details);
     }
 
     // --- 3. 바디 파싱 ---
@@ -152,7 +147,7 @@ public class ApiControllerAdvice {
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(
         HttpMessageNotReadableException exception
     ) {
-        return buildResponse(HttpStatus.BAD_REQUEST, exception, "요청 본문을 읽을 수 없습니다.", Map.of());
+        return buildResponse(ApiErrorCode.MESSAGE_NOT_READABLE, exception, Map.of());
     }
 
     // --- 4. 검증 ---
@@ -165,7 +160,7 @@ public class ApiControllerAdvice {
         details.put("fieldErrors", extractFieldErrors(exception.getBindingResult()));
         details.put("globalErrors", extractGlobalErrors(exception.getBindingResult()));
 
-        return buildResponse(HttpStatus.BAD_REQUEST, exception, "요청 본문 값이 유효하지 않습니다.", details);
+        return buildResponse(ApiErrorCode.INVALID_REQUEST_BODY, exception, details);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -180,12 +175,9 @@ public class ApiControllerAdvice {
             })
             .toList();
 
-        return buildResponse(
-            HttpStatus.BAD_REQUEST,
-            exception,
-            "요청 매개변수 값이 유효하지 않습니다.",
-            Map.of("violations", violations)
-        );
+        Map<String, Object> details = Map.of("violations", violations);
+
+        return buildResponse(ApiErrorCode.INVALID_PARAMETER_VALUE, exception, details);
     }
 
     // --- 5. 비즈니스 예외 ---
@@ -212,34 +204,27 @@ public class ApiControllerAdvice {
             exception
         );
 
-        return buildResponse(
-            HttpStatus.INTERNAL_SERVER_ERROR,
-            "InternalServerError",
-            "서버 오류가 발생했습니다.",
-            Map.of()
-        );
+        return buildResponse(ApiErrorCode.INTERNAL_SERVER_ERROR, "InternalServerError", Map.of());
     }
 
     // --- Helper Methods ---
 
     private ResponseEntity<ErrorResponse> buildResponse(
-        HttpStatus status,
+        ErrorCode errorCode,
         Exception exception,
-        String message,
         Map<String, Object> details
     ) {
-        return buildResponse(status, exception.getClass().getSimpleName(), message, details);
+        return buildResponse(errorCode, exception.getClass().getSimpleName(), details);
     }
 
     private ResponseEntity<ErrorResponse> buildResponse(
-        HttpStatus status,
+        ErrorCode errorCode,
         String exceptionName,
-        String message,
         Map<String, Object> details
     ) {
         return ResponseEntity
-            .status(status)
-            .body(ErrorResponse.of(exceptionName, message, details));
+            .status(errorCode.getStatus())
+            .body(ErrorResponse.of(exceptionName, errorCode.getMessage(), details));
     }
 
     private List<FieldErrorDetail> extractFieldErrors(BindingResult bindingResult) {
