@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = UserController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@Import({ApiControllerAdvice.class, UserControllerAdvice.class})
+@Import(ApiControllerAdvice.class)
 @DisplayName("UserController 슬라이스 테스트")
 class UserControllerTest {
 
@@ -157,7 +157,7 @@ class UserControllerTest {
             UserCreateRequest request = new UserCreateRequest(email, "test", "P@ssw0rd!");
 
             given(userFacade.signUp(any(UserCreateRequest.class)))
-                .willThrow(new DuplicateEmailException(email));
+                .willThrow(DuplicateEmailException.withEmail(email));
 
             // when & then
             mockMvc.perform(post("/api/users")

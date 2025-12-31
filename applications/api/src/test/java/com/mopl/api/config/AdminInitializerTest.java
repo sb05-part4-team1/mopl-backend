@@ -79,7 +79,7 @@ class AdminInitializerTest {
         void whenAdminExists_shouldNotCreateAdmin() {
             // given
             given(userFacade.signUp(any(UserCreateRequest.class)))
-                .willThrow(new DuplicateEmailException(ADMIN_EMAIL));
+                .willThrow(DuplicateEmailException.withEmail(ADMIN_EMAIL));
 
             // when
             adminInitializer.run(null);

@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = ContentController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@Import({ApiControllerAdvice.class, ContentControllerAdvice.class})
+@Import(ApiControllerAdvice.class)
 @DisplayName("ContentController 슬라이스 테스트")
 class ContentControllerTest {
 
