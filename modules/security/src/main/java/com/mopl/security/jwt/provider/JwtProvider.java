@@ -72,7 +72,7 @@ public class JwtProvider {
             return extractPayload(claims);
         } catch (ParseException | JOSEException e) {
             log.debug("JWT 검증 실패: {}", e.getMessage());
-            throw new InvalidTokenException("유효하지 않은 토큰입니다.");
+            throw new InvalidTokenException();
         }
     }
 
