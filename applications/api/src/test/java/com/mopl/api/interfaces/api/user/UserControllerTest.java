@@ -6,8 +6,6 @@ import com.mopl.api.interfaces.api.ApiControllerAdvice;
 import com.mopl.domain.exception.user.DuplicateEmailException;
 import com.mopl.domain.exception.user.InvalidUserDataException;
 import com.mopl.domain.exception.user.UserNotFoundException;
-import com.mopl.domain.model.user.AuthProvider;
-import com.mopl.domain.model.user.Role;
 import com.mopl.domain.model.user.UserModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -16,6 +14,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -36,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UserController.class)
+@AutoConfigureMockMvc(addFilters = false)
 @Import({ApiControllerAdvice.class, UserControllerAdvice.class})
 @DisplayName("UserController 슬라이스 테스트")
 class UserControllerTest {
@@ -73,12 +73,12 @@ class UserControllerTest {
                 .createdAt(now)
                 .deletedAt(null)
                 .updatedAt(now)
-                .authProvider(AuthProvider.EMAIL)
+                .authProvider(UserModel.AuthProvider.EMAIL)
                 .email(email)
                 .name(name)
                 .password(password)
                 .profileImageUrl(null)
-                .role(Role.USER)
+                .role(UserModel.Role.USER)
                 .locked(false)
                 .build();
 
@@ -88,7 +88,7 @@ class UserControllerTest {
                 email,
                 name,
                 null,
-                Role.USER,
+                UserModel.Role.USER,
                 false
             );
 
@@ -202,12 +202,12 @@ class UserControllerTest {
                 .createdAt(now)
                 .deletedAt(null)
                 .updatedAt(now)
-                .authProvider(AuthProvider.EMAIL)
+                .authProvider(UserModel.AuthProvider.EMAIL)
                 .email(email)
                 .name(name)
                 .password("encodedPassword")
                 .profileImageUrl(null)
-                .role(Role.USER)
+                .role(UserModel.Role.USER)
                 .locked(false)
                 .build();
 
@@ -217,7 +217,7 @@ class UserControllerTest {
                 email,
                 name,
                 null,
-                Role.USER,
+                UserModel.Role.USER,
                 false
             );
 
@@ -242,7 +242,7 @@ class UserControllerTest {
             // given
             UUID userId = UUID.randomUUID();
 
-            given(userFacade.getUser(userId)).willThrow(new UserNotFoundException(userId));
+            given(userFacade.getUser(userId)).willThrow(UserNotFoundException.withId(userId));
 
             // when & then
             mockMvc.perform(get("/api/users/{userId}", userId))

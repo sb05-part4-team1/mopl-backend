@@ -1,6 +1,6 @@
 package com.mopl.api.interfaces.api.content;
 
-import com.mopl.api.interfaces.api.ErrorResponse;
+import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.exception.content.InvalidContentDataException;
 import com.mopl.domain.exception.tag.InvalidTagDataException;

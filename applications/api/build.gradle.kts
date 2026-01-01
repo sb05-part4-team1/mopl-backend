@@ -1,8 +1,9 @@
 dependencies {
     // project modules
-    implementation(project(":cores:domain"))
-    implementation(project(":modules:jpa"))
-    implementation(project(":supports:jackson"))
+    implementation(project(":core:domain"))
+    implementation(project(":infrastructure:jpa"))
+    implementation(project(":infrastructure:security"))
+    implementation(project(":shared:jackson"))
 
     // web
     implementation("org.springframework.boot:spring-boot-starter-web")

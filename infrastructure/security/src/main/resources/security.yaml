@@ -1,0 +1,20 @@
+mopl:
+  jwt:
+    access-token:
+      secret: ${JWT_ACCESS_TOKEN_SECRET:}
+      expiration: 30m
+      previous-secret: ${JWT_ACCESS_TOKEN_PREVIOUS_SECRET:}
+    refresh-token:
+      secret: ${JWT_REFRESH_TOKEN_SECRET:}
+      expiration: 7d
+      previous-secret: ${JWT_REFRESH_TOKEN_PREVIOUS_SECRET:}
+    max-sessions: 1
+    registry-type: in-memory # Options: in-memory, redis
+    refresh-token-cookie-name: REFRESH_TOKEN
+
+---
+spring.config.activate.on-profile: prod
+
+mopl:
+  jwt:
+    registry-type: redis

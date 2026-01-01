@@ -10,14 +10,16 @@ spring:
     active: local
   config:
     import:
+      - optional:file:.env[.properties]
       - jpa.yaml
+      - security.yaml
   threads:
     virtual:
       enabled: true
 
-springdoc:
-  use-fqn: true
-  api-docs:
-    path: /api/docs
-  swagger-ui:
-    path: /swagger-ui.html
+mopl:
+  admin:
+    enabled: ${ADMIN_ENABLED:false}
+    email: ${ADMIN_EMAIL:}
+    name: 관리자
+    password: ${ADMIN_PASSWORD:}
