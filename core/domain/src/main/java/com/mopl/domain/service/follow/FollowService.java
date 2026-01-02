@@ -1,8 +1,8 @@
-package com.mopl.domain.service.user;
+package com.mopl.domain.service.follow;
 
-import com.mopl.domain.exception.user.SelfFollowException;
-import com.mopl.domain.model.user.FollowModel;
-import com.mopl.domain.repository.user.FollowRepository;
+import com.mopl.domain.exception.follow.SelfFollowException;
+import com.mopl.domain.model.follow.FollowModel;
+import com.mopl.domain.repository.follow.FollowRepository;
 
 import lombok.RequiredArgsConstructor;
 

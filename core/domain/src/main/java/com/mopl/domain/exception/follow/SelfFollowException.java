@@ -1,4 +1,4 @@
-package com.mopl.domain.exception.user;
+package com.mopl.domain.exception.follow;
 
 import java.util.Map;
 import java.util.UUID;
