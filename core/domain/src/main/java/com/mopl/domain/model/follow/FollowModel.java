@@ -1,4 +1,4 @@
-package com.mopl.domain.model.user;
+package com.mopl.domain.model.follow;
 
 import java.util.UUID;
 

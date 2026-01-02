@@ -1,9 +1,9 @@
-package com.mopl.domain.repository.user;
+package com.mopl.domain.repository.follow;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import com.mopl.domain.model.user.FollowModel;
+import com.mopl.domain.model.follow.FollowModel;
 
 public interface FollowRepository {
 

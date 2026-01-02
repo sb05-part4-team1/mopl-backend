@@ -1,8 +1,9 @@
-package com.mopl.jpa.entity.user;
+package com.mopl.jpa.entity.follow;
 
 import org.hibernate.annotations.SQLRestriction;
 
 import com.mopl.jpa.entity.base.BaseEntity;
+import com.mopl.jpa.entity.user.UserEntity;
 
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;

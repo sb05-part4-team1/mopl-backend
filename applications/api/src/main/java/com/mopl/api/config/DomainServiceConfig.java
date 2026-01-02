@@ -10,9 +10,9 @@ import com.mopl.domain.service.tag.TagService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.mopl.domain.repository.user.FollowRepository;
+import com.mopl.domain.repository.follow.FollowRepository;
 import com.mopl.domain.repository.user.UserRepository;
-import com.mopl.domain.service.user.FollowService;
+import com.mopl.domain.service.follow.FollowService;
 import com.mopl.domain.service.user.UserService;
 
 @Configuration

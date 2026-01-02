@@ -1,4 +1,4 @@
-package com.mopl.api.interfaces.api.user;
+package com.mopl.api.interfaces.api.follow;
 
 import java.util.UUID;
 

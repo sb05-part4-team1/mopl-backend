@@ -1,14 +1,14 @@
-package com.mopl.jpa.repository.user;
+package com.mopl.jpa.repository.follow;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
 
-import com.mopl.domain.model.user.FollowModel;
-import com.mopl.domain.repository.user.FollowRepository;
-import com.mopl.jpa.entity.user.FollowEntity;
-import com.mopl.jpa.entity.user.FollowEntityMapper;
+import com.mopl.domain.model.follow.FollowModel;
+import com.mopl.domain.repository.follow.FollowRepository;
+import com.mopl.jpa.entity.follow.FollowEntity;
+import com.mopl.jpa.entity.follow.FollowEntityMapper;
 
 import lombok.RequiredArgsConstructor;
 

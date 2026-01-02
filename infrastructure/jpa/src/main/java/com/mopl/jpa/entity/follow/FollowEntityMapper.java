@@ -1,8 +1,9 @@
-package com.mopl.jpa.entity.user;
+package com.mopl.jpa.entity.follow;
 
 import org.springframework.stereotype.Component;
 
-import com.mopl.domain.model.user.FollowModel;
+import com.mopl.domain.model.follow.FollowModel;
+import com.mopl.jpa.entity.user.UserEntity;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;

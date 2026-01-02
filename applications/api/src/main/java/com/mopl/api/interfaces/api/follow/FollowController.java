@@ -1,4 +1,4 @@
-package com.mopl.api.interfaces.api.user;
+package com.mopl.api.interfaces.api.follow;
 
 import java.util.UUID;
 
@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mopl.api.application.user.FollowFacade;
-import com.mopl.domain.model.user.FollowModel;
+import com.mopl.api.application.follow.FollowFacade;
+import com.mopl.domain.model.follow.FollowModel;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
