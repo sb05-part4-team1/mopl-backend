@@ -24,14 +24,10 @@ public class ConversationController {
         //security에서 유저 정보 가지고 오기
         @Valid @RequestBody ConversationCreateRequest request
     ) {
-//        private UUID id;
-//        private UUID withId;
-//        private UUID messageId;
-//        private boolean hasUnread;
-        ConversationModel conversationmodel = conversationFacade.createConversation(request);
-        //senderId,messageId 있음.
 
-//        return userResponseMapper.toResponse(userModel);
+        ConversationModel conversationmodel = conversationFacade.createConversation(request);
+        //senderId,messageId를 usersummary,messagedto로 변환해야 함.
+
         return conversationResponseMapper.toResponse(conversationmodel);
     }
 
