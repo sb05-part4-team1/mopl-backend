@@ -2,8 +2,8 @@ package com.mopl.domain.service.user;
 
 import java.util.UUID;
 
-import com.mopl.domain.exception.user.FollowNotFoundException;
-import com.mopl.domain.exception.user.SelfFollowException;
+import com.mopl.domain.exception.follow.FollowNotFoundException;
+import com.mopl.domain.exception.follow.SelfFollowException;
 import com.mopl.domain.model.user.FollowModel;
 import com.mopl.domain.repository.user.FollowRepository;
 

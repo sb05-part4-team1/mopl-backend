@@ -1,6 +1,6 @@
 package com.mopl.api.application.user;
 
-import com.mopl.domain.exception.user.AccessDeniedException;
+import com.mopl.domain.exception.follow.FollowNotAllowedException;
 import com.mopl.domain.model.user.FollowModel;
 import com.mopl.domain.service.user.FollowService;
 import com.mopl.domain.service.user.UserService;
@@ -33,7 +33,7 @@ public class FollowFacade {
         FollowModel follow = followService.getById(followId);
 
         if (!follow.getFollowerId().equals(userId)) {
-            throw new AccessDeniedException(userId, followId);
+            throw new FollowNotAllowedException(userId, followId);
         }
 
         followService.delete(follow);

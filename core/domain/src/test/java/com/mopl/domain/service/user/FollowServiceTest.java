@@ -1,15 +1,9 @@
 package com.mopl.domain.service.user;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.never;
-import static org.mockito.BDDMockito.then;
-
-import java.util.Optional;
-import java.util.UUID;
-
+import com.mopl.domain.exception.follow.FollowErrorCode;
+import com.mopl.domain.exception.follow.SelfFollowException;
+import com.mopl.domain.model.user.FollowModel;
+import com.mopl.domain.repository.user.FollowRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,10 +12,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.mopl.domain.exception.user.SelfFollowException;
-import com.mopl.domain.exception.user.UserErrorCode;
-import com.mopl.domain.model.user.FollowModel;
-import com.mopl.domain.repository.user.FollowRepository;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.never;
+import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("FollowService 단위 테스트")
@@ -106,7 +105,7 @@ class FollowServiceTest {
             // when & then
             assertThatThrownBy(() -> followService.create(selfFollowModel))
                 .isInstanceOf(SelfFollowException.class)
-                .hasMessage(UserErrorCode.SELF_FOLLOW_NOT_ALLOWED.getMessage());
+                .hasMessage(FollowErrorCode.SELF_FOLLOW_NOT_ALLOWED.getMessage());
 
             then(followRepository).should(never()).findByFollowerIdAndFolloweeId(any(), any());
             then(followRepository).should(never()).save(any());
