@@ -4,10 +4,9 @@ import com.mopl.api.interfaces.api.user.UserSummary;
 import java.util.UUID;
 
 public record ConversationResponse(
-        UUID id,
-        UserSummary with,
-        DirectMessageResponse lastestMessage,
-        boolean hasUnread
+    UUID id,
+    UserSummary with,
+    DirectMessageResponse lastestMessage,
+    boolean hasUnread
 ) {
-
 }

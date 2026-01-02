@@ -2,9 +2,12 @@ package com.mopl.api.config;
 
 import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
+import com.mopl.domain.repository.conversation.ConversationRepository;
+import com.mopl.domain.repository.conversation.DirectMessageRepository;
 import com.mopl.domain.repository.review.ReviewRepository;
 import com.mopl.domain.repository.tag.TagRepository;
 import com.mopl.domain.service.content.ContentService;
+import com.mopl.domain.service.conversation.ConversationService;
 import com.mopl.domain.service.review.ReviewService;
 import com.mopl.domain.service.tag.TagService;
 import org.springframework.context.annotation.Bean;
@@ -49,5 +52,14 @@ public class DomainServiceConfig {
         return new ReviewService(
             reviewRepository
         );
+    }
+
+//    private DirectMessageRepository directMessageRepository;
+//    private UserRepository userRepository;
+    @Bean
+    public ConversationService conversationService(
+            ConversationRepository conversationRepository
+    ) {
+        return new ConversationService(conversationRepository);
     }
 }

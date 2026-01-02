@@ -5,13 +5,11 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record DirectMessageResponse(
-        UUID id,
-        UUID conversationId,
-        Instant createdAt,
-        UserSummary sender,
-        UserSummary receiver,
-        String content
-
+    UUID id,
+    UUID conversationId,
+    Instant createdAt,
+    UserSummary sender,
+    UserSummary receiver,
+    String content
 ) {
-
 }
