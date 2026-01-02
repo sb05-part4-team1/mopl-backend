@@ -7,7 +7,6 @@ import com.mopl.domain.exception.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.mopl.api.interfaces.api.ErrorResponse;
 import com.mopl.domain.exception.MoplException;
 import com.mopl.domain.exception.user.AccessDeniedException;
 import com.mopl.domain.exception.user.FollowNotFoundException;
