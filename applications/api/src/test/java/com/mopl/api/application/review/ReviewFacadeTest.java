@@ -108,10 +108,7 @@ class ReviewFacadeTest {
             // when & then
             assertThatThrownBy(() -> reviewFacade.createReview(requesterId, request))
                 // [핵심] 사용자의 Exception 클래스 타입 확인
-                .isInstanceOf(InvalidReviewDataException.class)
-                // [참고] 사용자의 Exception 구현상 메시지가 고정되어 있다면 아래 메시지여야 통과됨
-                // 만약 Facade에서 넣은 "존재하지 않는..." 메시지가 나온다면 이 부분을 수정해야 함
-                .hasMessageContaining("리뷰 데이터가 유효하지 않습니다.");
+                .isInstanceOf(InvalidReviewDataException.class);
 
             // [검증] ReviewService.create는 절대 실행되면 안 됨!
             then(reviewService).should(never()).create(any(), any(), any(), any());

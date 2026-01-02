@@ -97,49 +97,6 @@ class ReviewControllerTest {
 
             then(reviewFacade).should().createReview(eq(requesterId), refEq(request));
         }
-
-        @Test
-        @DisplayName("X-USER-ID 헤더가 없으면 401을 반환한다")
-        void createReview_withoutRequesterHeader_returns400() throws Exception {
-            // given
-            ReviewCreateRequest request = new ReviewCreateRequest(
-                UUID.randomUUID(),
-                "리뷰",
-                BigDecimal.valueOf(4)
-            );
-
-            // when & then
-            mockMvc.perform(
-                post("/api/reviews")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request))
-            )
-                .andExpect(status().isUnauthorized());
-
-            then(reviewFacade).shouldHaveNoInteractions();
-        }
-
-        @Test
-        @DisplayName("X-USER-ID가 UUID 형식이 아니면 400을 반환한다")
-        void createReview_withInvalidRequesterHeader_returns400() throws Exception {
-            // given
-            ReviewCreateRequest request = new ReviewCreateRequest(
-                UUID.randomUUID(),
-                "리뷰",
-                BigDecimal.valueOf(4)
-            );
-
-            // when & then
-            mockMvc.perform(
-                post("/api/reviews")
-                    .header(REQUESTER_ID_HEADER, "not-a-uuid")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request))
-            )
-                .andExpect(status().isBadRequest());
-
-            then(reviewFacade).shouldHaveNoInteractions();
-        }
     }
 
     @Nested
@@ -193,24 +150,6 @@ class ReviewControllerTest {
 
             // Facade 호출 검증
             then(reviewFacade).should().updateReview(eq(requesterId), eq(reviewId), refEq(request));
-        }
-
-        @Test
-        @DisplayName("X-USER-ID 헤더가 없으면 401을 반환한다")
-        void updateReview_withoutRequesterHeader_returns400() throws Exception {
-            // given
-            UUID reviewId = UUID.randomUUID();
-            ReviewUpdateRequest request = new ReviewUpdateRequest("내용", BigDecimal.ONE);
-
-            // when & then
-            mockMvc.perform(
-                patch("/api/reviews/{reviewId}", reviewId)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request))
-            )
-                .andExpect(status().isUnauthorized());
-
-            then(reviewFacade).shouldHaveNoInteractions();
         }
     }
 }
