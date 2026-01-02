@@ -27,31 +27,32 @@ class ReviewResponseMapperTest {
         UUID contentId = UUID.randomUUID();
         UUID authorId = UUID.randomUUID();
 
-        // 작성자 정보 (Service나 Facade에서 조회했다고 가정)
+        // 작성자 정보
         UserModel author = UserModel.builder()
             .id(authorId)
             .name("홍길동")
             .profileImageUrl("https://example.com/profile.png")
             .build();
 
-        // 리뷰 모델 (ID만 가지고 있음)
+        // 🚨 [수정] BigDecimal("4.0")을 사용하여 Scale 문제 예방
         ReviewModel reviewModel = ReviewModel.builder()
             .id(reviewId)
             .contentId(contentId)
-            .authorId(authorId) // [변경] author 객체 대신 ID
+            .authorId(authorId)
             .text("리뷰 내용")
-            .rating(BigDecimal.valueOf(4))
+            .rating(new BigDecimal("4.0"))
             .build();
 
         // when
-        // [변경] 두 개의 인자(리뷰 + 작성자)를 넘김
         ReviewResponse response = reviewResponseMapper.toResponse(reviewModel, author);
 
         // then
         assertThat(response.id()).isEqualTo(reviewId);
         assertThat(response.contentId()).isEqualTo(contentId);
         assertThat(response.text()).isEqualTo("리뷰 내용");
-        assertThat(response.rating()).isEqualByComparingTo(BigDecimal.valueOf(4));
+
+        // 값 비교 (4.0 == 4.00)
+        assertThat(response.rating()).isEqualByComparingTo(new BigDecimal("4.0"));
 
         assertThat(response.author()).isNotNull();
         assertThat(response.author()).isInstanceOf(UserSummary.class);
@@ -68,23 +69,23 @@ class ReviewResponseMapperTest {
         UUID reviewId = UUID.randomUUID();
         UUID contentId = UUID.randomUUID();
 
+        // 🚨 [수정] 안전한 값 사용
         ReviewModel reviewModel = ReviewModel.builder()
             .id(reviewId)
             .contentId(contentId)
-            .authorId(UUID.randomUUID()) // ID는 있지만, 조회된 유저 객체가 없는 상황 가정
+            .authorId(UUID.randomUUID())
             .text("리뷰 내용")
-            .rating(BigDecimal.valueOf(3))
+            .rating(new BigDecimal("3.0"))
             .build();
 
         // when
-        // [변경] author 자리에 null을 넘김
         ReviewResponse response = reviewResponseMapper.toResponse(reviewModel, null);
 
         // then
         assertThat(response.id()).isEqualTo(reviewId);
         assertThat(response.contentId()).isEqualTo(contentId);
         assertThat(response.text()).isEqualTo("리뷰 내용");
-        assertThat(response.rating()).isEqualByComparingTo(BigDecimal.valueOf(3));
+        assertThat(response.rating()).isEqualByComparingTo(new BigDecimal("3.0"));
 
         // author 정보가 null로 매핑되었는지 확인
         assertThat(response.author()).isNull();
@@ -98,19 +99,19 @@ class ReviewResponseMapperTest {
         UUID contentId = UUID.randomUUID();
         UUID authorId = UUID.randomUUID();
 
-        // 이름과 이미지가 없는 유저
         UserModel author = UserModel.builder()
             .id(authorId)
             .name(null)
             .profileImageUrl(null)
             .build();
 
+        // 🚨 [수정] 안전한 값 사용
         ReviewModel reviewModel = ReviewModel.builder()
             .id(reviewId)
             .contentId(contentId)
             .authorId(authorId)
             .text("리뷰 내용")
-            .rating(BigDecimal.valueOf(5))
+            .rating(new BigDecimal("5.0"))
             .build();
 
         // when

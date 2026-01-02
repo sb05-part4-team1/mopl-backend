@@ -4,15 +4,16 @@ import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
 import com.mopl.domain.repository.review.ReviewRepository;
 import com.mopl.domain.repository.tag.TagRepository;
-import com.mopl.domain.repository.user.FollowRepository;
-import com.mopl.domain.repository.user.UserRepository;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.review.ReviewService;
 import com.mopl.domain.service.tag.TagService;
-import com.mopl.domain.service.user.FollowService;
-import com.mopl.domain.service.user.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.mopl.domain.repository.user.FollowRepository;
+import com.mopl.domain.repository.user.UserRepository;
+import com.mopl.domain.service.user.FollowService;
+import com.mopl.domain.service.user.UserService;
 
 @Configuration
 public class DomainServiceConfig {
@@ -42,12 +43,11 @@ public class DomainServiceConfig {
 
     @Bean
     public ReviewService reviewService(
-        ReviewRepository reviewRepository,
-        ContentRepository contentRepository
+        ReviewRepository reviewRepository
+
     ) {
         return new ReviewService(
-            reviewRepository,
-            contentRepository
+            reviewRepository
         );
     }
 }

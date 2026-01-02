@@ -7,6 +7,7 @@ import com.mopl.domain.repository.content.ContentTagRepository;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 public class ContentService {
@@ -22,5 +23,9 @@ public class ContentService {
         }
 
         return savedContent;
+    }
+
+    public boolean exists(UUID contentId) {
+        return contentRepository.existsById(contentId);
     }
 }

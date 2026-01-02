@@ -26,7 +26,7 @@ class ReviewModelTest {
             UUID authorId = UUID.randomUUID();
 
             String text = "리뷰 내용";
-            BigDecimal rating = BigDecimal.valueOf(4);
+            BigDecimal rating = new BigDecimal("4"); // 정수형 평점
 
             // when
             ReviewModel review = ReviewModel.create(contentId, authorId, text, rating);
@@ -49,7 +49,6 @@ class ReviewModelTest {
                 .isInstanceOf(InvalidReviewDataException.class)
                 .satisfies(e -> {
                     InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                    // [수정] 모델의 실제 메시지와 일치시킴
                     assertThat(ex.getDetails().get("detailMessage"))
                         .isEqualTo("콘텐츠 ID는 null일 수 없습니다.");
                 });
@@ -64,7 +63,6 @@ class ReviewModelTest {
                 .isInstanceOf(InvalidReviewDataException.class)
                 .satisfies(e -> {
                     InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                    // [수정] 모델의 실제 메시지와 일치시킴
                     assertThat(ex.getDetails().get("detailMessage"))
                         .isEqualTo("작성자 ID는 null일 수 없습니다.");
                 });
@@ -81,7 +79,6 @@ class ReviewModelTest {
                 .isInstanceOf(InvalidReviewDataException.class)
                 .satisfies(e -> {
                     InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                    // [수정] 모델의 실제 메시지와 일치시킴
                     assertThat(ex.getDetails().get("detailMessage"))
                         .isEqualTo("평점은 null일 수 없습니다.");
                 });
@@ -148,13 +145,125 @@ class ReviewModelTest {
 
             // when & then
             assertThatThrownBy(() -> ReviewModel.create(UUID.randomUUID(), authorId, "text",
-                BigDecimal.valueOf(4.5)))
+                new BigDecimal("4.5")))
                 .isInstanceOf(InvalidReviewDataException.class)
                 .satisfies(e -> {
                     InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                    // [수정] 모델의 실제 메시지와 일치시킴 (괄호 포함)
                     assertThat(ex.getDetails().get("detailMessage"))
                         .isEqualTo("평점은 정수만 가능합니다. (0.5 단위는 허용되지 않습니다.)");
+                });
+        }
+    }
+
+    @Nested
+    @DisplayName("update()")
+    class UpdateTest {
+
+        @Test
+        @DisplayName("유효한 내용과 평점으로 업데이트하면 값이 변경된다")
+        void withValidData_updatesReview() {
+            // given
+            ReviewModel review = ReviewModel.create(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                "기존 내용",
+                new BigDecimal("3")
+            );
+
+            String newText = "수정된 내용";
+            BigDecimal newRating = new BigDecimal("5");
+
+            // when
+            ReviewModel updatedReview = review.update(newText, newRating);
+
+            // then
+            assertThat(updatedReview.getText()).isEqualTo(newText);
+            assertThat(updatedReview.getRating()).isEqualTo(newRating);
+        }
+
+        @Test
+        @DisplayName("수정할 내용이 null이면 예외 발생")
+        void withNullText_throwsException() {
+            // given
+            ReviewModel review = ReviewModel.create(UUID.randomUUID(), UUID.randomUUID(), "text",
+                BigDecimal.ONE);
+
+            // when & then
+            assertThatThrownBy(() -> review.update(null, BigDecimal.valueOf(5)))
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    assertThat(ex.getDetails().get("detailMessage"))
+                        .isEqualTo("리뷰 내용은 null일 수 없습니다.");
+                });
+        }
+
+        @Test
+        @DisplayName("수정할 평점이 null이면 예외 발생")
+        void withNullRating_throwsException() {
+            // given
+            ReviewModel review = ReviewModel.create(UUID.randomUUID(), UUID.randomUUID(), "text",
+                BigDecimal.ONE);
+
+            // when & then
+            assertThatThrownBy(() -> review.update("new text", null))
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    assertThat(ex.getDetails().get("detailMessage"))
+                        .isEqualTo("평점은 null일 수 없습니다.");
+                });
+        }
+
+        @Test
+        @DisplayName("수정할 내용이 최대 길이를 초과하면 예외 발생")
+        void withTooLongText_throwsException() {
+            // given
+            ReviewModel review = ReviewModel.create(UUID.randomUUID(), UUID.randomUUID(), "text",
+                BigDecimal.ONE);
+            String longText = "a".repeat(ReviewModel.TEXT_MAX_LENGTH + 1);
+
+            // when & then
+            assertThatThrownBy(() -> review.update(longText, BigDecimal.valueOf(5)))
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    assertThat(ex.getDetails().get("detailMessage"))
+                        .isEqualTo("리뷰 내용은 " + ReviewModel.TEXT_MAX_LENGTH + "자를 초과할 수 없습니다.");
+                });
+        }
+
+        @Test
+        @DisplayName("수정할 평점이 정수가 아니면 예외 발생")
+        void withDecimalRating_throwsException() {
+            // given
+            ReviewModel review = ReviewModel.create(UUID.randomUUID(), UUID.randomUUID(), "text",
+                BigDecimal.ONE);
+
+            // when & then
+            assertThatThrownBy(() -> review.update("new text", new BigDecimal("4.5")))
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    assertThat(ex.getDetails().get("detailMessage"))
+                        .isEqualTo("평점은 정수만 가능합니다. (0.5 단위는 허용되지 않습니다.)");
+                });
+        }
+
+        @Test
+        @DisplayName("수정할 평점이 범위를 벗어나면 예외 발생")
+        void withInvalidRatingRange_throwsException() {
+            // given
+            ReviewModel review = ReviewModel.create(UUID.randomUUID(), UUID.randomUUID(), "text",
+                BigDecimal.ONE);
+
+            // when & then
+            assertThatThrownBy(() -> review.update("new text", new BigDecimal("6")))
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    assertThat(ex.getDetails().get("detailMessage"))
+                        .isEqualTo("평점은 0.0 이상 5.0 이하만 가능합니다.");
                 });
         }
     }
