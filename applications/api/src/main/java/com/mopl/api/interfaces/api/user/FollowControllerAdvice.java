@@ -7,6 +7,9 @@ import com.mopl.domain.exception.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.mopl.domain.exception.MoplException;
+import com.mopl.domain.exception.user.AccessDeniedException;
+import com.mopl.domain.exception.user.FollowNotFoundException;
 import com.mopl.domain.exception.user.SelfFollowException;
 
 @Order(1)
@@ -20,5 +23,14 @@ public class FollowControllerAdvice {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse.from(exception));
+    }
+
+    @ExceptionHandler({FollowNotFoundException.class, AccessDeniedException.class})
+    public ResponseEntity<ErrorResponse> handleFollowBusinessException(
+        MoplException exception
+    ) {
+        HttpStatus status = (exception instanceof AccessDeniedException) ? HttpStatus.FORBIDDEN
+            : HttpStatus.NOT_FOUND;
+        return ResponseEntity.status(status).body(ErrorResponse.from(exception));
     }
 }
