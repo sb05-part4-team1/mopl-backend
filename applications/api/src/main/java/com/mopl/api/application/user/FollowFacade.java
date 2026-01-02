@@ -1,16 +1,14 @@
 package com.mopl.api.application.user;
 
-import java.util.UUID;
-
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.mopl.domain.exception.user.AccessDeniedException;
 import com.mopl.domain.model.user.FollowModel;
 import com.mopl.domain.service.user.FollowService;
 import com.mopl.domain.service.user.UserService;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
