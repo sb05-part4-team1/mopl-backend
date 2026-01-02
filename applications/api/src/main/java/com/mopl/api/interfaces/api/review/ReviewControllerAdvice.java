@@ -2,6 +2,8 @@ package com.mopl.api.interfaces.api.review;
 
 import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.domain.exception.review.InvalidReviewDataException;
+import com.mopl.domain.exception.review.ReviewForbiddenException;
+import com.mopl.domain.exception.review.ReviewNotFoundException;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,15 +25,33 @@ public class ReviewControllerAdvice {
             .body(ErrorResponse.from(exception));
     }
 
+    @ExceptionHandler(ReviewNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleReviewNotFoundException(
+        ReviewNotFoundException exception
+    ) {
+        return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(ErrorResponse.from(exception));
+    }
+
+    @ExceptionHandler(ReviewForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handleReviewForbiddenException(
+        ReviewForbiddenException exception
+    ) {
+        return ResponseEntity
+            .status(HttpStatus.FORBIDDEN)
+            .body(ErrorResponse.from(exception));
+    }
+
     @ExceptionHandler(MissingRequestHeaderException.class)
     public ResponseEntity<ErrorResponse> handleMissingRequestHeaderException(
         MissingRequestHeaderException exception
     ) {
         return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
+            .status(HttpStatus.UNAUTHORIZED) // 401로 Swagger에 맞춤
             .body(ErrorResponse.of(
                 exception.getClass().getSimpleName(),
-                "필수 헤더가 누락되었습니다.",
+                "인증이 필요합니다.",
                 java.util.Map.of("header", exception.getHeaderName())
             ));
     }

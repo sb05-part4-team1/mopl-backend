@@ -7,6 +7,9 @@ import com.mopl.jpa.entity.review.ReviewEntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Repository
 @RequiredArgsConstructor
 public class ReviewRepositoryImpl implements ReviewRepository {
@@ -19,5 +22,11 @@ public class ReviewRepositoryImpl implements ReviewRepository {
         ReviewEntity reviewEntity = reviewEntityMapper.toEntity(reviewModel);
         ReviewEntity savedReviewEntity = jpaReviewRepository.save(reviewEntity);
         return reviewEntityMapper.toModel(savedReviewEntity);
+    }
+
+    @Override
+    public Optional<ReviewModel> findById(UUID reviewId) {
+        return jpaReviewRepository.findById(reviewId)
+            .map(reviewEntityMapper::toModel);
     }
 }
