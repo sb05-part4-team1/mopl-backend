@@ -267,4 +267,53 @@ class ReviewModelTest {
                 });
         }
     }
+
+    @Nested
+    @DisplayName("deleteReview()")
+    class DeleteTest {
+
+        @Test
+        @DisplayName("삭제되지 않은 리뷰를 요청하면 정상적으로 삭제 처리된다")
+        void withNotDeletedReview_deletesReview() {
+            // given
+            ReviewModel review = ReviewModel.create(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                "삭제할 리뷰",
+                new BigDecimal("3")
+            );
+
+            // when
+            ReviewModel deletedReview = review.deleteReview();
+
+            // then
+            // BaseUpdatableModel의 delete()가 deletedAt을 찍는다고 가정
+            assertThat(deletedReview).isNotNull();
+            assertThat(deletedReview.getDeletedAt()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("이미 삭제된 리뷰를 다시 삭제하려 하면 예외가 발생한다")
+        void withAlreadyDeletedReview_throwsException() {
+            // given
+            ReviewModel review = ReviewModel.create(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                "삭제된 리뷰",
+                new BigDecimal("3")
+            );
+
+            // 먼저 한 번 삭제 수행
+            review.deleteReview();
+
+            // when & then
+            assertThatThrownBy(() -> review.deleteReview())
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    assertThat(ex.getDetails().get("detailMessage"))
+                        .isEqualTo("이미 삭제된 리뷰입니다.");
+                });
+        }
+    }
 }
