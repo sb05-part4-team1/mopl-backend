@@ -47,4 +47,24 @@ public class ReviewService {
 
         return reviewRepository.save(reviewModel);
     }
+
+    public void delete(
+        UUID reviewId,
+        UUID requesterId
+    ) {
+        ReviewModel review = reviewRepository.findById(reviewId)
+            .orElseThrow(() -> new ReviewNotFoundException(reviewId));
+
+        if (!review.getAuthorId().equals(requesterId)) {
+            throw new ReviewForbiddenException(
+                reviewId,
+                requesterId,
+                review.getAuthorId()
+            );
+        }
+
+        review.deleteReview();
+
+        reviewRepository.save(review);
+    }
 }

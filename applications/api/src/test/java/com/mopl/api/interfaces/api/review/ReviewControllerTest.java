@@ -4,36 +4,40 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.api.application.review.ReviewFacade;
 import com.mopl.api.interfaces.api.ApiControllerAdvice;
 import com.mopl.api.interfaces.api.user.UserSummary;
+import com.mopl.security.userdetails.MoplUserDetails;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.mock;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+// addFilters = false를 제거해야 @AuthenticationPrincipal이 동작합니다.
 @WebMvcTest(ReviewController.class)
-@AutoConfigureMockMvc(addFilters = false)
 @Import(ApiControllerAdvice.class)
 @DisplayName("ReviewController 단위 테스트")
 class ReviewControllerTest {
-
-    private static final String REQUESTER_ID_HEADER = "X-USER-ID";
 
     @Autowired
     private MockMvc mockMvc;
@@ -44,58 +48,90 @@ class ReviewControllerTest {
     @MockBean
     private ReviewFacade reviewFacade;
 
+    // 테스트에서 사용할 가짜 인증 유저 객체
+    private MoplUserDetails mockUserDetails;
+    private UUID mockUserId;
+
+    @BeforeEach
+    void setUp() {
+        mockUserId = UUID.randomUUID();
+
+        // MoplUserDetails를 Mocking하여 getUsername() 호출 시 UUID 문자열을 반환하도록 설정
+        mockUserDetails = mock(MoplUserDetails.class);
+        given(mockUserDetails.getUsername()).willReturn(mockUserId.toString());
+        // 수정 후 (해결)
+        given(mockUserDetails.getAuthorities())
+            .willReturn((Collection) Collections.singleton(new SimpleGrantedAuthority(
+                "ROLE_USER")));
+    }
+
     @Nested
     @DisplayName("createReview()")
     class CreateReviewTest {
 
         @Test
-        @DisplayName("리뷰 생성 요청이 오면 201을 반환하고, Facade가 반환한 ReviewResponse를 응답한다")
-        void createReview_withValidRequest_returns201AndResponse() throws Exception {
+        @DisplayName("인증된 유저가 요청하면 201을 반환하고 결과 응답을 내려준다")
+        void createReview_withAuth_returns201() throws Exception {
             // given
-            UUID requesterId = UUID.randomUUID();
             UUID contentId = UUID.randomUUID();
             UUID reviewId = UUID.randomUUID();
 
             ReviewCreateRequest request = new ReviewCreateRequest(
                 contentId,
-                "H2 테스트 리뷰",
+                "테스트 리뷰",
                 new BigDecimal("4.0")
             );
 
-            // 결과로 내려줄 응답 객체 생성
             UserSummary authorSummary = new UserSummary(
-                requesterId,
+                mockUserId,
                 "홍길동",
-                "https://example.com/profile.png"
+                "profile.png"
             );
 
             ReviewResponse response = new ReviewResponse(
                 reviewId,
                 contentId,
                 authorSummary,
-                "H2 테스트 리뷰",
+                "테스트 리뷰",
                 new BigDecimal("4.0")
             );
 
-            // Facade가 바로 Response를 반환하도록 스터빙
-            given(reviewFacade.createReview(eq(requesterId), refEq(request))).willReturn(response);
+            given(reviewFacade.createReview(eq(mockUserId), refEq(request))).willReturn(response);
 
             // when & then
             mockMvc.perform(
                 post("/api/reviews")
-                    .header(REQUESTER_ID_HEADER, requesterId.toString())
+                    .with(csrf()) // [필수] CSRF 토큰 주입
+                    .with(user(mockUserDetails)) // [필수] SecurityContext에 인증 객체 주입
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request))
             )
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(reviewId.toString()))
-                .andExpect(jsonPath("$.contentId").value(contentId.toString()))
-                .andExpect(jsonPath("$.text").value("H2 테스트 리뷰"))
-                .andExpect(jsonPath("$.rating").value(4.0))
-                .andExpect(jsonPath("$.author.userId").value(requesterId.toString()))
-                .andExpect(jsonPath("$.author.name").value("홍길동"));
+                .andExpect(jsonPath("$.author.userId").value(mockUserId.toString()));
 
-            then(reviewFacade).should().createReview(eq(requesterId), refEq(request));
+            then(reviewFacade).should().createReview(eq(mockUserId), refEq(request));
+        }
+
+        @Test
+        @DisplayName("인증 정보가 없으면 401을 반환한다")
+        void createReview_withoutAuth_returns401() throws Exception {
+            // given
+            ReviewCreateRequest request = new ReviewCreateRequest(
+                UUID.randomUUID(), "내용", BigDecimal.TEN
+            );
+
+            // when & then
+            mockMvc.perform(
+                post("/api/reviews")
+                    .with(csrf())
+                    // .with(user(...)) 생략 -> 비로그인 상태
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request))
+            )
+                .andExpect(status().isUnauthorized());
+
+            then(reviewFacade).shouldHaveNoInteractions();
         }
     }
 
@@ -104,52 +140,77 @@ class ReviewControllerTest {
     class UpdateReviewTest {
 
         @Test
-        @DisplayName("리뷰 수정 요청이 오면 200을 반환하고, 수정된 ReviewResponse를 응답한다")
-        void updateReview_withValidRequest_returns200AndResponse() throws Exception {
+        @DisplayName("인증된 유저가 수정 요청하면 200을 반환한다")
+        void updateReview_withAuth_returns200() throws Exception {
             // given
-            UUID requesterId = UUID.randomUUID();
-            UUID contentId = UUID.randomUUID();
             UUID reviewId = UUID.randomUUID();
-
-            // 수정 요청 데이터
             ReviewUpdateRequest request = new ReviewUpdateRequest(
-                "수정된 리뷰 내용",
+                "수정된 내용",
                 new BigDecimal("5.0")
-            );
-
-            // 예상 응답 데이터
-            UserSummary authorSummary = new UserSummary(
-                requesterId,
-                "홍길동",
-                "https://example.com/profile.png"
             );
 
             ReviewResponse response = new ReviewResponse(
                 reviewId,
-                contentId,
-                authorSummary,
-                "수정된 리뷰 내용",
+                UUID.randomUUID(),
+                new UserSummary(mockUserId, "홍길동", null),
+                "수정된 내용",
                 new BigDecimal("5.0")
             );
 
-            // Mocking
-            given(reviewFacade.updateReview(eq(requesterId), eq(reviewId), refEq(request)))
+            given(reviewFacade.updateReview(eq(mockUserId), eq(reviewId), refEq(request)))
                 .willReturn(response);
 
             // when & then
             mockMvc.perform(
-                patch("/api/reviews/{reviewId}", reviewId) // PATCH 요청
-                    .header(REQUESTER_ID_HEADER, requesterId.toString())
+                patch("/api/reviews/{reviewId}", reviewId)
+                    .with(csrf())
+                    .with(user(mockUserDetails))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request))
             )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(reviewId.toString()))
-                .andExpect(jsonPath("$.text").value("수정된 리뷰 내용"))
-                .andExpect(jsonPath("$.rating").value(5.0));
+                .andExpect(jsonPath("$.text").value("수정된 내용"));
+
+            then(reviewFacade).should().updateReview(eq(mockUserId), eq(reviewId), refEq(request));
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteReview()")
+    class DeleteReviewTest {
+
+        @Test
+        @DisplayName("인증된 유저가 삭제 요청하면 200을 반환한다")
+        void deleteReview_withAuth_returns200() throws Exception {
+            // given
+            UUID reviewId = UUID.randomUUID();
+
+            // when & then
+            mockMvc.perform(
+                delete("/api/reviews/{reviewId}", reviewId)
+                    .with(csrf())
+                    .with(user(mockUserDetails))
+            )
+                .andExpect(status().isOk());
 
             // Facade 호출 검증
-            then(reviewFacade).should().updateReview(eq(requesterId), eq(reviewId), refEq(request));
+            then(reviewFacade).should().deleteReview(eq(mockUserId), eq(reviewId));
+        }
+
+        @Test
+        @DisplayName("인증 정보가 없으면 삭제 요청 시 401을 반환한다")
+        void deleteReview_withoutAuth_returns401() throws Exception {
+            // given
+            UUID reviewId = UUID.randomUUID();
+
+            // when & then
+            mockMvc.perform(
+                delete("/api/reviews/{reviewId}", reviewId)
+                    .with(csrf())
+            )
+                .andExpect(status().isUnauthorized());
+
+            then(reviewFacade).shouldHaveNoInteractions();
         }
     }
 }

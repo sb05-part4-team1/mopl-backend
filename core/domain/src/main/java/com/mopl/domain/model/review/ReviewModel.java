@@ -72,6 +72,17 @@ public class ReviewModel extends BaseUpdatableModel {
         return this;
     }
 
+    // delete로 할려고 했으나 BaseModel과 겹쳐서 이름을 바꿈
+    public ReviewModel deleteReview() {
+        if (this.getDeletedAt() != null) {
+            throw new InvalidReviewDataException("이미 삭제된 리뷰입니다.");
+        }
+
+        super.delete();
+
+        return this;
+    }
+
     // 리뷰 내용 검증 로직 구현
     private static void validateText(String text) {
         if (text == null) {
