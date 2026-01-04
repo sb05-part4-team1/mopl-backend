@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.UUID;
+
 @Tag(name = "Content API", description = "콘텐츠 관리 API")
 public interface ContentApiSpec {
 
@@ -32,5 +34,27 @@ public interface ContentApiSpec {
     ContentResponse upload(
         @Parameter(description = "콘텐츠 정보 (JSON)", required = true) ContentCreateRequest request,
         @Parameter(description = "썸네일 이미지 파일", required = true) MultipartFile thumbnail
+    );
+
+    @Operation(summary = "콘텐츠 상세 조회", description = "콘텐츠 ID를 통해 상세 정보와 태그 목록을 조회합니다.")
+    @ApiResponse(
+        responseCode = "200",
+        description = "성공적으로 조회됨",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ContentResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "404",
+        description = "존재하지 않는 콘텐츠",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    ContentResponse getDetail(
+        @Parameter(description = "콘텐츠 UUID", required = true,
+            example = "550e8400-e29b-41d4-a716-446655440000") UUID contentId
     );
 }
