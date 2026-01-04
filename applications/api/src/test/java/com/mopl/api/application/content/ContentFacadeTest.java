@@ -25,7 +25,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -67,8 +66,7 @@ class ContentFacadeTest {
             given(thumbnail.getInputStream()).willReturn(inputStream);
 
             String mockStoredPath = "contents/uuid_inception.png";
-            String mockThumbnailUrl = "http://localhost:8080/api/v1/files/display?path="
-                + mockStoredPath;
+            String mockThumbnailUrl = "http://localhost:8080/files/" + mockStoredPath;
 
             given(fileStorageProvider.upload(eq(inputStream), anyString())).willReturn(
                 mockStoredPath);
@@ -88,21 +86,20 @@ class ContentFacadeTest {
                 .thumbnailUrl(mockThumbnailUrl)
                 .tags(List.of("SF", "액션"))
                 .createdAt(now)
-                .updatedAt(now)
                 .build();
 
-            given(tagService.findOrCreateTags(anyList())).willReturn(tags);
+            given(tagService.findOrCreateTags(request.tags())).willReturn(tags);
             given(contentService.create(any(ContentModel.class), eq(tags))).willReturn(savedModel);
 
             // when
             ContentModel result = contentFacade.upload(request, thumbnail);
 
             // then
+            assertThat(result.getTitle()).isEqualTo(request.title());
             assertThat(result.getThumbnailUrl()).isEqualTo(mockThumbnailUrl);
-            assertThat(result.getTitle()).isEqualTo("인셉션");
+            assertThat(result.getTags()).containsExactly("SF", "액션");
 
             then(fileStorageProvider).should().upload(eq(inputStream), anyString());
-            then(fileStorageProvider).should().getUrl(mockStoredPath);
             then(tagService).should().findOrCreateTags(request.tags());
             then(contentService).should().create(any(ContentModel.class), eq(tags));
         }
@@ -135,19 +132,34 @@ class ContentFacadeTest {
             assertThatThrownBy(() -> contentFacade.upload(request, null))
                 .isInstanceOf(InvalidContentDataException.class);
         }
+    }
+
+    @Nested
+    @DisplayName("getDetail()")
+    class GetDetailTest {
 
         @Test
-        @DisplayName("빈 썸네일 파일이면 예외 발생")
-        void withEmptyThumbnail_throwsException() {
+        @DisplayName("콘텐츠 ID로 상세 조회 성공")
+        void withContentId_returnsContentModel() {
             // given
-            ContentCreateRequest request = new ContentCreateRequest("영화", "인셉션", "꿈속의 꿈", List
-                .of());
-            MultipartFile emptyFile = mock(MultipartFile.class);
-            given(emptyFile.isEmpty()).willReturn(true);
+            UUID contentId = UUID.randomUUID();
+            ContentModel expectedModel = ContentModel.builder()
+                .id(contentId)
+                .title("인셉션")
+                .tags(List.of("SF", "액션"))
+                .build();
 
-            // when & then
-            assertThatThrownBy(() -> contentFacade.upload(request, emptyFile))
-                .isInstanceOf(InvalidContentDataException.class);
+            given(contentService.getById(contentId)).willReturn(expectedModel);
+
+            // when
+            ContentModel result = contentFacade.getDetail(contentId);
+
+            // then
+            assertThat(result.getId()).isEqualTo(contentId);
+            assertThat(result.getTitle()).isEqualTo("인셉션");
+            assertThat(result.getTags()).containsExactly("SF", "액션");
+
+            then(contentService).should().getById(contentId);
         }
     }
 }
