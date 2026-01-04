@@ -5,6 +5,7 @@ import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
 import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.user.UserService;
+import com.mopl.storage.provider.FileStorageProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -13,11 +14,20 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UserFacade 단위 테스트")
@@ -25,6 +35,9 @@ class UserFacadeTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private FileStorageProvider fileStorageProvider;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -154,6 +167,110 @@ class UserFacadeTest {
 
             then(userService).should().getById(userModel.getId());
             then(userService).should().update(any(UserModel.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("updateProfile()")
+    class UpdateProfileTest {
+
+        @Test
+        @DisplayName("유효한 프로필 이미지로 수정 시 프로필 업데이트 성공")
+        void withValidProfileImage_updateProfileSuccess() throws IOException {
+            // given
+            UserModel userModel = UserModelFixture.create();
+            String storedPath = "users/" + userModel.getId() + "/test.png";
+            String profileImageUrl = "http://localhost/api/v1/files/display?path=" + storedPath;
+
+            MultipartFile image = mock(MultipartFile.class);
+            given(image.isEmpty()).willReturn(false);
+            given(image.getInputStream()).willReturn(new ByteArrayInputStream("test".getBytes()));
+            given(image.getOriginalFilename()).willReturn("test.png");
+
+            UserModel updatedUserModel = UserModelFixture.builder()
+                .set("id", userModel.getId())
+                .set("profileImageUrl", profileImageUrl)
+                .sample();
+
+            given(userService.getById(userModel.getId())).willReturn(userModel);
+            given(fileStorageProvider.upload(any(), anyString())).willReturn(storedPath);
+            given(fileStorageProvider.getUrl(storedPath)).willReturn(profileImageUrl);
+            given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
+
+            // when
+            UserModel result = userFacade.updateProfile(userModel.getId(), image);
+
+            // then
+            assertThat(result.getProfileImageUrl()).isEqualTo(profileImageUrl);
+
+            then(userService).should().getById(userModel.getId());
+            then(fileStorageProvider).should().upload(any(), anyString());
+            then(fileStorageProvider).should().getUrl(storedPath);
+            then(userService).should().update(any(UserModel.class));
+        }
+
+        @Test
+        @DisplayName("이미지가 null이면 파일 업로드 없이 업데이트")
+        void withNullImage_updateWithoutFileUpload() {
+            // given
+            UserModel userModel = UserModelFixture.create();
+
+            given(userService.getById(userModel.getId())).willReturn(userModel);
+            given(userService.update(any(UserModel.class))).willReturn(userModel);
+
+            // when
+            UserModel result = userFacade.updateProfile(userModel.getId(), null);
+
+            // then
+            assertThat(result.getId()).isEqualTo(userModel.getId());
+
+            then(userService).should().getById(userModel.getId());
+            then(fileStorageProvider).should(never()).upload(any(), anyString());
+            then(userService).should().update(any(UserModel.class));
+        }
+
+        @Test
+        @DisplayName("이미지가 비어있으면 파일 업로드 없이 업데이트")
+        void withEmptyImage_updateWithoutFileUpload() {
+            // given
+            UserModel userModel = UserModelFixture.create();
+
+            MultipartFile image = mock(MultipartFile.class);
+            given(image.isEmpty()).willReturn(true);
+
+            given(userService.getById(userModel.getId())).willReturn(userModel);
+            given(userService.update(any(UserModel.class))).willReturn(userModel);
+
+            // when
+            UserModel result = userFacade.updateProfile(userModel.getId(), image);
+
+            // then
+            assertThat(result.getId()).isEqualTo(userModel.getId());
+
+            then(userService).should().getById(userModel.getId());
+            then(fileStorageProvider).should(never()).upload(any(), anyString());
+            then(userService).should().update(any(UserModel.class));
+        }
+
+        @Test
+        @DisplayName("파일 스트림 읽기 실패 시 UncheckedIOException 발생")
+        void withIOException_throwsUncheckedIOException() throws IOException {
+            // given
+            UserModel userModel = UserModelFixture.create();
+
+            MultipartFile image = mock(MultipartFile.class);
+            given(image.isEmpty()).willReturn(false);
+            given(image.getInputStream()).willThrow(new IOException("파일 읽기 실패"));
+
+            given(userService.getById(userModel.getId())).willReturn(userModel);
+
+            // when & then
+            assertThatThrownBy(() -> userFacade.updateProfile(userModel.getId(), image))
+                .isInstanceOf(UncheckedIOException.class)
+                .hasMessageContaining("파일 스트림 읽기 실패");
+
+            then(fileStorageProvider).should(never()).upload(any(), anyString());
+            then(userService).should(never()).update(any(UserModel.class));
         }
     }
 }

@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.UUID;
 
 @Tag(name = "User API", description = "사용자 API")
@@ -74,4 +76,42 @@ public interface UserApiSpec {
         )
     )
     UserResponse getUser(UUID userId);
+
+    @Operation(summary = "사용자 프로필 수정")
+    @Parameter(
+        name = "userId",
+        description = "수정할 User ID"
+    )
+    @RequestBody(
+        required = true,
+        content = @Content(
+            mediaType = "multipart/form-data",
+            schema = @Schema(type = "string", format = "binary")
+        )
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "프로필 수정 성공",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = UserResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "400",
+        description = "잘못된 요청 데이터",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "404",
+        description = "사용자를 찾을 수 없음",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    UserResponse updateProfile(UUID userId, MultipartFile image);
 }
