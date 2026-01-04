@@ -4,12 +4,12 @@ import static com.mopl.domain.fixture.FixtureMonkeyConfig.fixtureMonkey;
 
 import com.mopl.domain.model.tag.TagModel;
 import com.navercorp.fixturemonkey.ArbitraryBuilder;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import net.jqwik.api.Arbitraries;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class TagFixture {
+
+    private TagFixture() {
+    }
 
     public static ArbitraryBuilder<TagModel> builder() {
         return fixtureMonkey().giveMeBuilder(TagModel.class)

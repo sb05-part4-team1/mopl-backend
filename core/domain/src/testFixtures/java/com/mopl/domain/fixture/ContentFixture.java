@@ -4,14 +4,14 @@ import static com.mopl.domain.fixture.FixtureMonkeyConfig.fixtureMonkey;
 
 import com.mopl.domain.model.content.ContentModel;
 import com.navercorp.fixturemonkey.ArbitraryBuilder;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import net.jqwik.api.Arbitraries;
 
 import java.util.List;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ContentFixture {
+
+    private ContentFixture() {
+    }
 
     public static ArbitraryBuilder<ContentModel> builder() {
         return fixtureMonkey().giveMeBuilder(ContentModel.class)

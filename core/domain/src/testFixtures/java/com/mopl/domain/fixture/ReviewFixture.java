@@ -4,14 +4,14 @@ import static com.mopl.domain.fixture.FixtureMonkeyConfig.fixtureMonkey;
 
 import com.mopl.domain.model.review.ReviewModel;
 import com.navercorp.fixturemonkey.ArbitraryBuilder;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import net.jqwik.api.Arbitraries;
 
 import java.math.BigDecimal;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ReviewFixture {
+
+    private ReviewFixture() {
+    }
 
     public static ArbitraryBuilder<ReviewModel> builder() {
         return fixtureMonkey().giveMeBuilder(ReviewModel.class)

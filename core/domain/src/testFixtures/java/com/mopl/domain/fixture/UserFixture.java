@@ -4,12 +4,12 @@ import static com.mopl.domain.fixture.FixtureMonkeyConfig.fixtureMonkey;
 
 import com.mopl.domain.model.user.UserModel;
 import com.navercorp.fixturemonkey.ArbitraryBuilder;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import net.jqwik.api.Arbitraries;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class UserFixture {
+
+    private UserFixture() {
+    }
 
     public static ArbitraryBuilder<UserModel> builder() {
         return fixtureMonkey().giveMeBuilder(UserModel.class)

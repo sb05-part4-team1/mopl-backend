@@ -11,5 +11,5 @@ dependencies {
     testImplementation("org.mockito:mockito-junit-jupiter")
 
     // Test Fixtures (Fixture Monkey)
-    testFixturesImplementation("com.navercorp.fixturemonkey:fixture-monkey-starter:${project.properties["fixtureMonkeyVersion"]}")
+    testFixturesApi("com.navercorp.fixturemonkey:fixture-monkey-starter:${project.properties["fixtureMonkeyVersion"]}")
 }
