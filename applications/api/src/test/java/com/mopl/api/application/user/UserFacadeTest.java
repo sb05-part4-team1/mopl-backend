@@ -2,6 +2,7 @@ package com.mopl.api.application.user;
 
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
 import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
+import com.mopl.domain.fixture.UserFixture;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.user.UserService;
 import org.junit.jupiter.api.DisplayName;
@@ -12,9 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.time.Instant;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,21 +46,11 @@ class UserFacadeTest {
             String encodedPassword = "encodedPassword";
             UserCreateRequest request = new UserCreateRequest(email, name, password);
 
-            UUID userId = UUID.randomUUID();
-            Instant now = Instant.now();
-            UserModel savedUserModel = UserModel.builder()
-                .id(userId)
-                .createdAt(now)
-                .deletedAt(null)
-                .updatedAt(now)
-                .authProvider(UserModel.AuthProvider.EMAIL)
-                .email(email)
-                .name(name)
-                .password(encodedPassword)
-                .profileImageUrl(null)
-                .role(UserModel.Role.USER)
-                .locked(false)
-                .build();
+            UserModel savedUserModel = UserFixture.builder()
+                .set("email", email)
+                .set("name", name)
+                .set("password", encodedPassword)
+                .sample();
 
             given(passwordEncoder.encode(password)).willReturn(encodedPassword);
             given(userService.create(any(UserModel.class))).willReturn(savedUserModel);
@@ -71,7 +59,7 @@ class UserFacadeTest {
             UserModel result = userFacade.signUp(request);
 
             // then
-            assertThat(result.getId()).isEqualTo(userId);
+            assertThat(result.getId()).isEqualTo(savedUserModel.getId());
             assertThat(result.getEmail()).isEqualTo(email);
             assertThat(result.getName()).isEqualTo(name);
             assertThat(result.getRole()).isEqualTo(UserModel.Role.USER);
@@ -90,24 +78,14 @@ class UserFacadeTest {
             String encodedPassword = "encodedPassword";
             UserCreateRequest request = new UserCreateRequest(email, name, password);
 
-            UUID userId = UUID.randomUUID();
-            Instant now = Instant.now();
             String expectedEmail = "test@example.com";
             String expectedName = "test";
 
-            UserModel savedUserModel = UserModel.builder()
-                .id(userId)
-                .createdAt(now)
-                .deletedAt(null)
-                .updatedAt(now)
-                .authProvider(UserModel.AuthProvider.EMAIL)
-                .email(expectedEmail)
-                .name(expectedName)
-                .password(encodedPassword)
-                .profileImageUrl(null)
-                .role(UserModel.Role.USER)
-                .locked(false)
-                .build();
+            UserModel savedUserModel = UserFixture.builder()
+                .set("email", expectedEmail)
+                .set("name", expectedName)
+                .set("password", encodedPassword)
+                .sample();
 
             given(passwordEncoder.encode(password)).willReturn(encodedPassword);
             given(userService.create(any(UserModel.class))).willReturn(savedUserModel);
@@ -129,39 +107,21 @@ class UserFacadeTest {
         @DisplayName("유효한 요청 시 사용자 상세 조회 성공")
         void withValidRequest_getUserSuccess() {
             // given
-            UUID userId = UUID.randomUUID();
-            Instant now = Instant.now();
-            String email = "test@example.com";
-            String name = "test";
-            String password = "P@ssw0rd!";
+            UserModel userModel = UserFixture.create();
 
-            UserModel userModel = UserModel.builder()
-                .id(userId)
-                .createdAt(now)
-                .deletedAt(null)
-                .updatedAt(now)
-                .authProvider(UserModel.AuthProvider.EMAIL)
-                .email(email)
-                .name(name)
-                .password(password)
-                .profileImageUrl(null)
-                .role(UserModel.Role.USER)
-                .locked(false)
-                .build();
-
-            given(userService.getById(userId)).willReturn(userModel);
+            given(userService.getById(userModel.getId())).willReturn(userModel);
 
             // when
-            UserModel result = userFacade.getUser(userId);
+            UserModel result = userFacade.getUser(userModel.getId());
 
             // then
-            assertThat(result.getId()).isEqualTo(userId);
-            assertThat(result.getEmail()).isEqualTo(email);
-            assertThat(result.getName()).isEqualTo(name);
+            assertThat(result.getId()).isEqualTo(userModel.getId());
+            assertThat(result.getEmail()).isEqualTo(userModel.getEmail());
+            assertThat(result.getName()).isEqualTo(userModel.getName());
             assertThat(result.getRole()).isEqualTo(UserModel.Role.USER);
             assertThat(result.isLocked()).isFalse();
 
-            then(userService).should().getById(userId);
+            then(userService).should().getById(userModel.getId());
         }
     }
 
@@ -173,52 +133,26 @@ class UserFacadeTest {
         @DisplayName("유효한 요청 시 역할 업데이트 성공")
         void withValidRequest_updateRoleSuccess() {
             // given
-            UUID userId = UUID.randomUUID();
-            Instant now = Instant.now();
-            String email = "test@example.com";
-            String name = "test";
+            UserModel userModel = UserFixture.create();
 
-            UserModel userModel = UserModel.builder()
-                .id(userId)
-                .createdAt(now)
-                .deletedAt(null)
-                .updatedAt(now)
-                .authProvider(UserModel.AuthProvider.EMAIL)
-                .email(email)
-                .name(name)
-                .password("encodedPassword")
-                .profileImageUrl(null)
-                .role(UserModel.Role.USER)
-                .locked(false)
-                .build();
-
-            UserModel updatedUserModel = UserModel.builder()
-                .id(userId)
-                .createdAt(now)
-                .deletedAt(null)
-                .updatedAt(now)
-                .authProvider(UserModel.AuthProvider.EMAIL)
-                .email(email)
-                .name(name)
-                .password("encodedPassword")
-                .profileImageUrl(null)
-                .role(UserModel.Role.ADMIN)
-                .locked(false)
-                .build();
+            UserModel updatedUserModel = UserFixture.builder()
+                .set("id", userModel.getId())
+                .set("role", UserModel.Role.ADMIN)
+                .sample();
 
             UserRoleUpdateRequest request = new UserRoleUpdateRequest(UserModel.Role.ADMIN);
 
-            given(userService.getById(userId)).willReturn(userModel);
+            given(userService.getById(userModel.getId())).willReturn(userModel);
             given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
 
             // when
-            UserModel result = userFacade.updateRoleInternal(request, userId);
+            UserModel result = userFacade.updateRoleInternal(request, userModel.getId());
 
             // then
-            assertThat(result.getId()).isEqualTo(userId);
+            assertThat(result.getId()).isEqualTo(userModel.getId());
             assertThat(result.getRole()).isEqualTo(UserModel.Role.ADMIN);
 
-            then(userService).should().getById(userId);
+            then(userService).should().getById(userModel.getId());
             then(userService).should().update(any(UserModel.class));
         }
     }
