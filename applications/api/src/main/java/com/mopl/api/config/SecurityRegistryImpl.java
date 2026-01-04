@@ -21,7 +21,8 @@ public class SecurityRegistryImpl implements SecurityRegistry {
             .requestMatchers(HttpMethod.POST,
                 "/api/users",
                 "/api/auth/sign-in",
-                "/api/auth/reset-password"
+                "/api/auth/reset-password",
+                "/api/auth/refresh"
             ).permitAll()
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
             .requestMatchers(new NegatedRequestMatcher(

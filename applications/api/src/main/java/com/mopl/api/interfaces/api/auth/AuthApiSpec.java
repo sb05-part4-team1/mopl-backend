@@ -1,8 +1,12 @@
 package com.mopl.api.interfaces.api.auth;
 
+import com.mopl.security.jwt.dto.JwtResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.web.csrf.CsrfToken;
 
 public interface AuthApiSpec {
@@ -10,4 +14,24 @@ public interface AuthApiSpec {
     @Operation(summary = "CSRF 토큰 요청", description = "CSRF 토큰을 쿠키로 발급받습니다.")
     @ApiResponse(responseCode = "204", description = "CSRF 토큰이 쿠키에 설정됨")
     void getCsrfToken(@Parameter(hidden = true) CsrfToken csrfToken);
+
+    @Operation(
+        summary = "토큰 갱신",
+        description = "쿠키에 저장된 리프레시 토큰으로 액세스 토큰과 리프레시 토큰을 재발급합니다."
+    )
+    @ApiResponse(responseCode = "200", description = "토큰 갱신 성공")
+    @ApiResponse(responseCode = "400", description = "리프레시 토큰 쿠키 누락")
+    @ApiResponse(responseCode = "401", description = "유효하지 않은 리프레시 토큰")
+    JwtResponse refresh(
+        @Parameter(
+            name = "REFRESH_TOKEN",
+            description = "Refresh Token (쿠키 방식)",
+            required = true,
+            in = ParameterIn.COOKIE,
+            schema = @Schema(type = "string")
+        )
+        String refreshToken,
+        @Parameter(hidden = true)
+        HttpServletResponse response
+    );
 }
