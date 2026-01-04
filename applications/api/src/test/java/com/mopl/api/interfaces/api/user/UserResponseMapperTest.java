@@ -1,6 +1,6 @@
 package com.mopl.api.interfaces.api.user;
 
-import com.mopl.domain.fixture.UserFixture;
+import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.user.UserModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -21,7 +21,7 @@ class UserResponseMapperTest {
         @DisplayName("UserModel을 UserResponse로 변환")
         void withUserModel_returnsUserResponse() {
             // given
-            UserModel userModel = UserFixture.create();
+            UserModel userModel = UserModelFixture.create();
 
             // when
             UserResponse result = mapper.toResponse(userModel);

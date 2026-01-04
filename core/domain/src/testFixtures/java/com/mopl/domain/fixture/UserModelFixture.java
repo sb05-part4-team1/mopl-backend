@@ -6,9 +6,9 @@ import com.mopl.domain.model.user.UserModel;
 import com.navercorp.fixturemonkey.ArbitraryBuilder;
 import net.jqwik.api.Arbitraries;
 
-public final class UserFixture {
+public final class UserModelFixture {
 
-    private UserFixture() {
+    private UserModelFixture() {
     }
 
     public static ArbitraryBuilder<UserModel> builder() {

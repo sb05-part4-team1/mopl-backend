@@ -5,9 +5,9 @@ import static com.mopl.domain.fixture.FixtureMonkeyConfig.fixtureMonkey;
 import com.mopl.domain.model.user.FollowModel;
 import com.navercorp.fixturemonkey.ArbitraryBuilder;
 
-public final class FollowFixture {
+public final class FollowModelFixture {
 
-    private FollowFixture() {
+    private FollowModelFixture() {
     }
 
     public static ArbitraryBuilder<FollowModel> builder() {

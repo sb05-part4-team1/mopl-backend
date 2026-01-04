@@ -6,9 +6,9 @@ import com.mopl.domain.model.tag.TagModel;
 import com.navercorp.fixturemonkey.ArbitraryBuilder;
 import net.jqwik.api.Arbitraries;
 
-public final class TagFixture {
+public final class TagModelFixture {
 
-    private TagFixture() {
+    private TagModelFixture() {
     }
 
     public static ArbitraryBuilder<TagModel> builder() {

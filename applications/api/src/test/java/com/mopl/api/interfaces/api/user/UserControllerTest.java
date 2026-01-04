@@ -6,7 +6,7 @@ import com.mopl.api.interfaces.api.ApiControllerAdvice;
 import com.mopl.domain.exception.user.DuplicateEmailException;
 import com.mopl.domain.exception.user.InvalidUserDataException;
 import com.mopl.domain.exception.user.UserNotFoundException;
-import com.mopl.domain.fixture.UserFixture;
+import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.user.UserModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -65,7 +65,7 @@ class UserControllerTest {
 
             UserCreateRequest request = new UserCreateRequest(email, name, password);
 
-            UserModel userModel = UserFixture.builder()
+            UserModel userModel = UserModelFixture.builder()
                 .set("email", email)
                 .set("name", name)
                 .sample();
@@ -167,7 +167,7 @@ class UserControllerTest {
         @DisplayName("유효한 사용자 ID로 조회 시 200 OK 응답")
         void withValidUserId_returns200OK() throws Exception {
             // given
-            UserModel userModel = UserFixture.create();
+            UserModel userModel = UserModelFixture.create();
 
             given(userFacade.getUser(userModel.getId())).willReturn(userModel);
 

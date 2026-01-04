@@ -8,9 +8,9 @@ import net.jqwik.api.Arbitraries;
 
 import java.util.List;
 
-public final class ContentFixture {
+public final class ContentModelFixture {
 
-    private ContentFixture() {
+    private ContentModelFixture() {
     }
 
     public static ArbitraryBuilder<ContentModel> builder() {

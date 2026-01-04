@@ -2,7 +2,7 @@ package com.mopl.api.application.user;
 
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
 import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
-import com.mopl.domain.fixture.UserFixture;
+import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.user.UserService;
 import org.junit.jupiter.api.DisplayName;
@@ -46,7 +46,7 @@ class UserFacadeTest {
             String encodedPassword = "encodedPassword";
             UserCreateRequest request = new UserCreateRequest(email, name, password);
 
-            UserModel savedUserModel = UserFixture.builder()
+            UserModel savedUserModel = UserModelFixture.builder()
                 .set("email", email)
                 .set("name", name)
                 .set("password", encodedPassword)
@@ -81,7 +81,7 @@ class UserFacadeTest {
             String expectedEmail = "test@example.com";
             String expectedName = "test";
 
-            UserModel savedUserModel = UserFixture.builder()
+            UserModel savedUserModel = UserModelFixture.builder()
                 .set("email", expectedEmail)
                 .set("name", expectedName)
                 .set("password", encodedPassword)
@@ -107,7 +107,7 @@ class UserFacadeTest {
         @DisplayName("유효한 요청 시 사용자 상세 조회 성공")
         void withValidRequest_getUserSuccess() {
             // given
-            UserModel userModel = UserFixture.create();
+            UserModel userModel = UserModelFixture.create();
 
             given(userService.getById(userModel.getId())).willReturn(userModel);
 
@@ -133,9 +133,9 @@ class UserFacadeTest {
         @DisplayName("유효한 요청 시 역할 업데이트 성공")
         void withValidRequest_updateRoleSuccess() {
             // given
-            UserModel userModel = UserFixture.create();
+            UserModel userModel = UserModelFixture.create();
 
-            UserModel updatedUserModel = UserFixture.builder()
+            UserModel updatedUserModel = UserModelFixture.builder()
                 .set("id", userModel.getId())
                 .set("role", UserModel.Role.ADMIN)
                 .sample();

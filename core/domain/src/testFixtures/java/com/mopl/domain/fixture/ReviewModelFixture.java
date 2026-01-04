@@ -8,9 +8,9 @@ import net.jqwik.api.Arbitraries;
 
 import java.math.BigDecimal;
 
-public final class ReviewFixture {
+public final class ReviewModelFixture {
 
-    private ReviewFixture() {
+    private ReviewModelFixture() {
     }
 
     public static ArbitraryBuilder<ReviewModel> builder() {
