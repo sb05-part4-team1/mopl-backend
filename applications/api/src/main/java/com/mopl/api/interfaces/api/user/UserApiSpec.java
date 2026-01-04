@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
@@ -83,7 +82,6 @@ public interface UserApiSpec {
         description = "수정할 User ID"
     )
     @RequestBody(
-        required = true,
         content = @Content(
             mediaType = "multipart/form-data",
             schema = @Schema(type = "string", format = "binary")
