@@ -84,4 +84,54 @@ class ContentTagRepositoryImplTest {
                 .containsExactlyInAnyOrder("SF", "액션");
         }
     }
+
+    @Nested
+    @DisplayName("findTagsByContentId()")
+    class FindTagsByContentIdTest {
+
+        @Test
+        @DisplayName("콘텐츠 ID로 연결된 모든 태그 모델 목록을 조회한다")
+        void findTagsByContentId_returnsTagModels() {
+            // given
+            ContentModel savedContent = contentRepository.save(
+                ContentModel.create("영화", "인셉션", "꿈", "url")
+            );
+
+            TagModel tag1 = tagRepository.save(TagModel.create("SF"));
+            TagModel tag2 = tagRepository.save(TagModel.create("액션"));
+
+            contentTagRepository.saveAll(
+                savedContent.getId(),
+                List.of(tag1, tag2)
+            );
+
+            // when
+            List<TagModel> result = contentTagRepository.findTagsByContentId(savedContent.getId());
+
+            // then
+            assertThat(result).hasSize(2);
+            assertThat(result)
+                .extracting(TagModel::getName)
+                .containsExactlyInAnyOrder("SF", "액션");
+
+            assertThat(result)
+                .extracting(TagModel::getId)
+                .containsExactlyInAnyOrder(tag1.getId(), tag2.getId());
+        }
+
+        @Test
+        @DisplayName("태그가 연결되지 않은 콘텐츠 ID로 조회 시 빈 리스트를 반환한다")
+        void withNoTags_returnsEmptyList() {
+            // given
+            ContentModel savedContent = contentRepository.save(
+                ContentModel.create("영화", "인셉션", "꿈", "url")
+            );
+
+            // when
+            List<TagModel> result = contentTagRepository.findTagsByContentId(savedContent.getId());
+
+            // then
+            assertThat(result).isEmpty();
+        }
+    }
 }

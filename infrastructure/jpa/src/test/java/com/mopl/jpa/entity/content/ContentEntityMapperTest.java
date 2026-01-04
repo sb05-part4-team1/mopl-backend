@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,21 +25,20 @@ class ContentEntityMapperTest {
             // given
             UUID id = UUID.randomUUID();
             Instant now = Instant.now();
-            List<String> tags = List.of("SF", "액션");
 
             ContentEntity entity = ContentEntity.builder()
                 .id(id)
-                .createdAt(now)
-                .updatedAt(now)
-                .deletedAt(null)
                 .type("영화")
                 .title("인셉션")
                 .description("꿈속의 꿈")
                 .thumbnailUrl("https://mopl.com/inception.png")
+                .createdAt(now)
+                .updatedAt(now)
+                .deletedAt(null)
                 .build();
 
             // when
-            ContentModel result = mapper.toModel(entity, tags);
+            ContentModel result = mapper.toModel(entity);
 
             // then
             assertThat(result.getId()).isEqualTo(id);
@@ -48,17 +46,17 @@ class ContentEntityMapperTest {
             assertThat(result.getTitle()).isEqualTo("인셉션");
             assertThat(result.getDescription()).isEqualTo("꿈속의 꿈");
             assertThat(result.getThumbnailUrl()).isEqualTo("https://mopl.com/inception.png");
-            assertThat(result.getTags()).containsExactly("SF", "액션");
             assertThat(result.getCreatedAt()).isEqualTo(now);
             assertThat(result.getUpdatedAt()).isEqualTo(now);
             assertThat(result.getDeletedAt()).isNull();
+            assertThat(result.getTags()).isEmpty();
         }
 
         @Test
         @DisplayName("null 입력 시 null 반환")
         void withNull_returnsNull() {
             // when
-            ContentModel result = mapper.toModel(null, List.of());
+            ContentModel result = mapper.toModel(null);
 
             // then
             assertThat(result).isNull();
@@ -78,13 +76,12 @@ class ContentEntityMapperTest {
 
             ContentModel model = ContentModel.builder()
                 .id(id)
-                .createdAt(now)
-                .updatedAt(now)
-                .deletedAt(null)
                 .type("영화")
                 .title("인셉션")
                 .description("꿈속의 꿈")
                 .thumbnailUrl("https://mopl.com/inception.png")
+                .createdAt(now)
+                .updatedAt(now)
                 .build();
 
             // when
@@ -98,43 +95,33 @@ class ContentEntityMapperTest {
             assertThat(result.getThumbnailUrl()).isEqualTo("https://mopl.com/inception.png");
             assertThat(result.getCreatedAt()).isEqualTo(now);
             assertThat(result.getUpdatedAt()).isEqualTo(now);
-            assertThat(result.getDeletedAt()).isNull();
         }
+    }
+
+    @Nested
+    @DisplayName("데이터 정합성 테스트")
+    class DataIntegrityTest {
 
         @Test
-        @DisplayName("양방향 변환 시 데이터 유지")
+        @DisplayName("양방향 변환 시 핵심 데이터 유지 확인")
         void roundTrip_preservesData() {
             // given
             UUID id = UUID.randomUUID();
-            Instant now = Instant.now();
-            List<String> tags = List.of("SF", "액션");
-
             ContentModel originalModel = ContentModel.builder()
                 .id(id)
-                .createdAt(now)
-                .updatedAt(now)
-                .deletedAt(null)
                 .type("영화")
                 .title("인셉션")
-                .description("꿈속의 꿈")
                 .thumbnailUrl("https://mopl.com/inception.png")
-                .tags(tags)
                 .build();
 
             // when
             ContentEntity entity = mapper.toEntity(originalModel);
-            ContentModel resultModel = mapper.toModel(entity, tags);
+            ContentModel resultModel = mapper.toModel(entity);
 
             // then
             assertThat(resultModel.getId()).isEqualTo(originalModel.getId());
-            assertThat(resultModel.getType()).isEqualTo(originalModel.getType());
             assertThat(resultModel.getTitle()).isEqualTo(originalModel.getTitle());
-            assertThat(resultModel.getDescription()).isEqualTo(originalModel.getDescription());
-            assertThat(resultModel.getThumbnailUrl()).isEqualTo(originalModel.getThumbnailUrl());
-            assertThat(resultModel.getTags()).isEqualTo(originalModel.getTags());
-            assertThat(resultModel.getCreatedAt()).isEqualTo(originalModel.getCreatedAt());
-            assertThat(resultModel.getUpdatedAt()).isEqualTo(originalModel.getUpdatedAt());
-            assertThat(resultModel.getDeletedAt()).isEqualTo(originalModel.getDeletedAt());
+            assertThat(resultModel.getType()).isEqualTo(originalModel.getType());
         }
     }
 }
