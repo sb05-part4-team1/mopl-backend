@@ -6,6 +6,7 @@ import com.mopl.domain.model.content.ContentModel;
 import com.navercorp.fixturemonkey.ArbitraryBuilder;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.jqwik.api.Arbitraries;
 
 import java.util.List;
 
@@ -13,16 +14,15 @@ import java.util.List;
 public final class ContentFixture {
 
     public static ArbitraryBuilder<ContentModel> builder() {
-        return fixtureMonkey().giveMeBuilder(ContentModel.class);
+        return fixtureMonkey().giveMeBuilder(ContentModel.class)
+            .setNull("updatedAt")
+            .set("type", Arbitraries.of("MOVIE", "DRAMA", "ANIME", "DOCUMENTARY"))
+            .set("thumbnailUrl", Arbitraries.strings().alpha().ofLength(10)
+                .map(s -> "https://example.com/" + s.toLowerCase() + ".jpg"))
+            .set("tags", List.of());
     }
 
     public static ContentModel create() {
         return builder().sample();
-    }
-
-    public static ContentModel createWithTags(List<String> tags) {
-        return builder()
-            .set("tags", tags)
-            .sample();
     }
 }

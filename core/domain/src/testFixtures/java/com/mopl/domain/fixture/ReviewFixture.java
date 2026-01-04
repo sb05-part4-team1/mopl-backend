@@ -1,0 +1,25 @@
+package com.mopl.domain.fixture;
+
+import static com.mopl.domain.fixture.FixtureMonkeyConfig.fixtureMonkey;
+
+import com.mopl.domain.model.review.ReviewModel;
+import com.navercorp.fixturemonkey.ArbitraryBuilder;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import net.jqwik.api.Arbitraries;
+
+import java.math.BigDecimal;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class ReviewFixture {
+
+    public static ArbitraryBuilder<ReviewModel> builder() {
+        return fixtureMonkey().giveMeBuilder(ReviewModel.class)
+            .setNull("updatedAt")
+            .set("rating", Arbitraries.of(0, 1, 2, 3, 4, 5).map(BigDecimal::valueOf));
+    }
+
+    public static ReviewModel create() {
+        return builder().sample();
+    }
+}
