@@ -65,10 +65,16 @@ public class UserFacade {
 
         if (image != null && !image.isEmpty()) {
             try {
-                String fileName = "users/" + userId + "/" + UUID.randomUUID() + "_" + image
-                    .getOriginalFilename();
-                String storedPath = fileStorageProvider.upload(image.getInputStream(),
-                    fileName);
+                String fileName = "users/"
+                    + userId
+                    + "/"
+                    + UUID.randomUUID()
+                    + "_"
+                    + image.getOriginalFilename();
+                String storedPath = fileStorageProvider.upload(
+                    image.getInputStream(),
+                    fileName
+                );
                 String profileImageUrl = fileStorageProvider.getUrl(storedPath);
                 userModel.updateProfileImageUrl(profileImageUrl);
             } catch (IOException exception) {
