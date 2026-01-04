@@ -53,6 +53,7 @@ public class ContentFacade {
 
     @Transactional(readOnly = true)
     public ContentModel getDetail(UUID contentId) {
+        // TODO: 평균 평점(averageRating), 리뷰 수(reviewCount), 시청자 수(watcherCount) 로직 추가 필요
         return contentService.getById(contentId);
     }
 }
