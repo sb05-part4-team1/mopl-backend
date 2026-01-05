@@ -1,6 +1,8 @@
 package com.mopl.api.interfaces.api.user;
 
 import com.mopl.domain.exception.ErrorResponse;
+import com.mopl.jpa.repository.user.query.UserQueryRequest;
+import com.mopl.jpa.support.cursor.CursorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -112,4 +114,23 @@ public interface UserApiSpec {
         )
     )
     UserResponse updateProfile(UUID userId, MultipartFile image);
+
+    @Operation(summary = "사용자 목록 조회", description = "커서 기반 페이지네이션으로 사용자 목록을 조회합니다.")
+    @ApiResponse(
+        responseCode = "200",
+        description = "사용자 목록 조회 성공",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = CursorResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "400",
+        description = "잘못된 요청 데이터",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    CursorResponse<UserResponse> getUsers(UserQueryRequest request);
 }
