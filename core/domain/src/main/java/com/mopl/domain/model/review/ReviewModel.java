@@ -75,7 +75,8 @@ public class ReviewModel extends BaseUpdatableModel {
     // delete로 할려고 했으나 BaseModel과 겹쳐서 이름을 바꿈
     public ReviewModel deleteReview() {
         if (this.getDeletedAt() != null) {
-            throw new InvalidReviewDataException("이미 삭제된 리뷰입니다.");
+            // 멱등성 설정으로 삭제된 상태라면 예외처리안함
+            return this;
         }
 
         super.delete();

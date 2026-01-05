@@ -292,28 +292,5 @@ class ReviewModelTest {
             assertThat(deletedReview.getDeletedAt()).isNotNull();
         }
 
-        @Test
-        @DisplayName("이미 삭제된 리뷰를 다시 삭제하려 하면 예외가 발생한다")
-        void withAlreadyDeletedReview_throwsException() {
-            // given
-            ReviewModel review = ReviewModel.create(
-                UUID.randomUUID(),
-                UUID.randomUUID(),
-                "삭제된 리뷰",
-                new BigDecimal("3")
-            );
-
-            // 먼저 한 번 삭제 수행
-            review.deleteReview();
-
-            // when & then
-            assertThatThrownBy(() -> review.deleteReview())
-                .isInstanceOf(InvalidReviewDataException.class)
-                .satisfies(e -> {
-                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("이미 삭제된 리뷰입니다.");
-                });
-        }
     }
 }

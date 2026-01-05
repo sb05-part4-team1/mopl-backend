@@ -25,7 +25,7 @@ public class ReviewController {
         @RequestBody @Valid ReviewCreateRequest request
     ) {
         // 인증된 객체에서 id만 가져옴
-        UUID requesterId = UUID.fromString(userDetails.getUsername());
+        UUID requesterId = userDetails.userId();
 
         // 파사드가 이미 Response를 반환하므로 바로 리턴하면 끝!
         return reviewFacade.createReview(
@@ -43,7 +43,7 @@ public class ReviewController {
     ) {
 
         // 인증된 객체에서 id만 가져옴
-        UUID requesterId = UUID.fromString(userDetails.getUsername());
+        UUID requesterId = userDetails.userId();
 
         return reviewFacade.updateReview(
             requesterId,
@@ -59,7 +59,7 @@ public class ReviewController {
         @PathVariable UUID reviewId
     ) {
         // 인증된 객체에서 id만 가져옴
-        UUID requesterId = UUID.fromString(userDetails.getUsername());
+        UUID requesterId = userDetails.userId();
 
         reviewFacade.deleteReview(requesterId, reviewId);
     }
