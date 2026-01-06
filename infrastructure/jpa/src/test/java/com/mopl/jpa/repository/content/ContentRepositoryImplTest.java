@@ -87,4 +87,41 @@ class ContentRepositoryImplTest {
             assertThat(exists).isFalse();
         }
     }
+
+    @Nested
+    @DisplayName("findById()")
+    class FindByIdTest {
+
+        @Test
+        @DisplayName("저장된 콘텐츠를 ID로 조회하면 해당 모델을 반환한다")
+        void findById_returnsContentModel() {
+            // given
+            ContentModel original = ContentModel.create(
+                "영화",
+                "인셉션",
+                "꿈속의 꿈",
+                "https://mopl.com/inception.png"
+            );
+            ContentModel saved = contentRepository.save(original);
+
+            // when
+            java.util.Optional<ContentModel> found = contentRepository.findById(saved.getId());
+
+            // then
+            assertThat(found).isPresent();
+            assertThat(found.get().getId()).isEqualTo(saved.getId());
+            assertThat(found.get().getTitle()).isEqualTo("인셉션");
+            assertThat(found.get().getTags()).isEmpty(); // Repository는 순수하게 Content 정보만 조회하므로 태그는 비어있음
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 ID로 조회하면 빈 Optional을 반환한다")
+        void findById_withNonExistentId_returnsEmpty() {
+            // when
+            java.util.Optional<ContentModel> found = contentRepository.findById(UUID.randomUUID());
+
+            // then
+            assertThat(found).isEmpty();
+        }
+    }
 }

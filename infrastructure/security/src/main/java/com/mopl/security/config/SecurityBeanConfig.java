@@ -14,6 +14,7 @@ import com.mopl.security.jwt.provider.JwtCookieProvider;
 import com.mopl.security.jwt.provider.JwtProvider;
 import com.mopl.security.jwt.registry.InMemoryJwtRegistry;
 import com.mopl.security.jwt.registry.JwtRegistry;
+import com.mopl.security.jwt.service.TokenRefreshService;
 import com.mopl.security.userdetails.MoplUserDetailsService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -107,5 +108,15 @@ public class SecurityBeanConfig {
         ApiResponseHandler apiResponseHandler
     ) {
         return new JwtAuthenticationFilter(jwtProvider, jwtRegistry, apiResponseHandler);
+    }
+
+    @Bean
+    public TokenRefreshService tokenRefreshService(
+        JwtProvider jwtProvider,
+        JwtCookieProvider jwtCookieProvider,
+        JwtRegistry jwtRegistry,
+        UserService userService
+    ) {
+        return new TokenRefreshService(jwtProvider, jwtCookieProvider, jwtRegistry, userService);
     }
 }

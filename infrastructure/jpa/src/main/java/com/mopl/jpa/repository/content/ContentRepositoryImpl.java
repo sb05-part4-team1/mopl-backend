@@ -7,6 +7,7 @@ import com.mopl.jpa.entity.content.ContentEntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -26,5 +27,11 @@ public class ContentRepositoryImpl implements ContentRepository {
     @Override
     public boolean existsById(UUID contentId) {
         return jpaContentRepository.existsById(contentId);
+    }
+
+    @Override
+    public Optional<ContentModel> findById(UUID contentId) {
+        Optional<ContentEntity> entity = jpaContentRepository.findById(contentId);
+        return entity.map(contentEntityMapper::toModel);
     }
 }

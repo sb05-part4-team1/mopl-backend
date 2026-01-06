@@ -19,8 +19,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,10 +31,13 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -194,6 +200,154 @@ class UserControllerTest {
             // when & then
             mockMvc.perform(get("/api/users/{userId}", userId))
                 .andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
+    @DisplayName("PATCH /api/users/{userId} - 프로필 수정")
+    class UpdateProfileTest {
+
+        @Test
+        @DisplayName("유효한 프로필 이미지로 수정 시 200 OK 응답")
+        void withValidProfileImage_returns200OK() throws Exception {
+            // given
+            String profileImageUrl = "http://localhost/api/v1/files/display?path=users/test.png";
+            UserModel userModel = UserModelFixture.builder()
+                .set("profileImageUrl", profileImageUrl)
+                .sample();
+
+            MockMultipartFile image = new MockMultipartFile(
+                "image",
+                "test.png",
+                MediaType.IMAGE_PNG_VALUE,
+                "test image content".getBytes()
+            );
+
+            given(userFacade.updateProfile(
+                eq(userModel.getId()),
+                isNull(),
+                any(MultipartFile.class))
+            ).willReturn(userModel);
+
+            // when & then
+            mockMvc.perform(multipart(HttpMethod.PATCH, "/api/users/{userId}", userModel.getId())
+                .file(image))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(userModel.getId().toString()))
+                .andExpect(jsonPath("$.profileImageUrl").value(profileImageUrl));
+
+            then(userFacade).should().updateProfile(
+                eq(userModel.getId()),
+                isNull(),
+                any(MultipartFile.class));
+        }
+
+        @Test
+        @DisplayName("유효한 이름으로 수정 시 200 OK 응답")
+        void withValidName_returns200OK() throws Exception {
+            // given
+            String newName = "newName";
+            UserModel userModel = UserModelFixture.builder()
+                .set("name", newName)
+                .sample();
+
+            UserUpdateRequest request = new UserUpdateRequest(newName);
+            MockMultipartFile requestPart = new MockMultipartFile(
+                "request",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                objectMapper.writeValueAsBytes(request)
+            );
+
+            given(userFacade.updateProfile(
+                eq(userModel.getId()),
+                any(UserUpdateRequest.class),
+                isNull())
+            ).willReturn(userModel);
+
+            // when & then
+            mockMvc.perform(multipart(HttpMethod.PATCH, "/api/users/{userId}", userModel.getId())
+                .file(requestPart))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(userModel.getId().toString()))
+                .andExpect(jsonPath("$.name").value(newName));
+
+            then(userFacade).should().updateProfile(
+                eq(userModel.getId()),
+                any(UserUpdateRequest.class),
+                isNull());
+        }
+
+        @Test
+        @DisplayName("이름과 이미지 함께 수정 시 200 OK 응답")
+        void withNameAndImage_returns200OK() throws Exception {
+            // given
+            String newName = "newName";
+            String profileImageUrl = "http://localhost/api/v1/files/display?path=users/test.png";
+            UserModel userModel = UserModelFixture.builder()
+                .set("name", newName)
+                .set("profileImageUrl", profileImageUrl)
+                .sample();
+
+            UserUpdateRequest request = new UserUpdateRequest(newName);
+            MockMultipartFile requestPart = new MockMultipartFile(
+                "request",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                objectMapper.writeValueAsBytes(request)
+            );
+
+            MockMultipartFile image = new MockMultipartFile(
+                "image",
+                "test.png",
+                MediaType.IMAGE_PNG_VALUE,
+                "test image content".getBytes()
+            );
+
+            given(userFacade.updateProfile(
+                eq(userModel.getId()),
+                any(UserUpdateRequest.class),
+                any(MultipartFile.class))
+            ).willReturn(userModel);
+
+            // when & then
+            mockMvc.perform(multipart(HttpMethod.PATCH, "/api/users/{userId}", userModel.getId())
+                .file(requestPart)
+                .file(image))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(userModel.getId().toString()))
+                .andExpect(jsonPath("$.name").value(newName))
+                .andExpect(jsonPath("$.profileImageUrl").value(profileImageUrl));
+
+            then(userFacade).should().updateProfile(
+                eq(userModel.getId()),
+                any(UserUpdateRequest.class),
+                any(MultipartFile.class));
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 사용자 ID로 수정 시 404 Not Found 응답")
+        void withNonExistingUserId_returns404NotFound() throws Exception {
+            // given
+            UUID userId = UUID.randomUUID();
+
+            MockMultipartFile image = new MockMultipartFile(
+                "image",
+                "test.png",
+                MediaType.IMAGE_PNG_VALUE,
+                "test image content".getBytes()
+            );
+
+            given(userFacade.updateProfile(
+                eq(userId),
+                isNull(),
+                any(MultipartFile.class))
+            ).willThrow(UserNotFoundException.withId(userId));
+
+            // when & then
+            mockMvc.perform(
+                multipart(HttpMethod.PATCH, "/api/users/{userId}", userId).file(image)
+            ).andExpect(status().isNotFound());
         }
     }
 }

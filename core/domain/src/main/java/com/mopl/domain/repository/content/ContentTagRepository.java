@@ -8,4 +8,6 @@ import java.util.UUID;
 public interface ContentTagRepository {
 
     void saveAll(UUID contentId, List<TagModel> tags);
+
+    List<TagModel> findTagsByContentId(UUID contentId);
 }
