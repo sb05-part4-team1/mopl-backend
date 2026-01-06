@@ -39,4 +39,9 @@ public class FollowFacade {
         followService.delete(follow);
     }
 
+    @Transactional
+    public boolean isFollow(UUID followerId, UUID followeeId) {
+        userService.getById(followeeId);
+        return followService.isFollow(followerId, followeeId);
+    }
 }
