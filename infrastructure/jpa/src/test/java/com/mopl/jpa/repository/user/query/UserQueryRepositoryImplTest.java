@@ -23,7 +23,6 @@ import org.springframework.context.annotation.Import;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,62 +43,21 @@ class UserQueryRepositoryImplTest {
     @Autowired
     private EntityManager entityManager;
 
-    private List<UserEntity> testUsers;
-
     @BeforeEach
     void setUp() {
-        testUsers = new ArrayList<>();
         Instant baseTime = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
-        testUsers.add(createAndPersistUser(
-            "alice@example.com",
-            "Alice",
-            Role.USER,
-            false,
-            baseTime
-        ));
-        testUsers.add(
-            createAndPersistUser(
-                "bob@example.com",
-                "Bob",
-                Role.USER,
-                false,
-                baseTime.plusSeconds(1)
-            )
-        );
-        testUsers.add(
-            createAndPersistUser(
-                "charlie@example.com",
-                "Charlie",
-                Role.ADMIN,
-                false,
-                baseTime.plusSeconds(2)
-            )
-        );
-        testUsers.add(
-            createAndPersistUser(
-                "david@example.com",
-                "David",
-                Role.ADMIN,
-                true,
-                baseTime.plusSeconds(3)
-            )
-        );
-        testUsers.add(
-            createAndPersistUser(
-                "eve@test.com",
-                "Eve",
-                Role.USER,
-                true,
-                baseTime.plusSeconds(4)
-            )
-        );
+        createAndPersistUser("alice@example.com", "Alice", Role.USER, false, baseTime);
+        createAndPersistUser("bob@example.com", "Bob", Role.USER, false, baseTime.plusSeconds(1));
+        createAndPersistUser("charlie@example.com", "Charlie", Role.ADMIN, false, baseTime.plusSeconds(2));
+        createAndPersistUser("david@example.com", "David", Role.ADMIN, true, baseTime.plusSeconds(3));
+        createAndPersistUser("eve@test.com", "Eve", Role.USER, true, baseTime.plusSeconds(4));
 
         entityManager.flush();
         entityManager.clear();
     }
 
-    private UserEntity createAndPersistUser(
+    private void createAndPersistUser(
         String email,
         String name,
         Role role,
@@ -117,7 +75,6 @@ class UserQueryRepositoryImplTest {
             .locked(locked)
             .build();
         entityManager.persist(entity);
-        return entity;
     }
 
     @Nested
