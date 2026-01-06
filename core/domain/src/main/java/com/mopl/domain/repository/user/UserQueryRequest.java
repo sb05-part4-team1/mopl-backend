@@ -18,9 +18,10 @@ public record UserQueryRequest(
 ) implements CursorRequest<UserSortField> {
 
     private static final int DEFAULT_LIMIT = 100;
+    private static final int MAX_LIMIT = 1000;
 
     public UserQueryRequest {
-        limit = limit != null ? limit : DEFAULT_LIMIT;
+        limit = limit != null ? Math.min(limit, MAX_LIMIT) : DEFAULT_LIMIT;
         sortDirection = sortDirection != null ? sortDirection : SortDirection.ASCENDING;
         sortBy = sortBy != null ? sortBy : UserSortField.name;
     }
