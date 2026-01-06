@@ -74,7 +74,6 @@ class ReviewServiceTest {
             UUID reviewId = UUID.randomUUID();
             UUID authorId = UUID.randomUUID();
 
-            // 기존 리뷰 데이터 (평점 3.0)
             ReviewModel existingReview = ReviewModel.builder()
                 .id(reviewId)
                 .authorId(authorId)
@@ -82,14 +81,13 @@ class ReviewServiceTest {
                 .rating(new BigDecimal("3.0"))
                 .build();
 
-            // 수정할 데이터 (평점 5.0)
             String newText = "수정된 내용";
             BigDecimal newRating = new BigDecimal("5.0");
 
-            // Mocking: 조회 시 기존 리뷰 반환, 저장 시 변경된 객체 반환
+            // Mocking
             given(reviewRepository.findById(reviewId)).willReturn(Optional.of(existingReview));
-            given(reviewRepository.save(any(ReviewModel.class))).willAnswer(invocation -> invocation
-                .getArgument(0));
+            given(reviewRepository.save(any(ReviewModel.class)))
+                .willAnswer(invocation -> invocation.getArgument(0));
 
             // when
             ReviewModel updatedReview = reviewService.update(reviewId, authorId, newText,
@@ -99,8 +97,6 @@ class ReviewServiceTest {
             assertThat(updatedReview.getText()).isEqualTo(newText);
             assertThat(updatedReview.getRating()).isEqualByComparingTo(newRating);
 
-            // Verify: 조회 후 저장이 일어났는지 확인
-            then(reviewRepository).should().findById(reviewId);
             then(reviewRepository).should().save(existingReview);
         }
 
@@ -111,7 +107,6 @@ class ReviewServiceTest {
             UUID reviewId = UUID.randomUUID();
             UUID requesterId = UUID.randomUUID();
 
-            // Mocking: 조회 실패 (Empty)
             given(reviewRepository.findById(reviewId)).willReturn(Optional.empty());
 
             // when & then
@@ -119,7 +114,6 @@ class ReviewServiceTest {
                 BigDecimal.ONE))
                 .isInstanceOf(ReviewNotFoundException.class);
 
-            // Verify: 저장은 절대 일어나면 안 됨
             then(reviewRepository).should(never()).save(any());
         }
 
@@ -129,14 +123,13 @@ class ReviewServiceTest {
             // given
             UUID reviewId = UUID.randomUUID();
             UUID authorId = UUID.randomUUID();
-            UUID requesterId = UUID.randomUUID(); // 작성자와 다른 ID
+            UUID requesterId = UUID.randomUUID();
 
             ReviewModel existingReview = ReviewModel.builder()
                 .id(reviewId)
-                .authorId(authorId) // 실제 주인
+                .authorId(authorId)
                 .build();
 
-            // Mocking: 조회 성공
             given(reviewRepository.findById(reviewId)).willReturn(Optional.of(existingReview));
 
             // when & then
@@ -144,7 +137,72 @@ class ReviewServiceTest {
                 BigDecimal.ONE))
                 .isInstanceOf(ReviewForbiddenException.class);
 
-            // Verify: 저장은 절대 일어나면 안 됨
+            then(reviewRepository).should(never()).save(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("delete()")
+    class DeleteTest {
+
+        @Test
+        @DisplayName("작성자가 본인의 리뷰를 삭제 요청하면 정상적으로 처리되고 저장된다")
+        void withOwner_deletesAndSavesReview() {
+            // given
+            UUID reviewId = UUID.randomUUID();
+            UUID authorId = UUID.randomUUID();
+
+            ReviewModel existingReview = ReviewModel.builder()
+                .id(reviewId)
+                .authorId(authorId)
+                .build();
+
+            given(reviewRepository.findById(reviewId)).willReturn(Optional.of(existingReview));
+
+            // when
+            reviewService.delete(reviewId, authorId);
+
+            // then
+            // ReviewModel.deleteReview()가 호출되어 deletedAt 등이 변경되었을 것이고,
+            // 변경된 상태가 Repository에 저장되어야 함.
+            then(reviewRepository).should().save(existingReview);
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 리뷰를 삭제하려 하면 ReviewNotFoundException 발생")
+        void withNonExistingId_throwsNotFoundException() {
+            // given
+            UUID reviewId = UUID.randomUUID();
+            UUID requesterId = UUID.randomUUID();
+
+            given(reviewRepository.findById(reviewId)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> reviewService.delete(reviewId, requesterId))
+                .isInstanceOf(ReviewNotFoundException.class);
+
+            then(reviewRepository).should(never()).save(any());
+        }
+
+        @Test
+        @DisplayName("작성자가 아닌 사람이 삭제하려 하면 ReviewForbiddenException 발생")
+        void withDifferentUser_throwsForbiddenException() {
+            // given
+            UUID reviewId = UUID.randomUUID();
+            UUID authorId = UUID.randomUUID();
+            UUID requesterId = UUID.randomUUID();
+
+            ReviewModel existingReview = ReviewModel.builder()
+                .id(reviewId)
+                .authorId(authorId)
+                .build();
+
+            given(reviewRepository.findById(reviewId)).willReturn(Optional.of(existingReview));
+
+            // when & then
+            assertThatThrownBy(() -> reviewService.delete(reviewId, requesterId))
+                .isInstanceOf(ReviewForbiddenException.class);
+
             then(reviewRepository).should(never()).save(any());
         }
     }

@@ -3,15 +3,10 @@ package com.mopl.jpa.entity.content;
 import com.mopl.domain.model.content.ContentModel;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class ContentEntityMapper {
 
-    /**
-     * 조회 유스케이스에서 Content + Tag 조합 시 사용
-     */
-    public ContentModel toModel(ContentEntity entity, List<String> tags) {
+    public ContentModel toModel(ContentEntity entity) {
         if (entity == null) {
             return null;
         }
@@ -22,15 +17,10 @@ public class ContentEntityMapper {
             .title(entity.getTitle())
             .description(entity.getDescription())
             .thumbnailUrl(entity.getThumbnailUrl())
-            .tags(tags)
             .createdAt(entity.getCreatedAt())
             .updatedAt(entity.getUpdatedAt())
             .deletedAt(entity.getDeletedAt())
             .build();
-    }
-
-    public ContentModel toModel(ContentEntity entity) {
-        return toModel(entity, List.of());
     }
 
     public ContentEntity toEntity(ContentModel model) {

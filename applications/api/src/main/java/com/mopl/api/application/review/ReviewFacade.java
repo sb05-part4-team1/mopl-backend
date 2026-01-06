@@ -69,4 +69,14 @@ public class ReviewFacade {
         // 작성자만 수정 가능
         return reviewResponseMapper.toResponse(updatedReview, requester);
     }
+
+    @Transactional
+    public void deleteReview(
+        UUID requesterId,
+        UUID reviewId
+    ) {
+        userService.getById(requesterId);
+
+        reviewService.delete(reviewId, requesterId);
+    }
 }

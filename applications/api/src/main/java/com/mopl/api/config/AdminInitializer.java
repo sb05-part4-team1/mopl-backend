@@ -34,7 +34,7 @@ public class AdminInitializer implements ApplicationRunner {
 
         try {
             UserModel user = userFacade.signUp(request);
-            UserModel admin = userFacade.updateRoleInternal(
+            UserModel admin = userFacade.updateRole(
                 new UserRoleUpdateRequest(UserModel.Role.ADMIN),
                 user.getId()
             );

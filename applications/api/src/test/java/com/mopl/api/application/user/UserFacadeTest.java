@@ -151,8 +151,8 @@ class UserFacadeTest {
     }
 
     @Nested
-    @DisplayName("updateRoleInternal()")
-    class UpdateRoleInternalTest {
+    @DisplayName("updateRole()")
+    class UpdateRoleTest {
 
         @Test
         @DisplayName("유효한 요청 시 역할 업데이트 성공")
@@ -171,7 +171,7 @@ class UserFacadeTest {
             given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
 
             // when
-            UserModel result = userFacade.updateRoleInternal(request, userModel.getId());
+            UserModel result = userFacade.updateRole(request, userModel.getId());
 
             // then
             assertThat(result.getId()).isEqualTo(userModel.getId());

@@ -58,7 +58,7 @@ public class UserFacade {
     }
 
     @Transactional
-    public UserModel updateRoleInternal(UserRoleUpdateRequest request, UUID userId) {
+    public UserModel updateRole(UserRoleUpdateRequest request, UUID userId) {
         UserModel userModel = userService.getById(userId);
         userModel.updateRole(request.role());
         return userService.update(userModel);

@@ -8,7 +8,7 @@ import lombok.experimental.SuperBuilder;
 import java.time.Instant;
 
 @Getter
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class BaseUpdatableModel extends BaseModel {
 

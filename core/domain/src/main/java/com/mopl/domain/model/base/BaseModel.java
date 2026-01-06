@@ -9,7 +9,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Getter
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class BaseModel {
 

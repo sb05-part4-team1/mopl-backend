@@ -6,12 +6,16 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/contents")
@@ -29,6 +33,17 @@ public class ContentController implements ContentApiSpec {
         @RequestPart(name = "thumbnail") MultipartFile thumbnail
     ) {
         ContentModel contentModel = contentFacade.upload(request, thumbnail);
+
+        return contentResponseMapper.toResponse(
+            contentModel
+        );
+    }
+
+    @Override
+    @GetMapping("/{contentId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ContentResponse getDetail(@PathVariable UUID contentId) {
+        ContentModel contentModel = contentFacade.getDetail(contentId);
 
         return contentResponseMapper.toResponse(
             contentModel
