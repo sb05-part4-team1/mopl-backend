@@ -4,97 +4,57 @@ import com.mopl.domain.repository.user.UserSortField;
 import com.mopl.jpa.entity.user.UserEntity;
 import com.mopl.jpa.support.cursor.SortField;
 import com.querydsl.core.types.dsl.ComparableExpression;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
+import java.util.function.Function;
 
 import static com.mopl.jpa.entity.user.QUserEntity.userEntity;
 
+@Getter
+@RequiredArgsConstructor
 public enum UserSortFieldJpa implements SortField<Comparable<?>> {
 
-    name {
-        @Override
-        public ComparableExpression<Comparable<?>> getExpression() {
-            return cast(userEntity.name);
-        }
+    NAME(
+        cast(userEntity.name),
+        UserEntity::getName,
+        Object::toString,
+        cursor -> cursor
+    ),
 
-        @Override
-        public String serializeCursor(Object value) {
-            return value != null ? value.toString() : "";
-        }
+    EMAIL(
+        cast(userEntity.email),
+        UserEntity::getEmail,
+        Object::toString,
+        cursor -> cursor
+    ),
 
-        @Override
-        public Comparable<?> deserializeCursor(String cursor) {
-            return cursor;
-        }
-    },
+    CREATED_AT(
+        cast(userEntity.createdAt),
+        UserEntity::getCreatedAt,
+        value -> ((Instant) value).toString(),
+        Instant::parse
+    ),
 
-    email {
-        @Override
-        public ComparableExpression<Comparable<?>> getExpression() {
-            return cast(userEntity.email);
-        }
+    IS_LOCKED(
+        cast(userEntity.locked),
+        UserEntity::isLocked,
+        Object::toString,
+        Boolean::parseBoolean
+    ),
 
-        @Override
-        public String serializeCursor(Object value) {
-            return value != null ? value.toString() : "";
-        }
+    ROLE(
+        cast(userEntity.role.stringValue()),
+        entity -> entity.getRole().name(),
+        Object::toString,
+        cursor -> cursor
+    );
 
-        @Override
-        public Comparable<?> deserializeCursor(String cursor) {
-            return cursor;
-        }
-    },
-
-    createdAt {
-        @Override
-        public ComparableExpression<Comparable<?>> getExpression() {
-            return cast(userEntity.createdAt);
-        }
-
-        @Override
-        public String serializeCursor(Object value) {
-            return value instanceof Instant instant ? instant.toString() : "";
-        }
-
-        @Override
-        public Comparable<?> deserializeCursor(String cursor) {
-            return Instant.parse(cursor);
-        }
-    },
-
-    isLocked {
-        @Override
-        public ComparableExpression<Comparable<?>> getExpression() {
-            return cast(userEntity.locked);
-        }
-
-        @Override
-        public String serializeCursor(Object value) {
-            return value != null ? value.toString() : "false";
-        }
-
-        @Override
-        public Comparable<?> deserializeCursor(String cursor) {
-            return Boolean.parseBoolean(cursor);
-        }
-    },
-
-    role {
-        @Override
-        public ComparableExpression<Comparable<?>> getExpression() {
-            return cast(userEntity.role.stringValue());
-        }
-
-        @Override
-        public String serializeCursor(Object value) {
-            return value != null ? value.toString() : "";
-        }
-
-        @Override
-        public Comparable<?> deserializeCursor(String cursor) {
-            return cursor;
-        }
-    };
+    private final ComparableExpression<Comparable<?>> expression;
+    private final Function<UserEntity, Object> valueExtractor;
+    private final Function<Object, String> serializer;
+    private final Function<String, Comparable<?>> deserializer;
 
     @SuppressWarnings("unchecked")
     private static ComparableExpression<Comparable<?>> cast(ComparableExpression<?> expression) {
@@ -103,21 +63,25 @@ public enum UserSortFieldJpa implements SortField<Comparable<?>> {
 
     public static UserSortFieldJpa from(UserSortField domainField) {
         return switch (domainField) {
-            case name -> UserSortFieldJpa.name;
-            case email -> UserSortFieldJpa.email;
-            case createdAt -> UserSortFieldJpa.createdAt;
-            case isLocked -> UserSortFieldJpa.isLocked;
-            case role -> UserSortFieldJpa.role;
+            case name -> NAME;
+            case email -> EMAIL;
+            case createdAt -> CREATED_AT;
+            case isLocked -> IS_LOCKED;
+            case role -> ROLE;
         };
     }
 
+    @Override
+    public String serializeCursor(Object value) {
+        return value != null ? serializer.apply(value) : "";
+    }
+
+    @Override
+    public Comparable<?> deserializeCursor(String cursor) {
+        return deserializer.apply(cursor);
+    }
+
     public Object extractValue(UserEntity entity) {
-        return switch (this) {
-            case name -> entity.getName();
-            case email -> entity.getEmail();
-            case createdAt -> entity.getCreatedAt();
-            case isLocked -> entity.isLocked();
-            case role -> entity.getRole().name();
-        };
+        return valueExtractor.apply(entity);
     }
 }

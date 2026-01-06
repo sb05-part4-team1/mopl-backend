@@ -1,5 +1,6 @@
 package com.mopl.jpa.support.cursor;
 
+import com.mopl.domain.support.cursor.CursorRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
 import com.querydsl.core.types.Order;
@@ -19,27 +20,28 @@ import static org.springframework.util.StringUtils.hasText;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CursorPaginationHelper {
 
-    public static <T, S extends SortField<?>> void applyCursorPagination(
+    public static <T, S extends Enum<S>> void applyCursorPagination(
         CursorRequest<S> request,
+        SortField<?> sortField,
         JPAQuery<T> query,
         ComparableExpression<UUID> idExpression
     ) {
-        query.where(buildCursorCondition(request, idExpression))
-            .orderBy(buildOrderSpecifiers(request, idExpression))
+        query.where(buildCursorCondition(request, sortField, idExpression))
+            .orderBy(buildOrderSpecifiers(request, sortField, idExpression))
             .limit(request.limit() + 1);
     }
 
-    public static <T, D, S extends SortField<?>> CursorResponse<D> buildResponse(
+    public static <T, D, S extends Enum<S>> CursorResponse<D> buildResponse(
         List<T> rows,
         CursorRequest<S> request,
+        SortField<?> sortField,
         long totalCount,
         Function<T, D> mapper,
         Function<T, Object> cursorValueExtractor,
         Function<T, UUID> idExtractor
     ) {
-        S sortField = request.sortBy();
         SortDirection direction = request.sortDirection();
-        String sortByStr = sortField.toString().toLowerCase();
+        String sortByStr = request.sortBy().name().toLowerCase();
 
         if (rows.isEmpty()) {
             return CursorResponse.empty(sortByStr, direction);
@@ -69,8 +71,9 @@ public final class CursorPaginationHelper {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private static <S extends SortField<?>> BooleanExpression buildCursorCondition(
+    private static <S extends Enum<S>> BooleanExpression buildCursorCondition(
         CursorRequest<S> request,
+        SortField<?> sortField,
         ComparableExpression<UUID> idExpression
     ) {
         String cursor = request.cursor();
@@ -80,7 +83,6 @@ public final class CursorPaginationHelper {
             return null;
         }
 
-        S sortField = request.sortBy();
         boolean isAscending = request.sortDirection().isAscending();
 
         ComparableExpression expression = sortField.getExpression();
@@ -96,11 +98,11 @@ public final class CursorPaginationHelper {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private static <S extends SortField<?>> OrderSpecifier<?>[] buildOrderSpecifiers(
+    private static <S extends Enum<S>> OrderSpecifier<?>[] buildOrderSpecifiers(
         CursorRequest<S> request,
+        SortField<?> sortField,
         ComparableExpression<UUID> idExpression
     ) {
-        S sortField = request.sortBy();
         Order order = request.sortDirection().isAscending() ? Order.ASC : Order.DESC;
 
         ComparableExpression expression = sortField.getExpression();
