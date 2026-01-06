@@ -1,8 +1,8 @@
-package com.mopl.api.application.user;
+package com.mopl.api.application.follow;
 
 import com.mopl.domain.exception.follow.FollowNotAllowedException;
-import com.mopl.domain.model.user.FollowModel;
-import com.mopl.domain.service.user.FollowService;
+import com.mopl.domain.model.follow.FollowModel;
+import com.mopl.domain.service.follow.FollowService;
 import com.mopl.domain.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
