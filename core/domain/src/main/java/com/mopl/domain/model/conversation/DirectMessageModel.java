@@ -1,6 +1,7 @@
 package com.mopl.domain.model.conversation;
 
 import com.mopl.domain.model.base.BaseModel;
+import com.mopl.domain.model.user.UserModel;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -12,9 +13,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class DirectMessageModel extends BaseModel {
 
-    private UUID conversationId;
-    private UUID senderId;
-    private UUID receiverId;
+    private ConversationModel conversation;
+    private UserModel sender;
     private String content;
 
 //    public DirectMessageModel create(){

@@ -2,6 +2,7 @@ package com.mopl.domain.model.conversation;
 
 import com.mopl.domain.exception.user.InvalidUserDataException;
 import com.mopl.domain.model.base.BaseUpdatableModel;
+import com.mopl.domain.model.user.UserModel;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,21 +14,24 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ConversationModel extends BaseUpdatableModel {
 
-    private UUID withId;
-    private UUID messageId;
+//    ConversationDto에 UserSummary, DirectMessageDto가 필요하므로,
+//    id 대신 UserModel withUser, DirectMessage lastMessage를 사용하는 것이 좋겠네요.
+    private UserModel withUser;
+    private DirectMessageModel directMessage;
     private boolean hasUnread;
 
     public static ConversationModel create(
-        UUID withId
+        UserModel with
     ) {
-        if (withId == null) {
-            throw new InvalidUserDataException("상대방의 Id는 비어있을 수 없습니다.");
+        if (with == null) {
+            throw new InvalidUserDataException("상대방은 비어있을 수 없습니다.");
         }
 
         return ConversationModel.builder()
-            .withId(withId)
+            .withUser(with)
             .hasUnread(false)
             .build();
     }
+
 
 }

@@ -20,8 +20,8 @@ public class ConversationFacade {
     @Transactional
     public ConversationModel createConversation(ConversationCreateRequest request) {
 
-        UserModel author = userService.getById(request.withUserId());
-        ConversationModel conversationModel = ConversationModel.create(request.withUserId());
+        UserModel with = userService.getById(request.withUserId()); //나중에 더 이상 사용되지 않으면 변수는 없애기
+        ConversationModel conversationModel = ConversationModel.create(with);
 
         return conversationService.create(conversationModel);
     }

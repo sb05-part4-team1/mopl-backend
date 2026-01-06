@@ -6,7 +6,7 @@ import java.util.UUID;
 public record ConversationResponse(
     UUID id,
     UserSummary with,
-    DirectMessageResponse lastestMessage,
+    DirectMessageResponse lastMessage,
     boolean hasUnread
 ) {
 }
