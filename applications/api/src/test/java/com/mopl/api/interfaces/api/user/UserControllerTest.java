@@ -8,6 +8,9 @@ import com.mopl.domain.exception.user.InvalidUserDataException;
 import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.user.UserModel;
+import com.mopl.domain.repository.user.UserQueryRequest;
+import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.domain.support.cursor.SortDirection;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,6 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -260,6 +264,140 @@ class UserControllerTest {
             mockMvc.perform(
                 multipart(HttpMethod.PATCH, "/api/users/{userId}", userId).file(image)
             ).andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /api/users - 사용자 목록 조회")
+    class GetUsersTest {
+
+        @Test
+        @DisplayName("유효한 요청 시 200 OK 응답과 사용자 목록 반환")
+        void withValidRequest_returns200OKWithUserList() throws Exception {
+            // given
+            UserModel user1 = UserModelFixture.builder()
+                .set("email", "user1@example.com")
+                .set("name", "User1")
+                .sample();
+            UserModel user2 = UserModelFixture.builder()
+                .set("email", "user2@example.com")
+                .set("name", "User2")
+                .sample();
+
+            UserResponse response1 = new UserResponse(
+                user1.getId(), user1.getCreatedAt(), user1.getEmail(),
+                user1.getName(), user1.getProfileImageUrl(), user1.getRole(), user1.isLocked()
+            );
+            UserResponse response2 = new UserResponse(
+                user2.getId(), user2.getCreatedAt(), user2.getEmail(),
+                user2.getName(), user2.getProfileImageUrl(), user2.getRole(), user2.isLocked()
+            );
+
+            CursorResponse<UserResponse> cursorResponse = CursorResponse.of(
+                List.of(response1, response2),
+                "User2",
+                user2.getId(),
+                true,
+                10,
+                "name",
+                SortDirection.ASCENDING
+            );
+
+            given(userFacade.getUsers(any(UserQueryRequest.class))).willReturn(cursorResponse);
+
+            // when & then
+            mockMvc.perform(get("/api/users")
+                    .param("limit", "10")
+                    .param("sortDirection", "ASCENDING")
+                    .param("sortBy", "name"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data.length()").value(2))
+                .andExpect(jsonPath("$.data[0].email").value("user1@example.com"))
+                .andExpect(jsonPath("$.data[1].email").value("user2@example.com"))
+                .andExpect(jsonPath("$.hasNext").value(true))
+                .andExpect(jsonPath("$.nextCursor").value("User2"))
+                .andExpect(jsonPath("$.totalCount").value(10))
+                .andExpect(jsonPath("$.sortBy").value("name"))
+                .andExpect(jsonPath("$.sortDirection").value("ASCENDING"));
+
+            then(userFacade).should().getUsers(any(UserQueryRequest.class));
+        }
+
+        @Test
+        @DisplayName("필터 파라미터가 적용된 요청 처리")
+        void withFilterParams_appliesFilters() throws Exception {
+            // given
+            CursorResponse<UserResponse> emptyResponse = CursorResponse.empty("name", SortDirection.ASCENDING);
+
+            given(userFacade.getUsers(any(UserQueryRequest.class))).willReturn(emptyResponse);
+
+            // when & then
+            mockMvc.perform(get("/api/users")
+                    .param("emailLike", "admin")
+                    .param("roleEqual", "ADMIN")
+                    .param("isLocked", "false"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data.length()").value(0))
+                .andExpect(jsonPath("$.hasNext").value(false));
+
+            then(userFacade).should().getUsers(any(UserQueryRequest.class));
+        }
+
+        @Test
+        @DisplayName("커서 기반 페이지네이션 요청 처리")
+        void withCursorParams_handlesPagination() throws Exception {
+            // given
+            UUID idAfter = UUID.randomUUID();
+            UserModel user = UserModelFixture.create();
+            UserResponse response = new UserResponse(
+                user.getId(), user.getCreatedAt(), user.getEmail(),
+                user.getName(), user.getProfileImageUrl(), user.getRole(), user.isLocked()
+            );
+
+            CursorResponse<UserResponse> cursorResponse = CursorResponse.of(
+                List.of(response),
+                null,
+                null,
+                false,
+                5,
+                "name",
+                SortDirection.ASCENDING
+            );
+
+            given(userFacade.getUsers(any(UserQueryRequest.class))).willReturn(cursorResponse);
+
+            // when & then
+            mockMvc.perform(get("/api/users")
+                    .param("cursor", "PreviousUser")
+                    .param("idAfter", idAfter.toString())
+                    .param("limit", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.length()").value(1))
+                .andExpect(jsonPath("$.hasNext").value(false))
+                .andExpect(jsonPath("$.nextCursor").doesNotExist());
+
+            then(userFacade).should().getUsers(any(UserQueryRequest.class));
+        }
+
+        @Test
+        @DisplayName("빈 결과 시 빈 목록 반환")
+        void withNoResults_returnsEmptyList() throws Exception {
+            // given
+            CursorResponse<UserResponse> emptyResponse = CursorResponse.empty("name", SortDirection.DESCENDING);
+
+            given(userFacade.getUsers(any(UserQueryRequest.class))).willReturn(emptyResponse);
+
+            // when & then
+            mockMvc.perform(get("/api/users"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data.length()").value(0))
+                .andExpect(jsonPath("$.hasNext").value(false))
+                .andExpect(jsonPath("$.totalCount").value(0));
+
+            then(userFacade).should().getUsers(any(UserQueryRequest.class));
         }
     }
 }
