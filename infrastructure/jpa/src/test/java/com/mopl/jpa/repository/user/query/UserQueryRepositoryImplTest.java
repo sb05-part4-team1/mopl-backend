@@ -51,18 +51,61 @@ class UserQueryRepositoryImplTest {
         testUsers = new ArrayList<>();
         Instant baseTime = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
-        // 다양한 속성을 가진 테스트 사용자 생성
-        testUsers.add(createAndPersistUser("alice@example.com", "Alice", Role.USER, false, baseTime));
-        testUsers.add(createAndPersistUser("bob@example.com", "Bob", Role.USER, false, baseTime.plusSeconds(1)));
-        testUsers.add(createAndPersistUser("charlie@example.com", "Charlie", Role.ADMIN, false, baseTime.plusSeconds(2)));
-        testUsers.add(createAndPersistUser("david@example.com", "David", Role.ADMIN, true, baseTime.plusSeconds(3)));
-        testUsers.add(createAndPersistUser("eve@test.com", "Eve", Role.USER, true, baseTime.plusSeconds(4)));
+        testUsers.add(createAndPersistUser(
+            "alice@example.com",
+            "Alice",
+            Role.USER,
+            false,
+            baseTime
+        ));
+        testUsers.add(
+            createAndPersistUser(
+                "bob@example.com",
+                "Bob",
+                Role.USER,
+                false,
+                baseTime.plusSeconds(1)
+            )
+        );
+        testUsers.add(
+            createAndPersistUser(
+                "charlie@example.com",
+                "Charlie",
+                Role.ADMIN,
+                false,
+                baseTime.plusSeconds(2)
+            )
+        );
+        testUsers.add(
+            createAndPersistUser(
+                "david@example.com",
+                "David",
+                Role.ADMIN,
+                true,
+                baseTime.plusSeconds(3)
+            )
+        );
+        testUsers.add(
+            createAndPersistUser(
+                "eve@test.com",
+                "Eve",
+                Role.USER,
+                true,
+                baseTime.plusSeconds(4)
+            )
+        );
 
         entityManager.flush();
         entityManager.clear();
     }
 
-    private UserEntity createAndPersistUser(String email, String name, Role role, boolean locked, Instant createdAt) {
+    private UserEntity createAndPersistUser(
+        String email,
+        String name,
+        Role role,
+        boolean locked,
+        Instant createdAt
+    ) {
         UserEntity entity = UserEntity.builder()
             .createdAt(createdAt)
             .updatedAt(createdAt)
@@ -86,7 +129,14 @@ class UserQueryRepositoryImplTest {
         void withNoFilter_returnsAllUsers() {
             // given
             UserQueryRequest request = new UserQueryRequest(
-                null, null, null, null, null, 100, SortDirection.ASCENDING, UserSortField.name
+                null,
+                null,
+                null,
+                null,
+                null,
+                100,
+                SortDirection.ASCENDING,
+                UserSortField.name
             );
 
             // when
@@ -103,7 +153,14 @@ class UserQueryRepositoryImplTest {
         void withEmailLike_filtersUsers() {
             // given
             UserQueryRequest request = new UserQueryRequest(
-                "example.com", null, null, null, null, 100, SortDirection.ASCENDING, UserSortField.name
+                "example.com",
+                null,
+                null,
+                null,
+                null,
+                100,
+                SortDirection.ASCENDING,
+                UserSortField.name
             );
 
             // when
@@ -157,7 +214,14 @@ class UserQueryRepositoryImplTest {
         void withMultipleFilters_filtersUsers() {
             // given
             UserQueryRequest request = new UserQueryRequest(
-                "example.com", Role.ADMIN, false, null, null, 100, SortDirection.ASCENDING, UserSortField.name
+                "example.com",
+                Role.ADMIN,
+                false,
+                null,
+                null,
+                100,
+                SortDirection.ASCENDING,
+                UserSortField.name
             );
 
             // when
@@ -173,7 +237,14 @@ class UserQueryRepositoryImplTest {
         void withNoMatchingData_returnsEmptyResult() {
             // given
             UserQueryRequest request = new UserQueryRequest(
-                "nonexistent.com", null, null, null, null, 100, SortDirection.ASCENDING, UserSortField.name
+                "nonexistent.com",
+                null,
+                null,
+                null,
+                null,
+                100,
+                SortDirection.ASCENDING,
+                UserSortField.name
             );
 
             // when
@@ -406,7 +477,14 @@ class UserQueryRepositoryImplTest {
         void paginationWithFilter() {
             // given
             UserQueryRequest request = new UserQueryRequest(
-                "example.com", null, null, null, null, 2, SortDirection.ASCENDING, UserSortField.name
+                "example.com",
+                null,
+                null,
+                null,
+                null,
+                2,
+                SortDirection.ASCENDING,
+                UserSortField.name
             );
 
             // when

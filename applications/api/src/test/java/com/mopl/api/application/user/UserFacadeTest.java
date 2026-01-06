@@ -336,10 +336,20 @@ class UserFacadeTest {
         @DisplayName("빈 결과 시 빈 목록 반환")
         void withNoUsers_returnsEmptyList() {
             // given
-            CursorResponse<UserModel> emptyResponse = CursorResponse.empty("name", SortDirection.ASCENDING);
+            CursorResponse<UserModel> emptyResponse = CursorResponse.empty(
+                "name",
+                SortDirection.ASCENDING
+            );
 
             UserQueryRequest request = new UserQueryRequest(
-                "nonexistent@example.com", null, null, null, null, 10, SortDirection.ASCENDING, UserSortField.name
+                "nonexistent@example.com",
+                null,
+                null,
+                null,
+                null,
+                10,
+                SortDirection.ASCENDING,
+                UserSortField.name
             );
 
             given(userService.getAll(request)).willReturn(emptyResponse);
@@ -375,7 +385,8 @@ class UserFacadeTest {
             );
 
             UserQueryRequest request = new UserQueryRequest(
-                null, UserModel.Role.ADMIN, null, null, null, 10, SortDirection.ASCENDING, UserSortField.name
+                null, UserModel.Role.ADMIN, null, null, null, 10, SortDirection.ASCENDING,
+                UserSortField.name
             );
 
             given(userService.getAll(request)).willReturn(serviceResponse);

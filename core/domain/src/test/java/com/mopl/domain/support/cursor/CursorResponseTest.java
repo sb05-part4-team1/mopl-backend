@@ -78,7 +78,10 @@ class CursorResponseTest {
         @DisplayName("빈 응답을 올바르게 생성한다")
         void createsEmptyResponse() {
             // when
-            CursorResponse<String> response = CursorResponse.empty("createdAt", SortDirection.DESCENDING);
+            CursorResponse<String> response = CursorResponse.empty(
+                "createdAt",
+                SortDirection.DESCENDING
+            );
 
             // then
             assertThat(response.data()).isEmpty();

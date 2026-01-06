@@ -75,7 +75,7 @@ class AuthControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/auth/refresh")
-                    .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, oldRefreshToken)))
+                .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, oldRefreshToken)))
                 .andExpect(status().isOk())
                 .andExpect(cookie().value(REFRESH_TOKEN_COOKIE_NAME, newRefreshToken))
                 .andExpect(jsonPath("$.accessToken").value(newAccessToken))
@@ -100,7 +100,7 @@ class AuthControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/auth/refresh")
-                    .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, invalidToken)))
+                .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, invalidToken)))
                 .andExpect(status().isUnauthorized());
         }
 
@@ -115,7 +115,7 @@ class AuthControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/auth/refresh")
-                    .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken)))
+                .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken)))
                 .andExpect(status().isForbidden());
         }
     }

@@ -29,9 +29,7 @@ public interface AuthApiSpec {
             required = true,
             in = ParameterIn.COOKIE,
             schema = @Schema(type = "string")
-        )
-        String refreshToken,
-        @Parameter(hidden = true)
-        HttpServletResponse response
+        ) String refreshToken,
+        @Parameter(hidden = true) HttpServletResponse response
     );
 }

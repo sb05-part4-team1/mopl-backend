@@ -67,7 +67,15 @@ public final class CursorPaginationHelper {
         String nextCursor = sortField.serializeCursor(cursorValueExtractor.apply(lastRow));
         UUID nextIdAfter = idExtractor.apply(lastRow);
 
-        return CursorResponse.of(data, nextCursor, nextIdAfter, true, totalCount, sortByStr, direction);
+        return CursorResponse.of(
+            data,
+            nextCursor,
+            nextIdAfter,
+            true,
+            totalCount,
+            sortByStr,
+            direction
+        );
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

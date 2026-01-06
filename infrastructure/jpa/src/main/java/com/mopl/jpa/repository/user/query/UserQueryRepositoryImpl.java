@@ -37,7 +37,12 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
                 isLocked(request.isLocked())
             );
 
-        CursorPaginationHelper.applyCursorPagination(request, sortFieldJpa, jpaQuery, userEntity.id);
+        CursorPaginationHelper.applyCursorPagination(
+            request,
+            sortFieldJpa,
+            jpaQuery,
+            userEntity.id
+        );
 
         List<UserEntity> rows = jpaQuery.fetch();
         long totalCount = countTotal(request);

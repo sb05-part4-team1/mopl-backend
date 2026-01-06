@@ -23,8 +23,11 @@ class CursorPaginationHelperTest {
     }
 
     static class TestSortFieldImpl implements SortField<String> {
-        private final ComparableExpression<String> expression =
-            Expressions.comparableTemplate(String.class, "name");
+
+        private final ComparableExpression<String> expression = Expressions.comparableTemplate(
+            String.class,
+            "name"
+        );
 
         @Override
         public ComparableExpression<String> getExpression() {
@@ -42,9 +45,11 @@ class CursorPaginationHelperTest {
         }
     }
 
-    record TestRow(UUID id, String name) {}
+    record TestRow(UUID id, String name) {
+    }
 
-    record TestDto(String displayName) {}
+    record TestDto(String displayName) {
+    }
 
     @Nested
     @DisplayName("buildResponse()")
@@ -60,6 +65,7 @@ class CursorPaginationHelperTest {
             String cursor, UUID idAfter, int limit, SortDirection direction
         ) {
             return new CursorRequest<>() {
+
                 @Override
                 public String cursor() {
                     return cursor;
@@ -186,7 +192,12 @@ class CursorPaginationHelperTest {
         @DisplayName("DESCENDING 방향이 응답에 반영된다")
         void withDescendingDirection_reflectsInResponse() {
             // given
-            CursorRequest<TestSortField> request = createRequest(null, null, 10, SortDirection.DESCENDING);
+            CursorRequest<TestSortField> request = createRequest(
+                null,
+                null,
+                10,
+                SortDirection.DESCENDING
+            );
             List<TestRow> rows = List.of(new TestRow(UUID.randomUUID(), "Test"));
 
             // when

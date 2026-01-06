@@ -26,7 +26,10 @@ class UserSortFieldJpaTest {
         @ParameterizedTest(name = "{0} -> {1}")
         @MethodSource("domainToJpaMapping")
         @DisplayName("도메인 필드를 JPA 필드로 변환한다")
-        void convertsDomainFieldToJpaField(UserSortField domainField, UserSortFieldJpa expectedJpaField) {
+        void convertsDomainFieldToJpaField(
+            UserSortField domainField,
+            UserSortFieldJpa expectedJpaField
+        ) {
             // when
             UserSortFieldJpa result = UserSortFieldJpa.from(domainField);
 

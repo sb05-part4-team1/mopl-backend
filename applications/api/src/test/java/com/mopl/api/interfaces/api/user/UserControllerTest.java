@@ -307,9 +307,9 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/users")
-                    .param("limit", "10")
-                    .param("sortDirection", "ASCENDING")
-                    .param("sortBy", "name"))
+                .param("limit", "10")
+                .param("sortDirection", "ASCENDING")
+                .param("sortBy", "name"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(2))
@@ -328,15 +328,16 @@ class UserControllerTest {
         @DisplayName("필터 파라미터가 적용된 요청 처리")
         void withFilterParams_appliesFilters() throws Exception {
             // given
-            CursorResponse<UserResponse> emptyResponse = CursorResponse.empty("name", SortDirection.ASCENDING);
+            CursorResponse<UserResponse> emptyResponse = CursorResponse.empty("name",
+                SortDirection.ASCENDING);
 
             given(userFacade.getUsers(any(UserQueryRequest.class))).willReturn(emptyResponse);
 
             // when & then
             mockMvc.perform(get("/api/users")
-                    .param("emailLike", "admin")
-                    .param("roleEqual", "ADMIN")
-                    .param("isLocked", "false"))
+                .param("emailLike", "admin")
+                .param("roleEqual", "ADMIN")
+                .param("isLocked", "false"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(0))
@@ -370,9 +371,9 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/users")
-                    .param("cursor", "PreviousUser")
-                    .param("idAfter", idAfter.toString())
-                    .param("limit", "10"))
+                .param("cursor", "PreviousUser")
+                .param("idAfter", idAfter.toString())
+                .param("limit", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(1))
                 .andExpect(jsonPath("$.hasNext").value(false))
@@ -385,7 +386,8 @@ class UserControllerTest {
         @DisplayName("빈 결과 시 빈 목록 반환")
         void withNoResults_returnsEmptyList() throws Exception {
             // given
-            CursorResponse<UserResponse> emptyResponse = CursorResponse.empty("name", SortDirection.DESCENDING);
+            CursorResponse<UserResponse> emptyResponse = CursorResponse.empty("name",
+                SortDirection.DESCENDING);
 
             given(userFacade.getUsers(any(UserQueryRequest.class))).willReturn(emptyResponse);
 
