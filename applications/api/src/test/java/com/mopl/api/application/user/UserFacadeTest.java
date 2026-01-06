@@ -2,6 +2,7 @@ package com.mopl.api.application.user;
 
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
 import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
+import com.mopl.api.interfaces.api.user.UserUpdateRequest;
 import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.user.UserService;
@@ -198,9 +199,77 @@ class UserFacadeTest {
             given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
 
             // when
-            UserModel result = userFacade.updateProfile(userModel.getId(), image);
+            UserModel result = userFacade.updateProfile(userModel.getId(), null, image);
 
             // then
+            assertThat(result.getProfileImageUrl()).isEqualTo(profileImageUrl);
+
+            then(userService).should().getById(userModel.getId());
+            then(fileStorageProvider).should().upload(any(), anyString());
+            then(fileStorageProvider).should().getUrl(storedPath);
+            then(userService).should().update(any(UserModel.class));
+        }
+
+        @Test
+        @DisplayName("유효한 이름으로 수정 시 이름 업데이트 성공")
+        void withValidName_updateNameSuccess() {
+            // given
+            UserModel userModel = UserModelFixture.create();
+            String newName = "newName";
+
+            UserUpdateRequest request = new UserUpdateRequest(newName);
+
+            UserModel updatedUserModel = UserModelFixture.builder()
+                .set("id", userModel.getId())
+                .set("name", newName)
+                .sample();
+
+            given(userService.getById(userModel.getId())).willReturn(userModel);
+            given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
+
+            // when
+            UserModel result = userFacade.updateProfile(userModel.getId(), request, null);
+
+            // then
+            assertThat(result.getName()).isEqualTo(newName);
+
+            then(userService).should().getById(userModel.getId());
+            then(fileStorageProvider).should(never()).upload(any(), anyString());
+            then(userService).should().update(any(UserModel.class));
+        }
+
+        @Test
+        @DisplayName("이름과 이미지 함께 수정 시 둘 다 업데이트 성공")
+        void withNameAndImage_updateBothSuccess() throws IOException {
+            // given
+            UserModel userModel = UserModelFixture.create();
+            String newName = "newName";
+            String storedPath = "users/" + userModel.getId() + "/test.png";
+            String profileImageUrl = "http://localhost/api/v1/files/display?path=" + storedPath;
+
+            UserUpdateRequest request = new UserUpdateRequest(newName);
+
+            MultipartFile image = mock(MultipartFile.class);
+            given(image.isEmpty()).willReturn(false);
+            given(image.getInputStream()).willReturn(new ByteArrayInputStream("test".getBytes()));
+            given(image.getOriginalFilename()).willReturn("test.png");
+
+            UserModel updatedUserModel = UserModelFixture.builder()
+                .set("id", userModel.getId())
+                .set("name", newName)
+                .set("profileImageUrl", profileImageUrl)
+                .sample();
+
+            given(userService.getById(userModel.getId())).willReturn(userModel);
+            given(fileStorageProvider.upload(any(), anyString())).willReturn(storedPath);
+            given(fileStorageProvider.getUrl(storedPath)).willReturn(profileImageUrl);
+            given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
+
+            // when
+            UserModel result = userFacade.updateProfile(userModel.getId(), request, image);
+
+            // then
+            assertThat(result.getName()).isEqualTo(newName);
             assertThat(result.getProfileImageUrl()).isEqualTo(profileImageUrl);
 
             then(userService).should().getById(userModel.getId());
@@ -219,7 +288,7 @@ class UserFacadeTest {
             given(userService.update(any(UserModel.class))).willReturn(userModel);
 
             // when
-            UserModel result = userFacade.updateProfile(userModel.getId(), null);
+            UserModel result = userFacade.updateProfile(userModel.getId(), null, null);
 
             // then
             assertThat(result.getId()).isEqualTo(userModel.getId());
@@ -242,7 +311,7 @@ class UserFacadeTest {
             given(userService.update(any(UserModel.class))).willReturn(userModel);
 
             // when
-            UserModel result = userFacade.updateProfile(userModel.getId(), image);
+            UserModel result = userFacade.updateProfile(userModel.getId(), null, image);
 
             // then
             assertThat(result.getId()).isEqualTo(userModel.getId());
@@ -265,7 +334,7 @@ class UserFacadeTest {
             given(userService.getById(userModel.getId())).willReturn(userModel);
 
             // when & then
-            assertThatThrownBy(() -> userFacade.updateProfile(userModel.getId(), image))
+            assertThatThrownBy(() -> userFacade.updateProfile(userModel.getId(), null, image))
                 .isInstanceOf(UncheckedIOException.class)
                 .hasMessageContaining("파일 스트림 읽기 실패");
 
