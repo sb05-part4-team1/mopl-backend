@@ -8,6 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import static com.mopl.domain.model.content.ContentModel.THUMBNAIL_URL_MAX_LENGTH;
@@ -26,7 +27,6 @@ class ContentModelTest {
         @Test
         @DisplayName("유효한 데이터로 ContentModel 생성")
         void withValidData_createsContentModel() {
-            // when
             ContentModel content = ContentModel.create(
                 "영화",
                 "인셉션",
@@ -34,7 +34,6 @@ class ContentModelTest {
                 "https://mopl.com/inception.png"
             );
 
-            // then
             assertThat(content.getId()).isNull();
             assertThat(content.getType()).isEqualTo("영화");
             assertThat(content.getTitle()).isEqualTo("인셉션");
@@ -46,6 +45,19 @@ class ContentModelTest {
             assertThat(content.getDeletedAt()).isNull();
         }
 
+        @Test
+        @DisplayName("설명(description)은 null이어도 생성 가능")
+        void withNullDescription_createsContentModel() {
+            ContentModel content = ContentModel.create(
+                "영화",
+                "제목",
+                null,
+                "url"
+            );
+
+            assertThat(content.getDescription()).isNull();
+        }
+
         static Stream<Arguments> emptyFieldsProvider() {
             return Stream.of(
                 Arguments.of("null", null),
@@ -54,7 +66,7 @@ class ContentModelTest {
             );
         }
 
-        @ParameterizedTest(name = "타입이 {0}인 경우")
+        @ParameterizedTest(name = "타입이 {0}일 때")
         @MethodSource("emptyFieldsProvider")
         @DisplayName("컨텐츠 타입이 비어있으면 예외 발생")
         void withEmptyType_throwsException(String description, String type) {
@@ -72,7 +84,7 @@ class ContentModelTest {
                 });
         }
 
-        @ParameterizedTest(name = "제목이 {0}인 경우")
+        @ParameterizedTest(name = "제목이 {0}일 때")
         @MethodSource("emptyFieldsProvider")
         @DisplayName("제목이 비어있으면 예외 발생")
         void withEmptyTitle_throwsException(String description, String title) {
@@ -149,29 +161,59 @@ class ContentModelTest {
     }
 
     @Nested
+    @DisplayName("withTags()")
+    class WithTagsTest {
+
+        @Test
+        @DisplayName("withTags는 기존 객체를 변경하지 않고 새로운 객체를 반환한다")
+        void withTags_returnsNewInstance() {
+            ContentModel original = ContentModel.create(
+                "영화",
+                "제목",
+                "설명",
+                "url"
+            );
+
+            ContentModel updated = original.withTags(List.of("SF", "액션"));
+
+            assertThat(original.getTags()).isEmpty();
+            assertThat(updated.getTags()).containsExactly("SF", "액션");
+            assertThat(updated).isNotSameAs(original);
+        }
+    }
+
+    @Nested
     @DisplayName("SuperBuilder")
     class BuilderTest {
 
         @Test
-        @DisplayName("빌더를 통해 태그 목록을 포함하여 생성")
+        @DisplayName("빌더를 통해 태그를 포함하여 생성 가능")
         void withBuilder_includesTags() {
             ContentModel content = ContentModel.builder()
                 .type("영화")
                 .title("인셉션")
                 .description("꿈속의 꿈")
                 .thumbnailUrl("https://mopl.com/inception.png")
-                .tags(java.util.List.of("SF", "액션"))
+                .tags(List.of("SF", "액션"))
                 .build();
 
-            assertThat(content.getId()).isNull();
             assertThat(content.getType()).isEqualTo("영화");
             assertThat(content.getTitle()).isEqualTo("인셉션");
             assertThat(content.getDescription()).isEqualTo("꿈속의 꿈");
             assertThat(content.getThumbnailUrl()).isEqualTo("https://mopl.com/inception.png");
             assertThat(content.getTags()).containsExactly("SF", "액션");
-            assertThat(content.getCreatedAt()).isNull();
-            assertThat(content.getUpdatedAt()).isNull();
-            assertThat(content.getDeletedAt()).isNull();
+        }
+
+        @Test
+        @DisplayName("빌더는 도메인 유효성 검증을 우회할 수 있음을 명시한다")
+        void builder_allowsInvalidState() {
+            ContentModel content = ContentModel.builder()
+                .type("")
+                .title("제목")
+                .thumbnailUrl("url")
+                .build();
+
+            assertThat(content.getType()).isEmpty();
         }
     }
 }

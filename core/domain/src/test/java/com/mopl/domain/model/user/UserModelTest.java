@@ -35,13 +35,12 @@ class UserModelTest {
             UUID id = UUID.randomUUID();
             Instant createdAt = Instant.now();
             Instant updatedAt = Instant.now();
-            Instant deletedAt = null;
 
             // when
             UserModel user = UserModel.builder()
                 .id(id)
                 .createdAt(createdAt)
-                .deletedAt(deletedAt)
+                .deletedAt(null)
                 .updatedAt(updatedAt)
                 .authProvider(UserModel.AuthProvider.GOOGLE)
                 .email("test@example.com")
@@ -412,6 +411,89 @@ class UserModelTest {
 
             // when
             UserModel result = user.updateProfileImageUrl("https://example.com/profile.jpg");
+
+            // then
+            assertThat(result).isSameAs(user);
+        }
+    }
+
+    @Nested
+    @DisplayName("updateName()")
+    class UpdateNameTest {
+
+        @Test
+        @DisplayName("유효한 이름으로 변경")
+        void withValidName_updatesName() {
+            // given
+            UserModel user = UserModel.create(
+                UserModel.AuthProvider.EMAIL,
+                "test@example.com",
+                "홍길동",
+                "password"
+            );
+
+            // when
+            user.updateName("김철수");
+
+            // then
+            assertThat(user.getName()).isEqualTo("김철수");
+        }
+
+        @ParameterizedTest
+        @NullSource
+        @ValueSource(strings = {"", "   "})
+        @DisplayName("null이거나 빈 문자열이면 변경하지 않음")
+        void withEmptyName_doesNotUpdate(String newName) {
+            // given
+            UserModel user = UserModel.create(
+                UserModel.AuthProvider.EMAIL,
+                "test@example.com",
+                "홍길동",
+                "password"
+            );
+
+            // when
+            user.updateName(newName);
+
+            // then
+            assertThat(user.getName()).isEqualTo("홍길동");
+        }
+
+        @Test
+        @DisplayName("50자 초과하면 예외 발생")
+        void withNameExceedingMaxLength_throwsException() {
+            // given
+            UserModel user = UserModel.create(
+                UserModel.AuthProvider.EMAIL,
+                "test@example.com",
+                "홍길동",
+                "password"
+            );
+            String longName = "가".repeat(NAME_MAX_LENGTH + 1);
+
+            // when & then
+            assertThatThrownBy(() -> user.updateName(longName))
+                .isInstanceOf(InvalidUserDataException.class)
+                .satisfies(e -> {
+                    InvalidUserDataException ex = (InvalidUserDataException) e;
+                    assertThat(ex.getDetails().get("detailMessage"))
+                        .isEqualTo("이름은 " + NAME_MAX_LENGTH + "자를 초과할 수 없습니다.");
+                });
+        }
+
+        @Test
+        @DisplayName("자기 자신을 반환")
+        void withValidName_returnsThis() {
+            // given
+            UserModel user = UserModel.create(
+                UserModel.AuthProvider.EMAIL,
+                "test@example.com",
+                "홍길동",
+                "password"
+            );
+
+            // when
+            UserModel result = user.updateName("김철수");
 
             // then
             assertThat(result).isSameAs(user);
