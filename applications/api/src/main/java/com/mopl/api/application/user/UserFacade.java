@@ -2,6 +2,7 @@ package com.mopl.api.application.user;
 
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
 import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
+import com.mopl.api.interfaces.api.user.UserUpdateRequest;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.model.user.UserModel.AuthProvider;
 import com.mopl.domain.service.user.UserService;
@@ -60,8 +61,12 @@ public class UserFacade {
     }
 
     @Transactional
-    public UserModel updateProfile(UUID userId, MultipartFile image) {
+    public UserModel updateProfile(UUID userId, UserUpdateRequest request, MultipartFile image) {
         UserModel userModel = userService.getById(userId);
+
+        if (request != null && request.name() != null && !request.name().isBlank()) {
+            userModel.updateName(request.name().strip());
+        }
 
         if (image != null && !image.isEmpty()) {
             try {
