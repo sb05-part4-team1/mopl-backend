@@ -2,7 +2,7 @@ package com.mopl.domain.support.cursor;
 
 import java.util.UUID;
 
-public interface CursorRequest {
+public interface CursorRequest<S extends Enum<S>> {
 
     String cursor();
 
@@ -11,4 +11,6 @@ public interface CursorRequest {
     Integer limit();
 
     SortDirection sortDirection();
+
+    S sortBy();
 }

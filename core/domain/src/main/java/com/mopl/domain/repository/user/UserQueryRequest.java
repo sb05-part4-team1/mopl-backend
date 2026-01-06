@@ -15,13 +15,13 @@ public record UserQueryRequest(
     Integer limit,
     SortDirection sortDirection,
     UserSortField sortBy
-) implements CursorRequest {
+) implements CursorRequest<UserSortField> {
 
     private static final int DEFAULT_LIMIT = 100;
 
     public UserQueryRequest {
         limit = limit != null ? limit : DEFAULT_LIMIT;
         sortDirection = sortDirection != null ? sortDirection : SortDirection.ASCENDING;
-        sortBy = sortBy != null ? sortBy : UserSortField.NAME;
+        sortBy = sortBy != null ? sortBy : UserSortField.name;
     }
 }

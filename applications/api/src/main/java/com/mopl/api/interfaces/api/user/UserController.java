@@ -2,8 +2,8 @@ package com.mopl.api.interfaces.api.user;
 
 import com.mopl.api.application.user.UserFacade;
 import com.mopl.domain.model.user.UserModel;
-import com.mopl.jpa.repository.user.query.UserQueryRequest;
-import com.mopl.jpa.support.cursor.CursorResponse;
+import com.mopl.domain.repository.user.UserQueryRequest;
+import com.mopl.domain.support.cursor.CursorResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
