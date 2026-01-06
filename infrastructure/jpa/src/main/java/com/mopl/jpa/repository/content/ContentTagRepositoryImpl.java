@@ -46,4 +46,9 @@ public class ContentTagRepositoryImpl implements ContentTagRepository {
             .map(contentTag -> tagEntityMapper.toModel(contentTag.getTag()))
             .toList();
     }
+
+    @Override
+    public void deleteAllByContentId(UUID contentId) {
+        jpaContentTagRepository.deleteAllByContentId(contentId);
+    }
 }
