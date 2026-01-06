@@ -1,5 +1,7 @@
 package com.mopl.jpa.support.cursor;
 
+import com.mopl.domain.support.cursor.SortDirection;
+
 import java.util.UUID;
 
 public interface CursorRequest<S extends SortField<?>> {
@@ -10,7 +12,7 @@ public interface CursorRequest<S extends SortField<?>> {
 
     Integer limit();
 
-    S sortField();
+    SortDirection sortDirection();
 
-    com.mopl.domain.support.cursor.SortDirection sortDirection();
+    S sortBy();
 }
