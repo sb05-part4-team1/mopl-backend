@@ -29,7 +29,9 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -53,16 +55,20 @@ class ReviewControllerTest {
     private UUID mockUserId;
 
     @BeforeEach
+    @SuppressWarnings({"unchecked", "rawtypes"})
     void setUp() {
         mockUserId = UUID.randomUUID();
 
-        // MoplUserDetails를 Mocking하여 getUsername() 호출 시 UUID 문자열을 반환하도록 설정
+        // MoplUserDetails를 Mocking하여 userId() 호출 시 UUID를 반환하도록 설정
         mockUserDetails = mock(MoplUserDetails.class);
+        given(mockUserDetails.userId()).willReturn(mockUserId);
         given(mockUserDetails.getUsername()).willReturn(mockUserId.toString());
-        // 수정 후 (해결)
         given(mockUserDetails.getAuthorities())
-            .willReturn((Collection) Collections.singleton(new SimpleGrantedAuthority(
-                "ROLE_USER")));
+            .willReturn(
+                (Collection) Collections.singleton(
+                    new SimpleGrantedAuthority("ROLE_USER")
+                )
+            );
     }
 
     @Nested
