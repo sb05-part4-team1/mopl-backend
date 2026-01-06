@@ -1,9 +1,9 @@
-package com.mopl.domain.service.user;
+package com.mopl.domain.service.follow;
 
 import com.mopl.domain.exception.follow.FollowErrorCode;
 import com.mopl.domain.exception.follow.SelfFollowException;
-import com.mopl.domain.model.user.FollowModel;
-import com.mopl.domain.repository.user.FollowRepository;
+import com.mopl.domain.model.follow.FollowModel;
+import com.mopl.domain.repository.follow.FollowRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
