@@ -3,8 +3,10 @@ package com.mopl.api.application.user;
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
 import com.mopl.api.interfaces.api.user.UserResponse;
 import com.mopl.api.interfaces.api.user.UserResponseMapper;
+import com.mopl.api.interfaces.api.user.UserLockUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserUpdateRequest;
+import com.mopl.domain.exception.user.SelfLockChangeException;
 import com.mopl.domain.exception.user.SelfRoleChangeException;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.model.user.UserModel.AuthProvider;
@@ -75,6 +77,24 @@ public class UserFacade {
         UserModel userModel = userService.getById(userId);
         userModel.updateRole(role);
         return userService.update(userModel);
+    }
+
+    @Transactional
+    public void updateLocked(
+        UUID requesterId,
+        UUID targetUserId,
+        UserLockUpdateRequest request
+    ) {
+        if (requesterId.equals(targetUserId)) {
+            throw SelfLockChangeException.withUserId(requesterId);
+        }
+        UserModel userModel = userService.getById(targetUserId);
+        if (request.locked()) {
+            userModel.lock();
+        } else {
+            userModel.unlock();
+        }
+        userService.update(userModel);
     }
 
     @Transactional
