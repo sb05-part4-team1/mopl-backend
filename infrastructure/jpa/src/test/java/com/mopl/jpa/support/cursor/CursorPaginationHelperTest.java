@@ -3,6 +3,7 @@ package com.mopl.jpa.support.cursor;
 import com.mopl.domain.support.cursor.CursorRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
+import com.mopl.jpa.repository.user.query.UserSortFieldJpa;
 import com.querydsl.core.types.dsl.ComparableExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import org.junit.jupiter.api.DisplayName;
@@ -117,7 +118,7 @@ class CursorPaginationHelperTest {
             assertThat(response.nextCursor()).isNull();
             assertThat(response.nextIdAfter()).isNull();
             assertThat(response.totalCount()).isZero();
-            assertThat(response.sortBy()).isEqualTo("name");
+            assertThat(response.sortBy()).isEqualTo(UserSortFieldJpa.NAME.name());
             assertThat(response.sortDirection()).isEqualTo(SortDirection.ASCENDING);
         }
 
