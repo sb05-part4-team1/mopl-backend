@@ -41,7 +41,7 @@ public final class CursorPaginationHelper {
         Function<T, UUID> idExtractor
     ) {
         SortDirection direction = request.sortDirection();
-        String sortByStr = request.sortBy().name().toLowerCase();
+        String sortByStr = request.sortBy().name();
 
         if (rows.isEmpty()) {
             return CursorResponse.empty(sortByStr, direction);
