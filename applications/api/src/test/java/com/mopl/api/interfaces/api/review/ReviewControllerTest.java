@@ -33,6 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+// addFilters = false를 제거해야 @AuthenticationPrincipal이 동작합니다.
 @WebMvcTest(ReviewController.class)
 @Import(ApiControllerAdvice.class)
 @DisplayName("ReviewController 단위 테스트")

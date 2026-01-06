@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -80,7 +81,7 @@ class ContentControllerTest {
                 .build();
 
             ContentResponse response = new ContentResponse(
-                contentId, "영화", "인셉션", "꿈속의 꿈", "https://image.com/inception.png",
+                contentId, "영화", "인셉션", "꿈속의 꿈", "https://mopl.com/inception.png",
                 List.of("SF", "액션"), 0.0, 0, 0L
             );
 
@@ -93,7 +94,7 @@ class ContentControllerTest {
             mockMvc.perform(multipart("/api/contents")
                 .file(requestPart)
                 .file(thumbnailPart)
-                .accept(MediaType.APPLICATION_JSON)) // Boundary 자동생성을 위해 contentType 설정 제거
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(contentId.toString()))
                 .andExpect(jsonPath("$.title").value("인셉션"))
@@ -119,33 +120,40 @@ class ContentControllerTest {
 
             then(contentFacade).should(never()).upload(any(), any());
         }
+    }
+
+    @Nested
+    @DisplayName("GET /api/contents/{contentId} - 콘텐츠 상세 조회")
+    class GetDetailTest {
 
         @Test
-        @DisplayName("유효하지 않은 데이터(제목 공백) 시 400 Bad Request 응답")
-        void withInvalidData_returns400BadRequest() throws Exception {
+        @DisplayName("존재하는 콘텐츠 ID 조회 시 200 OK 응답")
+        void withExistingId_returns200Ok() throws Exception {
             // given
-            ContentCreateRequest invalidRequest = new ContentCreateRequest("영화", "인셉션", "꿈속의 꿈",
-                List.of());
+            UUID contentId = UUID.randomUUID();
+            ContentModel contentModel = ContentModel.builder()
+                .id(contentId)
+                .title("인셉션")
+                .build();
 
-            MockMultipartFile requestPart = new MockMultipartFile(
-                "request",
-                "",
-                MediaType.APPLICATION_JSON_VALUE,
-                objectMapper.writeValueAsBytes(invalidRequest)
+            ContentResponse response = new ContentResponse(
+                contentId, "영화", "인셉션", "꿈속의 꿈", "https://mopl.com/inception.png",
+                List.of("SF", "액션"), 0.0, 0, 0L
             );
 
-            MockMultipartFile thumbnailPart = new MockMultipartFile(
-                "thumbnail", "incpetion.png", MediaType.IMAGE_PNG_VALUE, "inception-image"
-                    .getBytes()
-            );
+            given(contentFacade.getDetail(contentId)).willReturn(contentModel);
+            given(contentResponseMapper.toResponse(contentModel)).willReturn(response);
 
             // when & then
-            mockMvc.perform(multipart("/api/contents")
-                .file(requestPart)
-                .file(thumbnailPart))
-                .andExpect(status().isBadRequest());
+            mockMvc.perform(get("/api/contents/{contentId}", contentId)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(contentId.toString()))
+                .andExpect(jsonPath("$.title").value("인셉션"))
+                .andExpect(jsonPath("$.tags[0]").value("SF"));
 
-            then(contentFacade).should(never()).upload(any(), any());
+            then(contentFacade).should().getDetail(contentId);
+            then(contentResponseMapper).should().toResponse(contentModel);
         }
     }
 }

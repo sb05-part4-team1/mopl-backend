@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 import java.util.List;
 
 @Getter
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ContentModel extends BaseUpdatableModel {
 
@@ -55,6 +55,12 @@ public class ContentModel extends BaseUpdatableModel {
             .title(title)
             .description(description)
             .thumbnailUrl(thumbnailUrl)
+            .build();
+    }
+
+    public ContentModel withTags(List<String> tags) {
+        return this.toBuilder()
+            .tags(tags)
             .build();
     }
 
