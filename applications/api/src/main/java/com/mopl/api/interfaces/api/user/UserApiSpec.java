@@ -102,12 +102,6 @@ public interface UserApiSpec {
         name = "userId",
         description = "수정할 User ID"
     )
-    @RequestBody(
-        content = @Content(
-            mediaType = "multipart/form-data",
-            schema = @Schema(type = "string", format = "binary")
-        )
-    )
     @ApiResponse(
         responseCode = "200",
         description = "프로필 수정 성공",
@@ -132,5 +126,5 @@ public interface UserApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    UserResponse updateProfile(UUID userId, MultipartFile image);
+    UserResponse updateProfile(UUID userId, UserUpdateRequest request, MultipartFile image);
 }

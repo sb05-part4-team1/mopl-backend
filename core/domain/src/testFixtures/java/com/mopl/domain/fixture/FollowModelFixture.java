@@ -2,7 +2,7 @@ package com.mopl.domain.fixture;
 
 import static com.mopl.domain.fixture.FixtureMonkeyConfig.fixtureMonkey;
 
-import com.mopl.domain.model.user.FollowModel;
+import com.mopl.domain.model.follow.FollowModel;
 import com.navercorp.fixturemonkey.ArbitraryBuilder;
 
 public final class FollowModelFixture {

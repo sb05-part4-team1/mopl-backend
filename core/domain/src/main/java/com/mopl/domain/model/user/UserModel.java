@@ -85,6 +85,14 @@ public class UserModel extends BaseUpdatableModel {
         return this;
     }
 
+    public UserModel updateName(String newName) {
+        if (newName != null && !newName.isBlank()) {
+            validateName(newName);
+            this.name = newName;
+        }
+        return this;
+    }
+
     public UserModel updateRole(Role newRole) {
         if (newRole != null) {
             this.role = newRole;
