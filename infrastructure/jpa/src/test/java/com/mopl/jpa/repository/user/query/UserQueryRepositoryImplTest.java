@@ -49,8 +49,10 @@ class UserQueryRepositoryImplTest {
 
         createAndPersistUser("alice@example.com", "Alice", Role.USER, false, baseTime);
         createAndPersistUser("bob@example.com", "Bob", Role.USER, false, baseTime.plusSeconds(1));
-        createAndPersistUser("charlie@example.com", "Charlie", Role.ADMIN, false, baseTime.plusSeconds(2));
-        createAndPersistUser("david@example.com", "David", Role.ADMIN, true, baseTime.plusSeconds(3));
+        createAndPersistUser("charlie@example.com", "Charlie", Role.ADMIN, false, baseTime
+            .plusSeconds(2));
+        createAndPersistUser("david@example.com", "David", Role.ADMIN, true, baseTime.plusSeconds(
+            3));
         createAndPersistUser("eve@test.com", "Eve", Role.USER, true, baseTime.plusSeconds(4));
 
         entityManager.flush();

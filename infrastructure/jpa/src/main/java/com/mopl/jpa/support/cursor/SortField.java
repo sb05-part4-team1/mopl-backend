@@ -9,4 +9,6 @@ public interface SortField<T extends Comparable<?>> {
     String serializeCursor(Object value);
 
     T deserializeCursor(String cursor);
+
+    String getFieldName();
 }

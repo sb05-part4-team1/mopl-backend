@@ -19,15 +19,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CursorPaginationHelperTest {
 
     enum TestSortField {
-        NAME, EMAIL
+        name, email
     }
 
     static class TestSortFieldImpl implements SortField<String> {
 
-        private final ComparableExpression<String> expression = Expressions.comparableTemplate(
-            String.class,
-            "name"
-        );
+        private final TestSortField sortField;
+        private final ComparableExpression<String> expression;
+
+        TestSortFieldImpl(TestSortField sortField) {
+            this.sortField = sortField;
+            this.expression = Expressions.comparableTemplate(String.class, sortField.name());
+        }
 
         @Override
         public ComparableExpression<String> getExpression() {
@@ -43,6 +46,11 @@ class CursorPaginationHelperTest {
         public String deserializeCursor(String cursor) {
             return cursor;
         }
+
+        @Override
+        public String getFieldName() {
+            return sortField.name();
+        }
     }
 
     record TestRow(UUID id, String name) {
@@ -55,7 +63,7 @@ class CursorPaginationHelperTest {
     @DisplayName("buildResponse()")
     class BuildResponseTest {
 
-        private final SortField<?> sortField = new TestSortFieldImpl();
+        private final SortField<?> sortField = new TestSortFieldImpl(TestSortField.name);
 
         private CursorRequest<TestSortField> createRequest(int limit) {
             return createRequest(null, null, limit, SortDirection.ASCENDING);
@@ -88,7 +96,7 @@ class CursorPaginationHelperTest {
 
                 @Override
                 public TestSortField sortBy() {
-                    return TestSortField.NAME;
+                    return TestSortField.name;
                 }
             };
         }
