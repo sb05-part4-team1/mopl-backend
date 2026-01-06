@@ -15,6 +15,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
 
@@ -23,6 +24,7 @@ import java.math.BigDecimal;
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLRestriction("deleted_at IS NULL")
 public class ReviewEntity extends BaseUpdatableEntity {
 
     @Column(columnDefinition = "TEXT")
