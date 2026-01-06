@@ -1,0 +1,43 @@
+package com.mopl.api.application.playlist;
+
+import com.mopl.api.interfaces.api.playlist.PlaylistCreateRequest;
+import com.mopl.api.interfaces.api.playlist.PlaylistResponse;
+import com.mopl.api.interfaces.api.playlist.PlaylistResponseMapper;
+import com.mopl.domain.model.playlist.PlaylistModel;
+import com.mopl.domain.model.user.UserModel;
+import com.mopl.domain.service.playlist.PlaylistService;
+import com.mopl.domain.service.user.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
+
+@Component
+@RequiredArgsConstructor
+public class PlaylistFacade {
+
+    private final PlaylistService playlistService;
+    private final UserService userService;
+    private final PlaylistResponseMapper playlistResponseMapper;
+
+    @Transactional
+    public PlaylistResponse createPlaylist(
+            UUID requesterId,
+            PlaylistCreateRequest request
+    ) {
+
+        // 요청자(= 플레이리스트 소유자) 조회: 존재하지 않으면 예외 발생
+        UserModel owner = userService.getById(requesterId);
+
+        // 플레이리스트 생성 (소유자 요청자 본인으로 고정)
+        PlaylistModel savedPlaylist = playlistService.create(
+                owner,
+                request.title(),
+                request.description()
+        );
+
+        // 응답 DTO 변환 후 반환
+        return playlistResponseMapper.toResponse(savedPlaylist, owner);
+    }
+}
