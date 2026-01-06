@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,7 +23,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.never;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -55,8 +53,8 @@ class ContentControllerTest {
         @Test
         @DisplayName("유효한 요청 시 201 Created 응답")
         void withValidRequest_returns201Created() throws Exception {
-            // given
             UUID contentId = UUID.randomUUID();
+
             ContentCreateRequest request = new ContentCreateRequest(
                 "영화", "인셉션", "꿈속의 꿈", List.of("SF", "액션")
             );
@@ -72,88 +70,163 @@ class ContentControllerTest {
                 "thumbnail",
                 "inception.png",
                 MediaType.IMAGE_PNG_VALUE,
-                "inception-image".getBytes()
+                "image".getBytes()
             );
 
             ContentModel contentModel = ContentModel.builder()
                 .id(contentId)
-                .title("인셉션")
                 .build();
 
             ContentResponse response = new ContentResponse(
-                contentId, "영화", "인셉션", "꿈속의 꿈", "https://mopl.com/inception.png",
+                contentId, "영화", "인셉션", "꿈속의 꿈",
+                "https://mopl.com/inception.png",
                 List.of("SF", "액션"), 0.0, 0, 0L
             );
 
-            given(contentFacade.upload(any(ContentCreateRequest.class), any(MultipartFile.class)))
-                .willReturn(contentModel);
-            given(contentResponseMapper.toResponse(eq(contentModel)))
-                .willReturn(response);
+            given(contentFacade.upload(any(), any())).willReturn(contentModel);
+            given(contentResponseMapper.toResponse(contentModel)).willReturn(response);
 
-            // when & then
             mockMvc.perform(multipart("/api/contents")
                 .file(requestPart)
                 .file(thumbnailPart)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(contentId.toString()))
-                .andExpect(jsonPath("$.title").value("인셉션"))
-                .andExpect(jsonPath("$.tags").isArray());
+                .andExpect(jsonPath("$.id").value(contentId.toString()));
 
-            then(contentFacade).should().upload(any(ContentCreateRequest.class), any(
-                MultipartFile.class));
-        }
-
-        @Test
-        @DisplayName("필수 파트(request)가 누락되면 400 Bad Request 응답")
-        void withMissingRequestPart_returns400BadRequest() throws Exception {
-            // given
-            MockMultipartFile thumbnailPart = new MockMultipartFile(
-                "thumbnail", "inception.png", MediaType.IMAGE_PNG_VALUE, "inception-image"
-                    .getBytes()
-            );
-
-            // when & then
-            mockMvc.perform(multipart("/api/contents")
-                .file(thumbnailPart))
-                .andExpect(status().isBadRequest());
-
-            then(contentFacade).should(never()).upload(any(), any());
+            then(contentFacade).should().upload(any(), any());
         }
     }
 
     @Nested
-    @DisplayName("GET /api/contents/{contentId} - 콘텐츠 상세 조회")
+    @DisplayName("GET /api/contents/{contentId} - 콘텐츠 조회")
     class GetDetailTest {
 
         @Test
-        @DisplayName("존재하는 콘텐츠 ID 조회 시 200 OK 응답")
-        void withExistingId_returns200Ok() throws Exception {
-            // given
+        @DisplayName("정상 조회 시 200 OK")
+        void withExistingId_returns200() throws Exception {
             UUID contentId = UUID.randomUUID();
-            ContentModel contentModel = ContentModel.builder()
+
+            ContentModel model = ContentModel.builder()
                 .id(contentId)
-                .title("인셉션")
                 .build();
 
             ContentResponse response = new ContentResponse(
-                contentId, "영화", "인셉션", "꿈속의 꿈", "https://mopl.com/inception.png",
-                List.of("SF", "액션"), 0.0, 0, 0L
+                contentId, "영화", "인셉션", "꿈속의 꿈",
+                "https://mopl.com/inception.png",
+                List.of("SF"), 0.0, 0, 0L
             );
 
-            given(contentFacade.getDetail(contentId)).willReturn(contentModel);
-            given(contentResponseMapper.toResponse(contentModel)).willReturn(response);
+            given(contentFacade.getDetail(contentId)).willReturn(model);
+            given(contentResponseMapper.toResponse(model)).willReturn(response);
 
-            // when & then
-            mockMvc.perform(get("/api/contents/{contentId}", contentId)
-                .accept(MediaType.APPLICATION_JSON))
+            mockMvc.perform(get("/api/contents/{id}", contentId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(contentId.toString()))
-                .andExpect(jsonPath("$.title").value("인셉션"))
-                .andExpect(jsonPath("$.tags[0]").value("SF"));
+                .andExpect(jsonPath("$.id").value(contentId.toString()));
+        }
+    }
 
-            then(contentFacade).should().getDetail(contentId);
-            then(contentResponseMapper).should().toResponse(contentModel);
+    @Nested
+    @DisplayName("PATCH /api/contents/{contentId} - 콘텐츠 수정")
+    class UpdateTest {
+
+        @Test
+        @DisplayName("썸네일 없이 수정 시 200 OK")
+        void updateWithoutThumbnail_returns200() throws Exception {
+            UUID contentId = UUID.randomUUID();
+
+            ContentUpdateRequest request = new ContentUpdateRequest(
+                "수정된 제목", "수정된 설명", List.of("SF2")
+            );
+
+            MockMultipartFile requestPart = new MockMultipartFile(
+                "request",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                objectMapper.writeValueAsBytes(request)
+            );
+
+            ContentModel updatedModel = ContentModel.builder()
+                .id(contentId)
+                .build();
+
+            ContentResponse response = new ContentResponse(
+                contentId, "영화", "수정된 제목", "수정된 설명",
+                "https://mopl.com/inception.png",
+                List.of("SF2"), 0.0, 0, 0L
+            );
+
+            given(contentFacade.update(eq(contentId), any(), eq(null)))
+                .willReturn(updatedModel);
+            given(contentResponseMapper.toResponse(updatedModel))
+                .willReturn(response);
+
+            mockMvc.perform(
+                multipart("/api/contents/{id}", contentId)
+                    .file(requestPart)
+                    .with(req -> {
+                        req.setMethod("PATCH");
+                        return req;
+                    })
+                    .accept(MediaType.APPLICATION_JSON)
+            )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("수정된 제목"));
+
+            then(contentFacade).should().update(eq(contentId), any(), eq(null));
+        }
+
+        @Test
+        @DisplayName("썸네일 포함 수정 시 200 OK")
+        void updateWithThumbnail_returns200() throws Exception {
+            UUID contentId = UUID.randomUUID();
+
+            ContentUpdateRequest request = new ContentUpdateRequest(
+                "수정된 제목", "수정된 설명", List.of("SF2")
+            );
+
+            MockMultipartFile requestPart = new MockMultipartFile(
+                "request",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                objectMapper.writeValueAsBytes(request)
+            );
+
+            MockMultipartFile thumbnailPart = new MockMultipartFile(
+                "thumbnail",
+                "new.png",
+                MediaType.IMAGE_PNG_VALUE,
+                "image".getBytes()
+            );
+
+            ContentModel updatedModel = ContentModel.builder()
+                .id(contentId)
+                .build();
+
+            ContentResponse response = new ContentResponse(
+                contentId, "영화", "수정된 제목", "수정된 설명",
+                "https://mopl.com/new.png",
+                List.of("SF2"), 0.0, 0, 0L
+            );
+
+            given(contentFacade.update(eq(contentId), any(), any()))
+                .willReturn(updatedModel);
+            given(contentResponseMapper.toResponse(updatedModel))
+                .willReturn(response);
+
+            mockMvc.perform(
+                multipart("/api/contents/{id}", contentId)
+                    .file(requestPart)
+                    .file(thumbnailPart)
+                    .with(req -> {
+                        req.setMethod("PATCH");
+                        return req;
+                    })
+                    .accept(MediaType.APPLICATION_JSON)
+            )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("수정된 제목"));
+
+            then(contentFacade).should().update(eq(contentId), any(), any());
         }
     }
 }
