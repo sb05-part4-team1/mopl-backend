@@ -14,20 +14,20 @@ public class ContentSummaryMapper {
     }
 
     public ContentSummary toSummary(
-            ContentModel model,
-            double averageRating,
-            int reviewCount
+        ContentModel model,
+        double averageRating,
+        int reviewCount
     ) {
         return new ContentSummary(
-                model.getId(),
-                model.getType(),
-                model.getTitle(),
-                model.getDescription(),
-                model.getThumbnailUrl(),
-                model.getTags(),
-                // TODO: 아래 수치 데이터들은 추후 도메인 로직 구현 시 실제 값으로 대체 필요
-                averageRating,
-                reviewCount
+            model.getId(),
+            model.getType(),
+            model.getTitle(),
+            model.getDescription(),
+            model.getThumbnailUrl(),
+            model.getTags(),
+            // TODO: 아래 수치 데이터들은 추후 도메인 로직 구현 시 실제 값으로 대체 필요
+            averageRating,
+            reviewCount
         );
     }
 
@@ -37,7 +37,7 @@ public class ContentSummaryMapper {
         }
 
         return models.stream()
-                .map(this::toSummary)
-                .toList();
+            .map(this::toSummary)
+            .toList();
     }
 }

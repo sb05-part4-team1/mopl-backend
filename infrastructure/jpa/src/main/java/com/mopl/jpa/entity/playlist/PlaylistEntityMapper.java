@@ -15,18 +15,18 @@ public class PlaylistEntityMapper {
         }
 
         return PlaylistModel.builder()
-                .id(playlistEntity.getId())
-                .createdAt(playlistEntity.getCreatedAt())
-                .updatedAt(playlistEntity.getUpdatedAt())
-                .deletedAt(playlistEntity.getDeletedAt())
-                .ownerId(
-                        playlistEntity.getOwner() != null
-                                ? playlistEntity.getOwner().getId()
-                                : null
-                )
-                .title(playlistEntity.getTitle())
-                .description(playlistEntity.getDescription())
-                .build();
+            .id(playlistEntity.getId())
+            .createdAt(playlistEntity.getCreatedAt())
+            .updatedAt(playlistEntity.getUpdatedAt())
+            .deletedAt(playlistEntity.getDeletedAt())
+            .ownerId(
+                playlistEntity.getOwner() != null
+                    ? playlistEntity.getOwner().getId()
+                    : null
+            )
+            .title(playlistEntity.getTitle())
+            .description(playlistEntity.getDescription())
+            .build();
     }
 
     public PlaylistEntity toEntity(PlaylistModel playlistModel) {
@@ -35,14 +35,14 @@ public class PlaylistEntityMapper {
         }
 
         return PlaylistEntity.builder()
-                .id(playlistModel.getId())
-                .createdAt(playlistModel.getCreatedAt())
-                .updatedAt(playlistModel.getUpdatedAt())
-                .deletedAt(playlistModel.getDeletedAt())
-                .owner(toOwnerEntity(playlistModel.getOwnerId()))
-                .title(playlistModel.getTitle())
-                .description(playlistModel.getDescription())
-                .build();
+            .id(playlistModel.getId())
+            .createdAt(playlistModel.getCreatedAt())
+            .updatedAt(playlistModel.getUpdatedAt())
+            .deletedAt(playlistModel.getDeletedAt())
+            .owner(toOwnerEntity(playlistModel.getOwnerId()))
+            .title(playlistModel.getTitle())
+            .description(playlistModel.getDescription())
+            .build();
     }
 
     private UserEntity toOwnerEntity(UUID ownerId) {
@@ -51,7 +51,7 @@ public class PlaylistEntityMapper {
         }
 
         return UserEntity.builder()
-                .id(ownerId)
-                .build();
+            .id(ownerId)
+            .build();
     }
 }

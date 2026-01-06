@@ -23,9 +23,9 @@ public class PlaylistModel extends BaseUpdatableModel {
 
     // 생성자 대신 스태틱 팩토리로 생성 + 유효성 검사
     public static PlaylistModel create(
-            UUID ownerId,
-            String title,
-            String description
+        UUID ownerId,
+        String title,
+        String description
     ) {
         if (ownerId == null) {
             throw new InvalidPlaylistDataException("소유자 ID는 null일 수 없습니다.");
@@ -38,10 +38,10 @@ public class PlaylistModel extends BaseUpdatableModel {
         validateDescription(description);
 
         return PlaylistModel.builder()
-                .ownerId(ownerId)
-                .title(title)
-                .description(description)
-                .build();
+            .ownerId(ownerId)
+            .title(title)
+            .description(description)
+            .build();
 
     }
 
@@ -50,7 +50,8 @@ public class PlaylistModel extends BaseUpdatableModel {
             throw new InvalidPlaylistDataException("플레이리스트 제목은 공백일 수 없습니다.");
         }
         if (title.length() > TITLE_MAX_LENGTH) {
-            throw new InvalidPlaylistDataException("플레이리스트 제목은 " + TITLE_MAX_LENGTH + "자를 초과할 수 없습니다.");
+            throw new InvalidPlaylistDataException("플레이리스트 제목은 " + TITLE_MAX_LENGTH
+                + "자를 초과할 수 없습니다.");
         }
     }
 
@@ -59,7 +60,8 @@ public class PlaylistModel extends BaseUpdatableModel {
             return;
         }
         if (description.length() > DESCRIPTION_MAX_LENGTH) {
-            throw new InvalidPlaylistDataException("플레이리스트 설명은 " + DESCRIPTION_MAX_LENGTH + "자를 초과할 수 없습니다.");
+            throw new InvalidPlaylistDataException("플레이리스트 설명은 " + DESCRIPTION_MAX_LENGTH
+                + "자를 초과할 수 없습니다.");
         }
     }
 

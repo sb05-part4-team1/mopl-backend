@@ -6,8 +6,8 @@ public class InvalidPlaylistDataException extends PlaylistException {
 
     public InvalidPlaylistDataException(String message) {
         super(
-                PlaylistErrorCode.INVALID_PLAYLIST_DATA,
-                Map.of("reason", message)
+            PlaylistErrorCode.INVALID_PLAYLIST_DATA,
+            Map.of("reason", message)
         );
     }
 }

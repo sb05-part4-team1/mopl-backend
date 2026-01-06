@@ -55,10 +55,10 @@ public class DomainServiceConfig {
 
     @Bean
     public PlaylistService playlistService(
-            PlaylistRepository playlistRepository
+        PlaylistRepository playlistRepository
     ) {
         return new PlaylistService(
-                playlistRepository
+            playlistRepository
         );
     }
 }

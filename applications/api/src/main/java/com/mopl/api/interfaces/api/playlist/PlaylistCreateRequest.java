@@ -5,10 +5,8 @@ import jakarta.validation.constraints.Size;
 
 public record PlaylistCreateRequest(
 
-        @NotBlank @Size(max = 255)
-        String title,
+    @NotBlank @Size(max = 255) String title,
 
-        @Size(max = 10_000)
-        String description
+    @Size(max = 10_000) String description
 ) {
 }

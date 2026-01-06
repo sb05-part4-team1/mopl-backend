@@ -23,8 +23,8 @@ public class PlaylistFacade {
 
     @Transactional
     public PlaylistResponse createPlaylist(
-            UUID requesterId,
-            PlaylistCreateRequest request
+        UUID requesterId,
+        PlaylistCreateRequest request
     ) {
 
         // 요청자(= 플레이리스트 소유자) 조회: 존재하지 않으면 예외 발생
@@ -32,9 +32,9 @@ public class PlaylistFacade {
 
         // 플레이리스트 생성 (소유자 요청자 본인으로 고정)
         PlaylistModel savedPlaylist = playlistService.create(
-                owner,
-                request.title(),
-                request.description()
+            owner,
+            request.title(),
+            request.description()
         );
 
         // 응답 DTO 변환 후 반환

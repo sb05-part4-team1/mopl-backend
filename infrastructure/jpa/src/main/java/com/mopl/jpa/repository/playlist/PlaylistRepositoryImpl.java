@@ -13,6 +13,7 @@ import java.util.UUID;
 @Repository
 @RequiredArgsConstructor
 public class PlaylistRepositoryImpl implements PlaylistRepository {
+
     private final JpaPlaylistRepository jpaPlaylistRepository;
     private final PlaylistEntityMapper playlistEntityMapper;
 
@@ -27,6 +28,6 @@ public class PlaylistRepositoryImpl implements PlaylistRepository {
     @Override
     public Optional<PlaylistModel> findById(UUID playlistId) {
         return jpaPlaylistRepository.findById(playlistId)
-                .map(playlistEntityMapper::toModel);
+            .map(playlistEntityMapper::toModel);
     }
 }

@@ -11,14 +11,14 @@ public class PlaylistService {
     private final PlaylistRepository playlistRepository;
 
     public PlaylistModel create(
-            UserModel owner,
-            String title,
-            String description
+        UserModel owner,
+        String title,
+        String description
     ) {
         PlaylistModel playlistModel = PlaylistModel.create(
-                owner.getId(),
-                title,
-                description
+            owner.getId(),
+            title,
+            description
         );
 
         return playlistRepository.save(playlistModel);

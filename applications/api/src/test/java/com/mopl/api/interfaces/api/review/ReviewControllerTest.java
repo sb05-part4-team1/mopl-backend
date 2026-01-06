@@ -33,7 +33,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// addFilters = false를 제거해야 @AuthenticationPrincipal이 동작합니다.
 @WebMvcTest(ReviewController.class)
 @Import(ApiControllerAdvice.class)
 @DisplayName("ReviewController 단위 테스트")
@@ -48,7 +47,6 @@ class ReviewControllerTest {
     @MockBean
     private ReviewFacade reviewFacade;
 
-    // 테스트에서 사용할 가짜 인증 유저 객체
     private MoplUserDetails mockUserDetails;
     private UUID mockUserId;
 
@@ -56,10 +54,14 @@ class ReviewControllerTest {
     void setUp() {
         mockUserId = UUID.randomUUID();
 
-        // MoplUserDetails를 Mocking하여 getUsername() 호출 시 UUID 문자열을 반환하도록 설정
+        // Mock 객체 생성
         mockUserDetails = mock(MoplUserDetails.class);
+
+        // [핵심 수정] 컨트롤러가 사용하는 메서드 이름(userId())에 맞춰 Stubbing
+        given(mockUserDetails.userId()).willReturn(mockUserId);
+
+        // 기존 Stubbing (필요하다면 유지, 컨트롤러가 안 쓴다면 없어도 무방하나 안전하게 유지)
         given(mockUserDetails.getUsername()).willReturn(mockUserId.toString());
-        // 수정 후 (해결)
         given(mockUserDetails.getAuthorities())
             .willReturn((Collection) Collections.singleton(new SimpleGrantedAuthority(
                 "ROLE_USER")));
@@ -82,16 +84,10 @@ class ReviewControllerTest {
                 new BigDecimal("4.0")
             );
 
-            UserSummary authorSummary = new UserSummary(
-                mockUserId,
-                "홍길동",
-                "profile.png"
-            );
-
             ReviewResponse response = new ReviewResponse(
                 reviewId,
                 contentId,
-                authorSummary,
+                new UserSummary(mockUserId, "홍길동", "profile.png"),
                 "테스트 리뷰",
                 new BigDecimal("4.0")
             );
@@ -101,13 +97,14 @@ class ReviewControllerTest {
             // when & then
             mockMvc.perform(
                 post("/api/reviews")
-                    .with(csrf()) // [필수] CSRF 토큰 주입
-                    .with(user(mockUserDetails)) // [필수] SecurityContext에 인증 객체 주입
+                    .with(csrf())
+                    .with(user(mockUserDetails))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request))
             )
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(reviewId.toString()))
+                .andExpect(jsonPath("$.text").value("테스트 리뷰"))
                 .andExpect(jsonPath("$.author.userId").value(mockUserId.toString()));
 
             then(reviewFacade).should().createReview(eq(mockUserId), refEq(request));
@@ -116,16 +113,13 @@ class ReviewControllerTest {
         @Test
         @DisplayName("인증 정보가 없으면 401을 반환한다")
         void createReview_withoutAuth_returns401() throws Exception {
-            // given
             ReviewCreateRequest request = new ReviewCreateRequest(
                 UUID.randomUUID(), "내용", BigDecimal.TEN
             );
 
-            // when & then
             mockMvc.perform(
                 post("/api/reviews")
                     .with(csrf())
-                    // .with(user(...)) 생략 -> 비로그인 상태
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request))
             )
@@ -200,10 +194,8 @@ class ReviewControllerTest {
         @Test
         @DisplayName("인증 정보가 없으면 삭제 요청 시 401을 반환한다")
         void deleteReview_withoutAuth_returns401() throws Exception {
-            // given
             UUID reviewId = UUID.randomUUID();
 
-            // when & then
             mockMvc.perform(
                 delete("/api/reviews/{reviewId}", reviewId)
                     .with(csrf())
