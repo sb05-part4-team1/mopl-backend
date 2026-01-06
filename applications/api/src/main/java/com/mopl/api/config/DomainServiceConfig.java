@@ -2,9 +2,11 @@ package com.mopl.api.config;
 
 import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
+import com.mopl.domain.repository.playlist.PlaylistRepository;
 import com.mopl.domain.repository.review.ReviewRepository;
 import com.mopl.domain.repository.tag.TagRepository;
 import com.mopl.domain.service.content.ContentService;
+import com.mopl.domain.service.playlist.PlaylistService;
 import com.mopl.domain.service.review.ReviewService;
 import com.mopl.domain.service.tag.TagService;
 import org.springframework.context.annotation.Bean;
@@ -48,6 +50,15 @@ public class DomainServiceConfig {
     ) {
         return new ReviewService(
             reviewRepository
+        );
+    }
+
+    @Bean
+    public PlaylistService playlistService(
+        PlaylistRepository playlistRepository
+    ) {
+        return new PlaylistService(
+            playlistRepository
         );
     }
 }
