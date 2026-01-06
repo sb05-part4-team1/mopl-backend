@@ -35,13 +35,12 @@ class UserModelTest {
             UUID id = UUID.randomUUID();
             Instant createdAt = Instant.now();
             Instant updatedAt = Instant.now();
-            Instant deletedAt = null;
 
             // when
             UserModel user = UserModel.builder()
                 .id(id)
                 .createdAt(createdAt)
-                .deletedAt(deletedAt)
+                .deletedAt(null)
                 .updatedAt(updatedAt)
                 .authProvider(UserModel.AuthProvider.GOOGLE)
                 .email("test@example.com")

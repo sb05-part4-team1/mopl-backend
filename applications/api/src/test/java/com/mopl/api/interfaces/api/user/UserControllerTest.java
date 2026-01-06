@@ -6,6 +6,7 @@ import com.mopl.api.interfaces.api.ApiControllerAdvice;
 import com.mopl.domain.exception.user.DuplicateEmailException;
 import com.mopl.domain.exception.user.InvalidUserDataException;
 import com.mopl.domain.exception.user.UserNotFoundException;
+import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.user.UserModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -21,7 +22,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -36,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = UserController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@Import(ApiControllerAdvice.class)
+@Import({ApiControllerAdvice.class, UserResponseMapper.class})
 @DisplayName("UserController 슬라이스 테스트")
 class UserControllerTest {
 
@@ -49,9 +51,6 @@ class UserControllerTest {
     @MockBean
     private UserFacade userFacade;
 
-    @MockBean
-    private UserResponseMapper userResponseMapper;
-
     @Nested
     @DisplayName("POST /api/users - 회원가입")
     class SignUpTest {
@@ -60,49 +59,27 @@ class UserControllerTest {
         @DisplayName("유효한 요청 시 201 Created 응답")
         void withValidRequest_returns201Created() throws Exception {
             // given
-            UUID userId = UUID.randomUUID();
-            Instant now = Instant.now();
             String email = "test@example.com";
             String name = "test";
             String password = "P@ssw0rd!";
 
             UserCreateRequest request = new UserCreateRequest(email, name, password);
 
-            UserModel userModel = UserModel.builder()
-                .id(userId)
-                .createdAt(now)
-                .deletedAt(null)
-                .updatedAt(now)
-                .authProvider(UserModel.AuthProvider.EMAIL)
-                .email(email)
-                .name(name)
-                .password(password)
-                .profileImageUrl(null)
-                .role(UserModel.Role.USER)
-                .locked(false)
-                .build();
-
-            UserResponse userResponse = new UserResponse(
-                userId,
-                now,
-                email,
-                name,
-                null,
-                UserModel.Role.USER,
-                false
-            );
+            UserModel userModel = UserModelFixture.builder()
+                .set("email", email)
+                .set("name", name)
+                .sample();
 
             given(userFacade.signUp(any(UserCreateRequest.class))).willReturn(userModel);
-            given(userResponseMapper.toResponse(userModel)).willReturn(userResponse);
 
             // when & then
             mockMvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(userId.toString()))
-                .andExpect(jsonPath("$.email").value("test@example.com"))
-                .andExpect(jsonPath("$.name").value("test"))
+                .andExpect(jsonPath("$.id").value(userModel.getId().toString()))
+                .andExpect(jsonPath("$.email").value(email))
+                .andExpect(jsonPath("$.name").value(name))
                 .andExpect(jsonPath("$.role").value("USER"))
                 .andExpect(jsonPath("$.locked").value(false));
 
@@ -133,17 +110,15 @@ class UserControllerTest {
             String password
         ) throws Exception {
             // given
-            String requestBody = String.format(
-                "{\"email\":%s,\"name\":%s,\"password\":%s}",
-                email == null ? "null" : "\"" + email + "\"",
-                name == null ? "null" : "\"" + name + "\"",
-                password == null ? "null" : "\"" + password + "\""
-            );
+            Map<String, String> requestBody = new HashMap<>();
+            requestBody.put("email", email);
+            requestBody.put("name", name);
+            requestBody.put("password", password);
 
             // when & then
             mockMvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
+                .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isBadRequest());
 
             then(userFacade).should(never()).signUp(any(UserCreateRequest.class));
@@ -192,48 +167,20 @@ class UserControllerTest {
         @DisplayName("유효한 사용자 ID로 조회 시 200 OK 응답")
         void withValidUserId_returns200OK() throws Exception {
             // given
-            UUID userId = UUID.randomUUID();
-            Instant now = Instant.now();
-            String email = "test@example.com";
-            String name = "test";
+            UserModel userModel = UserModelFixture.create();
 
-            UserModel userModel = UserModel.builder()
-                .id(userId)
-                .createdAt(now)
-                .deletedAt(null)
-                .updatedAt(now)
-                .authProvider(UserModel.AuthProvider.EMAIL)
-                .email(email)
-                .name(name)
-                .password("encodedPassword")
-                .profileImageUrl(null)
-                .role(UserModel.Role.USER)
-                .locked(false)
-                .build();
-
-            UserResponse userResponse = new UserResponse(
-                userId,
-                now,
-                email,
-                name,
-                null,
-                UserModel.Role.USER,
-                false
-            );
-
-            given(userFacade.getUser(userId)).willReturn(userModel);
-            given(userResponseMapper.toResponse(userModel)).willReturn(userResponse);
+            given(userFacade.getUser(userModel.getId())).willReturn(userModel);
 
             // when & then
-            mockMvc.perform(get("/api/users/{userId}", userId))
+            mockMvc.perform(get("/api/users/{userId}", userModel.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(userId.toString()))
-                .andExpect(jsonPath("$.email").value(email))
-                .andExpect(jsonPath("$.name").value(name))
+                .andExpect(jsonPath("$.id").value(userModel.getId().toString()))
+                .andExpect(jsonPath("$.email").value(userModel.getEmail()))
+                .andExpect(jsonPath("$.name").value(userModel.getName()))
                 .andExpect(jsonPath("$.role").value("USER"))
                 .andExpect(jsonPath("$.locked").value(false));
 
-            then(userFacade).should().getUser(userId);
+            then(userFacade).should().getUser(userModel.getId());
         }
 
         @Test
