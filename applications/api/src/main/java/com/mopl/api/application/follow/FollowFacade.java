@@ -38,5 +38,4 @@ public class FollowFacade {
 
         followService.delete(follow);
     }
-
 }
