@@ -17,6 +17,7 @@ import static com.mopl.jpa.entity.user.QUserEntity.userEntity;
 public enum UserSortFieldJpa implements SortField<Comparable<?>> {
 
     NAME(
+        UserSortField.name,
         cast(userEntity.name),
         UserEntity::getName,
         Object::toString,
@@ -24,6 +25,7 @@ public enum UserSortFieldJpa implements SortField<Comparable<?>> {
     ),
 
     EMAIL(
+        UserSortField.email,
         cast(userEntity.email),
         UserEntity::getEmail,
         Object::toString,
@@ -31,6 +33,7 @@ public enum UserSortFieldJpa implements SortField<Comparable<?>> {
     ),
 
     CREATED_AT(
+        UserSortField.createdAt,
         cast(userEntity.createdAt),
         UserEntity::getCreatedAt,
         value -> ((Instant) value).toString(),
@@ -38,6 +41,7 @@ public enum UserSortFieldJpa implements SortField<Comparable<?>> {
     ),
 
     IS_LOCKED(
+        UserSortField.isLocked,
         cast(userEntity.locked),
         UserEntity::isLocked,
         Object::toString,
@@ -45,12 +49,14 @@ public enum UserSortFieldJpa implements SortField<Comparable<?>> {
     ),
 
     ROLE(
+        UserSortField.role,
         cast(userEntity.role.stringValue()),
         entity -> entity.getRole().name(),
         Object::toString,
         cursor -> cursor
     );
 
+    private final UserSortField domainField;
     private final ComparableExpression<Comparable<?>> expression;
     private final Function<UserEntity, Object> valueExtractor;
     private final Function<Object, String> serializer;
@@ -83,5 +89,10 @@ public enum UserSortFieldJpa implements SortField<Comparable<?>> {
 
     public Object extractValue(UserEntity entity) {
         return valueExtractor.apply(entity);
+    }
+
+    @Override
+    public String getFieldName() {
+        return domainField.name();
     }
 }
