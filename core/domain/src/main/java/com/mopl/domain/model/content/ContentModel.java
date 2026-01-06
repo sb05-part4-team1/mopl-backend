@@ -36,16 +36,7 @@ public class ContentModel extends BaseUpdatableModel {
         String description,
         String thumbnailUrl
     ) {
-        if (type == null || type.isBlank()) {
-            throw new InvalidContentDataException("컨텐츠 타입은 비어있을 수 없습니다.");
-        }
-        if (title == null || title.isBlank()) {
-            throw new InvalidContentDataException("제목은 비어있을 수 없습니다.");
-        }
-        if (thumbnailUrl == null || thumbnailUrl.isBlank()) {
-            throw new InvalidContentDataException("썸네일 URL은 비어있을 수 없습니다.");
-        }
-
+        validateRequiredFields(type, title, thumbnailUrl);
         validateType(type);
         validateTitle(title);
         validateThumbnailUrl(thumbnailUrl);
@@ -58,10 +49,39 @@ public class ContentModel extends BaseUpdatableModel {
             .build();
     }
 
+    public ContentModel update(
+        String title,
+        String description,
+        String thumbnailUrl
+    ) {
+        validateRequiredFields(this.type, title, thumbnailUrl);
+        validateType(this.type);
+        validateTitle(title);
+        validateThumbnailUrl(thumbnailUrl);
+
+        return this.toBuilder()
+            .title(title)
+            .description(description)
+            .thumbnailUrl(thumbnailUrl)
+            .build();
+    }
+
     public ContentModel withTags(List<String> tags) {
         return this.toBuilder()
             .tags(tags)
             .build();
+    }
+
+    private static void validateRequiredFields(String type, String title, String thumbnailUrl) {
+        if (type == null || type.isBlank()) {
+            throw new InvalidContentDataException("컨텐츠 타입은 비어있을 수 없습니다.");
+        }
+        if (title == null || title.isBlank()) {
+            throw new InvalidContentDataException("제목은 비어있을 수 없습니다.");
+        }
+        if (thumbnailUrl == null || thumbnailUrl.isBlank()) {
+            throw new InvalidContentDataException("썸네일 URL은 비어있을 수 없습니다.");
+        }
     }
 
     private static void validateType(String type) {
