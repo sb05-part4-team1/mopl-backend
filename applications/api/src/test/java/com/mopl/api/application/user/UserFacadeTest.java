@@ -3,8 +3,10 @@ package com.mopl.api.application.user;
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
 import com.mopl.api.interfaces.api.user.UserResponse;
 import com.mopl.api.interfaces.api.user.UserResponseMapper;
+import com.mopl.api.interfaces.api.user.UserLockUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserUpdateRequest;
+import com.mopl.domain.exception.user.SelfLockChangeException;
 import com.mopl.domain.exception.user.SelfRoleChangeException;
 import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.user.UserModel;
@@ -213,6 +215,84 @@ class UserFacadeTest {
             // when & then
             assertThatNoException()
                 .isThrownBy(() -> userFacade.updateRole(requesterId, request, targetUser.getId()));
+        }
+    }
+
+    @Nested
+    @DisplayName("updateLocked()")
+    class UpdateLockedTest {
+
+        @Test
+        @DisplayName("유효한 요청으로 사용자 잠금 시 성공")
+        void withValidRequest_lockUserSuccess() {
+            // given
+            UUID requesterId = UUID.randomUUID();
+            UserModel targetUser = UserModelFixture.create();
+            UserLockUpdateRequest request = new UserLockUpdateRequest(true);
+
+            given(userService.getById(targetUser.getId())).willReturn(targetUser);
+            given(userService.update(any(UserModel.class))).willReturn(targetUser);
+
+            // when & then
+            assertThatNoException()
+                .isThrownBy(() -> userFacade.updateLocked(requesterId, targetUser.getId(),
+                    request));
+
+            then(userService).should().getById(targetUser.getId());
+            then(userService).should().update(any(UserModel.class));
+        }
+
+        @Test
+        @DisplayName("유효한 요청으로 사용자 잠금 해제 시 성공")
+        void withValidRequest_unlockUserSuccess() {
+            // given
+            UUID requesterId = UUID.randomUUID();
+            UserModel targetUser = UserModelFixture.builder()
+                .set("locked", true)
+                .sample();
+            UserLockUpdateRequest request = new UserLockUpdateRequest(false);
+
+            given(userService.getById(targetUser.getId())).willReturn(targetUser);
+            given(userService.update(any(UserModel.class))).willReturn(targetUser);
+
+            // when & then
+            assertThatNoException()
+                .isThrownBy(() -> userFacade.updateLocked(requesterId, targetUser.getId(),
+                    request));
+
+            then(userService).should().getById(targetUser.getId());
+            then(userService).should().update(any(UserModel.class));
+        }
+
+        @Test
+        @DisplayName("자기 자신의 잠금 상태 변경 시 SelfLockChangeException 발생")
+        void withSameRequesterAndTarget_throwsSelfLockChangeException() {
+            // given
+            UUID userId = UUID.randomUUID();
+            UserLockUpdateRequest request = new UserLockUpdateRequest(true);
+
+            // when & then
+            assertThatThrownBy(() -> userFacade.updateLocked(userId, userId, request))
+                .isInstanceOf(SelfLockChangeException.class);
+
+            then(userService).shouldHaveNoInteractions();
+        }
+
+        @Test
+        @DisplayName("다른 사용자의 잠금 상태 변경은 정상 동작")
+        void withDifferentRequesterAndTarget_shouldSucceed() {
+            // given
+            UUID requesterId = UUID.randomUUID();
+            UserModel targetUser = UserModelFixture.create();
+            UserLockUpdateRequest request = new UserLockUpdateRequest(true);
+
+            given(userService.getById(targetUser.getId())).willReturn(targetUser);
+            given(userService.update(any(UserModel.class))).willReturn(targetUser);
+
+            // when & then
+            assertThatNoException()
+                .isThrownBy(() -> userFacade.updateLocked(requesterId, targetUser.getId(),
+                    request));
         }
     }
 
