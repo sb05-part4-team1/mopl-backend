@@ -16,8 +16,10 @@ public class TestSecurityConfig {
 
     @Bean
     @Primary
-    public SecurityFilterChain testSecurityFilterChain(HttpSecurity http, SecurityRegistry securityRegistry)
-        throws Exception {
+    public SecurityFilterChain testSecurityFilterChain(
+        HttpSecurity http,
+        SecurityRegistry securityRegistry
+    ) throws Exception {
         return http
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session
