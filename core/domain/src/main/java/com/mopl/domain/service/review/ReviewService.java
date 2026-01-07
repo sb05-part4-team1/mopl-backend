@@ -2,6 +2,7 @@ package com.mopl.domain.service.review;
 
 import com.mopl.domain.exception.review.ReviewForbiddenException;
 import com.mopl.domain.exception.review.ReviewNotFoundException;
+import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.review.ReviewModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.review.ReviewRepository;
@@ -16,13 +17,13 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
 
     public ReviewModel create(
-        UUID contentId,
+        ContentModel content,
         UserModel author,
         String text,
         BigDecimal rating
     ) {
 
-        ReviewModel reviewModel = ReviewModel.create(contentId, author.getId(), text, rating);
+        ReviewModel reviewModel = ReviewModel.create(content, author, text, rating);
 
         return reviewRepository.save(reviewModel);
     }
@@ -31,19 +32,19 @@ public class ReviewService {
         UUID reviewId,
         UUID requesterId,
         String text,
-        BigDecimal reting
+        BigDecimal rating
     ) {
         ReviewModel reviewModel = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new ReviewNotFoundException(reviewId));
 
-        UUID authorId = reviewModel.getAuthorId();
+        UUID authorId = reviewModel.getAuthor() != null ? reviewModel.getAuthor().getId() : null;
 
         // 이건 비즈니스 검증로직이라 Service로 옮김
         if (authorId == null || !authorId.equals(requesterId)) {
             throw new ReviewForbiddenException(reviewId, requesterId, authorId);
         }
 
-        reviewModel.update(text, reting);
+        reviewModel.update(text, rating);
 
         return reviewRepository.save(reviewModel);
     }
@@ -55,12 +56,10 @@ public class ReviewService {
         ReviewModel review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new ReviewNotFoundException(reviewId));
 
-        if (!review.getAuthorId().equals(requesterId)) {
-            throw new ReviewForbiddenException(
-                reviewId,
-                requesterId,
-                review.getAuthorId()
-            );
+        UUID authorId = review.getAuthor() != null ? review.getAuthor().getId() : null;
+
+        if (authorId == null || !authorId.equals(requesterId)) {
+            throw new ReviewForbiddenException(reviewId, requesterId, authorId);
         }
 
         review.deleteReview();
