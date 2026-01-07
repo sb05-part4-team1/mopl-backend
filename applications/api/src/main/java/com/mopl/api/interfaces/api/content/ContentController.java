@@ -51,6 +51,7 @@ public class ContentController implements ContentApiSpec {
         );
     }
 
+    @Override
     @PatchMapping(value = "/{contentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ContentResponse update(
