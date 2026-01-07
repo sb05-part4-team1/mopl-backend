@@ -44,8 +44,6 @@ class CacheServiceImplTest {
     private RedisMessageListenerContainer listenerContainer;
 
     private CacheServiceImpl cacheService;
-    private CacheProperties properties;
-    private ChannelTopic invalidationTopic;
 
     private static final String KEY_PREFIX = "mopl:";
     private static final String INVALIDATION_CHANNEL = "cache:invalidation";
@@ -54,8 +52,9 @@ class CacheServiceImplTest {
     void setUp() {
         L1Config l1Config = new L1Config(10000, Duration.ofMinutes(1), true);
         L2Config l2Config = new L2Config(Duration.ofMinutes(10));
-        properties = new CacheProperties(KEY_PREFIX, l1Config, l2Config, INVALIDATION_CHANNEL, true);
-        invalidationTopic = new ChannelTopic(INVALIDATION_CHANNEL);
+        CacheProperties properties = new CacheProperties(KEY_PREFIX, l1Config, l2Config,
+            INVALIDATION_CHANNEL, true);
+        ChannelTopic invalidationTopic = new ChannelTopic(INVALIDATION_CHANNEL);
 
         cacheService = new CacheServiceImpl(
             l1Cache,
@@ -203,6 +202,7 @@ class CacheServiceImplTest {
     }
 
     @Nested
+    @SuppressWarnings("unchecked")
     @DisplayName("evictAll 메서드 테스트")
     class EvictAllTest {
 
@@ -248,6 +248,7 @@ class CacheServiceImplTest {
     }
 
     @Nested
+    @SuppressWarnings("unchecked")
     @DisplayName("clear 메서드 테스트")
     class ClearTest {
 

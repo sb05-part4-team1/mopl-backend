@@ -21,7 +21,6 @@ class LocalCacheServiceImplTest {
 
     private Cache<String, Object> l1Cache;
     private LocalCacheServiceImpl cacheService;
-    private CacheProperties properties;
 
     private static final String KEY_PREFIX = "mopl:";
 
@@ -34,7 +33,8 @@ class LocalCacheServiceImplTest {
 
         L1Config l1Config = new L1Config(1000, Duration.ofMinutes(1), false);
         L2Config l2Config = new L2Config(Duration.ofMinutes(10));
-        properties = new CacheProperties(KEY_PREFIX, l1Config, l2Config, "cache:invalidation", false);
+        CacheProperties properties = new CacheProperties(KEY_PREFIX, l1Config, l2Config,
+            "cache:invalidation", false);
 
         cacheService = new LocalCacheServiceImpl(l1Cache, properties);
     }
@@ -150,8 +150,8 @@ class LocalCacheServiceImplTest {
             cacheService.evictAll(CacheName.USERS, userIds);
 
             // then
-            userIds.forEach(id ->
-                assertThat(l1Cache.getIfPresent(generateKey(CacheName.USERS, id))).isNull()
+            userIds.forEach(id -> assertThat(l1Cache.getIfPresent(generateKey(CacheName.USERS, id)))
+                .isNull()
             );
         }
 

@@ -234,7 +234,9 @@ class CursorPaginationHelperTest {
                 new TestRow(UUID.randomUUID(), "bob")
             );
 
-            Function<TestRow, TestDto> mapper = row -> new TestDto(row.name().toUpperCase(Locale.ROOT));
+            Function<TestRow, TestDto> mapper = row -> new TestDto(
+                row.name().toUpperCase(Locale.ROOT)
+            );
 
             // when
             CursorResponse<TestDto> response = CursorPaginationHelper.buildResponse(

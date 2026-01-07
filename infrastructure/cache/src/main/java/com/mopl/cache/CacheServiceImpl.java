@@ -53,7 +53,8 @@ public class CacheServiceImpl implements CacheService {
             },
             invalidationTopic
         );
-        log.info("Cache invalidation listener registered: [channel={}]", invalidationTopic.getTopic());
+        log.info("Cache invalidation listener registered: [channel={}]", invalidationTopic
+            .getTopic());
     }
 
     @Override

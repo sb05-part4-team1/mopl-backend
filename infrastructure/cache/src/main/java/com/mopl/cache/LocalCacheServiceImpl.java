@@ -14,15 +14,16 @@ import java.util.function.Supplier;
 
 @Service
 @Slf4j
-@ConditionalOnProperty(name = "mopl.cache.redis-enabled", havingValue = "false", matchIfMissing = true)
+@ConditionalOnProperty(name = "mopl.cache.redis-enabled", havingValue = "false",
+    matchIfMissing = true)
 public class LocalCacheServiceImpl implements CacheService {
 
     private final Cache<String, Object> l1Cache;
     private final CacheProperties properties;
 
     public LocalCacheServiceImpl(
-            Cache<String, Object> l1Cache,
-            CacheProperties properties
+        Cache<String, Object> l1Cache,
+        CacheProperties properties
     ) {
         this.l1Cache = l1Cache;
         this.properties = properties;
@@ -69,8 +70,8 @@ public class LocalCacheServiceImpl implements CacheService {
         }
 
         List<String> fullKeys = keys.stream()
-                .map(key -> generateKey(cacheName, key))
-                .toList();
+            .map(key -> generateKey(cacheName, key))
+            .toList();
 
         l1Cache.invalidateAll(fullKeys);
         log.debug("Cache evictAll: [cache={}, keyCount={}]", cacheName.getValue(), keys.size());
@@ -80,8 +81,8 @@ public class LocalCacheServiceImpl implements CacheService {
     public void clear(CacheName cacheName) {
         String prefix = properties.keyPrefix() + cacheName.getValue() + "::";
         l1Cache.asMap().keySet().stream()
-                .filter(key -> key.startsWith(prefix))
-                .forEach(l1Cache::invalidate);
+            .filter(key -> key.startsWith(prefix))
+            .forEach(l1Cache::invalidate);
         log.debug("Cache clear: [cache={}]", cacheName.getValue());
     }
 

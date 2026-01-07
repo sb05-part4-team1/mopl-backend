@@ -26,8 +26,8 @@ public class RedisConfig {
 
         StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
         ObjectMapper redisObjectMapper = createRedisObjectMapper(objectMapper);
-        GenericJackson2JsonRedisSerializer jsonRedisSerializer =
-            new GenericJackson2JsonRedisSerializer(redisObjectMapper);
+        GenericJackson2JsonRedisSerializer jsonRedisSerializer = new GenericJackson2JsonRedisSerializer(
+            redisObjectMapper);
 
         template.setKeySerializer(stringRedisSerializer);
         template.setHashKeySerializer(stringRedisSerializer);
@@ -37,7 +37,6 @@ public class RedisConfig {
 
         return template;
     }
-
 
     @SuppressWarnings("deprecation")
     private ObjectMapper createRedisObjectMapper(ObjectMapper objectMapper) {
