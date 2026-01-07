@@ -1,6 +1,7 @@
 package com.mopl.domain.model.content;
 
 import com.mopl.domain.exception.content.InvalidContentDataException;
+import java.time.Instant;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.mopl.domain.model.content.ContentModel.*;
+import static com.mopl.domain.model.content.ContentModel.THUMBNAIL_URL_MAX_LENGTH;
+import static com.mopl.domain.model.content.ContentModel.TITLE_MAX_LENGTH;
+import static com.mopl.domain.model.content.ContentModel.TYPE_MAX_LENGTH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -233,6 +236,45 @@ class ContentModelTest {
 
             // then
             assertThat(content.getType()).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteContent()")
+    class DeleteTest {
+
+        @Test
+        @DisplayName("삭제 시 deletedAt이 설정된다")
+        void deleteContent_setsDeletedAt() {
+            // given
+            ContentModel content = ContentModel.create(
+                "영화", "제목", "설명", "url"
+            );
+
+            // when
+            ContentModel deleted = content.deleteContent();
+
+            // then
+            assertThat(deleted.isDeleted()).isTrue();
+            assertThat(deleted.getDeletedAt()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("이미 삭제된 경우 멱등성을 보장한다")
+        void deleteContent_isIdempotent() {
+            // given
+            ContentModel content = ContentModel.create(
+                "영화", "제목", "설명", "url"
+            );
+
+            ContentModel firstDeleted = content.deleteContent();
+            Instant deletedAt = firstDeleted.getDeletedAt();
+
+            // when
+            ContentModel secondDeleted = firstDeleted.deleteContent();
+
+            // then
+            assertThat(secondDeleted.getDeletedAt()).isEqualTo(deletedAt);
         }
     }
 }
