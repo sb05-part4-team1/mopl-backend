@@ -43,23 +43,26 @@ public class ContentService {
         String thumbnailUrl,
         List<String> tagNames
     ) {
-        ContentModel contentModel = getById(contentId);
+        ContentModel content = getById(contentId);
 
-        String finalThumbnailUrl = (thumbnailUrl != null)
-            ? thumbnailUrl
-            : contentModel.getThumbnailUrl();
+        String finalTitle = title != null ? title : content.getTitle();
+        String finalDescription = description != null ? description : content.getDescription();
+        String finalThumbnailUrl = thumbnailUrl != null ? thumbnailUrl : content.getThumbnailUrl();
 
-        ContentModel updatedContent = contentModel.update(
-            title,
-            description,
+        ContentModel updated = content.update(
+            finalTitle,
+            finalDescription,
             finalThumbnailUrl
         );
 
-        ContentModel savedContent = contentRepository.save(updatedContent);
+        ContentModel saved = contentRepository.save(updated);
 
-        contentTagRepository.deleteAllByContentId(savedContent.getId());
+        if (tagNames == null) {
+            return saved;
+        }
 
-        return applyTags(savedContent, tagNames);
+        contentTagRepository.deleteAllByContentId(saved.getId());
+        return applyTags(saved, tagNames);
     }
 
     private ContentModel applyTags(ContentModel content, List<String> tagNames) {
