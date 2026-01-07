@@ -1,7 +1,8 @@
 package com.mopl.redis.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -38,12 +39,18 @@ public class RedisConfig {
         return template;
     }
 
-    @SuppressWarnings("deprecation")
     private ObjectMapper createRedisObjectMapper(ObjectMapper objectMapper) {
+        PolymorphicTypeValidator polymorphicTypeValidator = BasicPolymorphicTypeValidator.builder()
+            .allowIfSubType("com.mopl.")
+            .allowIfSubType("java.util.")
+            .allowIfSubType("java.time.")
+            .allowIfSubTypeIsArray()
+            .build();
+
         ObjectMapper redisObjectMapper = objectMapper.copy();
         redisObjectMapper.activateDefaultTyping(
-            LaissezFaireSubTypeValidator.instance,
-            ObjectMapper.DefaultTyping.EVERYTHING,
+            polymorphicTypeValidator,
+            ObjectMapper.DefaultTyping.NON_FINAL,
             As.PROPERTY
         );
         return redisObjectMapper;

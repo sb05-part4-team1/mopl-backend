@@ -62,27 +62,24 @@ public class CacheServiceImpl implements CacheService {
     public <T> T get(CacheName cacheName, Object key, Supplier<T> loader) {
         String fullKey = generateKey(cacheName, key);
 
-        // 1. L1 (Caffeine) 조회
         Object l1Value = l1Cache.getIfPresent(fullKey);
         if (l1Value != null) {
             log.debug("L1 hit: [cache={}, key={}]", cacheName.getValue(), key);
             return (T) l1Value;
         }
 
-        // 2. L2 (Redis) 조회
         Object l2Value = redisTemplate.opsForValue().get(fullKey);
         if (l2Value != null) {
             log.debug("L2 hit: [cache={}, key={}]", cacheName.getValue(), key);
-            l1Cache.put(fullKey, l2Value);  // L1에 채우기
+            l1Cache.put(fullKey, l2Value);
             return (T) l2Value;
         }
 
-        // 3. Loader 호출
         T loaded = loader.get();
         if (loaded != null) {
             Duration ttl = getTtl(cacheName);
-            redisTemplate.opsForValue().set(fullKey, loaded, ttl);  // L2에 저장
-            l1Cache.put(fullKey, loaded);  // L1에 저장
+            redisTemplate.opsForValue().set(fullKey, loaded, ttl);
+            l1Cache.put(fullKey, loaded);
             log.debug("Cache loaded: [cache={}, key={}, ttl={}]", cacheName.getValue(), key, ttl);
         }
         return loaded;
@@ -93,9 +90,9 @@ public class CacheServiceImpl implements CacheService {
         String fullKey = generateKey(cacheName, key);
         Duration ttl = getTtl(cacheName);
 
-        redisTemplate.opsForValue().set(fullKey, value, ttl);  // L2
-        l1Cache.put(fullKey, value);  // L1
-        publishInvalidation(fullKey);  // 다른 서버 L1 무효화
+        redisTemplate.opsForValue().set(fullKey, value, ttl);
+        l1Cache.put(fullKey, value);
+        publishInvalidation(fullKey);
 
         log.debug("Cache put: [cache={}, key={}, ttl={}]", cacheName.getValue(), key, ttl);
     }
@@ -104,9 +101,9 @@ public class CacheServiceImpl implements CacheService {
     public void evict(CacheName cacheName, Object key) {
         String fullKey = generateKey(cacheName, key);
 
-        redisTemplate.delete(fullKey);  // L2
-        l1Cache.invalidate(fullKey);  // L1
-        publishInvalidation(fullKey);  // 다른 서버 L1 무효화
+        redisTemplate.delete(fullKey);
+        l1Cache.invalidate(fullKey);
+        publishInvalidation(fullKey);
 
         log.debug("Cache evict: [cache={}, key={}]", cacheName.getValue(), key);
     }
