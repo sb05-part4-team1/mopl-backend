@@ -5,24 +5,18 @@ import com.mopl.api.interfaces.api.content.ContentSummaryMapper;
 import com.mopl.api.interfaces.api.user.UserSummaryMapper;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class PlaylistResponseMapper {
 
     private final UserSummaryMapper userSummaryMapper;
     private final ContentSummaryMapper contentSummaryMapper;
-
-    public PlaylistResponseMapper(
-        UserSummaryMapper userSummaryMapper,
-        ContentSummaryMapper contentSummaryMapper
-    ) {
-        this.userSummaryMapper = userSummaryMapper;
-        this.contentSummaryMapper = contentSummaryMapper;
-    }
 
     public PlaylistResponse toResponse(
         PlaylistModel model,
@@ -57,10 +51,5 @@ public class PlaylistResponseMapper {
             subscribedByMe,
             safeContents
         );
-    }
-
-    public List<ContentSummary> toContentSummaries(
-        List<com.mopl.domain.model.content.ContentModel> contentModels) {
-        return contentSummaryMapper.toSummaries(contentModels);
     }
 }

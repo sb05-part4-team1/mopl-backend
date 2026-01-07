@@ -40,7 +40,7 @@ public class PlaylistController {
 
     @PatchMapping("/{playlistId}")
     @ResponseStatus(HttpStatus.OK)
-    public PlaylistResponse updatePlayList(
+    public PlaylistResponse updatePlaylist(
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable UUID playlistId,
         @RequestBody @Valid PlaylistUpdateRequest request
