@@ -1,9 +1,7 @@
 package com.mopl.jpa.entity.conversation;
 
 import com.mopl.domain.model.conversation.DirectMessageModel;
-import com.mopl.jpa.entity.user.UserEntity;
 import com.mopl.jpa.entity.user.UserEntityMapper;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

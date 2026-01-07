@@ -2,9 +2,13 @@ package com.mopl.api.application.conversation;
 
 import com.mopl.api.interfaces.api.conversation.ConversationCreateRequest;
 import com.mopl.domain.model.conversation.ConversationModel;
+import com.mopl.domain.model.conversation.DirectMessageModel;
+import com.mopl.domain.model.conversation.ReadStatusModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.conversation.ConversationService;
 import com.mopl.domain.service.user.UserService;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,12 +22,33 @@ public class ConversationFacade {
     private final UserService userService;
 
     @Transactional
-    public ConversationModel createConversation(ConversationCreateRequest request) {
+    public void directMessageRead(UUID conversationId,UUID directMessageId){
+        DirectMessageModel directMessageModel =
+                conversationService.getDircetMassegeById(directMessageId);
 
-        UserModel with = userService.getById(request.withUserId()); //나중에 더 이상 사용되지 않으면 변수는 없애기
-        ConversationModel conversationModel = ConversationModel.create(with);
+        List<ReadStatusModel> readStatusModels =
+                conversationService.getReadStatusByConversationId(directMessageId);
 
-        return conversationService.create(conversationModel);
+        conversationService.directMessageRead(directMessageModel,readStatusModels);
+
+
+    }
+
+
+    @Transactional
+    public ConversationModel createConversation(ConversationCreateRequest request, UUID userId) {
+
+        UserModel withModel = userService.getById(request.withUserId()); //나중에 더 이상 사용되지 않으면 변수는 없애기
+        UserModel userModel = userService.getById(userId);
+        ConversationModel conversationModel = ConversationModel.create(withModel);
+
+        return conversationService.create(conversationModel, userModel);
+    }
+
+    @Transactional
+    public ConversationModel getConversation(UUID conversationId) {
+
+        return conversationService.getConversation(conversationId);
     }
 
 //    @Transactional(readOnly = true)

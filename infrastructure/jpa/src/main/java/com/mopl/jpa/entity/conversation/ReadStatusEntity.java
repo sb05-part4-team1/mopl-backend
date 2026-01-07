@@ -16,8 +16,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-
-
 @Entity
 @Table(name = "read_statuses")
 @Getter

@@ -1,6 +1,7 @@
 package com.mopl.jpa.entity.conversation;
 
 import com.mopl.domain.model.conversation.ConversationModel;
+import com.mopl.domain.model.conversation.DirectMessageModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +22,23 @@ public class ConversationEntityMapper {
             .id(conversationEntity.getId())
             .createdAt(conversationEntity.getCreatedAt())
             .updatedAt(conversationEntity.getUpdatedAt())
+            .build();
+    }
+
+    public ConversationModel toModel(
+        ConversationEntity conversationEntity,
+        DirectMessageModel directMessageModel
+    ) {
+
+        if (conversationEntity == null) {
+            return null;
+        }
+
+        return ConversationModel.builder()
+            .id(conversationEntity.getId())
+            .createdAt(conversationEntity.getCreatedAt())
+            .updatedAt(conversationEntity.getUpdatedAt())
+            .directMessage(directMessageModel)
             .build();
     }
 
