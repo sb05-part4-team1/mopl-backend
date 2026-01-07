@@ -40,7 +40,7 @@ public class PlaylistFacade {
         );
 
         // 응답 DTO 변환 후 반환
-        return playlistResponseMapper.toResponse(savedPlaylist, owner);
+        return playlistResponseMapper.toResponse(savedPlaylist);
     }
 
     @Transactional
@@ -49,7 +49,9 @@ public class PlaylistFacade {
         UUID playlistId,
         PlaylistUpdateRequest request
     ) {
-        UserModel requester = userService.getById(requesterId);
+
+        // requester 존재 보장
+        userService.getById(requesterId);
 
         PlaylistModel updatedPlaylist = playlistService.update(
             playlistId,
@@ -60,10 +62,19 @@ public class PlaylistFacade {
 
         return playlistResponseMapper.toResponse(
             updatedPlaylist,
-            requester,
             0L,
             false,
             Collections.emptyList()
         );
+    }
+
+    @Transactional
+    public void deletePlaylist(
+        UUID requesterId,
+        UUID playlistId
+    ) {
+        // requester 존재 보장 (ReviewFacade delete와 동일 패턴)
+        userService.getById(requesterId);
+        playlistService.delete(playlistId, requesterId);
     }
 }

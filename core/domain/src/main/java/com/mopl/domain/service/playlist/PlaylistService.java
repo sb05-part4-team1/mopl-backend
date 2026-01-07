@@ -20,7 +20,7 @@ public class PlaylistService {
         String description
     ) {
         PlaylistModel playlistModel = PlaylistModel.create(
-            owner.getId(),
+            owner,
             title,
             description
         );
@@ -38,16 +38,36 @@ public class PlaylistService {
         PlaylistModel playlistModel = playlistRepository.findById(playlistId)
             .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
 
-        if (!playlistModel.getOwnerId().equals(requesterId)) {
+        UUID ownerId = (playlistModel.getOwner() != null) ? playlistModel.getOwner().getId() : null;
+
+        if (ownerId == null || !ownerId.equals(requesterId)) {
             throw new PlaylistForbiddenException(
                 playlistId,
                 requesterId,
-                playlistModel.getOwnerId()
+                ownerId
             );
         }
 
         playlistModel.update(title, description);
 
         return playlistRepository.save(playlistModel);
+    }
+
+    public void delete(
+        UUID playlistid,
+        UUID requesterid
+    ) {
+        PlaylistModel playlistModel = playlistRepository.findById(playlistid)
+            .orElseThrow(() -> new PlaylistNotFoundException(playlistid));
+
+        UUID ownerId = (playlistModel.getOwner() != null) ? playlistModel.getOwner().getId() : null;
+
+        if (ownerId == null || !ownerId.equals(requesterid)) {
+            throw new PlaylistForbiddenException(playlistid, requesterid, ownerId);
+        }
+
+        playlistModel.deletePlaylist();
+
+        playlistRepository.save(playlistModel);
     }
 }

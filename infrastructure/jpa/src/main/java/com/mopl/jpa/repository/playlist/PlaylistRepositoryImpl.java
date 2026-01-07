@@ -27,7 +27,7 @@ public class PlaylistRepositoryImpl implements PlaylistRepository {
 
     @Override
     public Optional<PlaylistModel> findById(UUID playlistId) {
-        return jpaPlaylistRepository.findById(playlistId)
+        return jpaPlaylistRepository.findByIdWithOwner(playlistId)
             .map(playlistEntityMapper::toModel);
     }
 }

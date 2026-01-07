@@ -2,12 +2,11 @@ package com.mopl.domain.model.playlist;
 
 import com.mopl.domain.exception.playlist.InvalidPlaylistDataException;
 import com.mopl.domain.model.base.BaseUpdatableModel;
+import com.mopl.domain.model.user.UserModel;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
-import java.util.UUID;
 
 @Getter
 @SuperBuilder
@@ -17,17 +16,20 @@ public class PlaylistModel extends BaseUpdatableModel {
     public static final int TITLE_MAX_LENGTH = 255;
     public static final int DESCRIPTION_MAX_LENGTH = 10_000;
 
-    private UUID ownerId; // 플레이리스트 소유자 ID
+    private UserModel owner; // 플레이리스트 소유자
     private String title;
     private String description;
 
     // 생성자 대신 스태틱 팩토리로 생성 + 유효성 검사
     public static PlaylistModel create(
-        UUID ownerId,
+        UserModel owner,
         String title,
         String description
     ) {
-        if (ownerId == null) {
+        if (owner == null) {
+            throw new InvalidPlaylistDataException("소유자 정보는 null일 수 없습니다.");
+        }
+        if (owner.getId() == null) {
             throw new InvalidPlaylistDataException("소유자 ID는 null일 수 없습니다.");
         }
         if (title == null) {
@@ -38,7 +40,7 @@ public class PlaylistModel extends BaseUpdatableModel {
         validateDescription(description);
 
         return PlaylistModel.builder()
-            .ownerId(ownerId)
+            .owner(owner)
             .title(title)
             .description(description)
             .build();
@@ -49,16 +51,30 @@ public class PlaylistModel extends BaseUpdatableModel {
         String newTitle,
         String newDescription
     ) {
-        if (newTitle == null) {
-            throw new InvalidPlaylistDataException("플레이리스트 제목은 null일 수 없습니다.");
+        // title이 null이 아니면 수정
+        if (newTitle != null) {
+            validateTitle(newTitle);
+            this.title = newTitle;
         }
 
+        // description이 null이 아니면 수정
+        if (newDescription != null) {
+            validateDescription(newDescription);
+            this.description = newDescription;
+        }
         validateTitle(newTitle);
         validateDescription(newDescription);
 
-        this.title = newTitle;
-        this.description = newDescription;
+        return this;
+    }
 
+    public PlaylistModel deletePlaylist() {
+        // 이미 삭제됬는지 아닌지 검사
+        if (this.getDeletedAt() != null) {
+            return this;
+        }
+
+        super.delete();
         return this;
     }
 
@@ -73,10 +89,7 @@ public class PlaylistModel extends BaseUpdatableModel {
     }
 
     private static void validateDescription(String description) {
-        if (description == null) {
-            return;
-        }
-        if (description.length() > DESCRIPTION_MAX_LENGTH) {
+        if (description != null && description.length() > DESCRIPTION_MAX_LENGTH) {
             throw new InvalidPlaylistDataException("플레이리스트 설명은 " + DESCRIPTION_MAX_LENGTH
                 + "자를 초과할 수 없습니다.");
         }
