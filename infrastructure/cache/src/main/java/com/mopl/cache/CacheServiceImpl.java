@@ -148,6 +148,10 @@ public class CacheServiceImpl implements CacheService {
     }
 
     private void publishInvalidation(String key) {
-        redisTemplate.convertAndSend(invalidationTopic.getTopic(), key);
+        try {
+            redisTemplate.convertAndSend(invalidationTopic.getTopic(), key);
+        } catch (Exception e) {
+            log.warn("Failed to publish cache invalidation: [key={}]", key, e);
+        }
     }
 }
