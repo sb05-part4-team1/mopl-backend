@@ -21,14 +21,14 @@ public class RedisConfig {
         RedisConnectionFactory connectionFactory,
         ObjectMapper objectMapper
     ) {
-
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
 
         StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
         ObjectMapper redisObjectMapper = createRedisObjectMapper(objectMapper);
         GenericJackson2JsonRedisSerializer jsonRedisSerializer = new GenericJackson2JsonRedisSerializer(
-            redisObjectMapper);
+            redisObjectMapper
+        );
 
         template.setKeySerializer(stringRedisSerializer);
         template.setHashKeySerializer(stringRedisSerializer);
