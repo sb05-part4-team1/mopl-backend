@@ -1,11 +1,11 @@
 plugins {
-    id("java")
+    `java-library`
 }
 
 dependencies {
+    // project modules
     implementation(project(":core:domain"))
     implementation(project(":shared:jackson"))
-
-    // Redis
-    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    // redis
+    api("org.springframework.boot:spring-boot-starter-data-redis")
 }
