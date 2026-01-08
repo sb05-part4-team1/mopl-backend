@@ -6,6 +6,7 @@ import com.mopl.domain.repository.conversation.DirectMessageRepository;
 import com.mopl.jpa.entity.conversation.ConversationEntity;
 import com.mopl.jpa.entity.conversation.DirectMessageEntity;
 import com.mopl.jpa.entity.conversation.DirectMessageEntityMapper;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -27,10 +28,10 @@ public class DirectMessageRepositoryImpl implements DirectMessageRepository {
     }
 
     @Override
-    public DirectMessageModel findById(UUID directMessageId) {
-        DirectMessageEntity directMessageEntity = jpaDirectMessageRepository.findById(directMessageId)
-                .orElseThrow(() -> new IllegalArgumentException("DirectMessage not found"));
-        return directMessageEntityMapper.toModel(directMessageEntity);
+    public Optional<DirectMessageModel> findById(UUID directMessageId) {
+
+        return jpaDirectMessageRepository.findById(directMessageId)
+                .map(directMessageEntityMapper::toModel);
     }
 
     @Override

@@ -1,5 +1,8 @@
 package com.mopl.domain.service.conversation;
 
+import com.mopl.domain.exception.conversation.ConversationNotFoundException;
+import com.mopl.domain.exception.conversation.DirectMessageNotFoundException;
+import com.mopl.domain.exception.conversation.ReadStatusNotFoundException;
 import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.model.conversation.DirectMessageModel;
@@ -8,6 +11,8 @@ import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.conversation.ConversationRepository;
 import com.mopl.domain.repository.conversation.DirectMessageRepository;
 import com.mopl.domain.repository.conversation.ReadStatusRepository;
+import com.mopl.domain.repository.user.UserRepository;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -28,16 +33,16 @@ public class ConversationService {
 
     private final ConversationRepository conversationRepository;
     private final ReadStatusRepository readStatusRepository;
-    private DirectMessageRepository directMessageRepository;
-    // 필요할 것이라 예상
+    private final DirectMessageRepository directMessageRepository;
+    private final UserRepository userRepository;
 
-    //    private UserRepository userRepository;
 
     public ConversationModel create(
         ConversationModel conversationModel,
         UserModel userModel
     ) {
         ConversationModel model = conversationRepository.save(conversationModel);
+        model.withUser(userModel);
 
         // ReadStatus 생성 후 저장 , 위는 상대/아래는 본인
         ReadStatusModel withReadStatusModel = readStatusRepository.save(ReadStatusModel.create(
@@ -47,6 +52,7 @@ public class ConversationService {
 
         // directMessageModel이 들어가야 됨.
         // message에 따라 hasunread 값도 같이.
+        // -> 처음 생성했을 때는 directMessage가 없어도 될 것 같음.
 
         return model;
 
@@ -58,28 +64,73 @@ public class ConversationService {
     ) {
         for(ReadStatusModel readStatusModel : readStatusModels){
             if( !(readStatusModel.getUser().getId().equals(directMessageModel.getSender().getId())) ){
-                    
+                readStatusModel.updateLastRead(Instant.now());
+                readStatusRepository.save(readStatusModel);
             }
 
         }
 
+    }
+
+    public ConversationModel getConversationByWith(UUID userId,UUID withId){
+        //readStatus 를 가지고 와서 conversation_id로 비교해서 찾은 뒤에 conversation 조회 및 message조회
+
+        List<ReadStatusModel> userReadStatus = readStatusRepository.findByParticipantId(userId);
+        List<ReadStatusModel> withReadStatus = readStatusRepository.findByParticipantId(withId);
+        UserModel withModel=userRepository.findById(withId)
+                .orElseThrow(() -> UserNotFoundException.withId(withId));
+        UUID conversationId = null;
+
+        for(ReadStatusModel userRead : userReadStatus){
+            for(ReadStatusModel withRead : withReadStatus){
+                if(userRead.getConversation().getId().equals(withRead.getConversation().getId())){
+                    conversationId = userRead.getConversation().getId();
+                    break;
+                }
+            }
+            if(conversationId != null){
+                break;
+            }
+        }
+
+        UUID finalConversationId = conversationId;
+
+        ConversationModel conversationModel = conversationRepository.get(conversationId)
+                .orElseThrow(() -> new ConversationNotFoundException(finalConversationId));
+
+        conversationModel.withUser(withModel);
 
 
-
-
-
+        return conversationModel;
     }
 
 
-    public ConversationModel getConversation(UUID conversationId) {
+    public ConversationModel getConversation(UUID conversationId,UUID userId) {
+        List<ReadStatusModel> userReadStatus =
+                readStatusRepository.findByConversationId(conversationId);
+        UserModel userModel = null;
 
-        return conversationRepository.get(conversationId);
+        for(ReadStatusModel readStatus : userReadStatus){
+            if( !(readStatus.getUser().getId().equals(userId)) ){
+                userModel = userRepository.findById(userId)
+                        .orElseThrow(() -> UserNotFoundException.withId(userId));
+            }
+        }
+
+        ConversationModel conversationModel = conversationRepository.get(conversationId)
+                .orElseThrow(() -> new ConversationNotFoundException(conversationId));
+
+        conversationModel.withUser(userModel);
+
+        return conversationModel;
     }
+
 
 
     public DirectMessageModel getDircetMassegeById(UUID directMessageId) {
 
-        return directMessageRepository.findById(directMessageId);
+        return directMessageRepository.findById(directMessageId)
+                .orElseThrow(() -> new DirectMessageNotFoundException(directMessageId));
     }
 
     public List<ReadStatusModel> getReadStatusByConversationId(UUID conversationId) {
@@ -87,7 +138,8 @@ public class ConversationService {
     }
 
     public ReadStatusModel getReadStatusById(UUID readStatusId) {
-        return readStatusRepository.findById(readStatusId);
+        return readStatusRepository.findById(readStatusId)
+                .orElseThrow(() -> new ReadStatusNotFoundException(readStatusId));
     }
 
     public ReadStatusModel getReadStatusByConversationIdAndParticipantId(

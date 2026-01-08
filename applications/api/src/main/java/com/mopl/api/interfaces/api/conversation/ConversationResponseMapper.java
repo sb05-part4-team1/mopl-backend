@@ -13,19 +13,6 @@ public class ConversationResponseMapper {
     private final UserSummaryMapper userSummaryMapper;
     private final DirectMessageMapper directMessageMapper;
 
-    public ConversationResponse toResponse(
-        ConversationModel conversationModel,
-        UserSummary with
-
-    ) {
-
-        return new ConversationResponse(
-            conversationModel.getId(),
-            with,
-            null, // 대화의 마지막 message가 들어갈 예정
-            conversationModel.isHasUnread()
-        );
-    }
 
     public ConversationResponse toResponse(
         ConversationModel conversationModel

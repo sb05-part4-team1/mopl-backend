@@ -1,13 +1,15 @@
 package com.mopl.domain.repository.conversation;
 
 import com.mopl.domain.model.conversation.ConversationModel;
+import com.mopl.domain.model.user.UserModel;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ConversationRepository {
 
     ConversationModel save(ConversationModel conversationModel);
 
-    ConversationModel get(UUID conversationId);
+    Optional<ConversationModel> get(UUID conversationId);
 
-    ConversationModel findById(UUID conversationId);
+    Optional<ConversationModel> findById(UUID conversationId);
 }

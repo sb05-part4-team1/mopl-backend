@@ -28,4 +28,11 @@ public class ReadStatusModel extends BaseModel {
 
     }
 
+    public ReadStatusModel updateLastRead(Instant lastRead) {
+        if (lastRead != null && !lastRead.isAfter(this.lastRead)) {
+            this.lastRead = lastRead;
+        }
+        return this;
+    }
+
 }

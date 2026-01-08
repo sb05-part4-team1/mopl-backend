@@ -32,4 +32,13 @@ public class ConversationModel extends BaseUpdatableModel {
             .build();
     }
 
+    public ConversationModel withUser(UserModel withUser) {
+        if (withUser == null) {
+            throw new InvalidUserDataException("상대는 비어있을 수 없습니다.");
+        }
+        this.withUser = withUser;
+
+        return this;
+    }
+
 }

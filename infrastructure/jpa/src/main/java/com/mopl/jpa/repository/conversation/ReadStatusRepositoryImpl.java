@@ -5,6 +5,7 @@ import com.mopl.domain.repository.conversation.ReadStatusRepository;
 import com.mopl.jpa.entity.conversation.ReadStatusEntity;
 import com.mopl.jpa.entity.conversation.ReadStatusEntityMapper;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -25,12 +26,12 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
         return readStatusEntityMapper.toModel(savedReadStatusEntity);
     }
 
-    @Override
-    public ReadStatusModel findById(UUID readStatusId) {
-        ReadStatusEntity readStatusEntity = jpaReadStatusRepository.findById(readStatusId)
-                .orElseThrow(() -> new IllegalArgumentException("ReadStatus not found"));
 
-        return readStatusEntityMapper.toModel(readStatusEntity);
+    @Override
+    public Optional<ReadStatusModel> findById(UUID readStatusId) {
+
+        return jpaReadStatusRepository.findById(readStatusId)
+                .map(readStatusEntityMapper::toModel);
     }
 
     @Override
@@ -52,6 +53,16 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
                 .findByConversationIdAndParticipantId(conversationId,participantId);
 
         return readStatusEntityMapper.toModel(readStatusEntity);
+    }
+
+    @Override
+    public List<ReadStatusModel> findByParticipantId(UUID participantId) {
+        List<ReadStatusEntity> readStatusEntities =
+                jpaReadStatusRepository.findByParticipantId(participantId);
+
+        return readStatusEntities.stream()
+                .map(readStatusEntityMapper::toModel)
+                .collect(Collectors.toList());
     }
 
 

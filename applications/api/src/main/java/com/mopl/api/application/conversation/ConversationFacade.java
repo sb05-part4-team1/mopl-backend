@@ -34,6 +34,11 @@ public class ConversationFacade {
 
     }
 
+    public ConversationModel getConversationByWith(UUID userId,UUID withId){
+
+        return conversationService.getConversationByWith(userId,withId);
+
+    }
 
     @Transactional
     public ConversationModel createConversation(ConversationCreateRequest request, UUID userId) {
@@ -46,9 +51,9 @@ public class ConversationFacade {
     }
 
     @Transactional
-    public ConversationModel getConversation(UUID conversationId) {
+    public ConversationModel getConversation(UUID conversationId,UUID userId) {
 
-        return conversationService.getConversation(conversationId);
+        return conversationService.getConversation(conversationId,userId);
     }
 
 //    @Transactional(readOnly = true)

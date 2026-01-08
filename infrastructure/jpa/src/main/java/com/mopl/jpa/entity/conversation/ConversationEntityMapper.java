@@ -2,6 +2,8 @@ package com.mopl.jpa.entity.conversation;
 
 import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.model.conversation.DirectMessageModel;
+import com.mopl.domain.model.user.UserModel;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -26,8 +28,8 @@ public class ConversationEntityMapper {
     }
 
     public ConversationModel toModel(
-        ConversationEntity conversationEntity,
-        DirectMessageModel directMessageModel
+            ConversationEntity conversationEntity,
+            UserModel userModel
     ) {
 
         if (conversationEntity == null) {
@@ -35,11 +37,47 @@ public class ConversationEntityMapper {
         }
 
         return ConversationModel.builder()
-            .id(conversationEntity.getId())
-            .createdAt(conversationEntity.getCreatedAt())
-            .updatedAt(conversationEntity.getUpdatedAt())
-            .directMessage(directMessageModel)
-            .build();
+                .id(conversationEntity.getId())
+                .createdAt(conversationEntity.getCreatedAt())
+                .updatedAt(conversationEntity.getUpdatedAt())
+                .withUser(userModel)
+                .build();
+    }
+
+    public ConversationModel toModel(
+        ConversationEntity conversationEntity,
+        Optional<DirectMessageModel> directMessageModel
+    ) {
+
+        if (conversationEntity == null) {
+            return null;
+        }
+        return directMessageModel.map(messageModel -> ConversationModel.builder()
+                .id(conversationEntity.getId())
+                .createdAt(conversationEntity.getCreatedAt())
+                .updatedAt(conversationEntity.getUpdatedAt())
+                .directMessage(messageModel)
+                .build()).orElse(null);
+
+    }
+
+    public ConversationModel toModel(
+            ConversationEntity conversationEntity,
+            DirectMessageModel directMessageModel,
+            UserModel userModel
+    ) {
+
+        if (conversationEntity == null) {
+            return null;
+        }
+
+        return ConversationModel.builder()
+                .id(conversationEntity.getId())
+                .createdAt(conversationEntity.getCreatedAt())
+                .updatedAt(conversationEntity.getUpdatedAt())
+                .withUser(userModel)
+                .directMessage(directMessageModel)
+                .build();
     }
 
     public ConversationEntity toEntity(ConversationModel conversationModel) {
