@@ -44,6 +44,7 @@ public class FollowFacade {
         userService.getById(followeeId);
         return followService.getFollowerCount(followeeId);
     }
+
     @Transactional(readOnly = true)
     public boolean isFollow(UUID followerId, UUID followeeId) {
         userService.getById(followerId);
