@@ -22,4 +22,6 @@ public interface FollowRepository {
     Optional<FollowModel> findById(UUID followId);
 
     void delete(FollowModel followModel);
+
+    long countByFolloweeId(UUID followeeId);
 }
