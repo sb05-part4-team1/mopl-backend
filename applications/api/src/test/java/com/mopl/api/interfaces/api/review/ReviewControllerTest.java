@@ -54,6 +54,7 @@ class ReviewControllerTest {
     private UUID mockUserId;
 
     @BeforeEach
+    @SuppressWarnings({"unchecked", "rawtypes"})
     void setUp() {
         mockUserId = UUID.randomUUID();
 
@@ -66,8 +67,11 @@ class ReviewControllerTest {
         // 기존 Stubbing (필요하다면 유지, 컨트롤러가 안 쓴다면 없어도 무방하나 안전하게 유지)
         given(mockUserDetails.getUsername()).willReturn(mockUserId.toString());
         given(mockUserDetails.getAuthorities())
-            .willReturn((Collection) Collections.singleton(new SimpleGrantedAuthority(
-                "ROLE_USER")));
+            .willReturn(
+                (Collection) Collections.singleton(
+                    new SimpleGrantedAuthority("ROLE_USER")
+                )
+            );
     }
 
     @Nested
@@ -159,12 +163,12 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                patch("/api/reviews/{reviewId}", reviewId)
-                    .with(csrf())
-                    .with(user(mockUserDetails))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request))
-            )
+                    patch("/api/reviews/{reviewId}", reviewId)
+                        .with(csrf())
+                        .with(user(mockUserDetails))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.text").value("수정된 내용"));
 
@@ -184,10 +188,10 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                delete("/api/reviews/{reviewId}", reviewId)
-                    .with(csrf())
-                    .with(user(mockUserDetails))
-            )
+                    delete("/api/reviews/{reviewId}", reviewId)
+                        .with(csrf())
+                        .with(user(mockUserDetails))
+                )
                 .andExpect(status().isOk());
 
             // Facade 호출 검증
@@ -200,9 +204,9 @@ class ReviewControllerTest {
             UUID reviewId = UUID.randomUUID();
 
             mockMvc.perform(
-                delete("/api/reviews/{reviewId}", reviewId)
-                    .with(csrf())
-            )
+                    delete("/api/reviews/{reviewId}", reviewId)
+                        .with(csrf())
+                )
                 .andExpect(status().isUnauthorized());
 
             then(reviewFacade).shouldHaveNoInteractions();

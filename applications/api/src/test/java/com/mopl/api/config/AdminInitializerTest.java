@@ -62,7 +62,7 @@ class AdminInitializerTest {
             given(adminUser.getEmail()).willReturn(ADMIN_EMAIL);
 
             given(userFacade.signUp(any(UserCreateRequest.class))).willReturn(createdUser);
-            given(userFacade.updateRoleInternal(any(UserRoleUpdateRequest.class), eq(ADMIN_ID)))
+            given(userFacade.updateRole(any(UserRoleUpdateRequest.class), eq(ADMIN_ID)))
                 .willReturn(adminUser);
 
             // when
@@ -70,7 +70,7 @@ class AdminInitializerTest {
 
             // then
             then(userFacade).should().signUp(any(UserCreateRequest.class));
-            then(userFacade).should().updateRoleInternal(any(UserRoleUpdateRequest.class), eq(
+            then(userFacade).should().updateRole(any(UserRoleUpdateRequest.class), eq(
                 ADMIN_ID));
         }
 
@@ -86,7 +86,7 @@ class AdminInitializerTest {
 
             // then
             then(userFacade).should().signUp(any(UserCreateRequest.class));
-            then(userFacade).should(never()).updateRoleInternal(any(UserRoleUpdateRequest.class),
+            then(userFacade).should(never()).updateRole(any(UserRoleUpdateRequest.class),
                 any());
         }
 
@@ -102,7 +102,7 @@ class AdminInitializerTest {
 
             // then
             then(userFacade).should().signUp(any(UserCreateRequest.class));
-            then(userFacade).should(never()).updateRoleInternal(any(UserRoleUpdateRequest.class),
+            then(userFacade).should(never()).updateRole(any(UserRoleUpdateRequest.class),
                 any());
         }
     }

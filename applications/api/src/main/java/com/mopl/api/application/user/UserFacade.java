@@ -1,11 +1,15 @@
 package com.mopl.api.application.user;
 
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
+import com.mopl.api.interfaces.api.user.UserResponse;
+import com.mopl.api.interfaces.api.user.UserResponseMapper;
 import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserUpdateRequest;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.model.user.UserModel.AuthProvider;
+import com.mopl.domain.repository.user.UserQueryRequest;
 import com.mopl.domain.service.user.UserService;
+import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.storage.provider.FileStorageProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +27,7 @@ import java.util.UUID;
 public class UserFacade {
 
     private final UserService userService;
+    private final UserResponseMapper userResponseMapper;
     private final FileStorageProvider fileStorageProvider;
     private final PasswordEncoder passwordEncoder;
 
@@ -43,18 +48,17 @@ public class UserFacade {
     }
 
     @Transactional(readOnly = true)
+    public CursorResponse<UserResponse> getUsers(UserQueryRequest request) {
+        return userService.getAll(request).map(userResponseMapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
     public UserModel getUser(UUID userId) {
         return userService.getById(userId);
     }
 
-    // @PreAuthorize("hasRole('ADMIN')")
-    // @Transactional
-    // public UserModel updateRole(UserRoleUpdateRequest request) {
-    //     return updateRoleInternal(request, userId);
-    // }
-
     @Transactional
-    public UserModel updateRoleInternal(UserRoleUpdateRequest request, UUID userId) {
+    public UserModel updateRole(UserRoleUpdateRequest request, UUID userId) {
         UserModel userModel = userService.getById(userId);
         userModel.updateRole(request.role());
         return userService.update(userModel);
