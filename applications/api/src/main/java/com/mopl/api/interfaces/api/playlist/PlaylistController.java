@@ -1,12 +1,11 @@
-package com.mopl.api.interfaces.api.review;
+package com.mopl.api.interfaces.api.playlist;
 
-import com.mopl.api.application.review.ReviewFacade;
+import com.mopl.api.application.playlist.PlaylistFacade;
 import com.mopl.security.userdetails.MoplUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,55 +17,41 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/reviews")
+@RequestMapping("/api/playlists")
 @RequiredArgsConstructor
-public class ReviewController {
+public class PlaylistController {
 
-    private final ReviewFacade reviewFacade;
+    private final PlaylistFacade playlistFacade;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ReviewResponse createReview(
+    public PlaylistResponse createPlaylist(
         @AuthenticationPrincipal MoplUserDetails userDetails,
-        @RequestBody @Valid ReviewCreateRequest request
+        @RequestBody @Valid PlaylistCreateRequest request
     ) {
         // 인증된 객체에서 id만 가져옴
         UUID requesterId = userDetails.userId();
 
-        // 파사드가 이미 Response를 반환하므로 바로 리턴하면 끝!
-        return reviewFacade.createReview(
+        return playlistFacade.createPlaylist(
             requesterId,
             request
         );
     }
 
-    @PatchMapping("/{reviewId}")
+    @PatchMapping("/{playlistId}")
     @ResponseStatus(HttpStatus.OK)
-    public ReviewResponse updateReview(
+    public PlaylistResponse updatePlayList(
         @AuthenticationPrincipal MoplUserDetails userDetails,
-        @PathVariable UUID reviewId,
-        @RequestBody @Valid ReviewUpdateRequest request
+        @PathVariable UUID playlistId,
+        @RequestBody @Valid PlaylistUpdateRequest request
     ) {
-
-        // 인증된 객체에서 id만 가져옴
         UUID requesterId = userDetails.userId();
 
-        return reviewFacade.updateReview(
+        return playlistFacade.updatePlaylist(
             requesterId,
-            reviewId,
+            playlistId,
             request
         );
     }
 
-    @DeleteMapping("/{reviewId}")
-    @ResponseStatus(HttpStatus.OK)
-    public void deleteReview(
-        @AuthenticationPrincipal MoplUserDetails userDetails,
-        @PathVariable UUID reviewId
-    ) {
-        // 인증된 객체에서 id만 가져옴
-        UUID requesterId = userDetails.userId();
-
-        reviewFacade.deleteReview(requesterId, reviewId);
-    }
 }

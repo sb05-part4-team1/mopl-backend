@@ -29,9 +29,9 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -50,7 +50,6 @@ class ReviewControllerTest {
     @MockBean
     private ReviewFacade reviewFacade;
 
-    // 테스트에서 사용할 가짜 인증 유저 객체
     private MoplUserDetails mockUserDetails;
     private UUID mockUserId;
 
@@ -59,9 +58,13 @@ class ReviewControllerTest {
     void setUp() {
         mockUserId = UUID.randomUUID();
 
-        // MoplUserDetails를 Mocking하여 userId() 호출 시 UUID를 반환하도록 설정
+        // Mock 객체 생성
         mockUserDetails = mock(MoplUserDetails.class);
+
+        // [핵심 수정] 컨트롤러가 사용하는 메서드 이름(userId())에 맞춰 Stubbing
         given(mockUserDetails.userId()).willReturn(mockUserId);
+
+        // 기존 Stubbing (필요하다면 유지, 컨트롤러가 안 쓴다면 없어도 무방하나 안전하게 유지)
         given(mockUserDetails.getUsername()).willReturn(mockUserId.toString());
         given(mockUserDetails.getAuthorities())
             .willReturn(
@@ -88,16 +91,10 @@ class ReviewControllerTest {
                 new BigDecimal("4.0")
             );
 
-            UserSummary authorSummary = new UserSummary(
-                mockUserId,
-                "홍길동",
-                "profile.png"
-            );
-
             ReviewResponse response = new ReviewResponse(
                 reviewId,
                 contentId,
-                authorSummary,
+                new UserSummary(mockUserId, "홍길동", "profile.png"),
                 "테스트 리뷰",
                 new BigDecimal("4.0")
             );
@@ -107,13 +104,14 @@ class ReviewControllerTest {
             // when & then
             mockMvc.perform(
                 post("/api/reviews")
-                    .with(csrf()) // [필수] CSRF 토큰 주입
-                    .with(user(mockUserDetails)) // [필수] SecurityContext에 인증 객체 주입
+                    .with(csrf())
+                    .with(user(mockUserDetails))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request))
             )
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(reviewId.toString()))
+                .andExpect(jsonPath("$.text").value("테스트 리뷰"))
                 .andExpect(jsonPath("$.author.userId").value(mockUserId.toString()));
 
             then(reviewFacade).should().createReview(eq(mockUserId), refEq(request));
@@ -131,7 +129,6 @@ class ReviewControllerTest {
             mockMvc.perform(
                 post("/api/reviews")
                     .with(csrf())
-                    // .with(user(...)) 생략 -> 비로그인 상태
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request))
             )
