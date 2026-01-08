@@ -50,7 +50,6 @@ class ReviewControllerTest {
     @MockBean
     private ReviewFacade reviewFacade;
 
-    // 테스트에서 사용할 가짜 인증 유저 객체
     private MoplUserDetails mockUserDetails;
     private UUID mockUserId;
 
@@ -59,8 +58,9 @@ class ReviewControllerTest {
     void setUp() {
         mockUserId = UUID.randomUUID();
 
-        // MoplUserDetails를 Mocking하여 userId() 호출 시 UUID를 반환하도록 설정
+        // Mock 객체 생성
         mockUserDetails = mock(MoplUserDetails.class);
+        given(mockUserDetails.userId()).willReturn(mockUserId);
         given(mockUserDetails.userId()).willReturn(mockUserId);
         given(mockUserDetails.getUsername()).willReturn(mockUserId.toString());
         given(mockUserDetails.getAuthorities())
@@ -88,16 +88,10 @@ class ReviewControllerTest {
                 new BigDecimal("4.0")
             );
 
-            UserSummary authorSummary = new UserSummary(
-                mockUserId,
-                "홍길동",
-                "profile.png"
-            );
-
             ReviewResponse response = new ReviewResponse(
                 reviewId,
                 contentId,
-                authorSummary,
+                new UserSummary(mockUserId, "홍길동", "profile.png"),
                 "테스트 리뷰",
                 new BigDecimal("4.0")
             );
@@ -106,14 +100,15 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                post("/api/reviews")
-                    .with(csrf()) // [필수] CSRF 토큰 주입
-                    .with(user(mockUserDetails)) // [필수] SecurityContext에 인증 객체 주입
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request))
-            )
+                    post("/api/reviews")
+                        .with(csrf())
+                        .with(user(mockUserDetails))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                )
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(reviewId.toString()))
+                .andExpect(jsonPath("$.text").value("테스트 리뷰"))
                 .andExpect(jsonPath("$.author.userId").value(mockUserId.toString()));
 
             then(reviewFacade).should().createReview(eq(mockUserId), refEq(request));
@@ -129,12 +124,11 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                post("/api/reviews")
-                    .with(csrf())
-                    // .with(user(...)) 생략 -> 비로그인 상태
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request))
-            )
+                    post("/api/reviews")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                )
                 .andExpect(status().isUnauthorized());
 
             then(reviewFacade).shouldHaveNoInteractions();
@@ -168,12 +162,12 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                patch("/api/reviews/{reviewId}", reviewId)
-                    .with(csrf())
-                    .with(user(mockUserDetails))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request))
-            )
+                    patch("/api/reviews/{reviewId}", reviewId)
+                        .with(csrf())
+                        .with(user(mockUserDetails))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.text").value("수정된 내용"));
 
@@ -193,10 +187,10 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                delete("/api/reviews/{reviewId}", reviewId)
-                    .with(csrf())
-                    .with(user(mockUserDetails))
-            )
+                    delete("/api/reviews/{reviewId}", reviewId)
+                        .with(csrf())
+                        .with(user(mockUserDetails))
+                )
                 .andExpect(status().isOk());
 
             // Facade 호출 검증
@@ -211,9 +205,9 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                delete("/api/reviews/{reviewId}", reviewId)
-                    .with(csrf())
-            )
+                    delete("/api/reviews/{reviewId}", reviewId)
+                        .with(csrf())
+                )
                 .andExpect(status().isUnauthorized());
 
             then(reviewFacade).shouldHaveNoInteractions();
