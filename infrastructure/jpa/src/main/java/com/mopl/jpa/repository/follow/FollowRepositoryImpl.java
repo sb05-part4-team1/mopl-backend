@@ -48,4 +48,9 @@ public class FollowRepositoryImpl implements FollowRepository {
     public void delete(FollowModel followModel) {
         jpaFollowRepository.deleteById(followModel.getId());
     }
+
+    @Override
+    public long countByFolloweeId(UUID followeeId) {
+        return jpaFollowRepository.countByFolloweeId(followeeId);
+    }
 }

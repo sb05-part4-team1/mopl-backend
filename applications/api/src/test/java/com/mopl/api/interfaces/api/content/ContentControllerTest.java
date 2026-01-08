@@ -259,6 +259,8 @@ class ContentControllerTest {
                 .andExpect(status().isNoContent());
 
             then(contentFacade).should().delete(contentId);
+
+            then(contentFacade).should().update(eq(contentId), any(), any());
         }
     }
 }
