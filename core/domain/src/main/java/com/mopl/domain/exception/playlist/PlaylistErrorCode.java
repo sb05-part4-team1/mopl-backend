@@ -13,7 +13,6 @@ public enum PlaylistErrorCode implements ErrorCode {
     PLAYLIST_FORBIDDEN(403, "플레이리스트에 대한 권한이 없습니다"),
     PLAYLIST_CONTENT_ALREADY_EXISTS(409, "이미 플레이리스트에 존재하는 콘텐츠입니다");
 
-
     private final int status;
     private final String message;
 }

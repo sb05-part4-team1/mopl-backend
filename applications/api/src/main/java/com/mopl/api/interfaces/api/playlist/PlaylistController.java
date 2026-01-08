@@ -86,9 +86,9 @@ public class PlaylistController {
     @PostMapping("/{playlistId}/contents/{contentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void addContentToPlaylist(
-            @AuthenticationPrincipal MoplUserDetails userDetails,
-            @PathVariable UUID playlistId,
-            @PathVariable UUID contentId
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @PathVariable UUID playlistId,
+        @PathVariable UUID contentId
     ) {
         UUID requesterId = userDetails.userId();
         playlistFacade.addContentToPlaylist(requesterId, playlistId, contentId);

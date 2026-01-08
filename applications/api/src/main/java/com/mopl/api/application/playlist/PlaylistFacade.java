@@ -102,9 +102,9 @@ public class PlaylistFacade {
 
     @Transactional
     public void addContentToPlaylist(
-            UUID requsterId,
-            UUID playlistId,
-            UUID contentId
+        UUID requsterId,
+        UUID playlistId,
+        UUID contentId
     ) {
         userService.getById(requsterId);
 

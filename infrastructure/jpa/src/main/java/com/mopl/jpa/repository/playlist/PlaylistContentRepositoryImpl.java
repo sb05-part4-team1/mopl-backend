@@ -29,9 +29,9 @@ public class PlaylistContentRepositoryImpl implements PlaylistContentRepository 
         ContentEntity contentRef = jpaContentRepository.getReferenceById(contentId);
 
         PlaylistContentEntity entity = PlaylistContentEntity.builder()
-                .playlist(playlistRef)
-                .content(contentRef)
-                .build();
+            .playlist(playlistRef)
+            .content(contentRef)
+            .build();
 
         jpaPlaylistContentRepository.save(entity);
     }

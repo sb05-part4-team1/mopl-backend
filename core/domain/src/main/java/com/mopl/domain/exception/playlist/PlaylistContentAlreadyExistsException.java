@@ -6,15 +6,15 @@ import java.util.UUID;
 public class PlaylistContentAlreadyExistsException extends PlaylistException {
 
     public PlaylistContentAlreadyExistsException(
-            UUID playlistId,
-            UUID contentId
+        UUID playlistId,
+        UUID contentId
     ) {
         super(
-                PlaylistErrorCode.PLAYLIST_CONTENT_ALREADY_EXISTS,
-                Map.of(
-                        "playlistId", playlistId,
-                        "contentId", contentId
-                )
+            PlaylistErrorCode.PLAYLIST_CONTENT_ALREADY_EXISTS,
+            Map.of(
+                "playlistId", playlistId,
+                "contentId", contentId
+            )
         );
     }
 }

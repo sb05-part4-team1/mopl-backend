@@ -32,7 +32,7 @@ public class PlaylistRepositoryImpl implements PlaylistRepository {
 
         // 3) owner를 fetch join으로 다시 로딩
         PlaylistEntity savedWithOwner = jpaPlaylistRepository.findByIdWithOwner(saved.getId())
-                .orElse(saved);
+            .orElse(saved);
         return playlistEntityMapper.toModel(savedWithOwner);
 
     }

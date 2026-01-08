@@ -82,12 +82,12 @@ public class PlaylistService {
     // ============= 여기서 부터는 순수 플레이리스트 CRUD가 아님===================
 
     public void addContent(
-            UUID playlistId,
-            UUID requesterId,
-            UUID contentId
+        UUID playlistId,
+        UUID requesterId,
+        UUID contentId
     ) {
         PlaylistModel playlistModel = playlistRepository.findById(playlistId)
-                .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
+            .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
 
         UUID ownerId = (playlistModel.getOwner() != null) ? playlistModel.getOwner().getId() : null;
 
