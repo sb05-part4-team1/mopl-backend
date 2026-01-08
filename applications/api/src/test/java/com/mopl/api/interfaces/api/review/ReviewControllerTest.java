@@ -165,12 +165,12 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                    patch("/api/reviews/{reviewId}", reviewId)
-                        .with(csrf())
-                        .with(user(mockUserDetails))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                )
+                patch("/api/reviews/{reviewId}", reviewId)
+                    .with(csrf())
+                    .with(user(mockUserDetails))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request))
+            )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.text").value("수정된 내용"));
 
@@ -190,10 +190,10 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                    delete("/api/reviews/{reviewId}", reviewId)
-                        .with(csrf())
-                        .with(user(mockUserDetails))
-                )
+                delete("/api/reviews/{reviewId}", reviewId)
+                    .with(csrf())
+                    .with(user(mockUserDetails))
+            )
                 .andExpect(status().isOk());
 
             // Facade 호출 검증
@@ -208,9 +208,9 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                    delete("/api/reviews/{reviewId}", reviewId)
-                        .with(csrf())
-                )
+                delete("/api/reviews/{reviewId}", reviewId)
+                    .with(csrf())
+            )
                 .andExpect(status().isUnauthorized());
 
             then(reviewFacade).shouldHaveNoInteractions();
