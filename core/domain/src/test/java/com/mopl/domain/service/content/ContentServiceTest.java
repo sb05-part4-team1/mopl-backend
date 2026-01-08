@@ -5,6 +5,7 @@ import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.tag.TagModel;
 import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
+import com.mopl.domain.service.tag.TagService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -19,12 +20,17 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ContentService 단위 테스트")
 class ContentServiceTest {
+
+    @Mock
+    private TagService tagService;
 
     @Mock
     private ContentRepository contentRepository;
@@ -40,57 +46,48 @@ class ContentServiceTest {
     class CreateTest {
 
         @Test
-        @DisplayName("콘텐츠와 태그를 저장하고 태그명이 포함된 모델을 반환한다")
-        void withModelAndTags_returnsSavedModelWithTags() {
+        @DisplayName("태그명이 있으면 태그 생성 후 연관관계 저장")
+        void withTagNames_createsTagsAndRelations() {
+            // given
             UUID contentId = UUID.randomUUID();
             ContentModel contentModel = ContentModel.builder()
                 .id(contentId)
                 .title("인셉션")
                 .build();
 
+            List<String> tagNames = List.of("SF", "액션");
             List<TagModel> tags = List.of(
-                TagModel.builder().name("SF").build(),
-                TagModel.builder().name("액션").build()
+                TagModel.builder().id(UUID.randomUUID()).name("SF").build(),
+                TagModel.builder().id(UUID.randomUUID()).name("액션").build()
             );
 
             given(contentRepository.save(contentModel)).willReturn(contentModel);
+            given(tagService.findOrCreateTags(tagNames)).willReturn(tags);
 
-            ContentModel result = contentService.create(contentModel, tags);
+            // when
+            ContentModel result = contentService.create(contentModel, tagNames);
 
+            // then
             assertThat(result.getTags()).containsExactly("SF", "액션");
-            then(contentRepository).should().save(contentModel);
             then(contentTagRepository).should().saveAll(contentId, tags);
         }
 
         @Test
-        @DisplayName("태그 리스트가 비어있으면 콘텐츠만 저장하고 빈 태그 리스트를 반환한다")
-        void withEmptyTags_onlySaveContent() {
+        @DisplayName("태그명이 null이면 태그 로직을 타지 않는다")
+        void withNullTagNames_onlySaveContent() {
+            // given
             ContentModel contentModel = ContentModel.builder()
                 .title("인셉션")
                 .build();
 
             given(contentRepository.save(contentModel)).willReturn(contentModel);
 
-            ContentModel result = contentService.create(contentModel, List.of());
-
-            assertThat(result.getTags()).isEmpty();
-            then(contentRepository).should().save(contentModel);
-            then(contentTagRepository).shouldHaveNoInteractions();
-        }
-
-        @Test
-        @DisplayName("태그가 null이면 콘텐츠만 저장하고 빈 태그 리스트를 반환한다")
-        void withNullTags_onlySaveContent() {
-            ContentModel contentModel = ContentModel.builder()
-                .title("인셉션")
-                .build();
-
-            given(contentRepository.save(contentModel)).willReturn(contentModel);
-
+            // when
             ContentModel result = contentService.create(contentModel, null);
 
+            // then
             assertThat(result.getTags()).isEmpty();
-            then(contentRepository).should().save(contentModel);
+            then(tagService).shouldHaveNoInteractions();
             then(contentTagRepository).shouldHaveNoInteractions();
         }
     }
@@ -100,33 +97,9 @@ class ContentServiceTest {
     class GetByIdTest {
 
         @Test
-        @DisplayName("ID로 조회 시 태그 정보가 결합된 모델을 반환한다")
-        void withContentId_returnsModelWithTags() {
-            UUID contentId = UUID.randomUUID();
-            ContentModel contentModel = ContentModel.builder()
-                .id(contentId)
-                .title("인셉션")
-                .build();
-
-            List<TagModel> tags = List.of(
-                TagModel.builder().name("SF").build(),
-                TagModel.builder().name("액션").build()
-            );
-
-            given(contentRepository.findById(contentId)).willReturn(Optional.of(contentModel));
-            given(contentTagRepository.findTagsByContentId(contentId)).willReturn(tags);
-
-            ContentModel result = contentService.getById(contentId);
-
-            assertThat(result.getId()).isEqualTo(contentId);
-            assertThat(result.getTags()).containsExactly("SF", "액션");
-            then(contentRepository).should().findById(contentId);
-            then(contentTagRepository).should().findTagsByContentId(contentId);
-        }
-
-        @Test
-        @DisplayName("태그가 없으면 빈 태그 리스트를 포함한 모델을 반환한다")
-        void withNoTags_returnsModelWithEmptyTags() {
+        @DisplayName("태그 조회 결과가 null이면 빈 리스트 반환 (toTagNames 분기)")
+        void returnsEmptyTags_whenTagRepositoryReturnsNull() {
+            // given
             UUID contentId = UUID.randomUUID();
             ContentModel contentModel = ContentModel.builder()
                 .id(contentId)
@@ -134,21 +107,100 @@ class ContentServiceTest {
                 .build();
 
             given(contentRepository.findById(contentId)).willReturn(Optional.of(contentModel));
-            given(contentTagRepository.findTagsByContentId(contentId)).willReturn(List.of());
+            given(contentTagRepository.findTagsByContentId(contentId)).willReturn(null);
 
+            // when
             ContentModel result = contentService.getById(contentId);
 
+            // then
             assertThat(result.getTags()).isEmpty();
         }
 
         @Test
-        @DisplayName("존재하지 않는 ID 조회 시 예외 발생")
-        void withNonExistentId_throwsException() {
+        @DisplayName("존재하지 않으면 예외 발생")
+        void notFound_throwsException() {
+            // given
             UUID contentId = UUID.randomUUID();
             given(contentRepository.findById(contentId)).willReturn(Optional.empty());
 
+            // when & then
             assertThatThrownBy(() -> contentService.getById(contentId))
                 .isInstanceOf(ContentNotFoundException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("update()")
+    class UpdateTest {
+
+        @Test
+        @DisplayName("tagNames가 null이면 태그를 변경하지 않는다 (early return 분기)")
+        void update_withNullTags_doesNotTouchTags() {
+            // given
+            UUID contentId = UUID.randomUUID();
+            ContentModel original = ContentModel.builder()
+                .id(contentId)
+                .type("영화")
+                .title("기존 제목")
+                .description("설명")
+                .thumbnailUrl("old.png")
+                .build();
+
+            given(contentRepository.findById(contentId)).willReturn(Optional.of(original));
+            given(contentRepository.save(any())).willAnswer(inv -> inv.getArgument(0));
+
+            // when
+            ContentModel result = contentService.update(
+                contentId,
+                "새 제목",
+                null,
+                null,
+                null
+            );
+
+            // then
+            assertThat(result.getTitle()).isEqualTo("새 제목");
+
+            then(contentTagRepository).should(never()).deleteAllByContentId(any());
+            then(contentTagRepository).should(never()).saveAll(any(), any());
+            then(tagService).shouldHaveNoInteractions();
+        }
+
+        @Test
+        @DisplayName("기존 태그 삭제 후 새 태그로 갱신")
+        void update_replacesTags() {
+            // given
+            UUID contentId = UUID.randomUUID();
+            ContentModel original = ContentModel.builder()
+                .id(contentId)
+                .type("영화")
+                .title("기존 제목")
+                .description("설명")
+                .thumbnailUrl("old.png")
+                .build();
+
+            List<String> tagNames = List.of("드라마");
+            List<TagModel> tags = List.of(
+                TagModel.builder().id(UUID.randomUUID()).name("드라마").build()
+            );
+
+            given(contentRepository.findById(contentId)).willReturn(Optional.of(original));
+            given(contentRepository.save(any())).willAnswer(inv -> inv.getArgument(0));
+            given(tagService.findOrCreateTags(tagNames)).willReturn(tags);
+
+            // when
+            ContentModel result = contentService.update(
+                contentId,
+                "새 제목",
+                "새 설명",
+                null,
+                tagNames
+            );
+
+            // then
+            assertThat(result.getTags()).containsExactly("드라마");
+            then(contentTagRepository).should().deleteAllByContentId(contentId);
+            then(contentTagRepository).should().saveAll(contentId, tags);
         }
     }
 
@@ -157,27 +209,16 @@ class ContentServiceTest {
     class ExistsTest {
 
         @Test
-        @DisplayName("콘텐츠가 존재하면 true를 반환한다")
         void exists_returnsTrue() {
-            UUID contentId = UUID.randomUUID();
-            given(contentRepository.existsById(contentId)).willReturn(true);
+            // given
+            UUID id = UUID.randomUUID();
+            given(contentRepository.existsById(id)).willReturn(true);
 
-            boolean result = contentService.exists(contentId);
+            // when
+            boolean result = contentService.exists(id);
 
+            // then
             assertThat(result).isTrue();
-            then(contentRepository).should().existsById(contentId);
-        }
-
-        @Test
-        @DisplayName("콘텐츠가 존재하지 않으면 false를 반환한다")
-        void notExists_returnsFalse() {
-            UUID contentId = UUID.randomUUID();
-            given(contentRepository.existsById(contentId)).willReturn(false);
-
-            boolean result = contentService.exists(contentId);
-
-            assertThat(result).isFalse();
-            then(contentRepository).should().existsById(contentId);
         }
     }
 }

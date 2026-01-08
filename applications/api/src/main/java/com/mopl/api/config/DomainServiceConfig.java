@@ -2,27 +2,30 @@ package com.mopl.api.config;
 
 import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
+import com.mopl.domain.repository.follow.FollowRepository;
 import com.mopl.domain.repository.playlist.PlaylistRepository;
 import com.mopl.domain.repository.review.ReviewRepository;
 import com.mopl.domain.repository.tag.TagRepository;
+import com.mopl.domain.repository.user.UserQueryRepository;
+import com.mopl.domain.repository.user.UserRepository;
 import com.mopl.domain.service.content.ContentService;
+import com.mopl.domain.service.follow.FollowService;
 import com.mopl.domain.service.playlist.PlaylistService;
 import com.mopl.domain.service.review.ReviewService;
 import com.mopl.domain.service.tag.TagService;
+import com.mopl.domain.service.user.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import com.mopl.domain.repository.follow.FollowRepository;
-import com.mopl.domain.repository.user.UserRepository;
-import com.mopl.domain.service.follow.FollowService;
-import com.mopl.domain.service.user.UserService;
 
 @Configuration
 public class DomainServiceConfig {
 
     @Bean
-    public UserService userService(UserRepository userRepository) {
-        return new UserService(userRepository);
+    public UserService userService(
+        UserRepository userRepository,
+        UserQueryRepository userQueryRepository
+    ) {
+        return new UserService(userRepository, userQueryRepository);
     }
 
     @Bean
@@ -32,10 +35,11 @@ public class DomainServiceConfig {
 
     @Bean
     public ContentService contentService(
+        TagService tagService,
         ContentRepository contentRepository,
         ContentTagRepository contentTagRepository
     ) {
-        return new ContentService(contentRepository, contentTagRepository);
+        return new ContentService(tagService, contentRepository, contentTagRepository);
     }
 
     @Bean

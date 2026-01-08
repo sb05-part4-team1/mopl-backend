@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 
 import com.mopl.domain.exception.ErrorResponse;
+import com.mopl.security.userdetails.MoplUserDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -64,7 +65,7 @@ public interface FollowApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    ResponseEntity<FollowResponse> follow(@Parameter(hidden = true) UUID followerId,
+    ResponseEntity<FollowResponse> follow(@Parameter(hidden = true) MoplUserDetails userDetails,
         FollowRequest request);
 
     @Operation(summary = "팔로우 취소")
@@ -108,6 +109,69 @@ public interface FollowApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    ResponseEntity<Void> unFollow(@Parameter(hidden = true) UUID userId, @Parameter(
+    ResponseEntity<Void> unFollow(@Parameter(hidden = true) MoplUserDetails userDetails, @Parameter(
         name = "followId", required = true) UUID followId);
+
+    @Operation(summary = "특정 유저의 팔로워 수 조회")
+    @ApiResponse(
+        responseCode = "200",
+        description = "성공"
+    )
+    @ApiResponse(
+        responseCode = "400",
+        description = "잘못된 요청",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        ))
+    @ApiResponse(
+        responseCode = "401",
+        description = "인증 오류",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "500",
+        description = "서버 오류",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    ResponseEntity<Long> getFollowCount(@Parameter(name = "followeeId",
+        required = true) UUID followeeId);
+
+    @Operation(summary = "특정 유저를 내가 팔로우하는지 여부 조회")
+    @ApiResponse(
+        responseCode = "200",
+        description = "성공"
+    )
+    @ApiResponse(
+        responseCode = "400",
+        description = "잘못된 요청",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        ))
+    @ApiResponse(
+        responseCode = "401",
+        description = "인증 오류",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "500",
+        description = "서버 오류",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    ResponseEntity<Boolean> getFollowStatus(@Parameter(hidden = true) MoplUserDetails userDetails,
+        @Parameter(name = "followeeId",
+            required = true) UUID followeeId);
 }
