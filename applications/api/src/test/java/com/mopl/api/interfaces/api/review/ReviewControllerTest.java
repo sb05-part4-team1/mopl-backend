@@ -53,6 +53,7 @@ class ReviewControllerTest {
     private UUID mockUserId;
 
     @BeforeEach
+    @SuppressWarnings({"unchecked", "rawtypes"})
     void setUp() {
         mockUserId = UUID.randomUUID();
 
@@ -65,8 +66,11 @@ class ReviewControllerTest {
         // 기존 Stubbing (필요하다면 유지, 컨트롤러가 안 쓴다면 없어도 무방하나 안전하게 유지)
         given(mockUserDetails.getUsername()).willReturn(mockUserId.toString());
         given(mockUserDetails.getAuthorities())
-            .willReturn((Collection) Collections.singleton(new SimpleGrantedAuthority(
-                "ROLE_USER")));
+            .willReturn(
+                (Collection) Collections.singleton(
+                    new SimpleGrantedAuthority("ROLE_USER")
+                )
+            );
     }
 
     @Nested

@@ -7,6 +7,7 @@ import com.navercorp.fixturemonkey.ArbitraryBuilder;
 import net.jqwik.api.Arbitraries;
 
 import java.util.List;
+import java.util.Locale;
 
 public final class ContentModelFixture {
 
@@ -18,7 +19,7 @@ public final class ContentModelFixture {
             .setNull("updatedAt")
             .set("type", Arbitraries.of("MOVIE", "DRAMA", "ANIME", "DOCUMENTARY"))
             .set("thumbnailUrl", Arbitraries.strings().alpha().ofLength(10)
-                .map(s -> "https://example.com/" + s.toLowerCase() + ".jpg"))
+                .map(s -> "https://example.com/" + s.toLowerCase(Locale.ROOT) + ".jpg"))
             .set("tags", List.of());
     }
 

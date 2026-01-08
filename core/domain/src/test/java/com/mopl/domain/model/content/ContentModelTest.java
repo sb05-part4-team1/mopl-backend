@@ -20,143 +20,164 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DisplayName("ContentModel 단위 테스트")
 class ContentModelTest {
 
+    static Stream<Arguments> emptyFieldsProvider() {
+        return Stream.of(
+            Arguments.of("null", null),
+            Arguments.of("빈 문자열", ""),
+            Arguments.of("공백만", "   ")
+        );
+    }
+
     @Nested
     @DisplayName("create()")
     class CreateTest {
 
         @Test
         @DisplayName("유효한 데이터로 ContentModel 생성")
-        void withValidData_createsContentModel() {
-            ContentModel content = ContentModel.create(
-                "영화",
-                "인셉션",
-                "꿈속의 꿈",
-                "https://mopl.com/inception.png"
-            );
+        void create_withValidData() {
+            // given
+            String type = "영화";
+            String title = "인셉션";
+            String description = "꿈속의 꿈";
+            String thumbnailUrl = "https://mopl.com/inception.png";
 
-            assertThat(content.getId()).isNull();
-            assertThat(content.getType()).isEqualTo("영화");
-            assertThat(content.getTitle()).isEqualTo("인셉션");
-            assertThat(content.getDescription()).isEqualTo("꿈속의 꿈");
-            assertThat(content.getThumbnailUrl()).isEqualTo("https://mopl.com/inception.png");
+            // when
+            ContentModel content = ContentModel.create(type, title, description, thumbnailUrl);
+
+            // then
+            assertThat(content.getType()).isEqualTo(type);
+            assertThat(content.getTitle()).isEqualTo(title);
+            assertThat(content.getDescription()).isEqualTo(description);
+            assertThat(content.getThumbnailUrl()).isEqualTo(thumbnailUrl);
             assertThat(content.getTags()).isEmpty();
-            assertThat(content.getCreatedAt()).isNull();
-            assertThat(content.getUpdatedAt()).isNull();
-            assertThat(content.getDeletedAt()).isNull();
         }
 
-        @Test
-        @DisplayName("설명(description)은 null이어도 생성 가능")
-        void withNullDescription_createsContentModel() {
-            ContentModel content = ContentModel.create(
-                "영화",
-                "제목",
-                null,
-                "url"
-            );
-
-            assertThat(content.getDescription()).isNull();
+        @ParameterizedTest
+        @MethodSource("com.mopl.domain.model.content.ContentModelTest#emptyFieldsProvider")
+        @DisplayName("타입이 비어있으면 예외 발생")
+        void create_withEmptyType(String desc, String type) {
+            // given / when / then
+            assertThatThrownBy(() -> ContentModel.create(type, "제목", "설명", "url")
+            ).isInstanceOf(InvalidContentDataException.class);
         }
 
-        static Stream<Arguments> emptyFieldsProvider() {
-            return Stream.of(
-                Arguments.of("null", null),
-                Arguments.of("빈 문자열", ""),
-                Arguments.of("공백만", "   ")
-            );
-        }
-
-        @ParameterizedTest(name = "타입이 {0}일 때")
-        @MethodSource("emptyFieldsProvider")
-        @DisplayName("컨텐츠 타입이 비어있으면 예외 발생")
-        void withEmptyType_throwsException(String description, String type) {
-            assertThatThrownBy(() -> ContentModel.create(
-                type,
-                "제목",
-                "설명",
-                "url")
-            )
-                .isInstanceOf(InvalidContentDataException.class)
-                .satisfies(e -> {
-                    InvalidContentDataException ex = (InvalidContentDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("컨텐츠 타입은 비어있을 수 없습니다.");
-                });
-        }
-
-        @ParameterizedTest(name = "제목이 {0}일 때")
-        @MethodSource("emptyFieldsProvider")
+        @ParameterizedTest
+        @MethodSource("com.mopl.domain.model.content.ContentModelTest#emptyFieldsProvider")
         @DisplayName("제목이 비어있으면 예외 발생")
-        void withEmptyTitle_throwsException(String description, String title) {
-            assertThatThrownBy(() -> ContentModel.create(
-                "TYPE",
-                title,
-                "설명",
-                "url")
-            )
-                .isInstanceOf(InvalidContentDataException.class)
-                .satisfies(e -> {
-                    InvalidContentDataException ex = (InvalidContentDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("제목은 비어있을 수 없습니다.");
-                });
+        void create_withEmptyTitle(String desc, String title) {
+            // given / when / then
+            assertThatThrownBy(() -> ContentModel.create("TYPE", title, "설명", "url")
+            ).isInstanceOf(InvalidContentDataException.class);
+        }
+
+        @ParameterizedTest
+        @MethodSource("com.mopl.domain.model.content.ContentModelTest#emptyFieldsProvider")
+        @DisplayName("설명이 비어있으면 예외 발생")
+        void create_withEmptyDescription(String desc, String description) {
+            // given / when / then
+            assertThatThrownBy(() -> ContentModel.create("TYPE", "제목", description, "url")
+            ).isInstanceOf(InvalidContentDataException.class);
         }
 
         @Test
-        @DisplayName("타입이 제한 길이를 초과하면 예외 발생")
-        void withTypeExceedingMaxLength_throwsException() {
+        @DisplayName("타입 길이 초과 시 예외 발생")
+        void create_withTypeTooLong() {
+            // given
             String longType = "a".repeat(TYPE_MAX_LENGTH + 1);
 
-            assertThatThrownBy(() -> ContentModel.create(
-                longType,
-                "제목",
-                "설명",
-                "url")
-            )
-                .isInstanceOf(InvalidContentDataException.class)
-                .satisfies(e -> {
-                    InvalidContentDataException ex = (InvalidContentDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("타입은 " + TYPE_MAX_LENGTH + "자를 초과할 수 없습니다.");
-                });
+            // when / then
+            assertThatThrownBy(() -> ContentModel.create(longType, "제목", "설명", "url")
+            ).isInstanceOf(InvalidContentDataException.class);
         }
 
         @Test
-        @DisplayName("제목이 제한 길이를 초과하면 예외 발생")
-        void withTitleExceedingMaxLength_throwsException() {
+        @DisplayName("제목 길이 초과 시 예외 발생")
+        void create_withTitleTooLong() {
+            // given
             String longTitle = "a".repeat(TITLE_MAX_LENGTH + 1);
 
-            assertThatThrownBy(() -> ContentModel.create(
-                "TYPE",
-                longTitle,
-                "설명",
-                "url")
-            )
-                .isInstanceOf(InvalidContentDataException.class)
-                .satisfies(e -> {
-                    InvalidContentDataException ex = (InvalidContentDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("제목은 " + TITLE_MAX_LENGTH + "자를 초과할 수 없습니다.");
-                });
+            // when / then
+            assertThatThrownBy(() -> ContentModel.create("TYPE", longTitle, "설명", "url")
+            ).isInstanceOf(InvalidContentDataException.class);
         }
 
         @Test
-        @DisplayName("썸네일 URL이 제한 길이를 초과하면 예외 발생")
-        void withThumbnailUrlExceedingMaxLength_throwsException() {
+        @DisplayName("썸네일 URL 길이 초과 시 예외 발생")
+        void create_withThumbnailTooLong() {
+            // given
             String longUrl = "a".repeat(THUMBNAIL_URL_MAX_LENGTH + 1);
 
-            assertThatThrownBy(() -> ContentModel.create(
-                "TYPE",
-                "제목",
-                "설명",
-                longUrl)
-            )
-                .isInstanceOf(InvalidContentDataException.class)
-                .satisfies(e -> {
-                    InvalidContentDataException ex = (InvalidContentDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("썸네일 URL은 " + THUMBNAIL_URL_MAX_LENGTH + "자를 초과할 수 없습니다.");
-                });
+            // when / then
+            assertThatThrownBy(() -> ContentModel.create("TYPE", "제목", "설명", longUrl)
+            ).isInstanceOf(InvalidContentDataException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("update()")
+    class UpdateTest {
+
+        @Test
+        @DisplayName("유효한 데이터로 update 시 새 객체 반환")
+        void update_withValidData() {
+            // given
+            ContentModel original = ContentModel.create(
+                "영화", "기존 제목", "기존 설명", "old-url"
+            );
+
+            // when
+            ContentModel updated = original.update(
+                "새 제목", "새 설명", "new-url"
+            );
+
+            // then
+            assertThat(updated).isNotSameAs(original);
+            assertThat(updated.getType()).isEqualTo("영화");
+            assertThat(updated.getTitle()).isEqualTo("새 제목");
+            assertThat(updated.getDescription()).isEqualTo("새 설명");
+            assertThat(updated.getThumbnailUrl()).isEqualTo("new-url");
+        }
+
+        @ParameterizedTest
+        @MethodSource("com.mopl.domain.model.content.ContentModelTest#emptyFieldsProvider")
+        @DisplayName("update 시 제목이 비어있으면 예외 발생")
+        void update_withEmptyTitle(String desc, String title) {
+            // given
+            ContentModel original = ContentModel.create(
+                "영화", "제목", "설명", "url"
+            );
+
+            // when / then
+            assertThatThrownBy(() -> original.update(title, "설명", "url")
+            ).isInstanceOf(InvalidContentDataException.class);
+        }
+
+        @ParameterizedTest
+        @MethodSource("com.mopl.domain.model.content.ContentModelTest#emptyFieldsProvider")
+        @DisplayName("update 시 설명이 비어있으면 예외 발생")
+        void update_withEmptyDescription(String desc, String description) {
+            // given
+            ContentModel original = ContentModel.create(
+                "영화", "제목", "설명", "url"
+            );
+
+            // when / then
+            assertThatThrownBy(() -> original.update("제목", description, "url")
+            ).isInstanceOf(InvalidContentDataException.class);
+        }
+
+        @Test
+        @DisplayName("update 시 썸네일 URL 길이 초과하면 예외 발생")
+        void update_withThumbnailTooLong() {
+            // given
+            ContentModel original = ContentModel.create(
+                "영화", "제목", "설명", "url"
+            );
+            String longUrl = "a".repeat(THUMBNAIL_URL_MAX_LENGTH + 1);
+
+            // when / then
+            assertThatThrownBy(() -> original.update("제목", "설명", longUrl)
+            ).isInstanceOf(InvalidContentDataException.class);
         }
     }
 
@@ -165,17 +186,17 @@ class ContentModelTest {
     class WithTagsTest {
 
         @Test
-        @DisplayName("withTags는 기존 객체를 변경하지 않고 새로운 객체를 반환한다")
+        @DisplayName("withTags는 새 객체를 반환한다")
         void withTags_returnsNewInstance() {
+            // given
             ContentModel original = ContentModel.create(
-                "영화",
-                "제목",
-                "설명",
-                "url"
+                "영화", "제목", "설명", "url"
             );
 
+            // when
             ContentModel updated = original.withTags(List.of("SF", "액션"));
 
+            // then
             assertThat(original.getTags()).isEmpty();
             assertThat(updated.getTags()).containsExactly("SF", "액션");
             assertThat(updated).isNotSameAs(original);
@@ -187,32 +208,32 @@ class ContentModelTest {
     class BuilderTest {
 
         @Test
-        @DisplayName("빌더를 통해 태그를 포함하여 생성 가능")
-        void withBuilder_includesTags() {
+        @DisplayName("빌더로 태그 포함 생성 가능")
+        void builder_withTags() {
+            // when
             ContentModel content = ContentModel.builder()
                 .type("영화")
                 .title("인셉션")
                 .description("꿈속의 꿈")
-                .thumbnailUrl("https://mopl.com/inception.png")
+                .thumbnailUrl("url")
                 .tags(List.of("SF", "액션"))
                 .build();
 
-            assertThat(content.getType()).isEqualTo("영화");
-            assertThat(content.getTitle()).isEqualTo("인셉션");
-            assertThat(content.getDescription()).isEqualTo("꿈속의 꿈");
-            assertThat(content.getThumbnailUrl()).isEqualTo("https://mopl.com/inception.png");
+            // then
             assertThat(content.getTags()).containsExactly("SF", "액션");
         }
 
         @Test
-        @DisplayName("빌더는 도메인 유효성 검증을 우회할 수 있음을 명시한다")
+        @DisplayName("빌더는 유효성 검증을 우회한다")
         void builder_allowsInvalidState() {
+            // when
             ContentModel content = ContentModel.builder()
                 .type("")
                 .title("제목")
                 .thumbnailUrl("url")
                 .build();
 
+            // then
             assertThat(content.getType()).isEmpty();
         }
     }

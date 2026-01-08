@@ -135,8 +135,8 @@ public class InMemoryJwtRegistry implements JwtRegistry {
         }
     }
 
-    private void evictOldestSession(UUID userId, LinkedHashMap<UUID, JwtInformation> sessions) {
-        var firstEntry = sessions.entrySet().iterator().next();
+    private void evictOldestSession(UUID userId, Map<UUID, JwtInformation> sessions) {
+        Map.Entry<UUID, JwtInformation> firstEntry = sessions.entrySet().iterator().next();
         addToBlacklist(firstEntry.getValue());
         sessions.remove(firstEntry.getKey());
         log.info("최대 세션 초과 퇴출: userId={}, jti={}", userId, firstEntry.getKey());

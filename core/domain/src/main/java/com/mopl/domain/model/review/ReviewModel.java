@@ -106,5 +106,4 @@ public class ReviewModel extends BaseUpdatableModel {
             throw new InvalidReviewDataException("평점은 정수만 가능합니다. (0.5 단위는 허용되지 않습니다.)");
         }
     }
-
 }

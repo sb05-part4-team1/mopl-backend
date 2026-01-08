@@ -110,4 +110,35 @@ public interface FollowApiSpec {
     )
     ResponseEntity<Void> unFollow(@Parameter(hidden = true) UUID userId, @Parameter(
         name = "followId", required = true) UUID followId);
+
+    @Operation(summary = "특정 유저의 팔로워 수 조회")
+    @ApiResponse(
+        responseCode = "200",
+        description = "성공"
+    )
+    @ApiResponse(
+        responseCode = "400",
+        description = "잘못된 요청",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        ))
+    @ApiResponse(
+        responseCode = "401",
+        description = "인증 오류",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "500",
+        description = "서버 오류",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    ResponseEntity<Long> getFollowCount(@Parameter(name = "followeeId",
+        required = true) UUID followeeId);
 }

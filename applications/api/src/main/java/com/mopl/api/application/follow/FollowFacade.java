@@ -39,4 +39,9 @@ public class FollowFacade {
         followService.delete(follow);
     }
 
+    @Transactional
+    public long getFollowerCount(UUID followeeId) {
+        userService.getById(followeeId);
+        return followService.getFollowerCount(followeeId);
+    }
 }
