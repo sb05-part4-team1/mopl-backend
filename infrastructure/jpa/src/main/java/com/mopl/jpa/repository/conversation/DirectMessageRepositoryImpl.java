@@ -1,9 +1,7 @@
 package com.mopl.jpa.repository.conversation;
 
-import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.model.conversation.DirectMessageModel;
 import com.mopl.domain.repository.conversation.DirectMessageRepository;
-import com.mopl.jpa.entity.conversation.ConversationEntity;
 import com.mopl.jpa.entity.conversation.DirectMessageEntity;
 import com.mopl.jpa.entity.conversation.DirectMessageEntityMapper;
 import java.util.Optional;
@@ -31,13 +29,13 @@ public class DirectMessageRepositoryImpl implements DirectMessageRepository {
     public Optional<DirectMessageModel> findById(UUID directMessageId) {
 
         return jpaDirectMessageRepository.findById(directMessageId)
-                .map(directMessageEntityMapper::toModel);
+            .map(directMessageEntityMapper::toModel);
     }
 
     @Override
     public DirectMessageModel findByConversationIdAndSenderId(UUID conversationId, UUID senderId) {
         DirectMessageEntity directMessageEntity = jpaDirectMessageRepository
-                .findTopByConversationIdAndSenderIdOrderByCreatedAtDesc(conversationId, senderId);
+            .findTopByConversationIdAndSenderIdOrderByCreatedAtDesc(conversationId, senderId);
 
         return directMessageEntityMapper.toModel(directMessageEntity);
     }

@@ -6,6 +6,6 @@ import java.util.UUID;
 public class ReadStatusNotFoundException extends ConversationException {
 
     public ReadStatusNotFoundException(UUID id) {
-        super( ConversationErrorCode.READSTATUS_NOT_FOUND , Map.of("id",id) );
+        super(ConversationErrorCode.READSTATUS_NOT_FOUND, Map.of("id", id));
     }
 }

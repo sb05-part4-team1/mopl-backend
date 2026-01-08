@@ -1,7 +1,6 @@
 package com.mopl.jpa.repository.conversation;
 
 import com.mopl.domain.model.conversation.ConversationModel;
-import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.conversation.ConversationRepository;
 import com.mopl.jpa.entity.conversation.ConversationEntity;
 import com.mopl.jpa.entity.conversation.ConversationEntityMapper;
@@ -32,27 +31,24 @@ public class ConversationRepositoryImpl implements ConversationRepository {
 
     @Override
     public Optional<ConversationModel> get(UUID conversationId) {
-        Optional<ConversationEntity> conversationEntity = jpaConversationRepository.findById(conversationId);
+        Optional<ConversationEntity> conversationEntity = jpaConversationRepository.findById(
+            conversationId);
 
         Optional<DirectMessageEntity> directMessageEntity = jpaDirectMessageRepository
             .findTopByConversationIdOrderByCreatedAtDesc(conversationId);
 
-
-        return conversationEntity.map(entity ->
-                        conversationEntityMapper.toModel(
-                                entity,
-                                directMessageEntity.map(directMessageEntityMapper::toModel)
-                        )
-                );
+        return conversationEntity.map(entity -> conversationEntityMapper.toModel(
+            entity,
+            directMessageEntity.map(directMessageEntityMapper::toModel)
+        )
+        );
     }
-
-
 
     @Override
     public Optional<ConversationModel> findById(UUID conversationId) {
 
-        return  jpaConversationRepository.findById(conversationId)
-                .map(conversationEntityMapper::toModel);
+        return jpaConversationRepository.findById(conversationId)
+            .map(conversationEntityMapper::toModel);
 
     }
 

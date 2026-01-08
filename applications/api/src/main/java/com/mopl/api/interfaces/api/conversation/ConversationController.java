@@ -31,45 +31,41 @@ public class ConversationController {
 
     @GetMapping("/with")
     public ConversationResponse findByWith(
-            @AuthenticationPrincipal MoplUserDetails userDetails, //userId, role이 들어있음.
-            @RequestParam UUID userId
-    ){
-        ConversationModel conversationModel =
-                conversationFacade.getConversationByWith(userDetails.userId(),userId);
+        @AuthenticationPrincipal MoplUserDetails userDetails, //userId, role이 들어있음.
+        @RequestParam UUID userId
+    ) {
+        ConversationModel conversationModel = conversationFacade.getConversationByWith(userDetails
+            .userId(), userId);
 
         return conversationResponseMapper.toResponse(conversationModel);
 
     }
 
-
-
-
     @PostMapping("/{conversationId}/direct-messages/{directMessageId}/read")
     public void directMessageRead(
-            @PathVariable("conversationId") UUID conversationId,
-            @PathVariable("directMessageId") UUID directMessageId
-    ){
+        @PathVariable("conversationId") UUID conversationId,
+        @PathVariable("directMessageId") UUID directMessageId
+    ) {
 
-        conversationFacade.directMessageRead(conversationId,directMessageId);
+        conversationFacade.directMessageRead(conversationId, directMessageId);
 
     }
 
-
     @GetMapping("/{conversationId}")
     public ConversationResponse findConversationById(
-            @AuthenticationPrincipal MoplUserDetails userDetails, //userId, role이 들어있음.
-            @PathVariable("conversationId") UUID conversationId
+        @AuthenticationPrincipal MoplUserDetails userDetails, //userId, role이 들어있음.
+        @PathVariable("conversationId") UUID conversationId
     ) {
-        ConversationModel conversationModel =
-                conversationFacade.getConversation(conversationId,userDetails.userId());
+        ConversationModel conversationModel = conversationFacade.getConversation(conversationId,
+            userDetails.userId());
 
         return conversationResponseMapper.toResponse(conversationModel);
     }
 
     @PostMapping
     public ConversationResponse createConversation(
-            @AuthenticationPrincipal MoplUserDetails userDetails, //userId, role이 들어있음.
-            @Valid @RequestBody ConversationCreateRequest request
+        @AuthenticationPrincipal MoplUserDetails userDetails, //userId, role이 들어있음.
+        @Valid @RequestBody ConversationCreateRequest request
     ) {
 
         UserModel withUser = userFacade.getUser(request.withUserId());

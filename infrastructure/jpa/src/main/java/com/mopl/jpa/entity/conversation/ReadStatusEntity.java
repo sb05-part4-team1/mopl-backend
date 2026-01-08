@@ -34,5 +34,4 @@ public class ReadStatusEntity extends BaseEntity {
     @JoinColumn(name = "participant_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private UserEntity participant;
 
-
 }

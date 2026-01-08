@@ -6,7 +6,7 @@ import java.util.UUID;
 public class DirectMessageNotFoundException extends ConversationException {
 
     public DirectMessageNotFoundException(UUID id) {
-        super( ConversationErrorCode.DIRECTMESSAGE_NOT_FOUND , Map.of("id",id) );
+        super(ConversationErrorCode.DIRECTMESSAGE_NOT_FOUND, Map.of("id", id));
     }
 
 }

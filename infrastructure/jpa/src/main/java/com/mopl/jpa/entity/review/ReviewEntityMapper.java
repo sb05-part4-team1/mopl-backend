@@ -66,5 +66,4 @@ public class ReviewEntityMapper {
             .id(contentId)
             .build();
     }
-
 }

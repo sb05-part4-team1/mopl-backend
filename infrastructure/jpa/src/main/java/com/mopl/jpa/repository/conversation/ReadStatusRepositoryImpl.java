@@ -26,44 +26,42 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
         return readStatusEntityMapper.toModel(savedReadStatusEntity);
     }
 
-
     @Override
     public Optional<ReadStatusModel> findById(UUID readStatusId) {
 
         return jpaReadStatusRepository.findById(readStatusId)
-                .map(readStatusEntityMapper::toModel);
+            .map(readStatusEntityMapper::toModel);
     }
 
     @Override
     public List<ReadStatusModel> findByConversationId(UUID conversationId) {
-        List<ReadStatusEntity> readStatusEntities =
-                jpaReadStatusRepository.findByConversationId(conversationId);
+        List<ReadStatusEntity> readStatusEntities = jpaReadStatusRepository.findByConversationId(
+            conversationId);
 
         return readStatusEntities.stream()
-                .map(readStatusEntityMapper::toModel)
-                .collect(Collectors.toList());
+            .map(readStatusEntityMapper::toModel)
+            .collect(Collectors.toList());
     }
 
     @Override
     public ReadStatusModel findByConversationIdAndParticipantId(
-            UUID conversationId,
-            UUID participantId
+        UUID conversationId,
+        UUID participantId
     ) {
         ReadStatusEntity readStatusEntity = jpaReadStatusRepository
-                .findByConversationIdAndParticipantId(conversationId,participantId);
+            .findByConversationIdAndParticipantId(conversationId, participantId);
 
         return readStatusEntityMapper.toModel(readStatusEntity);
     }
 
     @Override
     public List<ReadStatusModel> findByParticipantId(UUID participantId) {
-        List<ReadStatusEntity> readStatusEntities =
-                jpaReadStatusRepository.findByParticipantId(participantId);
+        List<ReadStatusEntity> readStatusEntities = jpaReadStatusRepository.findByParticipantId(
+            participantId);
 
         return readStatusEntities.stream()
-                .map(readStatusEntityMapper::toModel)
-                .collect(Collectors.toList());
+            .map(readStatusEntityMapper::toModel)
+            .collect(Collectors.toList());
     }
-
 
 }

@@ -28,8 +28,8 @@ public class ConversationEntityMapper {
     }
 
     public ConversationModel toModel(
-            ConversationEntity conversationEntity,
-            UserModel userModel
+        ConversationEntity conversationEntity,
+        UserModel userModel
     ) {
 
         if (conversationEntity == null) {
@@ -37,11 +37,11 @@ public class ConversationEntityMapper {
         }
 
         return ConversationModel.builder()
-                .id(conversationEntity.getId())
-                .createdAt(conversationEntity.getCreatedAt())
-                .updatedAt(conversationEntity.getUpdatedAt())
-                .withUser(userModel)
-                .build();
+            .id(conversationEntity.getId())
+            .createdAt(conversationEntity.getCreatedAt())
+            .updatedAt(conversationEntity.getUpdatedAt())
+            .withUser(userModel)
+            .build();
     }
 
     public ConversationModel toModel(
@@ -53,18 +53,18 @@ public class ConversationEntityMapper {
             return null;
         }
         return directMessageModel.map(messageModel -> ConversationModel.builder()
-                .id(conversationEntity.getId())
-                .createdAt(conversationEntity.getCreatedAt())
-                .updatedAt(conversationEntity.getUpdatedAt())
-                .directMessage(messageModel)
-                .build()).orElse(null);
+            .id(conversationEntity.getId())
+            .createdAt(conversationEntity.getCreatedAt())
+            .updatedAt(conversationEntity.getUpdatedAt())
+            .directMessage(messageModel)
+            .build()).orElse(null);
 
     }
 
     public ConversationModel toModel(
-            ConversationEntity conversationEntity,
-            DirectMessageModel directMessageModel,
-            UserModel userModel
+        ConversationEntity conversationEntity,
+        DirectMessageModel directMessageModel,
+        UserModel userModel
     ) {
 
         if (conversationEntity == null) {
@@ -72,12 +72,12 @@ public class ConversationEntityMapper {
         }
 
         return ConversationModel.builder()
-                .id(conversationEntity.getId())
-                .createdAt(conversationEntity.getCreatedAt())
-                .updatedAt(conversationEntity.getUpdatedAt())
-                .withUser(userModel)
-                .directMessage(directMessageModel)
-                .build();
+            .id(conversationEntity.getId())
+            .createdAt(conversationEntity.getCreatedAt())
+            .updatedAt(conversationEntity.getUpdatedAt())
+            .withUser(userModel)
+            .directMessage(directMessageModel)
+            .build();
     }
 
     public ConversationEntity toEntity(ConversationModel conversationModel) {

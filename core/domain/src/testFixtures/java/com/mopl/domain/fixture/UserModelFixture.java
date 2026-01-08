@@ -6,6 +6,8 @@ import com.mopl.domain.model.user.UserModel;
 import com.navercorp.fixturemonkey.ArbitraryBuilder;
 import net.jqwik.api.Arbitraries;
 
+import java.util.Locale;
+
 public final class UserModelFixture {
 
     private UserModelFixture() {
@@ -16,7 +18,7 @@ public final class UserModelFixture {
             .setNull("deletedAt")
             .set("authProvider", UserModel.AuthProvider.EMAIL)
             .set("email", Arbitraries.strings().alpha().ofLength(8)
-                .map(s -> s.toLowerCase() + "@testfixture.com"))
+                .map(s -> s.toLowerCase(Locale.ROOT) + "@testfixture.com"))
             .setNull("profileImageUrl")
             .set("role", UserModel.Role.USER)
             .set("locked", false);

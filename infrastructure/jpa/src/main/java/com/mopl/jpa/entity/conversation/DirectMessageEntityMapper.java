@@ -2,7 +2,6 @@ package com.mopl.jpa.entity.conversation;
 
 import com.mopl.domain.model.conversation.DirectMessageModel;
 import com.mopl.jpa.entity.user.UserEntityMapper;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -22,21 +22,20 @@ public class ConversationFacade {
     private final UserService userService;
 
     @Transactional
-    public void directMessageRead(UUID conversationId,UUID directMessageId){
-        DirectMessageModel directMessageModel =
-                conversationService.getDircetMassegeById(directMessageId);
+    public void directMessageRead(UUID conversationId, UUID directMessageId) {
+        DirectMessageModel directMessageModel = conversationService.getDircetMassegeById(
+            directMessageId);
 
-        List<ReadStatusModel> readStatusModels =
-                conversationService.getReadStatusByConversationId(directMessageId);
+        List<ReadStatusModel> readStatusModels = conversationService.getReadStatusByConversationId(
+            directMessageId);
 
-        conversationService.directMessageRead(directMessageModel,readStatusModels);
-
+        conversationService.directMessageRead(directMessageModel, readStatusModels);
 
     }
 
-    public ConversationModel getConversationByWith(UUID userId,UUID withId){
+    public ConversationModel getConversationByWith(UUID userId, UUID withId) {
 
-        return conversationService.getConversationByWith(userId,withId);
+        return conversationService.getConversationByWith(userId, withId);
 
     }
 
@@ -51,9 +50,9 @@ public class ConversationFacade {
     }
 
     @Transactional
-    public ConversationModel getConversation(UUID conversationId,UUID userId) {
+    public ConversationModel getConversation(UUID conversationId, UUID userId) {
 
-        return conversationService.getConversation(conversationId,userId);
+        return conversationService.getConversation(conversationId, userId);
     }
 
 //    @Transactional(readOnly = true)
