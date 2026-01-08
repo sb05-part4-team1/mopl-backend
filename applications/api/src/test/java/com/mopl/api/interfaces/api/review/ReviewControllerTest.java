@@ -100,12 +100,12 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                    post("/api/reviews")
-                        .with(csrf())
-                        .with(user(mockUserDetails))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                )
+                post("/api/reviews")
+                    .with(csrf())
+                    .with(user(mockUserDetails))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request))
+            )
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(reviewId.toString()))
                 .andExpect(jsonPath("$.text").value("테스트 리뷰"))
@@ -124,11 +124,11 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                    post("/api/reviews")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                )
+                post("/api/reviews")
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request))
+            )
                 .andExpect(status().isUnauthorized());
 
             then(reviewFacade).shouldHaveNoInteractions();
@@ -162,12 +162,12 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                    patch("/api/reviews/{reviewId}", reviewId)
-                        .with(csrf())
-                        .with(user(mockUserDetails))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                )
+                patch("/api/reviews/{reviewId}", reviewId)
+                    .with(csrf())
+                    .with(user(mockUserDetails))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request))
+            )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.text").value("수정된 내용"));
 
@@ -187,10 +187,10 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                    delete("/api/reviews/{reviewId}", reviewId)
-                        .with(csrf())
-                        .with(user(mockUserDetails))
-                )
+                delete("/api/reviews/{reviewId}", reviewId)
+                    .with(csrf())
+                    .with(user(mockUserDetails))
+            )
                 .andExpect(status().isOk());
 
             // Facade 호출 검증
@@ -205,9 +205,9 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                    delete("/api/reviews/{reviewId}", reviewId)
-                        .with(csrf())
-                )
+                delete("/api/reviews/{reviewId}", reviewId)
+                    .with(csrf())
+            )
                 .andExpect(status().isUnauthorized());
 
             then(reviewFacade).shouldHaveNoInteractions();
