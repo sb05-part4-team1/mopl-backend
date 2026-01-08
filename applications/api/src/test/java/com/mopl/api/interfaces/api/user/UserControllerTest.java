@@ -2,15 +2,20 @@ package com.mopl.api.interfaces.api.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.api.application.user.UserFacade;
+import com.mopl.api.config.TestSecurityConfig;
 import com.mopl.api.interfaces.api.ApiControllerAdvice;
 import com.mopl.domain.exception.user.DuplicateEmailException;
 import com.mopl.domain.exception.user.InvalidUserDataException;
+import com.mopl.domain.exception.user.SelfLockChangeException;
+import com.mopl.domain.exception.user.SelfRoleChangeException;
 import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.user.UserQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
+import com.mopl.security.userdetails.MoplUserDetails;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,16 +23,17 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,16 +45,21 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UserController.class)
-@AutoConfigureMockMvc(addFilters = false)
-@Import({ApiControllerAdvice.class, UserResponseMapper.class})
+@Import({ApiControllerAdvice.class, UserResponseMapper.class, TestSecurityConfig.class})
 @DisplayName("UserController 슬라이스 테스트")
 class UserControllerTest {
 
@@ -58,8 +69,36 @@ class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private UserResponseMapper userResponseMapper;
+
     @MockBean
     private UserFacade userFacade;
+
+    private MoplUserDetails mockAdminDetails;
+    private MoplUserDetails mockUserDetails;
+    private UUID adminId;
+
+    @BeforeEach
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    void setUp() {
+        adminId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        mockAdminDetails = mock(MoplUserDetails.class);
+        given(mockAdminDetails.userId()).willReturn(adminId);
+        given(mockAdminDetails.getUsername()).willReturn(adminId.toString());
+        given(mockAdminDetails.getAuthorities()).willReturn(
+            (Collection) List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))
+        );
+
+        mockUserDetails = mock(MoplUserDetails.class);
+        given(mockUserDetails.userId()).willReturn(userId);
+        given(mockUserDetails.getUsername()).willReturn(userId.toString());
+        given(mockUserDetails.getAuthorities()).willReturn(
+            (Collection) List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
+    }
 
     @Nested
     @DisplayName("POST /api/users - 회원가입")
@@ -84,6 +123,7 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/users")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -127,6 +167,7 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/users")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isBadRequest());
@@ -146,6 +187,7 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/users")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict());
@@ -163,6 +205,7 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/users")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -182,7 +225,8 @@ class UserControllerTest {
             given(userFacade.getUser(userModel.getId())).willReturn(userModel);
 
             // when & then
-            mockMvc.perform(get("/api/users/{userId}", userModel.getId()))
+            mockMvc.perform(get("/api/users/{userId}", userModel.getId())
+                .with(user(mockUserDetails)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(userModel.getId().toString()))
                 .andExpect(jsonPath("$.email").value(userModel.getEmail()))
@@ -197,12 +241,14 @@ class UserControllerTest {
         @DisplayName("존재하지 않는 사용자 ID로 조회 시 404 Not Found 응답")
         void withNonExistingUserId_returns404NotFound() throws Exception {
             // given
-            UUID userId = UUID.randomUUID();
+            UUID nonExistingUserId = UUID.randomUUID();
 
-            given(userFacade.getUser(userId)).willThrow(UserNotFoundException.withId(userId));
+            given(userFacade.getUser(nonExistingUserId))
+                .willThrow(UserNotFoundException.withId(nonExistingUserId));
 
             // when & then
-            mockMvc.perform(get("/api/users/{userId}", userId))
+            mockMvc.perform(get("/api/users/{userId}", nonExistingUserId)
+                .with(user(mockUserDetails)))
                 .andExpect(status().isNotFound());
         }
     }
@@ -235,7 +281,9 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(multipart(HttpMethod.PATCH, "/api/users/{userId}", userModel.getId())
-                .file(image))
+                .file(image)
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(userModel.getId().toString()))
                 .andExpect(jsonPath("$.profileImageUrl").value(profileImageUrl));
@@ -271,7 +319,9 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(multipart(HttpMethod.PATCH, "/api/users/{userId}", userModel.getId())
-                .file(requestPart))
+                .file(requestPart)
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(userModel.getId().toString()))
                 .andExpect(jsonPath("$.name").value(newName));
@@ -317,7 +367,9 @@ class UserControllerTest {
             // when & then
             mockMvc.perform(multipart(HttpMethod.PATCH, "/api/users/{userId}", userModel.getId())
                 .file(requestPart)
-                .file(image))
+                .file(image)
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(userModel.getId().toString()))
                 .andExpect(jsonPath("$.name").value(newName))
@@ -333,7 +385,7 @@ class UserControllerTest {
         @DisplayName("존재하지 않는 사용자 ID로 수정 시 404 Not Found 응답")
         void withNonExistingUserId_returns404NotFound() throws Exception {
             // given
-            UUID userId = UUID.randomUUID();
+            UUID nonExistingUserId = UUID.randomUUID();
 
             MockMultipartFile image = new MockMultipartFile(
                 "image",
@@ -343,14 +395,17 @@ class UserControllerTest {
             );
 
             given(userFacade.updateProfile(
-                eq(userId),
+                eq(nonExistingUserId),
                 isNull(),
                 any(MultipartFile.class))
-            ).willThrow(UserNotFoundException.withId(userId));
+            ).willThrow(UserNotFoundException.withId(nonExistingUserId));
 
             // when & then
             mockMvc.perform(
-                multipart(HttpMethod.PATCH, "/api/users/{userId}", userId).file(image)
+                multipart(HttpMethod.PATCH, "/api/users/{userId}", nonExistingUserId)
+                    .file(image)
+                    .with(user(mockUserDetails))
+                    .with(csrf())
             ).andExpect(status().isNotFound());
         }
     }
@@ -372,14 +427,8 @@ class UserControllerTest {
                 .set("name", "User2")
                 .sample();
 
-            UserResponse response1 = new UserResponse(
-                user1.getId(), user1.getCreatedAt(), user1.getEmail(),
-                user1.getName(), user1.getProfileImageUrl(), user1.getRole(), user1.isLocked()
-            );
-            UserResponse response2 = new UserResponse(
-                user2.getId(), user2.getCreatedAt(), user2.getEmail(),
-                user2.getName(), user2.getProfileImageUrl(), user2.getRole(), user2.isLocked()
-            );
+            UserResponse response1 = userResponseMapper.toResponse(user1);
+            UserResponse response2 = userResponseMapper.toResponse(user2);
 
             CursorResponse<UserResponse> cursorResponse = CursorResponse.of(
                 List.of(response1, response2),
@@ -395,6 +444,7 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/users")
+                .with(user(mockAdminDetails))
                 .param("limit", "10")
                 .param("sortDirection", "ASCENDING")
                 .param("sortBy", "name"))
@@ -423,6 +473,7 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/users")
+                .with(user(mockAdminDetails))
                 .param("emailLike", "admin")
                 .param("roleEqual", "ADMIN")
                 .param("isLocked", "false"))
@@ -439,11 +490,8 @@ class UserControllerTest {
         void withCursorParams_handlesPagination() throws Exception {
             // given
             UUID idAfter = UUID.randomUUID();
-            UserModel user = UserModelFixture.create();
-            UserResponse response = new UserResponse(
-                user.getId(), user.getCreatedAt(), user.getEmail(),
-                user.getName(), user.getProfileImageUrl(), user.getRole(), user.isLocked()
-            );
+            UserModel userModel = UserModelFixture.create();
+            UserResponse response = userResponseMapper.toResponse(userModel);
 
             CursorResponse<UserResponse> cursorResponse = CursorResponse.of(
                 List.of(response),
@@ -459,6 +507,7 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/users")
+                .with(user(mockAdminDetails))
                 .param("cursor", "PreviousUser")
                 .param("idAfter", idAfter.toString())
                 .param("limit", "10"))
@@ -480,7 +529,8 @@ class UserControllerTest {
             given(userFacade.getUsers(any(UserQueryRequest.class))).willReturn(emptyResponse);
 
             // when & then
-            mockMvc.perform(get("/api/users"))
+            mockMvc.perform(get("/api/users")
+                .with(user(mockAdminDetails)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(0))
@@ -488,6 +538,222 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.totalCount").value(0));
 
             then(userFacade).should().getUsers(any(UserQueryRequest.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("PATCH /api/users/{userId}/role - 사용자 역할 수정")
+    class UpdateRoleTest {
+
+        @Test
+        @DisplayName("유효한 요청 시 204 No Content 응답")
+        void withValidRequest_returns204NoContent() throws Exception {
+            // given
+            UUID targetUserId = UUID.randomUUID();
+            UserModel userModel = UserModelFixture.builder()
+                .set("id", targetUserId)
+                .sample();
+            UserRoleUpdateRequest request = new UserRoleUpdateRequest(UserModel.Role.ADMIN);
+
+            given(userFacade.updateRole(
+                eq(adminId),
+                any(UserRoleUpdateRequest.class),
+                eq(targetUserId)
+            )).willReturn(userModel);
+
+            // when & then
+            mockMvc.perform(patch("/api/users/{userId}/role", targetUserId)
+                .with(user(mockAdminDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNoContent());
+
+            then(userFacade).should().updateRole(
+                eq(adminId),
+                any(UserRoleUpdateRequest.class),
+                eq(targetUserId)
+            );
+        }
+
+        @Test
+        @DisplayName("role이 null인 경우 400 Bad Request 응답")
+        void withNullRole_returns400BadRequest() throws Exception {
+            // given
+            UUID targetUserId = UUID.randomUUID();
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("role", null);
+
+            // when & then
+            mockMvc.perform(patch("/api/users/{userId}/role", targetUserId)
+                .with(user(mockAdminDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody)))
+                .andExpect(status().isBadRequest());
+
+            then(userFacade).should(never()).updateRole(any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 사용자 ID로 수정 시 404 Not Found 응답")
+        void withNonExistingUserId_returns404NotFound() throws Exception {
+            // given
+            UUID targetUserId = UUID.randomUUID();
+            UserRoleUpdateRequest request = new UserRoleUpdateRequest(UserModel.Role.ADMIN);
+
+            given(userFacade.updateRole(
+                eq(adminId),
+                any(UserRoleUpdateRequest.class),
+                eq(targetUserId)
+            )).willThrow(UserNotFoundException.withId(targetUserId));
+
+            // when & then
+            mockMvc.perform(patch("/api/users/{userId}/role", targetUserId)
+                .with(user(mockAdminDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("유효하지 않은 role 값으로 요청 시 400 Bad Request 응답")
+        void withInvalidRole_returns400BadRequest() throws Exception {
+            // given
+            UUID targetUserId = UUID.randomUUID();
+            Map<String, String> requestBody = new HashMap<>();
+            requestBody.put("role", "INVALID_ROLE");
+
+            // when & then
+            mockMvc.perform(patch("/api/users/{userId}/role", targetUserId)
+                .with(user(mockAdminDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody)))
+                .andExpect(status().isBadRequest());
+
+            then(userFacade).should(never()).updateRole(any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("자기 자신의 역할 변경 시 400 Bad Request 응답")
+        void withSelfRoleChange_returns400BadRequest() throws Exception {
+            // given
+            UserRoleUpdateRequest request = new UserRoleUpdateRequest(UserModel.Role.USER);
+
+            given(userFacade.updateRole(
+                eq(adminId),
+                any(UserRoleUpdateRequest.class),
+                eq(adminId)
+            )).willThrow(SelfRoleChangeException.withUserId(adminId));
+
+            // when & then
+            mockMvc.perform(patch("/api/users/{userId}/role", adminId)
+                .with(user(mockAdminDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+        }
+    }
+
+    @Nested
+    @DisplayName("PATCH /api/users/{userId}/locked - 사용자 잠금 상태 수정")
+    class UpdateLockedTest {
+
+        @Test
+        @DisplayName("유효한 요청 시 204 No Content 응답")
+        void withValidRequest_returns204NoContent() throws Exception {
+            // given
+            UUID targetUserId = UUID.randomUUID();
+            UserLockUpdateRequest request = new UserLockUpdateRequest(true);
+
+            willDoNothing().given(userFacade).updateLocked(
+                eq(adminId),
+                eq(targetUserId),
+                any(UserLockUpdateRequest.class)
+            );
+
+            // when & then
+            mockMvc.perform(patch("/api/users/{userId}/locked", targetUserId)
+                .with(user(mockAdminDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNoContent());
+
+            then(userFacade).should().updateLocked(
+                eq(adminId),
+                eq(targetUserId),
+                any(UserLockUpdateRequest.class)
+            );
+        }
+
+        @Test
+        @DisplayName("locked가 null인 경우 400 Bad Request 응답")
+        void withNullLocked_returns400BadRequest() throws Exception {
+            // given
+            UUID targetUserId = UUID.randomUUID();
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("locked", null);
+
+            // when & then
+            mockMvc.perform(patch("/api/users/{userId}/locked", targetUserId)
+                .with(user(mockAdminDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody)))
+                .andExpect(status().isBadRequest());
+
+            then(userFacade).should(never()).updateLocked(any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 사용자 ID로 수정 시 404 Not Found 응답")
+        void withNonExistingUserId_returns404NotFound() throws Exception {
+            // given
+            UUID targetUserId = UUID.randomUUID();
+            UserLockUpdateRequest request = new UserLockUpdateRequest(true);
+
+            willThrow(UserNotFoundException.withId(targetUserId))
+                .given(userFacade)
+                .updateLocked(
+                    eq(adminId),
+                    eq(targetUserId),
+                    any(UserLockUpdateRequest.class)
+                );
+
+            // when & then
+            mockMvc.perform(patch("/api/users/{userId}/locked", targetUserId)
+                .with(user(mockAdminDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("자기 자신의 잠금 상태 변경 시 400 Bad Request 응답")
+        void withSelfLockChange_returns400BadRequest() throws Exception {
+            // given
+            UserLockUpdateRequest request = new UserLockUpdateRequest(true);
+
+            willThrow(SelfLockChangeException.withUserId(adminId))
+                .given(userFacade)
+                .updateLocked(
+                    eq(adminId),
+                    eq(adminId),
+                    any(UserLockUpdateRequest.class)
+                );
+
+            // when & then
+            mockMvc.perform(patch("/api/users/{userId}/locked", adminId)
+                .with(user(mockAdminDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
         }
     }
 }

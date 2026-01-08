@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -233,7 +234,9 @@ class CursorPaginationHelperTest {
                 new TestRow(UUID.randomUUID(), "bob")
             );
 
-            Function<TestRow, TestDto> mapper = row -> new TestDto(row.name().toUpperCase());
+            Function<TestRow, TestDto> mapper = row -> new TestDto(
+                row.name().toUpperCase(Locale.ROOT)
+            );
 
             // when
             CursorResponse<TestDto> response = CursorPaginationHelper.buildResponse(

@@ -72,4 +72,15 @@ public class UserController implements UserApiSpec {
     ) {
         userFacade.updateRole(userDetails.userId(), request, userId);
     }
+
+    @PatchMapping("/{userId}/locked")
+    @PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateLocked(
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @PathVariable UUID userId,
+        @RequestBody @Valid UserLockUpdateRequest request
+    ) {
+        userFacade.updateLocked(userDetails.userId(), userId, request);
+    }
 }

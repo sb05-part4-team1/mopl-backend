@@ -11,7 +11,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.mopl.domain.model.content.ContentModel.*;
+import static com.mopl.domain.model.content.ContentModel.THUMBNAIL_URL_MAX_LENGTH;
+import static com.mopl.domain.model.content.ContentModel.TITLE_MAX_LENGTH;
+import static com.mopl.domain.model.content.ContentModel.TYPE_MAX_LENGTH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
