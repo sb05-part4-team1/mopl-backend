@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,6 +45,21 @@ public class ContentController implements ContentApiSpec {
     @ResponseStatus(HttpStatus.OK)
     public ContentResponse getDetail(@PathVariable UUID contentId) {
         ContentModel contentModel = contentFacade.getDetail(contentId);
+
+        return contentResponseMapper.toResponse(
+            contentModel
+        );
+    }
+
+    @Override
+    @PatchMapping(value = "/{contentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public ContentResponse update(
+        @PathVariable UUID contentId,
+        @RequestPart(name = "request") @Valid ContentUpdateRequest request,
+        @RequestPart(name = "thumbnail", required = false) MultipartFile thumbnail
+    ) {
+        ContentModel contentModel = contentFacade.update(contentId, request, thumbnail);
 
         return contentResponseMapper.toResponse(
             contentModel
