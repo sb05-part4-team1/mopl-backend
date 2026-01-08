@@ -33,4 +33,8 @@ public class FollowService {
         return followRepository.findById(followId)
             .orElseThrow(() -> new FollowNotFoundException(followId));
     }
+
+    public long getFollowerCount(UUID followeeId) {
+        return followRepository.countByFolloweeId(followeeId);
+    }
 }
