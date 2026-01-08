@@ -124,24 +124,6 @@ tmp/
 
 
 ###############################
-#        Databases
-###############################
-# SQLite
-*.sqlite3
-*.db
-*.sqlite
-
-# MySQL / Postgres dumps
-*.sql
-*.dump
-*.bak
-
-# H2
-*.mv.db
-*.h2.db
-
-
-###############################
 #        AWS / Cloud
 ###############################
 # AWS credentials (절대 올리면 안됨)
