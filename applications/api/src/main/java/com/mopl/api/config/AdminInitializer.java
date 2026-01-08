@@ -2,7 +2,6 @@ package com.mopl.api.config;
 
 import com.mopl.api.application.user.UserFacade;
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
-import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
 import com.mopl.domain.exception.user.DuplicateEmailException;
 import com.mopl.domain.model.user.UserModel;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Component;
 public class AdminInitializer implements ApplicationRunner {
 
     private final AdminProperties adminProperties;
-
     private final UserFacade userFacade;
 
     @Override
@@ -34,10 +32,7 @@ public class AdminInitializer implements ApplicationRunner {
 
         try {
             UserModel user = userFacade.signUp(request);
-            UserModel admin = userFacade.updateRoleInternal(
-                new UserRoleUpdateRequest(UserModel.Role.ADMIN),
-                user.getId()
-            );
+            UserModel admin = userFacade.updateRoleInternal(user.getId(), UserModel.Role.ADMIN);
             log.info("관리자 계정이 생성되었습니다: email={}", admin.getEmail());
         } catch (DuplicateEmailException e) {
             log.debug("관리자 계정이 이미 존재합니다: email={}", adminProperties.email());

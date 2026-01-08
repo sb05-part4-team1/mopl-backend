@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Import;
 
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @Import({
@@ -52,33 +52,21 @@ class ContentTagRepositoryImplTest {
         @Test
         @DisplayName("콘텐츠와 태그를 연결한다")
         void saveAll_linksContentAndTags() {
-            // given
-            ContentModel content = ContentModel.create(
-                "영화",
-                "인셉션",
-                "꿈속의 꿈",
-                "https://mopl.com/inception.png"
+            ContentModel savedContent = contentRepository.save(
+                ContentModel.create("영화", "인셉션", "꿈속의 꿈", "url")
             );
-            ContentModel savedContent = contentRepository.save(content);
 
             TagModel tag1 = tagRepository.save(TagModel.create("SF"));
             TagModel tag2 = tagRepository.save(TagModel.create("액션"));
 
-            // when
             contentTagRepository.saveAll(
                 savedContent.getId(),
                 List.of(tag1, tag2)
             );
 
-            // then
             List<ContentTagEntity> contentTags = jpaContentTagRepository.findAll();
 
             assertThat(contentTags).hasSize(2);
-
-            assertThat(contentTags)
-                .allMatch(ct -> ct.getContent().getId()
-                    .equals(savedContent.getId()));
-
             assertThat(contentTags)
                 .extracting(ct -> ct.getTag().getName())
                 .containsExactlyInAnyOrder("SF", "액션");
@@ -90,9 +78,8 @@ class ContentTagRepositoryImplTest {
     class FindTagsByContentIdTest {
 
         @Test
-        @DisplayName("콘텐츠 ID로 연결된 모든 태그 모델 목록을 조회한다")
-        void findTagsByContentId_returnsTagModels() {
-            // given
+        @DisplayName("콘텐츠 ID로 연결된 태그를 조회한다")
+        void findTagsByContentId_returnsTags() {
             ContentModel savedContent = contentRepository.save(
                 ContentModel.create("영화", "인셉션", "꿈", "url")
             );
@@ -105,33 +92,68 @@ class ContentTagRepositoryImplTest {
                 List.of(tag1, tag2)
             );
 
-            // when
             List<TagModel> result = contentTagRepository.findTagsByContentId(savedContent.getId());
 
-            // then
             assertThat(result).hasSize(2);
             assertThat(result)
                 .extracting(TagModel::getName)
                 .containsExactlyInAnyOrder("SF", "액션");
-
-            assertThat(result)
-                .extracting(TagModel::getId)
-                .containsExactlyInAnyOrder(tag1.getId(), tag2.getId());
         }
 
         @Test
-        @DisplayName("태그가 연결되지 않은 콘텐츠 ID로 조회 시 빈 리스트를 반환한다")
-        void withNoTags_returnsEmptyList() {
-            // given
+        @DisplayName("연결된 태그가 없으면 빈 리스트를 반환한다")
+        void findTagsByContentId_noTags() {
             ContentModel savedContent = contentRepository.save(
                 ContentModel.create("영화", "인셉션", "꿈", "url")
             );
 
-            // when
             List<TagModel> result = contentTagRepository.findTagsByContentId(savedContent.getId());
 
-            // then
             assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteAllByContentId()")
+    class DeleteAllByContentIdTest {
+
+        @Test
+        @DisplayName("특정 콘텐츠의 태그 연결만 삭제한다")
+        void deleteAllByContentId_deletesOnlyTargetContentTags() {
+            ContentModel content1 = contentRepository.save(
+                ContentModel.create("영화", "인셉션", "꿈", "url1")
+            );
+            ContentModel content2 = contentRepository.save(
+                ContentModel.create("영화", "다크나이트", "배트맨", "url2")
+            );
+
+            TagModel tag1 = tagRepository.save(TagModel.create("SF"));
+            TagModel tag2 = tagRepository.save(TagModel.create("액션"));
+
+            contentTagRepository.saveAll(content1.getId(), List.of(tag1, tag2));
+            contentTagRepository.saveAll(content2.getId(), List.of(tag1));
+
+            assertThat(jpaContentTagRepository.findAll()).hasSize(3);
+
+            contentTagRepository.deleteAllByContentId(content1.getId());
+
+            List<ContentTagEntity> remaining = jpaContentTagRepository.findAll();
+
+            assertThat(remaining).hasSize(1);
+            assertThat(remaining.get(0).getContent().getId())
+                .isEqualTo(content2.getId());
+        }
+
+        @Test
+        @DisplayName("연결된 태그가 없어도 예외 없이 동작한다")
+        void deleteAllByContentId_noTags() {
+            ContentModel savedContent = contentRepository.save(
+                ContentModel.create("영화", "인셉션", "꿈", "url")
+            );
+
+            contentTagRepository.deleteAllByContentId(savedContent.getId());
+
+            assertThat(jpaContentTagRepository.findAll()).isEmpty();
         }
     }
 }

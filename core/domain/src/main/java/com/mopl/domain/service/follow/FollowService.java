@@ -34,6 +34,10 @@ public class FollowService {
             .orElseThrow(() -> new FollowNotFoundException(followId));
     }
 
+    public long getFollowerCount(UUID followeeId) {
+        return followRepository.countByFolloweeId(followeeId);
+    }
+
     public boolean isFollow(UUID followerId, UUID followeeId) {
         return followRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
     }

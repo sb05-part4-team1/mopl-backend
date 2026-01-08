@@ -51,6 +51,13 @@ public class FollowController implements FollowApiSpec {
     }
 
     @Override
+    @GetMapping("/count")
+    public ResponseEntity<Long> getFollowCount(@RequestParam UUID followeeId) {
+        long count = followFacade.getFollowerCount(followeeId);
+        return ResponseEntity.ok(count);
+    }
+
+    @Override
     @GetMapping("/followed-by-me")
     public ResponseEntity<Boolean> getFollowStatus(
         @AuthenticationPrincipal MoplUserDetails userDetails,
