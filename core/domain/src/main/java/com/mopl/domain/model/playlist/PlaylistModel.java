@@ -45,6 +45,23 @@ public class PlaylistModel extends BaseUpdatableModel {
 
     }
 
+    public PlaylistModel update(
+        String newTitle,
+        String newDescription
+    ) {
+        if (newTitle == null) {
+            throw new InvalidPlaylistDataException("플레이리스트 제목은 null일 수 없습니다.");
+        }
+
+        validateTitle(newTitle);
+        validateDescription(newDescription);
+
+        this.title = newTitle;
+        this.description = newDescription;
+
+        return this;
+    }
+
     private static void validateTitle(String title) {
         if (title.isBlank()) {
             throw new InvalidPlaylistDataException("플레이리스트 제목은 공백일 수 없습니다.");

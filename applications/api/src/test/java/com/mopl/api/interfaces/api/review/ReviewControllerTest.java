@@ -29,9 +29,9 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -60,8 +60,11 @@ class ReviewControllerTest {
 
         // Mock 객체 생성
         mockUserDetails = mock(MoplUserDetails.class);
+
+        // [핵심 수정] 컨트롤러가 사용하는 메서드 이름(userId())에 맞춰 Stubbing
         given(mockUserDetails.userId()).willReturn(mockUserId);
-        given(mockUserDetails.userId()).willReturn(mockUserId);
+
+        // 기존 Stubbing (필요하다면 유지, 컨트롤러가 안 쓴다면 없어도 무방하나 안전하게 유지)
         given(mockUserDetails.getUsername()).willReturn(mockUserId.toString());
         given(mockUserDetails.getAuthorities())
             .willReturn(
@@ -162,12 +165,12 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                patch("/api/reviews/{reviewId}", reviewId)
-                    .with(csrf())
-                    .with(user(mockUserDetails))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request))
-            )
+                    patch("/api/reviews/{reviewId}", reviewId)
+                        .with(csrf())
+                        .with(user(mockUserDetails))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.text").value("수정된 내용"));
 
@@ -187,10 +190,10 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                delete("/api/reviews/{reviewId}", reviewId)
-                    .with(csrf())
-                    .with(user(mockUserDetails))
-            )
+                    delete("/api/reviews/{reviewId}", reviewId)
+                        .with(csrf())
+                        .with(user(mockUserDetails))
+                )
                 .andExpect(status().isOk());
 
             // Facade 호출 검증
@@ -205,9 +208,9 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                delete("/api/reviews/{reviewId}", reviewId)
-                    .with(csrf())
-            )
+                    delete("/api/reviews/{reviewId}", reviewId)
+                        .with(csrf())
+                )
                 .andExpect(status().isUnauthorized());
 
             then(reviewFacade).shouldHaveNoInteractions();
