@@ -7,27 +7,24 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 
 import static com.mopl.domain.model.content.ContentModel.TITLE_MAX_LENGTH;
-import static com.mopl.domain.model.content.ContentModel.TYPE_MAX_LENGTH;
 
 @Schema(
-    description = "콘텐츠 생성 요청 DTO",
+    description = "콘텐츠 수정 요청 DTO",
     example = """
         {
-          "type": "영화",
           "title": "인셉션",
           "description": "꿈속의 꿈",
           "tags": ["SF", "액션"]
         }
         """
 )
-public record ContentCreateRequest(
+public record ContentUpdateRequest(
 
-    @NotBlank @Size(max = TYPE_MAX_LENGTH) String type,
+    @Size(max = TITLE_MAX_LENGTH) String title,
 
-    @NotBlank @Size(max = TITLE_MAX_LENGTH) String title,
-
-    @NotBlank String description,
+    String description,
 
     List<@NotBlank String> tags
+
 ) {
 }

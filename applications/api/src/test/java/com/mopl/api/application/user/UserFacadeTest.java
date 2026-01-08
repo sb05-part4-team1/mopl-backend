@@ -1,9 +1,9 @@
 package com.mopl.api.application.user;
 
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
+import com.mopl.api.interfaces.api.user.UserLockUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserResponse;
 import com.mopl.api.interfaces.api.user.UserResponseMapper;
-import com.mopl.api.interfaces.api.user.UserLockUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserUpdateRequest;
 import com.mopl.domain.exception.user.SelfLockChangeException;

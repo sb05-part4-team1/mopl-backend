@@ -1,11 +1,10 @@
 package com.mopl.api.application.content;
 
 import com.mopl.api.interfaces.api.content.ContentCreateRequest;
+import com.mopl.api.interfaces.api.content.ContentUpdateRequest;
 import com.mopl.domain.exception.content.InvalidContentDataException;
 import com.mopl.domain.model.content.ContentModel;
-import com.mopl.domain.model.tag.TagModel;
 import com.mopl.domain.service.content.ContentService;
-import com.mopl.domain.service.tag.TagService;
 import com.mopl.storage.provider.FileStorageProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -39,9 +38,6 @@ class ContentFacadeTest {
     private ContentService contentService;
 
     @Mock
-    private TagService tagService;
-
-    @Mock
     private FileStorageProvider fileStorageProvider;
 
     @InjectMocks
@@ -55,9 +51,10 @@ class ContentFacadeTest {
         @DisplayName("유효한 요청과 썸네일이 있으면 파일 업로드 후 콘텐츠 생성 성공")
         void withValidRequest_uploadSuccess() throws IOException {
             // given
-            ContentCreateRequest request = new ContentCreateRequest(
-                "영화", "인셉션", "꿈속의 꿈", List.of("SF", "액션")
-            );
+            List<String> tagNames = List.of("SF", "액션");
+
+            ContentCreateRequest request = new ContentCreateRequest("영화", "인셉션", "꿈속의 꿈", tagNames);
+
             MultipartFile thumbnail = mock(MultipartFile.class);
             InputStream inputStream = mock(InputStream.class);
 
@@ -65,64 +62,41 @@ class ContentFacadeTest {
             given(thumbnail.getOriginalFilename()).willReturn("inception.png");
             given(thumbnail.getInputStream()).willReturn(inputStream);
 
-            String mockStoredPath = "contents/uuid_inception.png";
-            String mockThumbnailUrl = "http://localhost:8080/files/" + mockStoredPath;
+            String storedPath = "contents/uuid_inception.png";
+            String thumbnailUrl = "http://localhost/files/" + storedPath;
 
-            given(fileStorageProvider.upload(eq(inputStream), anyString())).willReturn(
-                mockStoredPath);
-            given(fileStorageProvider.getUrl(mockStoredPath)).willReturn(mockThumbnailUrl);
-
-            Instant now = Instant.now();
-            List<TagModel> tags = List.of(
-                TagModel.builder().id(UUID.randomUUID()).name("SF").createdAt(now).build(),
-                TagModel.builder().id(UUID.randomUUID()).name("액션").createdAt(now).build()
-            );
+            given(fileStorageProvider.upload(eq(inputStream), anyString()))
+                .willReturn(storedPath);
+            given(fileStorageProvider.getUrl(storedPath))
+                .willReturn(thumbnailUrl);
 
             ContentModel savedModel = ContentModel.builder()
                 .id(UUID.randomUUID())
-                .type(request.type())
-                .title(request.title())
-                .description(request.description())
-                .thumbnailUrl(mockThumbnailUrl)
-                .tags(List.of("SF", "액션"))
-                .createdAt(now)
+                .type("영화")
+                .title("인셉션")
+                .description("꿈속의 꿈")
+                .thumbnailUrl(thumbnailUrl)
+                .tags(tagNames)
+                .createdAt(Instant.now())
                 .build();
 
-            given(tagService.findOrCreateTags(request.tags())).willReturn(tags);
-            given(contentService.create(any(ContentModel.class), eq(tags))).willReturn(savedModel);
+            given(contentService.create(any(ContentModel.class), eq(tagNames)))
+                .willReturn(savedModel);
 
             // when
             ContentModel result = contentFacade.upload(request, thumbnail);
 
             // then
-            assertThat(result.getTitle()).isEqualTo(request.title());
-            assertThat(result.getThumbnailUrl()).isEqualTo(mockThumbnailUrl);
+            assertThat(result.getTitle()).isEqualTo("인셉션");
+            assertThat(result.getThumbnailUrl()).isEqualTo(thumbnailUrl);
             assertThat(result.getTags()).containsExactly("SF", "액션");
 
             then(fileStorageProvider).should().upload(eq(inputStream), anyString());
-            then(tagService).should().findOrCreateTags(request.tags());
-            then(contentService).should().create(any(ContentModel.class), eq(tags));
+            then(contentService).should().create(any(ContentModel.class), eq(tagNames));
         }
 
         @Test
-        @DisplayName("파일 스트림 읽기 실패 시 RuntimeException 발생")
-        void withInputStreamError_throwsException() throws IOException {
-            // given
-            ContentCreateRequest request = new ContentCreateRequest("영화", "인셉션", "꿈속의 꿈", List
-                .of());
-            MultipartFile thumbnail = mock(MultipartFile.class);
-
-            given(thumbnail.isEmpty()).willReturn(false);
-            given(thumbnail.getInputStream()).willThrow(new IOException("Stream error"));
-
-            // when & then
-            assertThatThrownBy(() -> contentFacade.upload(request, thumbnail))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("파일 스트림 읽기 실패");
-        }
-
-        @Test
-        @DisplayName("썸네일이 없으면 예외 발생")
+        @DisplayName("썸네일이 null이면 예외 발생")
         void withNullThumbnail_throwsException() {
             // given
             ContentCreateRequest request = new ContentCreateRequest("영화", "인셉션", "꿈속의 꿈", List
@@ -132,6 +106,23 @@ class ContentFacadeTest {
             assertThatThrownBy(() -> contentFacade.upload(request, null))
                 .isInstanceOf(InvalidContentDataException.class);
         }
+
+        @Test
+        @DisplayName("파일 업로드 중 IOException 발생 시 RuntimeException")
+        void withInputStreamError_throwsRuntimeException() throws IOException {
+            // given
+            ContentCreateRequest request = new ContentCreateRequest("영화", "인셉션", "꿈속의 꿈", List
+                .of());
+
+            MultipartFile thumbnail = mock(MultipartFile.class);
+            given(thumbnail.isEmpty()).willReturn(false);
+            given(thumbnail.getInputStream()).willThrow(new IOException("IO error"));
+
+            // when & then
+            assertThatThrownBy(() -> contentFacade.upload(request, thumbnail))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("파일 저장 중 오류");
+        }
     }
 
     @Nested
@@ -140,26 +131,129 @@ class ContentFacadeTest {
 
         @Test
         @DisplayName("콘텐츠 ID로 상세 조회 성공")
-        void withContentId_returnsContentModel() {
+        void withContentId_returnsContent() {
             // given
             UUID contentId = UUID.randomUUID();
-            ContentModel expectedModel = ContentModel.builder()
+
+            ContentModel model = ContentModel.builder()
                 .id(contentId)
                 .title("인셉션")
                 .tags(List.of("SF", "액션"))
                 .build();
 
-            given(contentService.getById(contentId)).willReturn(expectedModel);
+            given(contentService.getById(contentId)).willReturn(model);
 
             // when
             ContentModel result = contentFacade.getDetail(contentId);
 
             // then
             assertThat(result.getId()).isEqualTo(contentId);
-            assertThat(result.getTitle()).isEqualTo("인셉션");
             assertThat(result.getTags()).containsExactly("SF", "액션");
 
             then(contentService).should().getById(contentId);
+        }
+    }
+
+    @Nested
+    @DisplayName("update()")
+    class UpdateTest {
+
+        @Test
+        @DisplayName("썸네일 포함 수정 시 파일 업로드 후 콘텐츠 수정 성공")
+        void update_withThumbnail_uploadsAndUpdates() throws IOException {
+            // given
+            UUID contentId = UUID.randomUUID();
+            List<String> tagNames = List.of("SF");
+
+            ContentUpdateRequest request = new ContentUpdateRequest("새 제목", "새 설명", tagNames);
+
+            MultipartFile thumbnail = mock(MultipartFile.class);
+            InputStream inputStream = mock(InputStream.class);
+
+            given(thumbnail.isEmpty()).willReturn(false);
+            given(thumbnail.getOriginalFilename()).willReturn("new.png");
+            given(thumbnail.getInputStream()).willReturn(inputStream);
+
+            String storedPath = "contents/uuid_new.png";
+            String thumbnailUrl = "http://localhost/files/" + storedPath;
+
+            given(fileStorageProvider.upload(eq(inputStream), anyString()))
+                .willReturn(storedPath);
+            given(fileStorageProvider.getUrl(storedPath))
+                .willReturn(thumbnailUrl);
+
+            ContentModel updatedModel = ContentModel.builder()
+                .id(contentId)
+                .title("새 제목")
+                .description("새 설명")
+                .thumbnailUrl(thumbnailUrl)
+                .tags(tagNames)
+                .build();
+
+            given(contentService.update(
+                eq(contentId),
+                eq("새 제목"),
+                eq("새 설명"),
+                eq(thumbnailUrl),
+                eq(tagNames)
+            )).willReturn(updatedModel);
+
+            // when
+            ContentModel result = contentFacade.update(contentId, request, thumbnail);
+
+            // then
+            assertThat(result.getTitle()).isEqualTo("새 제목");
+            assertThat(result.getThumbnailUrl()).isEqualTo(thumbnailUrl);
+            assertThat(result.getTags()).containsExactly("SF");
+
+            then(contentService).should().update(
+                eq(contentId),
+                eq("새 제목"),
+                eq("새 설명"),
+                eq(thumbnailUrl),
+                eq(tagNames)
+            );
+        }
+
+        @Test
+        @DisplayName("썸네일 없이 수정 시 업로드 없이 콘텐츠 수정")
+        void update_withoutThumbnail_updatesOnly() {
+            // given
+            UUID contentId = UUID.randomUUID();
+            List<String> tagNames = List.of("액션");
+
+            ContentUpdateRequest request = new ContentUpdateRequest("제목", "설명", tagNames);
+
+            ContentModel updatedModel = ContentModel.builder()
+                .id(contentId)
+                .title("제목")
+                .description("설명")
+                .tags(tagNames)
+                .build();
+
+            given(contentService.update(
+                eq(contentId),
+                eq("제목"),
+                eq("설명"),
+                eq(null),
+                eq(tagNames)
+            )).willReturn(updatedModel);
+
+            // when
+            ContentModel result = contentFacade.update(contentId, request, null);
+
+            // then
+            assertThat(result.getTitle()).isEqualTo("제목");
+            assertThat(result.getTags()).containsExactly("액션");
+
+            then(fileStorageProvider).shouldHaveNoInteractions();
+            then(contentService).should().update(
+                eq(contentId),
+                eq("제목"),
+                eq("설명"),
+                eq(null),
+                eq(tagNames)
+            );
         }
     }
 }
