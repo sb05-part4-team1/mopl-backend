@@ -35,10 +35,11 @@ public class DomainServiceConfig {
 
     @Bean
     public ContentService contentService(
+        TagService tagService,
         ContentRepository contentRepository,
         ContentTagRepository contentTagRepository
     ) {
-        return new ContentService(contentRepository, contentTagRepository);
+        return new ContentService(tagService, contentRepository, contentTagRepository);
     }
 
     @Bean
