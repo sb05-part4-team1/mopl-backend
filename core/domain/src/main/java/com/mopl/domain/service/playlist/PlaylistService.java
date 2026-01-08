@@ -70,4 +70,9 @@ public class PlaylistService {
 
         playlistRepository.save(playlistModel);
     }
+
+    public PlaylistModel getById(UUID playlistId) {
+        return playlistRepository.findById(playlistId)
+            .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
+    }
 }

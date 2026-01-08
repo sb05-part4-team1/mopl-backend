@@ -62,8 +62,6 @@ public class PlaylistModel extends BaseUpdatableModel {
             validateDescription(newDescription);
             this.description = newDescription;
         }
-        validateTitle(newTitle);
-        validateDescription(newDescription);
 
         return this;
     }
