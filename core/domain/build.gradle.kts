@@ -4,9 +4,9 @@ plugins {
 }
 
 dependencies {
-    // Spring transaction
+    // spring transaction
     implementation("org.springframework:spring-tx")
-    // Spring cache
+    // spring cache
     implementation("org.springframework:spring-context")
     // Test
     testImplementation("org.junit.jupiter:junit-jupiter")
