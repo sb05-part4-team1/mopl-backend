@@ -34,8 +34,8 @@ public class TwoLevelCacheManager implements CacheManager {
         this.properties = properties;
         this.invalidationPublisher = invalidationPublisher;
 
-        Arrays.stream(CacheName.values()).forEach(cacheName ->
-            caches.put(cacheName.getValue(), createCache(cacheName))
+        Arrays.stream(CacheName.values()).forEach(cacheName -> caches.put(cacheName.getValue(),
+            createCache(cacheName))
         );
 
         log.info("TwoLevelCacheManager initialized: [caches={}]", caches.keySet());
