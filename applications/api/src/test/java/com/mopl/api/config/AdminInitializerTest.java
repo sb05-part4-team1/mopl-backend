@@ -2,8 +2,8 @@ package com.mopl.api.config;
 
 import com.mopl.api.application.user.UserFacade;
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
-import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
 import com.mopl.domain.exception.user.DuplicateEmailException;
+import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.user.UserModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,13 +13,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.UUID;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,7 +26,6 @@ class AdminInitializerTest {
     private static final String ADMIN_EMAIL = "admin@mopl.com";
     private static final String ADMIN_NAME = "Admin";
     private static final String ADMIN_PASSWORD = "admin1234!";
-    private static final UUID ADMIN_ID = UUID.randomUUID();
 
     @Mock
     private UserFacade userFacade;
@@ -55,14 +51,17 @@ class AdminInitializerTest {
         @DisplayName("Admin 계정이 없으면 새로 생성하고 ADMIN 역할을 부여한다")
         void whenAdminNotExists_shouldCreateAdminAndUpdateRole() {
             // given
-            UserModel createdUser = mock(UserModel.class);
-            given(createdUser.getId()).willReturn(ADMIN_ID);
+            UserModel createdUser = UserModelFixture.builder()
+                .set("email", ADMIN_EMAIL)
+                .sample();
 
-            UserModel adminUser = mock(UserModel.class);
-            given(adminUser.getEmail()).willReturn(ADMIN_EMAIL);
+            UserModel adminUser = UserModelFixture.builder()
+                .set("email", ADMIN_EMAIL)
+                .set("role", UserModel.Role.ADMIN)
+                .sample();
 
             given(userFacade.signUp(any(UserCreateRequest.class))).willReturn(createdUser);
-            given(userFacade.updateRole(any(UserRoleUpdateRequest.class), eq(ADMIN_ID)))
+            given(userFacade.updateRoleInternal(eq(createdUser.getId()), eq(UserModel.Role.ADMIN)))
                 .willReturn(adminUser);
 
             // when
@@ -70,8 +69,8 @@ class AdminInitializerTest {
 
             // then
             then(userFacade).should().signUp(any(UserCreateRequest.class));
-            then(userFacade).should().updateRole(any(UserRoleUpdateRequest.class), eq(
-                ADMIN_ID));
+            then(userFacade).should()
+                .updateRoleInternal(eq(createdUser.getId()), eq(UserModel.Role.ADMIN));
         }
 
         @Test
@@ -86,8 +85,7 @@ class AdminInitializerTest {
 
             // then
             then(userFacade).should().signUp(any(UserCreateRequest.class));
-            then(userFacade).should(never()).updateRole(any(UserRoleUpdateRequest.class),
-                any());
+            then(userFacade).should(never()).updateRoleInternal(any(), any());
         }
 
         @Test
@@ -102,8 +100,7 @@ class AdminInitializerTest {
 
             // then
             then(userFacade).should().signUp(any(UserCreateRequest.class));
-            then(userFacade).should(never()).updateRole(any(UserRoleUpdateRequest.class),
-                any());
+            then(userFacade).should(never()).updateRoleInternal(any(), any());
         }
     }
 }

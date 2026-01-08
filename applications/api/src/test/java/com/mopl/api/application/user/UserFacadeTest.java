@@ -5,6 +5,7 @@ import com.mopl.api.interfaces.api.user.UserResponse;
 import com.mopl.api.interfaces.api.user.UserResponseMapper;
 import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserUpdateRequest;
+import com.mopl.domain.exception.user.SelfRoleChangeException;
 import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.user.UserQueryRequest;
@@ -28,8 +29,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -158,27 +161,58 @@ class UserFacadeTest {
         @DisplayName("유효한 요청 시 역할 업데이트 성공")
         void withValidRequest_updateRoleSuccess() {
             // given
-            UserModel userModel = UserModelFixture.create();
+            UUID requesterId = UUID.randomUUID();
+            UserModel targetUser = UserModelFixture.create();
 
             UserModel updatedUserModel = UserModelFixture.builder()
-                .set("id", userModel.getId())
+                .set("id", targetUser.getId())
                 .set("role", UserModel.Role.ADMIN)
                 .sample();
 
             UserRoleUpdateRequest request = new UserRoleUpdateRequest(UserModel.Role.ADMIN);
 
-            given(userService.getById(userModel.getId())).willReturn(userModel);
+            given(userService.getById(targetUser.getId())).willReturn(targetUser);
             given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
 
             // when
-            UserModel result = userFacade.updateRole(request, userModel.getId());
+            UserModel result = userFacade.updateRole(requesterId, request, targetUser.getId());
 
             // then
-            assertThat(result.getId()).isEqualTo(userModel.getId());
+            assertThat(result.getId()).isEqualTo(targetUser.getId());
             assertThat(result.getRole()).isEqualTo(UserModel.Role.ADMIN);
 
-            then(userService).should().getById(userModel.getId());
+            then(userService).should().getById(targetUser.getId());
             then(userService).should().update(any(UserModel.class));
+        }
+
+        @Test
+        @DisplayName("자기 자신의 역할 변경 시 SelfRoleChangeException 발생")
+        void withSameRequesterAndTarget_throwsSelfRoleChangeException() {
+            // given
+            UUID userId = UUID.randomUUID();
+            UserRoleUpdateRequest request = new UserRoleUpdateRequest(UserModel.Role.USER);
+
+            // when & then
+            assertThatThrownBy(() -> userFacade.updateRole(userId, request, userId))
+                .isInstanceOf(SelfRoleChangeException.class);
+
+            then(userService).shouldHaveNoInteractions();
+        }
+
+        @Test
+        @DisplayName("다른 사용자의 역할 변경은 정상 동작")
+        void withDifferentRequesterAndTarget_shouldSucceed() {
+            // given
+            UUID requesterId = UUID.randomUUID();
+            UserModel targetUser = UserModelFixture.create();
+            UserRoleUpdateRequest request = new UserRoleUpdateRequest(UserModel.Role.ADMIN);
+
+            given(userService.getById(targetUser.getId())).willReturn(targetUser);
+            given(userService.update(any(UserModel.class))).willReturn(targetUser);
+
+            // when & then
+            assertThatNoException()
+                .isThrownBy(() -> userFacade.updateRole(requesterId, request, targetUser.getId()));
         }
     }
 

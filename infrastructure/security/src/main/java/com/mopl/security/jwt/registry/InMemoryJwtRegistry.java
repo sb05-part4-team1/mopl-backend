@@ -135,7 +135,7 @@ public class InMemoryJwtRegistry implements JwtRegistry {
         }
     }
 
-    private void evictOldestSession(UUID userId, LinkedHashMap<UUID, JwtInformation> sessions) {
+    private void evictOldestSession(UUID userId, Map<UUID, JwtInformation> sessions) {
         Map.Entry<UUID, JwtInformation> firstEntry = sessions.entrySet().iterator().next();
         addToBlacklist(firstEntry.getValue());
         sessions.remove(firstEntry.getKey());

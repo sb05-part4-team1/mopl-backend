@@ -3,6 +3,7 @@ package com.mopl.api.interfaces.api.user;
 import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.domain.repository.user.UserQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.security.userdetails.MoplUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -127,4 +128,50 @@ public interface UserApiSpec {
         )
     )
     UserResponse updateProfile(UUID userId, UserUpdateRequest request, MultipartFile image);
+
+    @Operation(summary = "사용자 역할 수정", description = "관리자 권한이 필요합니다.")
+    @Parameter(name = "userId", description = "수정할 사용자 ID", required = true)
+    @RequestBody(
+        required = true,
+        content = @Content(
+            schema = @Schema(implementation = UserRoleUpdateRequest.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "204",
+        description = "역할 수정 성공"
+    )
+    @ApiResponse(
+        responseCode = "400",
+        description = "잘못된 요청 데이터",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "401",
+        description = "인증 실패",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "403",
+        description = "권한 없음",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "404",
+        description = "사용자를 찾을 수 없음",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    void updateRole(MoplUserDetails userDetails, UUID userId, UserRoleUpdateRequest request);
 }

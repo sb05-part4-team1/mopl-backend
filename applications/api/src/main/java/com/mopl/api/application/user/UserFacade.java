@@ -5,6 +5,7 @@ import com.mopl.api.interfaces.api.user.UserResponse;
 import com.mopl.api.interfaces.api.user.UserResponseMapper;
 import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserUpdateRequest;
+import com.mopl.domain.exception.user.SelfRoleChangeException;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.model.user.UserModel.AuthProvider;
 import com.mopl.domain.repository.user.UserQueryRequest;
@@ -58,9 +59,21 @@ public class UserFacade {
     }
 
     @Transactional
-    public UserModel updateRole(UserRoleUpdateRequest request, UUID userId) {
+    public UserModel updateRole(
+        UUID requesterId,
+        UserRoleUpdateRequest request,
+        UUID targetUserId
+    ) {
+        if (requesterId.equals(targetUserId)) {
+            throw SelfRoleChangeException.withUserId(requesterId);
+        }
+        return updateRoleInternal(targetUserId, request.role());
+    }
+
+    @Transactional
+    public UserModel updateRoleInternal(UUID userId, UserModel.Role role) {
         UserModel userModel = userService.getById(userId);
-        userModel.updateRole(request.role());
+        userModel.updateRole(role);
         return userService.update(userModel);
     }
 

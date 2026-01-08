@@ -120,10 +120,12 @@ class ReviewControllerTest {
         @Test
         @DisplayName("인증 정보가 없으면 401을 반환한다")
         void createReview_withoutAuth_returns401() throws Exception {
+            // given
             ReviewCreateRequest request = new ReviewCreateRequest(
                 UUID.randomUUID(), "내용", BigDecimal.TEN
             );
 
+            // when & then
             mockMvc.perform(
                 post("/api/reviews")
                     .with(csrf())
@@ -163,12 +165,12 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                    patch("/api/reviews/{reviewId}", reviewId)
-                        .with(csrf())
-                        .with(user(mockUserDetails))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                )
+                patch("/api/reviews/{reviewId}", reviewId)
+                    .with(csrf())
+                    .with(user(mockUserDetails))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request))
+            )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.text").value("수정된 내용"));
 
@@ -188,10 +190,10 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                    delete("/api/reviews/{reviewId}", reviewId)
-                        .with(csrf())
-                        .with(user(mockUserDetails))
-                )
+                delete("/api/reviews/{reviewId}", reviewId)
+                    .with(csrf())
+                    .with(user(mockUserDetails))
+            )
                 .andExpect(status().isOk());
 
             // Facade 호출 검증
@@ -201,12 +203,14 @@ class ReviewControllerTest {
         @Test
         @DisplayName("인증 정보가 없으면 삭제 요청 시 401을 반환한다")
         void deleteReview_withoutAuth_returns401() throws Exception {
+            // given
             UUID reviewId = UUID.randomUUID();
 
+            // when & then
             mockMvc.perform(
-                    delete("/api/reviews/{reviewId}", reviewId)
-                        .with(csrf())
-                )
+                delete("/api/reviews/{reviewId}", reviewId)
+                    .with(csrf())
+            )
                 .andExpect(status().isUnauthorized());
 
             then(reviewFacade).shouldHaveNoInteractions();
