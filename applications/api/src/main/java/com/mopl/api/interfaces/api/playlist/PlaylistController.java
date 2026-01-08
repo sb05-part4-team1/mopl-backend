@@ -81,4 +81,17 @@ public class PlaylistController {
         );
     }
 
+    // ============= 여기서 부터는 순수 플레이리스트 CRUD가 아님===================
+
+    @PostMapping("/{playlistId}/contents/{contentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void addContentToPlaylist(
+            @AuthenticationPrincipal MoplUserDetails userDetails,
+            @PathVariable UUID playlistId,
+            @PathVariable UUID contentId
+    ) {
+        UUID requesterId = userDetails.userId();
+        playlistFacade.addContentToPlaylist(requesterId, playlistId, contentId);
+    }
+
 }
