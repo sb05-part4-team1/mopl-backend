@@ -40,4 +40,13 @@ public class PlaylistSubscriberRepositoryImpl implements PlaylistSubscriberRepos
 
         jpaPlaylistSubscriberRepository.save(entity);
     }
+
+    @Override
+    public void deleteByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId) {
+        jpaPlaylistSubscriberRepository.deleteByPlaylist_IdAndSubscriber_Id(
+            playlistId,
+            subscriberId
+        );
+    }
+
 }

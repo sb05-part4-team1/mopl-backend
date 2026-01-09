@@ -115,4 +115,14 @@ public class PlaylistController {
         playlistFacade.subscribePlaylist(requesterId, playlistId);
     }
 
+    @DeleteMapping("/{playlistId}/subscription")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void unsubscribePlaylist(
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @PathVariable UUID playlistId
+    ) {
+        UUID requesterId = userDetails.userId();
+        playlistFacade.unsubscribePlaylist(requesterId, playlistId);
+    }
+
 }

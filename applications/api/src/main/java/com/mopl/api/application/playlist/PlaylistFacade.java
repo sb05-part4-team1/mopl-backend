@@ -140,4 +140,15 @@ public class PlaylistFacade {
         // TODO: 알림 구현 시 여기(or 서비스 내부)에서 "구독 알림 이벤트" 발행
     }
 
+    @Transactional
+    public void unsubscribePlaylist(
+        UUID requesterId,
+        UUID playlistId
+    ) {
+        userService.getById(requesterId);
+        playlistService.getById(playlistId);
+
+        playlistSubscriptionService.unsubscribe(playlistId, requesterId);
+    }
+
 }
