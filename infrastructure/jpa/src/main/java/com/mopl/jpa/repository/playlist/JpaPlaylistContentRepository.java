@@ -8,4 +8,6 @@ import java.util.UUID;
 public interface JpaPlaylistContentRepository extends JpaRepository<PlaylistContentEntity, UUID> {
 
     boolean existsByPlaylist_IdAndContent_Id(UUID playlistId, UUID contentId);
+
+    void deleteByPlaylist_IdAndContent_Id(UUID playlistId, UUID contentId);
 }

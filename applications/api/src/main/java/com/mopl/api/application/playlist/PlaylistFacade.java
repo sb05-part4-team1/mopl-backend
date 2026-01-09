@@ -114,4 +114,15 @@ public class PlaylistFacade {
 
         playlistService.addContent(playlistId, requsterId, contentId);
     }
+
+    @Transactional
+    public void deleteContentFromPlaylist(
+        UUID requesterId,
+        UUID playlistId,
+        UUID contentId
+    ) {
+        userService.getById(requesterId);
+        playlistService.removeContent(playlistId, requesterId, contentId);
+    }
+
 }

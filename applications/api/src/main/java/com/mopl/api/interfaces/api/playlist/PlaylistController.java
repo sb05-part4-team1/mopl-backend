@@ -94,4 +94,15 @@ public class PlaylistController {
         playlistFacade.addContentToPlaylist(requesterId, playlistId, contentId);
     }
 
+    @DeleteMapping("/{playlistId}/contents/{contentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteContentFromPlaylist(
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @PathVariable UUID playlistId,
+        @PathVariable UUID contentId
+    ) {
+        UUID requesterId = userDetails.userId();
+        playlistFacade.deleteContentFromPlaylist(requesterId, playlistId, contentId);
+    }
+
 }

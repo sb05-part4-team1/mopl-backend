@@ -35,4 +35,10 @@ public class PlaylistContentRepositoryImpl implements PlaylistContentRepository 
 
         jpaPlaylistContentRepository.save(entity);
     }
+
+    @Override
+    public void delete(UUID playlistId, UUID contentId) {
+        jpaPlaylistContentRepository.deleteByPlaylist_IdAndContent_Id(playlistId, contentId);
+    }
+
 }
