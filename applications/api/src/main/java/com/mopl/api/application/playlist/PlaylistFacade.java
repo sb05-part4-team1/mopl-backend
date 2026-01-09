@@ -9,6 +9,7 @@ import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.playlist.PlaylistService;
+import com.mopl.domain.service.playlist.PlaylistSubscriptionService;
 import com.mopl.domain.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,7 @@ import java.util.UUID;
 public class PlaylistFacade {
 
     private final PlaylistService playlistService;
+    private final PlaylistSubscriptionService playlistSubscriptionService;
     private final UserService userService;
     private final ContentService contentService;
     private final PlaylistResponseMapper playlistResponseMapper;
@@ -123,6 +125,19 @@ public class PlaylistFacade {
     ) {
         userService.getById(requesterId);
         playlistService.removeContent(playlistId, requesterId, contentId);
+    }
+
+    @Transactional
+    public void subscribePlaylist(
+        UUID requesterId,
+        UUID playlistId
+    ) {
+        userService.getById(requesterId);
+        playlistService.getById(playlistId);
+
+        playlistSubscriptionService.subscribe(playlistId, requesterId);
+
+        // TODO: 알림 구현 시 여기(or 서비스 내부)에서 "구독 알림 이벤트" 발행
     }
 
 }
