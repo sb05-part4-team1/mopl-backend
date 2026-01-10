@@ -5,7 +5,7 @@ mopl:
     redis-enabled: ${CACHE_REDIS_ENABLED:false}
     l1:
       maximum-size: 10000
-      ttl: 1m
+      ttl: 30s
       record-stats: true
     l2:
       default-ttl: 10m
