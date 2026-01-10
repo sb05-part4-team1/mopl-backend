@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLRestriction;
 
 import static com.mopl.domain.model.content.ContentModel.THUMBNAIL_URL_MAX_LENGTH;
 import static com.mopl.domain.model.content.ContentModel.TITLE_MAX_LENGTH;
@@ -18,6 +19,7 @@ import static com.mopl.domain.model.content.ContentModel.TYPE_MAX_LENGTH;
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLRestriction("deleted_at IS NULL")
 public class ContentEntity extends BaseUpdatableEntity {
 
     @Column(nullable = false, length = TYPE_MAX_LENGTH)
