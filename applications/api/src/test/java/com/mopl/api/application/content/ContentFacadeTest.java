@@ -256,4 +256,22 @@ class ContentFacadeTest {
             );
         }
     }
+
+    @Nested
+    @DisplayName("delete()")
+    class DeleteTest {
+
+        @Test
+        @DisplayName("콘텐츠 삭제 요청 시 서비스 delete 호출")
+        void delete_callsServiceDelete() {
+            // given
+            UUID contentId = UUID.randomUUID();
+
+            // when
+            contentFacade.delete(contentId);
+
+            // then
+            then(contentService).should().delete(contentId);
+        }
+    }
 }
