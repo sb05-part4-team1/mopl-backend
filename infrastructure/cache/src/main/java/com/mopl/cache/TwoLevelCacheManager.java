@@ -19,19 +19,16 @@ public class TwoLevelCacheManager implements CacheManager {
     private final Cache<String, Object> l1Cache;
     private final RedisTemplate<String, Object> redisTemplate;
     private final CacheProperties properties;
-    private final CacheInvalidationPublisher invalidationPublisher;
     private final Map<String, TwoLevelCache> caches = new ConcurrentHashMap<>();
 
     public TwoLevelCacheManager(
         Cache<String, Object> l1Cache,
         @Nullable RedisTemplate<String, Object> redisTemplate,
-        CacheProperties properties,
-        @Nullable CacheInvalidationPublisher invalidationPublisher
+        CacheProperties properties
     ) {
         this.l1Cache = l1Cache;
         this.redisTemplate = redisTemplate;
         this.properties = properties;
-        this.invalidationPublisher = invalidationPublisher;
 
         for (String cacheName : CacheName.all()) {
             caches.put(cacheName, createCache(cacheName));
@@ -52,18 +49,13 @@ public class TwoLevelCacheManager implements CacheManager {
         return caches.keySet();
     }
 
-    public void invalidateL1(String fullKey) {
-        caches.values().forEach(cache -> cache.invalidateL1(fullKey));
-    }
-
     private TwoLevelCache createCache(String name) {
         return new TwoLevelCache(
             name,
             l1Cache,
             redisTemplate,
             properties,
-            properties.l2().defaultTtl(),
-            invalidationPublisher
+            properties.l2().defaultTtl()
         );
     }
 }

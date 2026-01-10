@@ -1,7 +1,6 @@
 mopl:
   cache:
     key-prefix: "mopl:"
-    invalidation-channel: "cache:invalidation"
     redis-enabled: ${CACHE_REDIS_ENABLED:false}
     l1:
       maximum-size: 10000

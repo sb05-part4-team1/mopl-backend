@@ -15,7 +15,6 @@ public record CacheProperties(
     @NotBlank String keyPrefix,
     @NotNull @Valid L1Config l1,
     @NotNull @Valid L2Config l2,
-    @NotBlank String invalidationChannel,
     boolean redisEnabled
 ) {
 

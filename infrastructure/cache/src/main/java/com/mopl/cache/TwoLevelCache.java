@@ -19,15 +19,13 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
     private final RedisTemplate<String, Object> redisTemplate;
     private final CacheProperties properties;
     private final Duration ttl;
-    private final CacheInvalidationPublisher invalidationPublisher;
 
     public TwoLevelCache(
         String name,
         Cache<String, Object> l1Cache,
         @Nullable RedisTemplate<String, Object> redisTemplate,
         CacheProperties properties,
-        Duration ttl,
-        @Nullable CacheInvalidationPublisher invalidationPublisher
+        Duration ttl
     ) {
         super(true);
         this.name = name;
@@ -35,7 +33,6 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
         this.redisTemplate = redisTemplate;
         this.properties = properties;
         this.ttl = ttl;
-        this.invalidationPublisher = invalidationPublisher;
     }
 
     @Override
@@ -92,7 +89,6 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
                 T loadedValue = valueLoader.call();
                 if (loadedValue != null && redisTemplate != null) {
                     redisTemplate.opsForValue().set(fullKey, loadedValue, ttl);
-                    publishInvalidation(fullKey);
                 }
                 log.debug("Cache loaded: [cache={}, key={}]", name, key);
                 return loadedValue;
@@ -116,7 +112,6 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
         }
 
         l1Cache.put(fullKey, value);
-        publishInvalidation(fullKey);
 
         log.debug("Cache put: [cache={}, key={}, ttl={}]", name, key, ttl);
     }
@@ -130,7 +125,6 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
         }
 
         l1Cache.invalidate(fullKey);
-        publishInvalidation(fullKey);
 
         log.debug("Cache evict: [cache={}, key={}]", name, key);
     }
@@ -141,26 +135,12 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
 
         l1Cache.asMap().keySet().stream()
             .filter(k -> k.startsWith(prefix))
-            .forEach(k -> {
-                l1Cache.invalidate(k);
-                publishInvalidation(k);
-            });
+            .forEach(l1Cache::invalidate);
 
         log.debug("Cache clear: [cache={}]", name);
     }
 
     private String generateKey(Object key) {
         return properties.keyPrefix() + name + "::" + key.toString();
-    }
-
-    private void publishInvalidation(String key) {
-        if (invalidationPublisher != null) {
-            invalidationPublisher.publish(key);
-        }
-    }
-
-    public void invalidateL1(String fullKey) {
-        l1Cache.invalidate(fullKey);
-        log.debug("L1 invalidated by Pub/Sub: [key={}]", fullKey);
     }
 }
