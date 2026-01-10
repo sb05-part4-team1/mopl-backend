@@ -64,6 +64,11 @@ public class ContentFacade {
         );
     }
 
+    @Transactional
+    public void delete(UUID contentId) {
+        contentService.delete(contentId);
+    }
+
     /**
      * 파일 업로드 로직 공통화
      */
