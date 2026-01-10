@@ -55,14 +55,12 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
     protected Object lookup(@NonNull Object key) {
         String fullKey = generateKey(key);
 
-        // L1 조회
         Object l1Value = l1Cache.getIfPresent(fullKey);
         if (l1Value != null) {
             log.debug("L1 hit: [cache={}, key={}]", name, key);
             return l1Value;
         }
 
-        // L2 조회 (Redis가 있는 경우만)
         if (redisTemplate != null) {
             Object l2Value = redisTemplate.opsForValue().get(fullKey);
             if (l2Value != null) {
@@ -79,39 +77,45 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
     @Nullable
     @SuppressWarnings("unchecked")
     public <T> T get(@NonNull Object key, @NonNull Callable<T> valueLoader) {
-        Object cached = lookup(key);
-        if (cached != null) {
-            return (T) cached;
-        }
+        String fullKey = generateKey(key);
 
-        try {
-            T value = valueLoader.call();
-            if (value != null) {
-                put(key, value);
+        return (T) l1Cache.get(fullKey, k -> {
+            if (redisTemplate != null) {
+                Object l2Value = redisTemplate.opsForValue().get(fullKey);
+                if (l2Value != null) {
+                    log.debug("L2 hit in loader: [cache={}, key={}]", name, key);
+                    return l2Value;
+                }
             }
-            return value;
-        } catch (Exception e) {
-            throw new ValueRetrievalException(key, valueLoader, e);
-        }
+
+            try {
+                T loadedValue = valueLoader.call();
+                if (loadedValue != null && redisTemplate != null) {
+                    redisTemplate.opsForValue().set(fullKey, loadedValue, ttl);
+                    publishInvalidation(fullKey);
+                }
+                log.debug("Cache loaded: [cache={}, key={}]", name, key);
+                return loadedValue;
+            } catch (Exception e) {
+                throw new ValueRetrievalException(key, valueLoader, e);
+            }
+        });
     }
 
     @Override
     public void put(@NonNull Object key, @Nullable Object value) {
         if (value == null) {
+            evict(key);
             return;
         }
 
         String fullKey = generateKey(key);
 
-        // L2 저장 (Redis가 있는 경우)
         if (redisTemplate != null) {
             redisTemplate.opsForValue().set(fullKey, value, ttl);
         }
 
-        // L1 저장
         l1Cache.put(fullKey, value);
-
-        // 다른 서버 L1 무효화
         publishInvalidation(fullKey);
 
         log.debug("Cache put: [cache={}, key={}, ttl={}]", name, key, ttl);
@@ -121,15 +125,11 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
     public void evict(@NonNull Object key) {
         String fullKey = generateKey(key);
 
-        // L2 삭제
         if (redisTemplate != null) {
             redisTemplate.delete(fullKey);
         }
 
-        // L1 삭제
         l1Cache.invalidate(fullKey);
-
-        // 다른 서버 L1 무효화
         publishInvalidation(fullKey);
 
         log.debug("Cache evict: [cache={}, key={}]", name, key);
@@ -139,7 +139,6 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
     public void clear() {
         String prefix = properties.keyPrefix() + name + "::";
 
-        // L1에서 해당 캐시의 키만 삭제
         l1Cache.asMap().keySet().stream()
             .filter(k -> k.startsWith(prefix))
             .forEach(k -> {

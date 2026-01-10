@@ -9,7 +9,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,9 +33,9 @@ public class TwoLevelCacheManager implements CacheManager {
         this.properties = properties;
         this.invalidationPublisher = invalidationPublisher;
 
-        Arrays.stream(CacheName.values()).forEach(cacheName -> caches.put(cacheName.getValue(),
-            createCache(cacheName))
-        );
+        for (String cacheName : CacheName.all()) {
+            caches.put(cacheName, createCache(cacheName));
+        }
 
         log.info("TwoLevelCacheManager initialized: [caches={}]", caches.keySet());
     }
@@ -44,7 +43,7 @@ public class TwoLevelCacheManager implements CacheManager {
     @Override
     @Nullable
     public org.springframework.cache.Cache getCache(@NonNull String name) {
-        return caches.computeIfAbsent(name, this::createDynamicCache);
+        return caches.computeIfAbsent(name, this::createCache);
     }
 
     @Override
@@ -57,19 +56,7 @@ public class TwoLevelCacheManager implements CacheManager {
         caches.values().forEach(cache -> cache.invalidateL1(fullKey));
     }
 
-    private TwoLevelCache createCache(CacheName cacheName) {
-        return new TwoLevelCache(
-            cacheName.getValue(),
-            l1Cache,
-            redisTemplate,
-            properties,
-            cacheName.getTtl(),
-            invalidationPublisher
-        );
-    }
-
-    private TwoLevelCache createDynamicCache(String name) {
-        log.warn("Creating dynamic cache not defined in CacheName: [name={}]", name);
+    private TwoLevelCache createCache(String name) {
         return new TwoLevelCache(
             name,
             l1Cache,
