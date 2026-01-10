@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,7 +25,7 @@ import java.util.UUID;
 public class ContentController implements ContentApiSpec {
 
     private final ContentFacade contentFacade;
-    private final ContentResponseMapper contentResponseMapper; // 매퍼를 여기서 사용
+    private final ContentResponseMapper contentResponseMapper;
 
     @Override
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -64,5 +65,14 @@ public class ContentController implements ContentApiSpec {
         return contentResponseMapper.toResponse(
             contentModel
         );
+    }
+
+    @Override
+    @DeleteMapping("/{contentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(
+        @PathVariable UUID contentId
+    ) {
+        contentFacade.delete(contentId);
     }
 }

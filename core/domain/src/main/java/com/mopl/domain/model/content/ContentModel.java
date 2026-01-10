@@ -66,6 +66,20 @@ public class ContentModel extends BaseUpdatableModel {
             .build();
     }
 
+    /**
+     * 콘텐츠를 논리 삭제(Soft delete)한다.
+     * - 멱등성을 보장한다.
+     * - 연관 관계(ContentTag 등)는 별도 정책에 따라 처리한다.
+     */
+    public ContentModel deleteContent() {
+        if (this.getDeletedAt() != null) {
+            return this;
+        }
+
+        super.delete();
+        return this;
+    }
+
     public ContentModel withTags(List<String> tags) {
         return this.toBuilder()
             .tags(tags)
