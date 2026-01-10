@@ -4,8 +4,10 @@ import com.mopl.api.interfaces.api.playlist.PlaylistCreateRequest;
 import com.mopl.api.interfaces.api.playlist.PlaylistResponse;
 import com.mopl.api.interfaces.api.playlist.PlaylistResponseMapper;
 import com.mopl.api.interfaces.api.playlist.PlaylistUpdateRequest;
+import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
+import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.playlist.PlaylistService;
 import com.mopl.domain.service.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class PlaylistFacade {
 
     private final PlaylistService playlistService;
     private final UserService userService;
+    private final ContentService contentService;
     private final PlaylistResponseMapper playlistResponseMapper;
 
     @Transactional
@@ -95,13 +98,31 @@ public class PlaylistFacade {
         );
     }
 
+    // ============= 여기서 부터는 순수 플레이리스트 CRUD가 아님===================
+
     @Transactional
-    public void deletePlaylist(
-        UUID requesterId,
-        UUID playlistId
+    public void addContentToPlaylist(
+        UUID requsterId,
+        UUID playlistId,
+        UUID contentId
     ) {
-        // requester 존재 보장 (ReviewFacade delete와 동일 패턴)
-        userService.getById(requesterId);
-        playlistService.delete(playlistId, requesterId);
+        userService.getById(requsterId);
+
+        if (!contentService.exists(contentId)) {
+            throw ContentNotFoundException.withId(contentId);
+        }
+
+        playlistService.addContent(playlistId, requsterId, contentId);
     }
+
+    @Transactional
+    public void deleteContentFromPlaylist(
+        UUID requesterId,
+        UUID playlistId,
+        UUID contentId
+    ) {
+        userService.getById(requesterId);
+        playlistService.removeContent(playlistId, requesterId, contentId);
+    }
+
 }
