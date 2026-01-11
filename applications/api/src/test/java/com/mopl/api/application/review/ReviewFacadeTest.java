@@ -4,7 +4,7 @@ import com.mopl.api.interfaces.api.review.ReviewCreateRequest;
 import com.mopl.api.interfaces.api.review.ReviewResponse;
 import com.mopl.api.interfaces.api.review.ReviewResponseMapper;
 import com.mopl.api.interfaces.api.review.ReviewUpdateRequest;
-import com.mopl.domain.exception.review.InvalidReviewDataException;
+import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.fixture.ReviewModelFixture;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.review.ReviewModel;
@@ -20,12 +20,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -60,25 +60,19 @@ class ReviewFacadeTest {
             // given
             UUID requesterId = UUID.randomUUID();
             UUID contentId = UUID.randomUUID();
-            ReviewCreateRequest request = new ReviewCreateRequest(contentId, "좋아요", BigDecimal
-                .valueOf(5));
+            ReviewCreateRequest request = new ReviewCreateRequest(contentId, "좋아요", 5.0);
 
             UserModel author = mock(UserModel.class);
             ContentModel content = mock(ContentModel.class);
-
-            // Fixture 활용: 복잡한 빌더 없이 랜덤하고 유효한 객체 생성
             ReviewModel savedReview = ReviewModelFixture.create();
             ReviewResponse expectedResponse = mock(ReviewResponse.class);
 
             given(userService.getById(requesterId)).willReturn(author);
             given(contentService.getById(contentId)).willReturn(content);
-            given(contentService.exists(contentId)).willReturn(true);
 
-            // Service 호출 시 구체적인 값 매칭보다는 흐름 확인에 집중 (필요시 ArgumentCaptor 사용)
             given(reviewService.create(content, author, request.text(), request.rating()))
                 .willReturn(savedReview);
 
-            // Facade 소스 코드 기준 Mapper는 1개의 인자만 받음
             given(reviewResponseMapper.toResponse(savedReview))
                 .willReturn(expectedResponse);
 
@@ -87,27 +81,27 @@ class ReviewFacadeTest {
 
             // then
             assertThat(result).isEqualTo(expectedResponse);
-
             then(reviewService).should().create(content, author, request.text(), request.rating());
         }
 
         @Test
-        @DisplayName("존재하지 않는 콘텐츠 ID면 InvalidReviewDataException이 발생한다")
+        @DisplayName("존재하지 않는 콘텐츠 ID면 예외가 발생한다")
         void withNonExistingContent_throwsException() {
             // given
             UUID requesterId = UUID.randomUUID();
             UUID contentId = UUID.randomUUID();
-            ReviewCreateRequest request = new ReviewCreateRequest(contentId, "내용", BigDecimal.ONE);
+            ReviewCreateRequest request = new ReviewCreateRequest(contentId, "내용", 1.0);
 
             given(userService.getById(requesterId)).willReturn(mock(UserModel.class));
-            given(contentService.getById(contentId)).willReturn(mock(ContentModel.class));
-            given(contentService.exists(contentId)).willReturn(false); // 존재하지 않음
+
+            given(contentService.getById(contentId))
+                .willThrow(ContentNotFoundException.withId(contentId));
 
             // when & then
             assertThatThrownBy(() -> reviewFacade.createReview(requesterId, request))
-                .isInstanceOf(InvalidReviewDataException.class);
+                .isInstanceOf(ContentNotFoundException.class);
 
-            then(reviewService).should(never()).create(any(), any(), any(), any());
+            then(reviewService).should(never()).create(any(), any(), any(), anyDouble());
         }
     }
 
@@ -121,8 +115,7 @@ class ReviewFacadeTest {
             // given
             UUID requesterId = UUID.randomUUID();
             UUID reviewId = UUID.randomUUID();
-            ReviewUpdateRequest request = new ReviewUpdateRequest("수정된 내용", BigDecimal.valueOf(
-                4.5));
+            ReviewUpdateRequest request = new ReviewUpdateRequest("수정된 내용", 4.5);
 
             // Fixture 활용: 업데이트된 결과 모델 생성
             ReviewModel updatedReview = ReviewModelFixture.create();
