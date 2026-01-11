@@ -2,6 +2,8 @@ package com.mopl.api.interfaces.api.content;
 
 import com.mopl.api.application.content.ContentFacade;
 import com.mopl.domain.model.content.ContentModel;
+import com.mopl.domain.repository.content.ContentQueryRequest;
+import com.mopl.domain.support.cursor.CursorResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -39,6 +41,13 @@ public class ContentController implements ContentApiSpec {
         return contentResponseMapper.toResponse(
             contentModel
         );
+    }
+
+    @Override
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public CursorResponse<ContentResponse> getContents(ContentQueryRequest request) {
+        return contentFacade.getContents(request);
     }
 
     @Override
