@@ -8,7 +8,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +37,7 @@ class ReviewModelTest {
             given(author.getId()).willReturn(authorId);
 
             String text = "리뷰 내용";
-            BigDecimal rating = new BigDecimal("4");
+            double rating = 4.0;
 
             // when
             ReviewModel review = ReviewModel.create(content, author, text, rating);
@@ -57,7 +56,7 @@ class ReviewModelTest {
             UserModel author = mock(UserModel.class);
 
             // when & then
-            assertThatThrownBy(() -> ReviewModel.create(null, author, "text", BigDecimal.ONE))
+            assertThatThrownBy(() -> ReviewModel.create(null, author, "text", 1.0))
                 .isInstanceOf(InvalidReviewDataException.class)
                 .satisfies(e -> {
                     InvalidReviewDataException ex = (InvalidReviewDataException) e;
@@ -68,24 +67,23 @@ class ReviewModelTest {
         }
 
         @Test
-        @DisplayName("평점이 정수가 아니면(예: 4.5) 예외 발생")
-        void withDecimalRating_throwsException() {
+        @DisplayName("평점이 0.0~5.0 범위 내면 소수도 허용된다")
+        void withDecimalRating_isAllowed() {
             // given
             ContentModel content = mock(ContentModel.class);
             given(content.getId()).willReturn(UUID.randomUUID());
+
             UserModel author = mock(UserModel.class);
             given(author.getId()).willReturn(UUID.randomUUID());
 
-            // when & then
-            assertThatThrownBy(() -> ReviewModel.create(content, author, "text", new BigDecimal(
-                "4.5")))
-                .isInstanceOf(InvalidReviewDataException.class)
-                .satisfies(e -> {
-                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                    // Object -> String 형변환 후 contains 사용
-                    assertThat((String) ex.getDetails().get("detailMessage"))
-                        .contains("평점은 정수만 가능합니다");
-                });
+            String text = "text";
+            double rating = 4.5;
+
+            // when
+            ReviewModel review = ReviewModel.create(content, author, text, rating);
+
+            // then
+            assertThat(review.getRating()).isEqualTo(4.5);
         }
     }
 
@@ -100,7 +98,7 @@ class ReviewModelTest {
             ReviewModel review = ReviewModelFixture.create();
 
             String newText = "수정된 내용";
-            BigDecimal newRating = new BigDecimal("5"); // 정수형 평점
+            double newRating = 4.5;
 
             // when
             ReviewModel updatedReview = review.update(newText, newRating);
@@ -117,7 +115,7 @@ class ReviewModelTest {
             ReviewModel review = ReviewModelFixture.create();
 
             // when & then
-            assertThatThrownBy(() -> review.update(null, BigDecimal.valueOf(5)))
+            assertThatThrownBy(() -> review.update(null, 5.0))
                 .isInstanceOf(InvalidReviewDataException.class)
                 .satisfies(e -> {
                     InvalidReviewDataException ex = (InvalidReviewDataException) e;
@@ -134,7 +132,7 @@ class ReviewModelTest {
             ReviewModel review = ReviewModelFixture.create();
 
             // when & then
-            assertThatThrownBy(() -> review.update("Valid text", new BigDecimal("6")))
+            assertThatThrownBy(() -> review.update("Valid text", 6.0))
                 .isInstanceOf(InvalidReviewDataException.class)
                 .satisfies(e -> {
                     InvalidReviewDataException ex = (InvalidReviewDataException) e;

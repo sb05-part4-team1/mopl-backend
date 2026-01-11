@@ -28,7 +28,7 @@ class ContentEntityMapperTest {
 
             ContentEntity entity = ContentEntity.builder()
                 .id(id)
-                .type("영화")
+                .type(ContentModel.ContentType.movie)
                 .title("인셉션")
                 .description("꿈속의 꿈")
                 .thumbnailUrl("https://mopl.com/inception.png")
@@ -42,7 +42,7 @@ class ContentEntityMapperTest {
 
             // then
             assertThat(result.getId()).isEqualTo(id);
-            assertThat(result.getType()).isEqualTo("영화");
+            assertThat(result.getType()).isEqualTo(ContentModel.ContentType.movie);
             assertThat(result.getTitle()).isEqualTo("인셉션");
             assertThat(result.getDescription()).isEqualTo("꿈속의 꿈");
             assertThat(result.getThumbnailUrl()).isEqualTo("https://mopl.com/inception.png");
@@ -76,7 +76,7 @@ class ContentEntityMapperTest {
 
             ContentModel model = ContentModel.builder()
                 .id(id)
-                .type("영화")
+                .type(ContentModel.ContentType.movie)
                 .title("인셉션")
                 .description("꿈속의 꿈")
                 .thumbnailUrl("https://mopl.com/inception.png")
@@ -89,7 +89,7 @@ class ContentEntityMapperTest {
 
             // then
             assertThat(result.getId()).isEqualTo(id);
-            assertThat(result.getType()).isEqualTo("영화");
+            assertThat(result.getType()).isEqualTo(ContentModel.ContentType.movie);
             assertThat(result.getTitle()).isEqualTo("인셉션");
             assertThat(result.getDescription()).isEqualTo("꿈속의 꿈");
             assertThat(result.getThumbnailUrl()).isEqualTo("https://mopl.com/inception.png");
@@ -109,7 +109,7 @@ class ContentEntityMapperTest {
             UUID id = UUID.randomUUID();
             ContentModel originalModel = ContentModel.builder()
                 .id(id)
-                .type("영화")
+                .type(ContentModel.ContentType.movie)
                 .title("인셉션")
                 .thumbnailUrl("https://mopl.com/inception.png")
                 .build();

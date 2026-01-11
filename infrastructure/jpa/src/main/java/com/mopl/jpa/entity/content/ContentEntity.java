@@ -1,9 +1,8 @@
 package com.mopl.jpa.entity.content;
 
+import com.mopl.domain.model.content.ContentModel.ContentType; // 내부 이넘 임포트
 import com.mopl.jpa.entity.base.BaseUpdatableEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +11,6 @@ import org.hibernate.annotations.SQLRestriction;
 
 import static com.mopl.domain.model.content.ContentModel.THUMBNAIL_URL_MAX_LENGTH;
 import static com.mopl.domain.model.content.ContentModel.TITLE_MAX_LENGTH;
-import static com.mopl.domain.model.content.ContentModel.TYPE_MAX_LENGTH;
 
 @Entity
 @Table(name = "contents")
@@ -22,8 +20,9 @@ import static com.mopl.domain.model.content.ContentModel.TYPE_MAX_LENGTH;
 @SQLRestriction("deleted_at IS NULL")
 public class ContentEntity extends BaseUpdatableEntity {
 
-    @Column(nullable = false, length = TYPE_MAX_LENGTH)
-    private String type;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private ContentType type;
 
     @Column(nullable = false, length = TITLE_MAX_LENGTH)
     private String title;
@@ -33,4 +32,10 @@ public class ContentEntity extends BaseUpdatableEntity {
 
     @Column(length = THUMBNAIL_URL_MAX_LENGTH)
     private String thumbnailUrl;
+
+    @Column(nullable = false)
+    private double averageRating;
+
+    @Column(nullable = false)
+    private int reviewCount;
 }

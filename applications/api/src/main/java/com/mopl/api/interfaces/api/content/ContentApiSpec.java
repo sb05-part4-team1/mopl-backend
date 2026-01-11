@@ -1,6 +1,8 @@
 package com.mopl.api.interfaces.api.content;
 
 import com.mopl.domain.exception.ErrorResponse;
+import com.mopl.domain.repository.content.ContentQueryRequest;
+import com.mopl.domain.support.cursor.CursorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -135,5 +137,21 @@ public interface ContentApiSpec {
             required = true,
             example = "550e8400-e29b-41d4-a716-446655440000"
         ) UUID contentId
+    );
+
+    @Operation(
+        summary = "콘텐츠 목록 조회",
+        description = "커서 기반 페이지네이션을 사용하여 콘텐츠 목록을 조회합니다."
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "성공적으로 조회됨",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = CursorResponse.class)
+        )
+    )
+    CursorResponse<ContentResponse> getContents(
+        @Parameter(description = "쿼리 파라미터 (cursor, size 등)") ContentQueryRequest request
     );
 }

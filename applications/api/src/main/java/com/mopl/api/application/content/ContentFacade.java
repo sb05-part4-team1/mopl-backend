@@ -1,10 +1,14 @@
 package com.mopl.api.application.content;
 
 import com.mopl.api.interfaces.api.content.ContentCreateRequest;
+import com.mopl.api.interfaces.api.content.ContentResponse;
+import com.mopl.api.interfaces.api.content.ContentResponseMapper;
 import com.mopl.api.interfaces.api.content.ContentUpdateRequest;
 import com.mopl.domain.exception.content.InvalidContentDataException;
 import com.mopl.domain.model.content.ContentModel;
+import com.mopl.domain.repository.content.ContentQueryRequest;
 import com.mopl.domain.service.content.ContentService;
+import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.storage.provider.FileStorageProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -19,6 +23,7 @@ import java.util.UUID;
 public class ContentFacade {
 
     private final ContentService contentService;
+    private final ContentResponseMapper contentResponseMapper;
     private final FileStorageProvider fileStorageProvider;
 
     @Transactional
@@ -37,6 +42,11 @@ public class ContentFacade {
         );
 
         return contentService.create(contentModel, request.tags());
+    }
+
+    @Transactional(readOnly = true)
+    public CursorResponse<ContentResponse> getContents(ContentQueryRequest request) {
+        return contentService.getAll(request).map(contentResponseMapper::toResponse);
     }
 
     @Transactional(readOnly = true)

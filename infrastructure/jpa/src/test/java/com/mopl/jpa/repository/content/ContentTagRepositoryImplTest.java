@@ -53,7 +53,7 @@ class ContentTagRepositoryImplTest {
         @DisplayName("콘텐츠와 태그를 연결한다")
         void saveAll_linksContentAndTags() {
             ContentModel savedContent = contentRepository.save(
-                ContentModel.create("영화", "인셉션", "꿈속의 꿈", "url")
+                ContentModel.create(ContentModel.ContentType.movie, "인셉션", "꿈속의 꿈", "url")
             );
 
             TagModel tag1 = tagRepository.save(TagModel.create("SF"));
@@ -81,7 +81,7 @@ class ContentTagRepositoryImplTest {
         @DisplayName("콘텐츠 ID로 연결된 태그를 조회한다")
         void findTagsByContentId_returnsTags() {
             ContentModel savedContent = contentRepository.save(
-                ContentModel.create("영화", "인셉션", "꿈", "url")
+                ContentModel.create(ContentModel.ContentType.movie, "인셉션", "꿈", "url")
             );
 
             TagModel tag1 = tagRepository.save(TagModel.create("SF"));
@@ -104,7 +104,7 @@ class ContentTagRepositoryImplTest {
         @DisplayName("연결된 태그가 없으면 빈 리스트를 반환한다")
         void findTagsByContentId_noTags() {
             ContentModel savedContent = contentRepository.save(
-                ContentModel.create("영화", "인셉션", "꿈", "url")
+                ContentModel.create(ContentModel.ContentType.movie, "인셉션", "꿈", "url")
             );
 
             List<TagModel> result = contentTagRepository.findTagsByContentId(savedContent.getId());
@@ -121,10 +121,10 @@ class ContentTagRepositoryImplTest {
         @DisplayName("특정 콘텐츠의 태그 연결만 삭제한다")
         void deleteAllByContentId_deletesOnlyTargetContentTags() {
             ContentModel content1 = contentRepository.save(
-                ContentModel.create("영화", "인셉션", "꿈", "url1")
+                ContentModel.create(ContentModel.ContentType.movie, "인셉션", "꿈", "url1")
             );
             ContentModel content2 = contentRepository.save(
-                ContentModel.create("영화", "다크나이트", "배트맨", "url2")
+                ContentModel.create(ContentModel.ContentType.movie, "다크나이트", "배트맨", "url2")
             );
 
             TagModel tag1 = tagRepository.save(TagModel.create("SF"));
@@ -148,7 +148,7 @@ class ContentTagRepositoryImplTest {
         @DisplayName("연결된 태그가 없어도 예외 없이 동작한다")
         void deleteAllByContentId_noTags() {
             ContentModel savedContent = contentRepository.save(
-                ContentModel.create("영화", "인셉션", "꿈", "url")
+                ContentModel.create(ContentModel.ContentType.movie, "인셉션", "꿈", "url")
             );
 
             contentTagRepository.deleteAllByContentId(savedContent.getId());

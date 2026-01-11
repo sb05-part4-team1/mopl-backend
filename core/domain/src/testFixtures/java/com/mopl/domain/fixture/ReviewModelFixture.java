@@ -6,8 +6,6 @@ import com.mopl.domain.model.review.ReviewModel;
 import com.navercorp.fixturemonkey.ArbitraryBuilder;
 import net.jqwik.api.Arbitraries;
 
-import java.math.BigDecimal;
-
 public final class ReviewModelFixture {
 
     private ReviewModelFixture() {
@@ -16,7 +14,8 @@ public final class ReviewModelFixture {
     public static ArbitraryBuilder<ReviewModel> builder() {
         return fixtureMonkey().giveMeBuilder(ReviewModel.class)
             .setNull("updatedAt")
-            .set("rating", Arbitraries.of(0, 1, 2, 3, 4, 5).map(BigDecimal::valueOf));
+            .set("rating", Arbitraries.of(0, 1, 2, 3, 4, 5)
+                .map(Integer::doubleValue));
     }
 
     public static ReviewModel create() {

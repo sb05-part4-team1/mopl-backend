@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 
 import static com.mopl.domain.model.content.ContentModel.THUMBNAIL_URL_MAX_LENGTH;
 import static com.mopl.domain.model.content.ContentModel.TITLE_MAX_LENGTH;
-import static com.mopl.domain.model.content.ContentModel.TYPE_MAX_LENGTH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -37,7 +36,7 @@ class ContentModelTest {
         @DisplayName("유효한 데이터로 ContentModel 생성")
         void create_withValidData() {
             // given
-            String type = "영화";
+            ContentModel.ContentType type = ContentModel.ContentType.movie;
             String title = "인셉션";
             String description = "꿈속의 꿈";
             String thumbnailUrl = "https://mopl.com/inception.png";
@@ -53,12 +52,11 @@ class ContentModelTest {
             assertThat(content.getTags()).isEmpty();
         }
 
-        @ParameterizedTest
-        @MethodSource("com.mopl.domain.model.content.ContentModelTest#emptyFieldsProvider")
-        @DisplayName("타입이 비어있으면 예외 발생")
-        void create_withEmptyType(String desc, String type) {
+        @Test
+        @DisplayName("타입이 null이면 예외 발생")
+        void create_withNullType() {
             // given / when / then
-            assertThatThrownBy(() -> ContentModel.create(type, "제목", "설명", "url")
+            assertThatThrownBy(() -> ContentModel.create(null, "제목", "설명", "url")
             ).isInstanceOf(InvalidContentDataException.class);
         }
 
@@ -67,7 +65,8 @@ class ContentModelTest {
         @DisplayName("제목이 비어있으면 예외 발생")
         void create_withEmptyTitle(String desc, String title) {
             // given / when / then
-            assertThatThrownBy(() -> ContentModel.create("TYPE", title, "설명", "url")
+            assertThatThrownBy(() -> ContentModel.create(ContentModel.ContentType.movie, title,
+                "설명", "url")
             ).isInstanceOf(InvalidContentDataException.class);
         }
 
@@ -76,18 +75,8 @@ class ContentModelTest {
         @DisplayName("설명이 비어있으면 예외 발생")
         void create_withEmptyDescription(String desc, String description) {
             // given / when / then
-            assertThatThrownBy(() -> ContentModel.create("TYPE", "제목", description, "url")
-            ).isInstanceOf(InvalidContentDataException.class);
-        }
-
-        @Test
-        @DisplayName("타입 길이 초과 시 예외 발생")
-        void create_withTypeTooLong() {
-            // given
-            String longType = "a".repeat(TYPE_MAX_LENGTH + 1);
-
-            // when / then
-            assertThatThrownBy(() -> ContentModel.create(longType, "제목", "설명", "url")
+            assertThatThrownBy(() -> ContentModel.create(ContentModel.ContentType.movie, "제목",
+                description, "url")
             ).isInstanceOf(InvalidContentDataException.class);
         }
 
@@ -98,7 +87,8 @@ class ContentModelTest {
             String longTitle = "a".repeat(TITLE_MAX_LENGTH + 1);
 
             // when / then
-            assertThatThrownBy(() -> ContentModel.create("TYPE", longTitle, "설명", "url")
+            assertThatThrownBy(() -> ContentModel.create(ContentModel.ContentType.movie, longTitle,
+                "설명", "url")
             ).isInstanceOf(InvalidContentDataException.class);
         }
 
@@ -109,7 +99,8 @@ class ContentModelTest {
             String longUrl = "a".repeat(THUMBNAIL_URL_MAX_LENGTH + 1);
 
             // when / then
-            assertThatThrownBy(() -> ContentModel.create("TYPE", "제목", "설명", longUrl)
+            assertThatThrownBy(() -> ContentModel.create(ContentModel.ContentType.movie, "제목", "설명",
+                longUrl)
             ).isInstanceOf(InvalidContentDataException.class);
         }
     }
@@ -123,17 +114,15 @@ class ContentModelTest {
         void update_withValidData() {
             // given
             ContentModel original = ContentModel.create(
-                "영화", "기존 제목", "기존 설명", "old-url"
+                ContentModel.ContentType.movie, "기존 제목", "기존 설명", "old-url"
             );
 
             // when
-            ContentModel updated = original.update(
-                "새 제목", "새 설명", "new-url"
-            );
+            ContentModel updated = original.update("새 제목", "새 설명", "new-url");
 
             // then
             assertThat(updated).isNotSameAs(original);
-            assertThat(updated.getType()).isEqualTo("영화");
+            assertThat(updated.getType()).isEqualTo(ContentModel.ContentType.movie);
             assertThat(updated.getTitle()).isEqualTo("새 제목");
             assertThat(updated.getDescription()).isEqualTo("새 설명");
             assertThat(updated.getThumbnailUrl()).isEqualTo("new-url");
@@ -144,26 +133,11 @@ class ContentModelTest {
         @DisplayName("update 시 제목이 비어있으면 예외 발생")
         void update_withEmptyTitle(String desc, String title) {
             // given
-            ContentModel original = ContentModel.create(
-                "영화", "제목", "설명", "url"
-            );
+            ContentModel original = ContentModel.create(ContentModel.ContentType.movie, "제목", "설명",
+                "url");
 
             // when / then
             assertThatThrownBy(() -> original.update(title, "설명", "url")
-            ).isInstanceOf(InvalidContentDataException.class);
-        }
-
-        @ParameterizedTest
-        @MethodSource("com.mopl.domain.model.content.ContentModelTest#emptyFieldsProvider")
-        @DisplayName("update 시 설명이 비어있으면 예외 발생")
-        void update_withEmptyDescription(String desc, String description) {
-            // given
-            ContentModel original = ContentModel.create(
-                "영화", "제목", "설명", "url"
-            );
-
-            // when / then
-            assertThatThrownBy(() -> original.update("제목", description, "url")
             ).isInstanceOf(InvalidContentDataException.class);
         }
 
@@ -171,9 +145,8 @@ class ContentModelTest {
         @DisplayName("update 시 썸네일 URL 길이 초과하면 예외 발생")
         void update_withThumbnailTooLong() {
             // given
-            ContentModel original = ContentModel.create(
-                "영화", "제목", "설명", "url"
-            );
+            ContentModel original = ContentModel.create(ContentModel.ContentType.movie, "제목", "설명",
+                "url");
             String longUrl = "a".repeat(THUMBNAIL_URL_MAX_LENGTH + 1);
 
             // when / then
@@ -190,9 +163,8 @@ class ContentModelTest {
         @DisplayName("withTags는 새 객체를 반환한다")
         void withTags_returnsNewInstance() {
             // given
-            ContentModel original = ContentModel.create(
-                "영화", "제목", "설명", "url"
-            );
+            ContentModel original = ContentModel.create(ContentModel.ContentType.movie, "제목", "설명",
+                "url");
 
             // when
             ContentModel updated = original.withTags(List.of("SF", "액션"));
@@ -213,7 +185,7 @@ class ContentModelTest {
         void builder_withTags() {
             // when
             ContentModel content = ContentModel.builder()
-                .type("영화")
+                .type(ContentModel.ContentType.movie)
                 .title("인셉션")
                 .description("꿈속의 꿈")
                 .thumbnailUrl("url")
@@ -229,13 +201,13 @@ class ContentModelTest {
         void builder_allowsInvalidState() {
             // when
             ContentModel content = ContentModel.builder()
-                .type("")
+                .type(null)
                 .title("제목")
                 .thumbnailUrl("url")
                 .build();
 
             // then
-            assertThat(content.getType()).isEmpty();
+            assertThat(content.getType()).isNull();
         }
     }
 
@@ -248,7 +220,7 @@ class ContentModelTest {
         void deleteContent_setsDeletedAt() {
             // given
             ContentModel content = ContentModel.create(
-                "영화", "제목", "설명", "url"
+                ContentModel.ContentType.movie, "제목", "설명", "url"
             );
 
             // when
@@ -264,7 +236,7 @@ class ContentModelTest {
         void deleteContent_isIdempotent() {
             // given
             ContentModel content = ContentModel.create(
-                "영화", "제목", "설명", "url"
+                ContentModel.ContentType.movie, "제목", "설명", "url"
             );
 
             ContentModel firstDeleted = content.deleteContent();

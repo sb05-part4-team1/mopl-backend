@@ -1,5 +1,6 @@
 package com.mopl.jpa.entity.content;
 
+import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.jpa.config.JpaConfig;
 import com.mopl.jpa.repository.content.ContentRepositoryImpl;
@@ -111,7 +112,7 @@ class ContentEntityTest {
         void deletedEntity_isExcludedFromQuery() {
             // given
             ContentEntity entity = ContentEntity.builder()
-                .type("영화")
+                .type(ContentModel.ContentType.movie)
                 .title("삭제된 콘텐츠")
                 .description("설명")
                 .thumbnailUrl("url")
@@ -146,7 +147,7 @@ class ContentEntityTest {
 
     private ContentEntity createContentEntity() {
         return ContentEntity.builder()
-            .type("영화")
+            .type(ContentModel.ContentType.movie)
             .title("인셉션")
             .description("꿈속의 꿈")
             .thumbnailUrl("https://mopl.com/inception.png")

@@ -36,7 +36,7 @@ class ContentRepositoryImplTest {
         void saveContent_only() {
             // given
             ContentModel contentModel = ContentModel.create(
-                "영화",
+                ContentModel.ContentType.movie,
                 "인셉션",
                 "꿈속의 꿈",
                 "https://mopl.com/inception.png"
@@ -47,7 +47,7 @@ class ContentRepositoryImplTest {
 
             // then
             assertThat(savedContent.getId()).isNotNull();
-            assertThat(savedContent.getType()).isEqualTo("영화");
+            assertThat(savedContent.getType()).isEqualTo(ContentModel.ContentType.movie);
             assertThat(savedContent.getTitle()).isEqualTo("인셉션");
             assertThat(savedContent.getDescription()).isEqualTo("꿈속의 꿈");
             assertThat(savedContent.getThumbnailUrl()).isEqualTo("https://mopl.com/inception.png");
@@ -67,7 +67,7 @@ class ContentRepositoryImplTest {
         void exists_returnsTrue() {
             // given
             ContentModel saved = contentRepository.save(
-                ContentModel.create("영화", "인셉션", "꿈속의 꿈", "url")
+                ContentModel.create(ContentModel.ContentType.movie, "인셉션", "꿈속의 꿈", "url")
             );
 
             // when
@@ -97,7 +97,7 @@ class ContentRepositoryImplTest {
         void findById_returnsContentModel() {
             // given
             ContentModel original = ContentModel.create(
-                "영화",
+                ContentModel.ContentType.movie,
                 "인셉션",
                 "꿈속의 꿈",
                 "https://mopl.com/inception.png"
