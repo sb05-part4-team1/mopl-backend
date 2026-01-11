@@ -15,6 +15,9 @@ public interface JpaContentTagRepository extends JpaRepository<ContentTagEntity,
     @Query("select ct from ContentTagEntity ct join fetch ct.tag where ct.content.id = :contentId")
     List<ContentTagEntity> findAllByContentId(@Param("contentId") UUID contentId);
 
+    @Query("select ct from ContentTagEntity ct join fetch ct.tag where ct.content.id in :contentIds")
+    List<ContentTagEntity> findAllByContentIdIn(@Param("contentIds") List<UUID> contentIds);
+
     // 벌크 삭제 수행 (주의: 영속성 컨텍스트를 무시하고 DB에 직접 쿼리함)
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("DELETE FROM ContentTagEntity ct WHERE ct.content.id = :contentId")
