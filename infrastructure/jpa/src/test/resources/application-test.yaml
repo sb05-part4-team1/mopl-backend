@@ -1,0 +1,4 @@
+spring:
+  sql:
+    init:
+      mode: never # data.sql 자동 실행 방지
