@@ -9,8 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.math.BigDecimal;
-
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 오직 create() 메서드를 통해서만 유효한 객체를 만들도록 강제
@@ -21,23 +19,20 @@ public class ReviewModel extends BaseUpdatableModel {
     private ContentModel content;
     private UserModel author; // 리뷰를 쓴 작성자 객체
     private String text;
-    private BigDecimal rating;
+    private double rating;
 
     // 생성자 대신에 스태틱을 이용해 객체를 만듦, 유효성 검사
     public static ReviewModel create(
         ContentModel content,
         UserModel author,
         String text,
-        BigDecimal rating
+        double rating
     ) {
         if (content == null || content.getId() == null) {
             throw new InvalidReviewDataException("콘텐츠 정보는 null일 수 없습니다.");
         }
         if (author == null || author.getId() == null) {
             throw new InvalidReviewDataException("작성자 정보는 null일 수 없습니다.");
-        }
-        if (rating == null) {
-            throw new InvalidReviewDataException("평점은 null일 수 없습니다.");
         }
 
         // 비즈니스 로직 검사 (아래에 메서드로 구현함)
@@ -55,13 +50,10 @@ public class ReviewModel extends BaseUpdatableModel {
 
     public ReviewModel update(
         String newText,
-        BigDecimal newRating
+        double newRating
     ) {
         if (newText == null) {
             throw new InvalidReviewDataException("리뷰 내용은 null일 수 없습니다.");
-        }
-        if (newRating == null) {
-            throw new InvalidReviewDataException("평점은 null일 수 없습니다.");
         }
 
         validateText(newText);
@@ -91,20 +83,15 @@ public class ReviewModel extends BaseUpdatableModel {
             return;
         }
         if (text.length() > TEXT_MAX_LENGTH) {
-            throw new InvalidReviewDataException("리뷰 내용은 " + TEXT_MAX_LENGTH + "자를 초과할 수 없습니다.");
+            throw new InvalidReviewDataException(
+                "리뷰 내용은 " + TEXT_MAX_LENGTH + "자를 초과할 수 없습니다."
+            );
         }
     }
 
-    // 평점 검증 로직 구현
-    private static void validateRating(BigDecimal rating) {
-        if (rating.compareTo(BigDecimal.ZERO) < 0 || rating.compareTo(BigDecimal.valueOf(5)) > 0) {
+    private static void validateRating(double rating) {
+        if (rating < 0.0 || rating > 5.0) {
             throw new InvalidReviewDataException("평점은 0.0 이상 5.0 이하만 가능합니다.");
-        }
-
-        BigDecimal normalized = rating.stripTrailingZeros();
-
-        if (normalized.scale() > 0) {
-            throw new InvalidReviewDataException("평점은 정수만 가능합니다. (0.5 단위는 허용되지 않습니다.)");
         }
     }
 }
