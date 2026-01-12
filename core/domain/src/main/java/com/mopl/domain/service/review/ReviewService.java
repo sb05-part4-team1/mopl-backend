@@ -58,7 +58,7 @@ public class ReviewService {
         ReviewModel review = getByIdAndValidateAuthor(reviewId, requesterId);
         double rating = review.getRating();
 
-        review.deleteReview();
+        review.delete();
         reviewRepository.save(review);
 
         ContentModel content = review.getContent();

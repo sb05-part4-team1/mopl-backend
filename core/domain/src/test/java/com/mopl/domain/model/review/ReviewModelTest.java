@@ -154,10 +154,10 @@ class ReviewModelTest {
             ReviewModel review = ReviewModelFixture.create();
 
             // when
-            ReviewModel deletedReview = review.deleteReview();
+            review.delete();
 
             // then
-            assertThat(deletedReview.getDeletedAt()).isNotNull();
+            assertThat(review.getDeletedAt()).isNotNull();
         }
 
         @Test
@@ -165,14 +165,14 @@ class ReviewModelTest {
         void deleteAlreadyDeletedReview_isIdempotent() {
             // given
             ReviewModel review = ReviewModelFixture.create();
-            review.deleteReview(); // 1차 삭제
+            review.delete(); // 1차 삭제
 
             // when
-            ReviewModel doubleDeletedReview = review.deleteReview(); // 2차 삭제
+            review.delete(); // 2차 삭제
 
             // then
-            assertThat(doubleDeletedReview).isNotNull();
-            assertThat(doubleDeletedReview.getDeletedAt()).isNotNull();
+            assertThat(review).isNotNull();
+            assertThat(review.getDeletedAt()).isNotNull();
         }
     }
 }

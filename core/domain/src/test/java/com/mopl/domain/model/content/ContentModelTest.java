@@ -224,11 +224,11 @@ class ContentModelTest {
             );
 
             // when
-            ContentModel deleted = content.deleteContent();
+            content.delete();
 
             // then
-            assertThat(deleted.isDeleted()).isTrue();
-            assertThat(deleted.getDeletedAt()).isNotNull();
+            assertThat(content.isDeleted()).isTrue();
+            assertThat(content.getDeletedAt()).isNotNull();
         }
 
         @Test
@@ -239,14 +239,14 @@ class ContentModelTest {
                 ContentModel.ContentType.movie, "제목", "설명", "url"
             );
 
-            ContentModel firstDeleted = content.deleteContent();
-            Instant deletedAt = firstDeleted.getDeletedAt();
+            content.delete();
+            Instant deletedAt = content.getDeletedAt();
 
             // when
-            ContentModel secondDeleted = firstDeleted.deleteContent();
+            content.delete();
 
             // then
-            assertThat(secondDeleted.getDeletedAt()).isEqualTo(deletedAt);
+            assertThat(content.getDeletedAt()).isEqualTo(deletedAt);
         }
     }
 }
