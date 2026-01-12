@@ -17,8 +17,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLRestriction;
 
-import java.math.BigDecimal;
-
 @Entity
 @Table(name = "reviews")
 @Getter
@@ -30,8 +28,8 @@ public class ReviewEntity extends BaseUpdatableEntity {
     @Column(columnDefinition = "TEXT")
     private String text;
 
-    @Column(precision = 2, scale = 1, nullable = false)
-    private BigDecimal rating;
+    @Column(nullable = false)
+    private double rating;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "content_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))

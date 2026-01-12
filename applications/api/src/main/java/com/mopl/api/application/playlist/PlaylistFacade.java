@@ -84,14 +84,4 @@ public class PlaylistFacade {
             Collections.emptyList()
         );
     }
-
-    @Transactional
-    public void deletePlaylist(
-        UUID requesterId,
-        UUID playlistId
-    ) {
-        // requester 존재 보장 (ReviewFacade delete와 동일 패턴)
-        userService.getById(requesterId);
-        playlistService.delete(playlistId, requesterId);
-    }
 }

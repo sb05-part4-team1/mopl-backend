@@ -6,6 +6,7 @@ import com.mopl.jpa.entity.content.ContentEntity;
 import com.mopl.jpa.entity.content.ContentTagEntity;
 import com.mopl.jpa.entity.tag.TagEntityMapper;
 import com.mopl.jpa.repository.tag.JpaTagRepository;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -45,6 +46,25 @@ public class ContentTagRepositoryImpl implements ContentTagRepository {
         return contentTagEntities.stream()
             .map(contentTag -> tagEntityMapper.toModel(contentTag.getTag()))
             .toList();
+    }
+
+    @Override
+    public Map<UUID, List<TagModel>> findTagsByContentIds(List<UUID> contentIds) {
+
+        if (contentIds == null || contentIds.isEmpty()) {
+            return Map.of();
+        }
+
+        List<ContentTagEntity> entities = jpaContentTagRepository.findAllByContentIdIn(contentIds);
+
+        return entities.stream()
+            .collect(Collectors.groupingBy(
+                contentTag -> contentTag.getContent().getId(),
+                Collectors.mapping(
+                    contentTag -> tagEntityMapper.toModel(contentTag.getTag()),
+                    Collectors.toList()
+                )
+            ));
     }
 
     @Override
