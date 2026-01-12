@@ -4,6 +4,7 @@ dependencies {
     implementation(project(":infrastructure:jpa"))
     implementation(project(":infrastructure:security"))
     implementation(project(":infrastructure:storage"))
+    implementation(project(":infrastructure:redis"))
     implementation(project(":shared:jackson"))
     // web
     implementation("org.springframework.boot:spring-boot-starter-web")
