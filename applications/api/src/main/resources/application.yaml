@@ -15,6 +15,7 @@ spring:
       - security.yaml
       - storage.yaml
       - redis.yaml
+      - cache.yaml
   threads:
     virtual:
       enabled: true
@@ -22,6 +23,10 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+
+logging:
+  level:
+    com.mopl.cache: DEBUG
 
 mopl:
   admin:

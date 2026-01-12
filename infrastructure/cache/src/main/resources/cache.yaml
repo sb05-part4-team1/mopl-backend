@@ -1,7 +1,7 @@
 mopl:
   cache:
     key-prefix: "mopl:"
-    redis-enabled: ${CACHE_REDIS_ENABLED:false}
+    redis-enabled: ${CACHE_REDIS_ENABLED:true}
     l1:
       maximum-size: 10000
       ttl: 30s
