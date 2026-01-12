@@ -34,7 +34,8 @@ public class TwoLevelCacheManager implements CacheManager {
             caches.put(cacheName, createCache(cacheName));
         }
 
-        log.info("TwoLevelCacheManager initialized: [caches={}, redisEnabled={}]", caches.keySet(), redisTemplate != null);
+        log.info("TwoLevelCacheManager initialized: [caches={}, redisEnabled={}]",
+            caches.keySet(), redisTemplate != null);
     }
 
     @Override
