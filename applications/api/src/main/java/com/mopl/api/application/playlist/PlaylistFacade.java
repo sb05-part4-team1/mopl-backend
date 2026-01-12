@@ -4,9 +4,12 @@ import com.mopl.api.interfaces.api.playlist.PlaylistCreateRequest;
 import com.mopl.api.interfaces.api.playlist.PlaylistResponse;
 import com.mopl.api.interfaces.api.playlist.PlaylistResponseMapper;
 import com.mopl.api.interfaces.api.playlist.PlaylistUpdateRequest;
+import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
+import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.playlist.PlaylistService;
+import com.mopl.domain.service.playlist.PlaylistSubscriptionService;
 import com.mopl.domain.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -20,7 +23,9 @@ import java.util.UUID;
 public class PlaylistFacade {
 
     private final PlaylistService playlistService;
+    private final PlaylistSubscriptionService playlistSubscriptionService;
     private final UserService userService;
+    private final ContentService contentService;
     private final PlaylistResponseMapper playlistResponseMapper;
 
     @Transactional
@@ -84,4 +89,56 @@ public class PlaylistFacade {
             Collections.emptyList()
         );
     }
+
+    // ============= 여기서 부터는 순수 플레이리스트 CRUD가 아님===================
+
+    @Transactional
+    public void addContentToPlaylist(
+        UUID requsterId,
+        UUID playlistId,
+        UUID contentId
+    ) {
+        userService.getById(requsterId);
+
+        if (!contentService.exists(contentId)) {
+            throw ContentNotFoundException.withId(contentId);
+        }
+
+        playlistService.addContent(playlistId, requsterId, contentId);
+    }
+
+    @Transactional
+    public void deleteContentFromPlaylist(
+        UUID requesterId,
+        UUID playlistId,
+        UUID contentId
+    ) {
+        userService.getById(requesterId);
+        playlistService.removeContent(playlistId, requesterId, contentId);
+    }
+
+    @Transactional
+    public void subscribePlaylist(
+        UUID requesterId,
+        UUID playlistId
+    ) {
+        userService.getById(requesterId);
+        playlistService.getById(playlistId);
+
+        playlistSubscriptionService.subscribe(playlistId, requesterId);
+
+        // TODO: 알림 구현 시 여기(or 서비스 내부)에서 "구독 알림 이벤트" 발행
+    }
+
+    @Transactional
+    public void unsubscribePlaylist(
+        UUID requesterId,
+        UUID playlistId
+    ) {
+        userService.getById(requesterId);
+        playlistService.getById(playlistId);
+
+        playlistSubscriptionService.unsubscribe(playlistId, requesterId);
+    }
+
 }

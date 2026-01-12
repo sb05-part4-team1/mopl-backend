@@ -4,7 +4,9 @@ import com.mopl.domain.repository.content.ContentQueryRepository;
 import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
 import com.mopl.domain.repository.follow.FollowRepository;
+import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.domain.repository.playlist.PlaylistRepository;
+import com.mopl.domain.repository.playlist.PlaylistSubscriberRepository;
 import com.mopl.domain.repository.review.ReviewRepository;
 import com.mopl.domain.repository.tag.TagRepository;
 import com.mopl.domain.repository.user.UserQueryRepository;
@@ -12,6 +14,7 @@ import com.mopl.domain.repository.user.UserRepository;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.follow.FollowService;
 import com.mopl.domain.service.playlist.PlaylistService;
+import com.mopl.domain.service.playlist.PlaylistSubscriptionService;
 import com.mopl.domain.service.review.ReviewService;
 import com.mopl.domain.service.tag.TagService;
 import com.mopl.domain.service.user.UserService;
@@ -68,10 +71,20 @@ public class DomainServiceConfig {
 
     @Bean
     public PlaylistService playlistService(
-        PlaylistRepository playlistRepository
+        PlaylistRepository playlistRepository,
+        PlaylistContentRepository playlistContentRepository
     ) {
         return new PlaylistService(
-            playlistRepository
+            playlistRepository,
+            playlistContentRepository
         );
     }
+
+    @Bean
+    public PlaylistSubscriptionService playlistSubscriptionService(
+        PlaylistSubscriberRepository playlistSubscriberRepository
+    ) {
+        return new PlaylistSubscriptionService(playlistSubscriberRepository);
+    }
+
 }
