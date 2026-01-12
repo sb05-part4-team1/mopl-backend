@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -30,6 +31,7 @@ public class ContentController implements ContentApiSpec {
     private final ContentResponseMapper contentResponseMapper;
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public ContentResponse upload(
@@ -62,6 +64,7 @@ public class ContentController implements ContentApiSpec {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping(value = "/{contentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ContentResponse update(
@@ -77,6 +80,7 @@ public class ContentController implements ContentApiSpec {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{contentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(
