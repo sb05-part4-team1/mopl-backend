@@ -1,11 +1,10 @@
 plugins {
-    id("java")
+    `java-library`
 }
 
 dependencies {
     // project modules
     implementation(project(":core:domain"))
-    implementation(project(":shared:jackson"))
     implementation(project(":infrastructure:redis"))
     // caffeine
     implementation("com.github.ben-manes.caffeine:caffeine")
