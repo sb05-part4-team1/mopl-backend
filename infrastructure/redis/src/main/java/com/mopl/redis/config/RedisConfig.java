@@ -16,7 +16,6 @@ import static com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 public class RedisConfig {
 
     @Bean
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public RedisTemplate<String, Object> redisTemplate(
         RedisConnectionFactory connectionFactory,
         ObjectMapper objectMapper
