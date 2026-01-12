@@ -29,6 +29,11 @@ public class ConversationController {
     private final ConversationFacade conversationFacade;
     private final ConversationResponseMapper conversationResponseMapper;
 
+
+    @GetMapping
+    public
+
+
     @GetMapping("/with")
     public ConversationResponse findByWith(
         @AuthenticationPrincipal MoplUserDetails userDetails, //userId, role이 들어있음.

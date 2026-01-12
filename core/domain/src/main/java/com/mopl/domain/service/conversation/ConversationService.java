@@ -81,6 +81,7 @@ public class ConversationService {
             .orElseThrow(() -> UserNotFoundException.withId(withId));
         UUID conversationId = null;
 
+        // QueryDSl로 조회하는 쿼리 작성 고려하기
         for (ReadStatusModel userRead : userReadStatus) {
             for (ReadStatusModel withRead : withReadStatus) {
                 if (userRead.getConversation().getId().equals(withRead.getConversation().getId())) {
