@@ -4,12 +4,13 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.mopl.cache.config.CacheProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.support.AbstractValueAdaptingCache;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.time.Duration;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 @Slf4j
@@ -173,9 +174,15 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
             return;
         }
         try {
-            Set<String> keys = redisTemplate.keys(prefix + "*");
-            if (!keys.isEmpty()) {
-                redisTemplate.delete(keys);
+            ScanOptions scanOptions = ScanOptions.scanOptions()
+                .match(prefix + "*")
+                .count(100)
+                .build();
+
+            try (Cursor<String> cursor = redisTemplate.scan(scanOptions)) {
+                while (cursor.hasNext()) {
+                    redisTemplate.delete(cursor.next());
+                }
             }
         } catch (Exception e) {
             log.warn("Redis clear failed: [prefix={}] {}", prefix, e.getMessage());

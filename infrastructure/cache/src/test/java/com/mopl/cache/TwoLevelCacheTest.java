@@ -11,11 +11,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.ValueOperations;
 
 import java.time.Duration;
-import java.util.Set;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -292,22 +294,27 @@ class TwoLevelCacheTest {
     @DisplayName("clear()")
     class ClearTest {
 
+        @Mock
+        private Cursor<String> cursor;
+
         @Test
         @DisplayName("L1과 L2를 모두 클리어")
         void withClear_clearsBothL1AndL2() {
             // given
             String prefix = KEY_PREFIX + CACHE_NAME + "::";
-            Set<String> keys = Set.of(prefix + "1", prefix + "2");
+            List<String> keys = List.of(prefix + "1", prefix + "2");
             given(l1Cache.asMap()).willReturn(new java.util.concurrent.ConcurrentHashMap<>());
-            given(redisTemplate.keys(prefix + "*")).willReturn(keys);
-            given(redisTemplate.delete(keys)).willReturn(2L);
+            given(redisTemplate.scan(any(ScanOptions.class))).willReturn(cursor);
+            given(cursor.hasNext()).willReturn(true, true, false);
+            given(cursor.next()).willReturn(keys.get(0), keys.get(1));
 
             // when
             cache.clear();
 
             // then
-            then(redisTemplate).should().keys(prefix + "*");
-            then(redisTemplate).should().delete(keys);
+            then(redisTemplate).should().scan(any(ScanOptions.class));
+            then(redisTemplate).should().delete(keys.get(0));
+            then(redisTemplate).should().delete(keys.get(1));
         }
     }
 }
