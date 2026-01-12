@@ -98,10 +98,10 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
         }
 
         String fullKey = generateKey(key);
-        putToRedis(fullKey, value);
+        boolean redisSuccess = putToRedis(fullKey, value);
         l1Cache.put(fullKey, value);
 
-        log.debug("Cache put: [cache={}, key={}, ttl={}]", name, key, ttl);
+        log.debug("Cache put: [cache={}, key={}, ttl={}, redis={}]", name, key, ttl, redisSuccess);
     }
 
     @Override
@@ -143,14 +143,17 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
         }
     }
 
-    private void putToRedis(String key, Object value) {
+    private boolean putToRedis(String key, Object value) {
         if (redisTemplate == null) {
-            return;
+            return false;
         }
         try {
             redisTemplate.opsForValue().set(key, value, ttl);
+            log.debug("Redis put success: [key={}]", key);
+            return true;
         } catch (Exception e) {
-            log.warn("Redis put failed: [key={}] {}", key, e.getMessage());
+            log.error("Redis put failed: [key={}]", key, e);
+            return false;
         }
     }
 
