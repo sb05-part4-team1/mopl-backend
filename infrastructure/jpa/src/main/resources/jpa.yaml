@@ -7,6 +7,10 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password:
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data.sql
   h2:
     console:
       enabled: true
@@ -14,6 +18,7 @@ spring:
   jpa:
     open-in-view: false
     generate-ddl: false
+    defer-datasource-initialization: true
     hibernate:
       ddl-auto: create
     show-sql: true

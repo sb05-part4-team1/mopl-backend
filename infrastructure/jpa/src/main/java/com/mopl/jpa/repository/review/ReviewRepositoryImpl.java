@@ -26,7 +26,7 @@ public class ReviewRepositoryImpl implements ReviewRepository {
 
     @Override
     public Optional<ReviewModel> findById(UUID reviewId) {
-        return jpaReviewRepository.findById(reviewId)
+        return jpaReviewRepository.findByIdWithContentAndAuthor(reviewId)
             .map(reviewEntityMapper::toModel);
     }
 }
