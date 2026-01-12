@@ -75,10 +75,8 @@ public class ContentService {
 
     public void delete(UUID contentId) {
         ContentModel content = getById(contentId);
-
-        contentRepository.save(
-            content.deleteContent()
-        );
+        content.delete();
+        contentRepository.save(content);
     }
 
     private ContentModel applyTags(ContentModel content, List<String> tagNames) {

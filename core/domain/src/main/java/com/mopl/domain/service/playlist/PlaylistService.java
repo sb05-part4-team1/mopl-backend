@@ -66,7 +66,7 @@ public class PlaylistService {
             throw new PlaylistForbiddenException(playlistid, requesterid, ownerId);
         }
 
-        playlistModel.deletePlaylist();
+        playlistModel.delete();
 
         playlistRepository.save(playlistModel);
     }

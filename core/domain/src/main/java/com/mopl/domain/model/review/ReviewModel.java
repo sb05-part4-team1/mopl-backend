@@ -65,18 +65,6 @@ public class ReviewModel extends BaseUpdatableModel {
         return this;
     }
 
-    // delete로 할려고 했으나 BaseModel과 겹쳐서 이름을 바꿈
-    public ReviewModel deleteReview() {
-        if (this.getDeletedAt() != null) {
-            // 멱등성 설정으로 삭제된 상태라면 예외처리안함
-            return this;
-        }
-
-        super.delete();
-
-        return this;
-    }
-
     // 리뷰 내용 검증 로직 구현
     private static void validateText(String text) {
         if (text == null) {
