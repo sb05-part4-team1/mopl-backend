@@ -15,17 +15,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NotificationFacade {
 
-	private final NotificationService notificationService;
+    private final NotificationService notificationService;
 
-	@Transactional
-	public void readNotification(UUID userId, UUID notificationId) {
-		NotificationModel notification = notificationService.getById(notificationId);
+    @Transactional
+    public void readNotification(UUID userId, UUID notificationId) {
+        NotificationModel notification = notificationService.getById(notificationId);
 
-		if (!notification.getReceiverId().equals(userId)) {
-			throw new NotificationOwnershipException(notificationId, userId);
-		}
+        if (!notification.getReceiverId().equals(userId)) {
+            throw new NotificationOwnershipException(notificationId, userId);
+        }
 
-		// 논리 삭제(soft delete)
-		notificationService.delete(notificationId);
-	}
+        // 논리 삭제(soft delete)
+        notificationService.delete(notificationId);
+    }
 }
