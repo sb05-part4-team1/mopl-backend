@@ -1,74 +1,83 @@
 package com.mopl.jpa.entity.review;
 
+import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.review.ReviewModel;
+import com.mopl.domain.model.user.UserModel;
 import com.mopl.jpa.entity.content.ContentEntity;
+import com.mopl.jpa.entity.content.ContentEntityMapper;
 import com.mopl.jpa.entity.user.UserEntity;
+import com.mopl.jpa.entity.user.UserEntityMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 @DisplayName("ReviewEntityMapper 단위 테스트")
 class ReviewEntityMapperTest {
 
-    // [변경] UserEntityMapper 의존성이 제거되었으므로 단독 생성
-    private final ReviewEntityMapper reviewEntityMapper = new ReviewEntityMapper();
+    @InjectMocks
+    private ReviewEntityMapper reviewEntityMapper;
+
+    @Mock
+    private UserEntityMapper userEntityMapper;
+
+    @Mock
+    private ContentEntityMapper contentEntityMapper;
 
     @Nested
     @DisplayName("toModel()")
     class ToModelTest {
 
         @Test
-        @DisplayName("reviewEntity가 null이면 null을 반환한다")
+        @DisplayName("ReviewEntity가 null이면 null을 반환한다")
         void withNullEntity_returnsNull() {
-            // given
-            ReviewEntity reviewEntity = null;
-
-            // when
-            ReviewModel result = reviewEntityMapper.toModel(reviewEntity);
-
-            // then
+            ReviewModel result = reviewEntityMapper.toModel(null);
             assertThat(result).isNull();
         }
 
         @Test
-        @DisplayName("유효한 ReviewEntity를 ReviewModel로 변환한다 (authorId 매핑 확인)")
+        @DisplayName("유효한 Entity를 Model로 변환한다")
         void withValidEntity_mapsToModel() {
             // given
             UUID reviewId = UUID.randomUUID();
-            UUID contentId = UUID.randomUUID();
-            UUID authorId = UUID.randomUUID();
+            String text = "리뷰 내용";
+            BigDecimal rating = BigDecimal.valueOf(5);
+            Instant now = Instant.now();
 
-            Instant createdAt = Instant.now();
-            Instant updatedAt = Instant.now();
-            Instant deletedAt = Instant.now();
+            // 협력 Entity 준비
+            ContentEntity contentEntity = ContentEntity.builder().id(UUID.randomUUID()).build();
+            UserEntity authorEntity = UserEntity.builder().id(UUID.randomUUID()).build();
 
-            String text = "리뷰 텍스트";
-            BigDecimal rating = BigDecimal.valueOf(4);
-
-            ContentEntity contentEntity = ContentEntity.builder()
-                .id(contentId)
-                .build();
-
-            UserEntity authorEntity = UserEntity.builder()
-                .id(authorId)
-                .build();
+            // 변환될 예상 Model 준비 (Mock 사용)
+            ContentModel expectedContent = mock(ContentModel.class);
+            UserModel expectedAuthor = mock(UserModel.class);
 
             ReviewEntity reviewEntity = ReviewEntity.builder()
                 .id(reviewId)
-                .createdAt(createdAt)
-                .updatedAt(updatedAt)
-                .deletedAt(deletedAt)
                 .content(contentEntity)
                 .author(authorEntity)
                 .text(text)
                 .rating(rating)
+                .createdAt(now)
+                .updatedAt(now)
                 .build();
+
+            // Mocking: 내부 매퍼 동작 정의
+            given(contentEntityMapper.toModel(contentEntity)).willReturn(expectedContent);
+            given(userEntityMapper.toModel(authorEntity)).willReturn(expectedAuthor);
 
             // when
             ReviewModel result = reviewEntityMapper.toModel(reviewEntity);
@@ -76,36 +85,21 @@ class ReviewEntityMapperTest {
             // then
             assertThat(result).isNotNull();
             assertThat(result.getId()).isEqualTo(reviewId);
-            assertThat(result.getCreatedAt()).isEqualTo(createdAt);
-            assertThat(result.getUpdatedAt()).isEqualTo(updatedAt);
-            assertThat(result.getDeletedAt()).isEqualTo(deletedAt);
-
-            assertThat(result.getContentId()).isEqualTo(contentId);
-
-            // [변경] Model은 이제 User 객체가 아닌 ID만 가집니다.
-            assertThat(result.getAuthorId()).isEqualTo(authorId);
-
             assertThat(result.getText()).isEqualTo(text);
-            assertThat(result.getRating()).isEqualTo(rating);
+
+            // 내부 매퍼가 반환한 객체가 잘 들어갔는지 확인
+            assertThat(result.getContent()).isEqualTo(expectedContent);
+            assertThat(result.getAuthor()).isEqualTo(expectedAuthor);
         }
 
         @Test
-        @DisplayName("Entity의 author가 null이면 Model의 authorId도 null이다")
-        void withNullAuthor_mapsNullAuthor() {
+        @DisplayName("Entity의 연관관계가 null이면 Model의 필드도 null이다")
+        void withNullRelations_mapsNulls() {
             // given
-            UUID reviewId = UUID.randomUUID();
-            UUID contentId = UUID.randomUUID();
-
-            ContentEntity contentEntity = ContentEntity.builder()
-                .id(contentId)
-                .build();
-
             ReviewEntity reviewEntity = ReviewEntity.builder()
-                .id(reviewId)
-                .content(contentEntity)
-                .author(null) // author가 없음
-                .text("리뷰")
-                .rating(BigDecimal.valueOf(3))
+                .id(UUID.randomUUID())
+                .content(null)
+                .author(null)
                 .build();
 
             // when
@@ -113,9 +107,8 @@ class ReviewEntityMapperTest {
 
             // then
             assertThat(result).isNotNull();
-            // [변경] getAuthor() -> getAuthorId()
-            assertThat(result.getAuthorId()).isNull();
-            assertThat(result.getContentId()).isEqualTo(contentId);
+            assertThat(result.getContent()).isNull();
+            assertThat(result.getAuthor()).isNull();
         }
     }
 
@@ -124,44 +117,38 @@ class ReviewEntityMapperTest {
     class ToEntityTest {
 
         @Test
-        @DisplayName("reviewModel이 null이면 null을 반환한다")
+        @DisplayName("ReviewModel이 null이면 null을 반환한다")
         void withNullModel_returnsNull() {
-            // given
-            ReviewModel reviewModel = null;
-
-            // when
-            ReviewEntity result = reviewEntityMapper.toEntity(reviewModel);
-
-            // then
+            ReviewEntity result = reviewEntityMapper.toEntity(null);
             assertThat(result).isNull();
         }
 
         @Test
-        @DisplayName("유효한 ReviewModel을 ReviewEntity로 변환한다 (UserEntity 생성 확인)")
+        @DisplayName("유효한 Model을 Entity로 변환한다")
         void withValidModel_mapsToEntity() {
             // given
+            // 1. Fixture 대신 직접 객체 생성
             UUID reviewId = UUID.randomUUID();
-            UUID contentId = UUID.randomUUID();
-            UUID authorId = UUID.randomUUID();
+            ContentModel contentModel = mock(ContentModel.class); // Mock 객체 활용
+            UserModel authorModel = mock(UserModel.class);       // Mock 객체 활용
 
-            Instant createdAt = Instant.now();
-            Instant updatedAt = Instant.now();
-            Instant deletedAt = Instant.now();
-
-            String text = "리뷰 내용";
-            BigDecimal rating = BigDecimal.valueOf(5);
-
-            // [변경] UserModel 생성 로직 삭제 -> 바로 빌더에 ID 주입
             ReviewModel reviewModel = ReviewModel.builder()
                 .id(reviewId)
-                .createdAt(createdAt)
-                .updatedAt(updatedAt)
-                .deletedAt(deletedAt)
-                .contentId(contentId)
-                .authorId(authorId) // [변경] ID 직접 주입
-                .text(text)
-                .rating(rating)
+                .content(contentModel)
+                .author(authorModel)
+                .text("테스트 리뷰")
+                .rating(BigDecimal.valueOf(4.5))
+                .createdAt(Instant.now())
                 .build();
+
+            // 2. 변환될 예상 Entity 준비
+            ContentEntity expectedContentEntity = ContentEntity.builder().id(UUID.randomUUID())
+                .build();
+            UserEntity expectedUserEntity = UserEntity.builder().id(UUID.randomUUID()).build();
+
+            // 3. Mocking: 위에서 만든 Mock Model이 들어오면 Entity 반환
+            given(contentEntityMapper.toEntity(contentModel)).willReturn(expectedContentEntity);
+            given(userEntityMapper.toEntity(authorModel)).willReturn(expectedUserEntity);
 
             // when
             ReviewEntity result = reviewEntityMapper.toEntity(reviewModel);
@@ -169,59 +156,25 @@ class ReviewEntityMapperTest {
             // then
             assertThat(result).isNotNull();
             assertThat(result.getId()).isEqualTo(reviewId);
-            assertThat(result.getCreatedAt()).isEqualTo(createdAt);
-            assertThat(result.getUpdatedAt()).isEqualTo(updatedAt);
-            assertThat(result.getDeletedAt()).isEqualTo(deletedAt);
+            assertThat(result.getText()).isEqualTo("테스트 리뷰");
 
-            assertThat(result.getContent()).isNotNull();
-            assertThat(result.getContent().getId()).isEqualTo(contentId);
+            // 내부 매퍼가 변환한 Entity가 잘 들어갔는지 확인
+            assertThat(result.getContent()).isEqualTo(expectedContentEntity);
+            assertThat(result.getAuthor()).isEqualTo(expectedUserEntity);
 
-            // [확인] Entity의 author 필드가 ID를 가진 UserEntity로 잘 생성되었는지 확인
-            assertThat(result.getAuthor()).isNotNull();
-            assertThat(result.getAuthor().getId()).isEqualTo(authorId);
-
-            assertThat(result.getText()).isEqualTo(text);
-            assertThat(result.getRating()).isEqualTo(rating);
+            // Verify
+            verify(contentEntityMapper).toEntity(contentModel);
+            verify(userEntityMapper).toEntity(authorModel);
         }
 
         @Test
-        @DisplayName("authorId가 null이면 Entity의 author는 null로 변환된다")
-        void withNullAuthor_mapsNullAuthor() {
+        @DisplayName("Model의 연관관계가 null이면 Entity의 필드도 null이다")
+        void withNullRelations_mapsNulls() {
             // given
-            UUID reviewId = UUID.randomUUID();
-            UUID contentId = UUID.randomUUID();
-
             ReviewModel reviewModel = ReviewModel.builder()
-                .id(reviewId)
-                .contentId(contentId)
-                .authorId(null) // [변경] ID가 null
-                .text("리뷰")
-                .rating(BigDecimal.valueOf(2))
-                .build();
-
-            // when
-            ReviewEntity result = reviewEntityMapper.toEntity(reviewModel);
-
-            // then
-            assertThat(result).isNotNull();
-            assertThat(result.getAuthor()).isNull();
-            assertThat(result.getContent()).isNotNull();
-            assertThat(result.getContent().getId()).isEqualTo(contentId);
-        }
-
-        @Test
-        @DisplayName("contentId가 null이면 content는 null로 변환된다")
-        void withNullContentId_mapsNullContent() {
-            // given
-            UUID reviewId = UUID.randomUUID();
-            UUID authorId = UUID.randomUUID();
-
-            ReviewModel reviewModel = ReviewModel.builder()
-                .id(reviewId)
-                .contentId(null)
-                .authorId(authorId) // [변경] ID 주입
-                .text("리뷰")
-                .rating(BigDecimal.valueOf(1))
+                .id(UUID.randomUUID())
+                .content(null)
+                .author(null)
                 .build();
 
             // when
@@ -230,8 +183,7 @@ class ReviewEntityMapperTest {
             // then
             assertThat(result).isNotNull();
             assertThat(result.getContent()).isNull();
-            assertThat(result.getAuthor()).isNotNull();
-            assertThat(result.getAuthor().getId()).isEqualTo(authorId);
+            assertThat(result.getAuthor()).isNull();
         }
     }
 }

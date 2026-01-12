@@ -3,8 +3,8 @@ package com.mopl.api.interfaces.api.playlist;
 import com.mopl.api.interfaces.api.content.ContentSummary;
 import com.mopl.api.interfaces.api.content.ContentSummaryMapper;
 import com.mopl.api.interfaces.api.user.UserSummaryMapper;
+import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.playlist.PlaylistModel;
-import com.mopl.domain.model.user.UserModel;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -24,13 +24,9 @@ public class PlaylistResponseMapper {
         this.contentSummaryMapper = contentSummaryMapper;
     }
 
-    public PlaylistResponse toResponse(
-        PlaylistModel model,
-        UserModel owner
-    ) {
+    public PlaylistResponse toResponse(PlaylistModel model) {
         return toResponse(
             model,
-            owner,
             0L,
             false,
             Collections.emptyList()
@@ -39,7 +35,6 @@ public class PlaylistResponseMapper {
 
     public PlaylistResponse toResponse(
         PlaylistModel model,
-        UserModel owner,
         long subscriberCount,
         boolean subscribedByMe,
         List<ContentSummary> contents
@@ -48,19 +43,20 @@ public class PlaylistResponseMapper {
 
         return new PlaylistResponse(
             model.getId(),
-            userSummaryMapper.toSummary(owner),
+            userSummaryMapper.toSummary(model.getOwner()),
             model.getTitle(),
             model.getDescription(),
             model.getUpdatedAt(),
-            // TODO: 아래 수치/상태 데이터들은 추후 도메인 로직 구현 시 실제 값으로 대체 필요
             subscriberCount,
             subscribedByMe,
             safeContents
         );
     }
 
+    // 솔직히 지금 이건 필요없지 않나
     public List<ContentSummary> toContentSummaries(
-        List<com.mopl.domain.model.content.ContentModel> contentModels) {
+        List<ContentModel> contentModels
+    ) {
         return contentSummaryMapper.toSummaries(contentModels);
     }
 }

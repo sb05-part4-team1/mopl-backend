@@ -5,6 +5,8 @@ import com.mopl.api.interfaces.api.review.ReviewResponse;
 import com.mopl.api.interfaces.api.review.ReviewResponseMapper;
 import com.mopl.api.interfaces.api.review.ReviewUpdateRequest;
 import com.mopl.domain.exception.review.InvalidReviewDataException;
+import com.mopl.domain.fixture.ReviewModelFixture;
+import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.review.ReviewModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.content.ContentService;
@@ -24,9 +26,9 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
@@ -58,22 +60,26 @@ class ReviewFacadeTest {
             // given
             UUID requesterId = UUID.randomUUID();
             UUID contentId = UUID.randomUUID();
-            String text = "좋아요";
-            BigDecimal rating = new BigDecimal("5.0");
-            ReviewCreateRequest request = new ReviewCreateRequest(contentId, text, rating);
+            ReviewCreateRequest request = new ReviewCreateRequest(contentId, "좋아요", BigDecimal
+                .valueOf(5));
 
-            UserModel author = UserModel.builder().id(requesterId).name("테스터").build();
-            ReviewModel savedReview = ReviewModel.builder().id(UUID.randomUUID()).build();
-            ReviewResponse expectedResponse = new ReviewResponse(
-                savedReview.getId(), contentId, null, text, rating
-            );
+            UserModel author = mock(UserModel.class);
+            ContentModel content = mock(ContentModel.class);
 
-            // Mocking
+            // Fixture 활용: 복잡한 빌더 없이 랜덤하고 유효한 객체 생성
+            ReviewModel savedReview = ReviewModelFixture.create();
+            ReviewResponse expectedResponse = mock(ReviewResponse.class);
+
             given(userService.getById(requesterId)).willReturn(author);
+            given(contentService.getById(contentId)).willReturn(content);
             given(contentService.exists(contentId)).willReturn(true);
-            given(reviewService.create(eq(contentId), eq(author), eq(text), eq(rating)))
+
+            // Service 호출 시 구체적인 값 매칭보다는 흐름 확인에 집중 (필요시 ArgumentCaptor 사용)
+            given(reviewService.create(content, author, request.text(), request.rating()))
                 .willReturn(savedReview);
-            given(reviewResponseMapper.toResponse(savedReview, author))
+
+            // Facade 소스 코드 기준 Mapper는 1개의 인자만 받음
+            given(reviewResponseMapper.toResponse(savedReview))
                 .willReturn(expectedResponse);
 
             // when
@@ -82,9 +88,7 @@ class ReviewFacadeTest {
             // then
             assertThat(result).isEqualTo(expectedResponse);
 
-            // Verify
-            then(contentService).should().exists(contentId);
-            then(reviewService).should().create(any(), any(), any(), any());
+            then(reviewService).should().create(content, author, request.text(), request.rating());
         }
 
         @Test
@@ -95,17 +99,14 @@ class ReviewFacadeTest {
             UUID contentId = UUID.randomUUID();
             ReviewCreateRequest request = new ReviewCreateRequest(contentId, "내용", BigDecimal.ONE);
 
-            UserModel author = UserModel.builder().id(requesterId).build();
-
-            // Mocking
-            given(userService.getById(requesterId)).willReturn(author);
-            given(contentService.exists(contentId)).willReturn(false); // 존재하지 않음 설정
+            given(userService.getById(requesterId)).willReturn(mock(UserModel.class));
+            given(contentService.getById(contentId)).willReturn(mock(ContentModel.class));
+            given(contentService.exists(contentId)).willReturn(false); // 존재하지 않음
 
             // when & then
             assertThatThrownBy(() -> reviewFacade.createReview(requesterId, request))
                 .isInstanceOf(InvalidReviewDataException.class);
 
-            // Verify: 리뷰 생성 로직은 절대 실행되면 안 됨
             then(reviewService).should(never()).create(any(), any(), any(), any());
         }
     }
@@ -120,21 +121,19 @@ class ReviewFacadeTest {
             // given
             UUID requesterId = UUID.randomUUID();
             UUID reviewId = UUID.randomUUID();
-            String newText = "수정된 내용";
-            BigDecimal newRating = new BigDecimal("4.0");
-            ReviewUpdateRequest request = new ReviewUpdateRequest(newText, newRating);
+            ReviewUpdateRequest request = new ReviewUpdateRequest("수정된 내용", BigDecimal.valueOf(
+                4.5));
 
-            UserModel requester = UserModel.builder().id(requesterId).name("작성자").build();
-            ReviewModel updatedReview = ReviewModel.builder().id(reviewId).text(newText).build();
-            ReviewResponse expectedResponse = new ReviewResponse(
-                reviewId, UUID.randomUUID(), null, newText, newRating
-            );
+            // Fixture 활용: 업데이트된 결과 모델 생성
+            ReviewModel updatedReview = ReviewModelFixture.create();
+            ReviewResponse expectedResponse = mock(ReviewResponse.class);
 
-            // Mocking
-            given(userService.getById(requesterId)).willReturn(requester);
-            given(reviewService.update(eq(reviewId), eq(requesterId), eq(newText), eq(newRating)))
+            given(userService.getById(requesterId)).willReturn(mock(UserModel.class));
+
+            given(reviewService.update(reviewId, requesterId, request.text(), request.rating()))
                 .willReturn(updatedReview);
-            given(reviewResponseMapper.toResponse(updatedReview, requester))
+
+            given(reviewResponseMapper.toResponse(updatedReview))
                 .willReturn(expectedResponse);
 
             // when
@@ -143,8 +142,8 @@ class ReviewFacadeTest {
             // then
             assertThat(result).isEqualTo(expectedResponse);
 
-            // Verify
-            then(reviewService).should().update(any(), any(), any(), any());
+            then(reviewService).should().update(reviewId, requesterId, request.text(), request
+                .rating());
         }
     }
 
@@ -158,9 +157,8 @@ class ReviewFacadeTest {
             // given
             UUID requesterId = UUID.randomUUID();
             UUID reviewId = UUID.randomUUID();
-            UserModel requester = UserModel.builder().id(requesterId).build();
 
-            given(userService.getById(requesterId)).willReturn(requester);
+            given(userService.getById(requesterId)).willReturn(mock(UserModel.class));
 
             // when
             reviewFacade.deleteReview(requesterId, reviewId);
