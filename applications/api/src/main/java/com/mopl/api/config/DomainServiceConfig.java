@@ -1,5 +1,6 @@
 package com.mopl.api.config;
 
+import com.mopl.domain.repository.content.ContentQueryRepository;
 import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
 import com.mopl.domain.repository.follow.FollowRepository;
@@ -40,9 +41,15 @@ public class DomainServiceConfig {
     public ContentService contentService(
         TagService tagService,
         ContentRepository contentRepository,
+        ContentQueryRepository contentQueryRepository,
         ContentTagRepository contentTagRepository
     ) {
-        return new ContentService(tagService, contentRepository, contentTagRepository);
+        return new ContentService(
+            tagService,
+            contentRepository,
+            contentQueryRepository,
+            contentTagRepository
+        );
     }
 
     @Bean
@@ -52,11 +59,13 @@ public class DomainServiceConfig {
 
     @Bean
     public ReviewService reviewService(
-        ReviewRepository reviewRepository
+        ReviewRepository reviewRepository,
+        ContentRepository contentRepository
 
     ) {
         return new ReviewService(
-            reviewRepository
+            reviewRepository,
+            contentRepository
         );
     }
 
