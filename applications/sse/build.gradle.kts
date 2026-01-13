@@ -1,6 +1,5 @@
 dependencies {
     implementation(project(":core:domain"))
-    implementation(project(":infrastructure:jpa"))
     implementation(project(":infrastructure:security"))
 
     // web
