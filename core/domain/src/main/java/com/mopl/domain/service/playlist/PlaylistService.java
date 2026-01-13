@@ -1,6 +1,7 @@
 package com.mopl.domain.service.playlist;
 
 import com.mopl.domain.exception.playlist.PlaylistContentAlreadyExistsException;
+import com.mopl.domain.exception.playlist.PlaylistContentNotFoundException;
 import com.mopl.domain.exception.playlist.PlaylistForbiddenException;
 import com.mopl.domain.exception.playlist.PlaylistNotFoundException;
 import com.mopl.domain.model.playlist.PlaylistModel;
@@ -101,4 +102,26 @@ public class PlaylistService {
 
         playlistContentRepository.save(playlistId, contentId);
     }
+
+    public void removeContent(
+        UUID playlistId,
+        UUID requesterId,
+        UUID contentId
+    ) {
+        PlaylistModel playlistModel = playlistRepository.findById(playlistId)
+            .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
+
+        UUID ownerId = (playlistModel.getOwner() != null) ? playlistModel.getOwner().getId() : null;
+
+        if (ownerId == null || !ownerId.equals(requesterId)) {
+            throw new PlaylistForbiddenException(playlistId, requesterId, ownerId);
+        }
+
+        if (!playlistContentRepository.exists(playlistId, contentId)) {
+            throw new PlaylistContentNotFoundException(playlistId, contentId);
+        }
+
+        playlistContentRepository.delete(playlistId, contentId);
+    }
+
 }
