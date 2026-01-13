@@ -6,6 +6,8 @@ dependencies {
     implementation(project(":infrastructure:storage"))
     implementation(project(":shared:jackson"))
 
+    implementation(project(":applications:sse"))
+
     // web
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
