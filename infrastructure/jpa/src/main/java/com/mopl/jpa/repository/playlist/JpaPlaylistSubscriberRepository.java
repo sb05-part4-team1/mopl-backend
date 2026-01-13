@@ -9,4 +9,7 @@ public interface JpaPlaylistSubscriberRepository extends
     JpaRepository<PlaylistSubscriberEntity, UUID> {
 
     boolean existsByPlaylist_IdAndSubscriber_Id(UUID playlistId, UUID subscriberId);
+
+    void deleteByPlaylist_IdAndSubscriber_Id(UUID playlistId, UUID subscriberId);
+
 }
