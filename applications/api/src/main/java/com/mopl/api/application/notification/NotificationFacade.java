@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mopl.domain.exception.notification.NotificationOwnershipException;
 import com.mopl.domain.model.notification.NotificationModel;
 import com.mopl.domain.service.notification.NotificationService;
+import com.mopl.domain.service.user.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,9 +17,11 @@ import lombok.RequiredArgsConstructor;
 public class NotificationFacade {
 
     private final NotificationService notificationService;
+	private final UserService userService;
 
     @Transactional
     public void readNotification(UUID userId, UUID notificationId) {
+		userService.getById(userId);
         NotificationModel notification = notificationService.getById(notificationId);
 
         if (!notification.getReceiverId().equals(userId)) {
