@@ -86,7 +86,7 @@ public class ContentModel extends BaseUpdatableModel {
 
         return this.toBuilder()
             .reviewCount(newCount)
-            .averageRating(round(newAverage))
+            .averageRating(newAverage)
             .build();
     }
 
@@ -99,7 +99,7 @@ public class ContentModel extends BaseUpdatableModel {
         double newAverage = (total - oldRating + newRating) / this.reviewCount;
 
         return this.toBuilder()
-            .averageRating(round(newAverage))
+            .averageRating(newAverage)
             .build();
     }
 
@@ -118,7 +118,7 @@ public class ContentModel extends BaseUpdatableModel {
 
         return this.toBuilder()
             .reviewCount(newCount)
-            .averageRating(round(newAverage))
+            .averageRating(newAverage)
             .build();
     }
 
