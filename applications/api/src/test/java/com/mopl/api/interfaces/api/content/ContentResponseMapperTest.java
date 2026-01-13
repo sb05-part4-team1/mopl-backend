@@ -26,31 +26,27 @@ class ContentResponseMapperTest {
             UUID id = UUID.randomUUID();
             ContentModel model = ContentModel.builder()
                 .id(id)
-                .type("영화")
+                .type(ContentModel.ContentType.movie)
                 .title("인셉션")
                 .description("꿈속의 꿈")
                 .thumbnailUrl("https://mopl.com/inception.png")
                 .tags(List.of("SF", "액션"))
+                .averageRating(4.5)
+                .reviewCount(100)
                 .build();
 
-            Double averageRating = 4.5;
-            Integer reviewCount = 100;
-            Long watcherCount = 1500L;
-
             // when
-            ContentResponse result = mapper.toResponse(model, averageRating, reviewCount,
-                watcherCount);
+            ContentResponse result = mapper.toResponse(model);
 
             // then
             assertThat(result.id()).isEqualTo(id);
-            assertThat(result.type()).isEqualTo("영화");
+            assertThat(result.type()).isEqualTo(ContentModel.ContentType.movie);
             assertThat(result.title()).isEqualTo("인셉션");
             assertThat(result.description()).isEqualTo("꿈속의 꿈");
             assertThat(result.thumbnailUrl()).isEqualTo("https://mopl.com/inception.png");
             assertThat(result.tags()).containsExactly("SF", "액션");
             assertThat(result.averageRating()).isEqualTo(4.5);
             assertThat(result.reviewCount()).isEqualTo(100);
-            assertThat(result.watcherCount()).isEqualTo(1500L);
         }
 
         @Test

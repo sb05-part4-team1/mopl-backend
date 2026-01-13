@@ -58,7 +58,7 @@ class ContentControllerTest {
             UUID contentId = UUID.randomUUID();
 
             ContentCreateRequest request = new ContentCreateRequest(
-                "영화", "인셉션", "꿈속의 꿈", List.of("SF", "액션")
+                ContentModel.ContentType.movie, "인셉션", "꿈속의 꿈", List.of("SF", "액션")
             );
 
             MockMultipartFile requestPart = new MockMultipartFile(
@@ -80,9 +80,9 @@ class ContentControllerTest {
                 .build();
 
             ContentResponse response = new ContentResponse(
-                contentId, "영화", "인셉션", "꿈속의 꿈",
+                contentId, ContentModel.ContentType.movie, "인셉션", "꿈속의 꿈",
                 "https://mopl.com/inception.png",
-                List.of("SF", "액션"), 0.0, 0, 0L
+                List.of("SF", "액션"), 0.0, 0, 0
             );
 
             given(contentFacade.upload(any(), any())).willReturn(contentModel);
@@ -117,9 +117,9 @@ class ContentControllerTest {
                 .build();
 
             ContentResponse response = new ContentResponse(
-                contentId, "영화", "인셉션", "꿈속의 꿈",
+                contentId, ContentModel.ContentType.movie, "인셉션", "꿈속의 꿈",
                 "https://mopl.com/inception.png",
-                List.of("SF"), 0.0, 0, 0L
+                List.of("SF"), 0.0, 0, 0
             );
 
             given(contentFacade.getDetail(contentId)).willReturn(model);
@@ -158,9 +158,9 @@ class ContentControllerTest {
                 .build();
 
             ContentResponse response = new ContentResponse(
-                contentId, "영화", "수정된 제목", "수정된 설명",
+                contentId, ContentModel.ContentType.movie, "수정된 제목", "수정된 설명",
                 "https://mopl.com/inception.png",
-                List.of("SF2"), 0.0, 0, 0L
+                List.of("SF2"), 0.0, 0, 0
             );
 
             given(contentFacade.update(eq(contentId), any(), eq(null)))
@@ -213,9 +213,9 @@ class ContentControllerTest {
                 .build();
 
             ContentResponse response = new ContentResponse(
-                contentId, "영화", "수정된 제목", "수정된 설명",
+                contentId, ContentModel.ContentType.movie, "수정된 제목", "수정된 설명",
                 "https://mopl.com/new.png",
-                List.of("SF2"), 0.0, 0, 0L
+                List.of("SF2"), 0.0, 0, 0
             );
 
             given(contentFacade.update(eq(contentId), any(), any()))

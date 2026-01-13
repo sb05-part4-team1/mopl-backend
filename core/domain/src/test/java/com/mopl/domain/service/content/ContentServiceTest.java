@@ -142,7 +142,7 @@ class ContentServiceTest {
             UUID contentId = UUID.randomUUID();
             ContentModel original = ContentModel.builder()
                 .id(contentId)
-                .type("영화")
+                .type(ContentModel.ContentType.movie)
                 .title("기존 제목")
                 .description("설명")
                 .thumbnailUrl("old.png")
@@ -175,7 +175,7 @@ class ContentServiceTest {
             UUID contentId = UUID.randomUUID();
             ContentModel original = ContentModel.builder()
                 .id(contentId)
-                .type("영화")
+                .type(ContentModel.ContentType.movie)
                 .title("기존 제목")
                 .description("설명")
                 .thumbnailUrl("old.png")

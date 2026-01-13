@@ -57,7 +57,7 @@ public class PlaylistController {
     }
 
     @DeleteMapping("/{playlistId}")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePlaylist(
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable UUID playlistId
@@ -79,6 +79,50 @@ public class PlaylistController {
             requesterId,
             playlistId
         );
+    }
+
+    // ============= 여기서 부터는 순수 플레이리스트 CRUD가 아님===================
+
+    @PostMapping("/{playlistId}/contents/{contentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void addContentToPlaylist(
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @PathVariable UUID playlistId,
+        @PathVariable UUID contentId
+    ) {
+        UUID requesterId = userDetails.userId();
+        playlistFacade.addContentToPlaylist(requesterId, playlistId, contentId);
+    }
+
+    @DeleteMapping("/{playlistId}/contents/{contentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteContentFromPlaylist(
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @PathVariable UUID playlistId,
+        @PathVariable UUID contentId
+    ) {
+        UUID requesterId = userDetails.userId();
+        playlistFacade.deleteContentFromPlaylist(requesterId, playlistId, contentId);
+    }
+
+    @PostMapping("/{playlistId}/subscription")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void subscribePlaylist(
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @PathVariable UUID playlistId
+    ) {
+        UUID requesterId = userDetails.userId();
+        playlistFacade.subscribePlaylist(requesterId, playlistId);
+    }
+
+    @DeleteMapping("/{playlistId}/subscription")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void unsubscribePlaylist(
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @PathVariable UUID playlistId
+    ) {
+        UUID requesterId = userDetails.userId();
+        playlistFacade.unsubscribePlaylist(requesterId, playlistId);
     }
 
 }
