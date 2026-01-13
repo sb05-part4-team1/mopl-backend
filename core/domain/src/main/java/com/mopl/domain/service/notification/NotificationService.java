@@ -13,7 +13,7 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
 
-    public void delete(UUID notificationId) {
+    public void deleteById(UUID notificationId) {
         NotificationModel notification = getById(notificationId);
         notification.delete();
         notificationRepository.save(notification);

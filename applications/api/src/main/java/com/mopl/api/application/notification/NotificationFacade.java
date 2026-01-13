@@ -26,6 +26,6 @@ public class NotificationFacade {
         }
 
         // 논리 삭제(soft delete)
-        notificationService.delete(notificationId);
+        notificationService.deleteById(notificationId);
     }
 }
