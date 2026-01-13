@@ -104,5 +104,4 @@ public class PlaylistController {
         UUID requesterId = userDetails.userId();
         playlistFacade.deleteContentFromPlaylist(requesterId, playlistId, contentId);
     }
-
 }
