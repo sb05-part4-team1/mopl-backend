@@ -30,7 +30,7 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     }
 
     @Override
-    public Optional<ConversationModel> get(UUID conversationId) {
+    public Optional<ConversationModel> find(UUID conversationId) {
         Optional<ConversationEntity> conversationEntity = jpaConversationRepository.findById(
             conversationId);
 
@@ -50,6 +50,12 @@ public class ConversationRepositoryImpl implements ConversationRepository {
         return jpaConversationRepository.findById(conversationId)
             .map(conversationEntityMapper::toModel);
 
+    }
+
+    @Override
+    public Optional<UUID> findByParticipants(UUID userId, UUID withId) {
+
+        return jpaConversationRepository.findConversationIdByParticipants(userId, withId);
     }
 
 }

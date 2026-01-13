@@ -30,8 +30,8 @@ public class ConversationController {
     private final ConversationResponseMapper conversationResponseMapper;
 
 
-    @GetMapping
-    public
+//    @GetMapping
+//    public
 
 
     @GetMapping("/with")
@@ -48,6 +48,7 @@ public class ConversationController {
 
     @PostMapping("/{conversationId}/direct-messages/{directMessageId}/read")
     public void directMessageRead(
+        @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable("conversationId") UUID conversationId,
         @PathVariable("directMessageId") UUID directMessageId
     ) {
@@ -76,10 +77,10 @@ public class ConversationController {
         UserModel withUser = userFacade.getUser(request.withUserId());
         UserSummary with = userSummaryMapper.toSummary(withUser);
 
-        ConversationModel conversationmodel = conversationFacade.createConversation(request,
+        ConversationModel conversationModel = conversationFacade.createConversation(request,
             userDetails.userId());
 
-        return conversationResponseMapper.toResponse(conversationmodel);
+        return conversationResponseMapper.toResponse(conversationModel);
     }
 
 }

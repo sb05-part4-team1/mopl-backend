@@ -16,15 +16,12 @@ public class ConversationModel extends BaseUpdatableModel {
 //    ConversationDto에 UserSummary, DirectMessageDto가 필요하므로,
 //    id 대신 UserModel withUser, DirectMessage lastMessage를 사용하는 것이 좋겠네요.
     private UserModel withUser;
-    private DirectMessageModel directMessage;
+    private DirectMessageModel lastMessage;
     private boolean hasUnread;
 
     public static ConversationModel create(
         UserModel with
     ) {
-        if (with == null) {
-            throw new InvalidUserDataException("상대방은 비어있을 수 없습니다.");
-        }
 
         return ConversationModel.builder()
             .withUser(with)
@@ -33,9 +30,7 @@ public class ConversationModel extends BaseUpdatableModel {
     }
 
     public ConversationModel withUser(UserModel withUser) {
-        if (withUser == null) {
-            throw new InvalidUserDataException("상대는 비어있을 수 없습니다.");
-        }
+
         this.withUser = withUser;
 
         return this;

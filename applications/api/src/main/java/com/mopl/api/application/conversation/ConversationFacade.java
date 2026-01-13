@@ -23,11 +23,11 @@ public class ConversationFacade {
 
     @Transactional
     public void directMessageRead(UUID conversationId, UUID directMessageId) {
-        DirectMessageModel directMessageModel = conversationService.getDircetMassegeById(
+        DirectMessageModel directMessageModel = conversationService.getDirectMessageById(
             directMessageId);
 
         List<ReadStatusModel> readStatusModels = conversationService.getReadStatusByConversationId(
-            directMessageId);
+            conversationId);
 
         conversationService.directMessageRead(directMessageModel, readStatusModels);
 
@@ -42,11 +42,11 @@ public class ConversationFacade {
     @Transactional
     public ConversationModel createConversation(ConversationCreateRequest request, UUID userId) {
 
-        UserModel withModel = userService.getById(request.withUserId()); //나중에 더 이상 사용되지 않으면 변수는 없애기
-        UserModel userModel = userService.getById(userId);
-        ConversationModel conversationModel = ConversationModel.create(withModel);
+        UserModel withUserModel = userService.getById(request.withUserId()); //나중에 더 이상 사용되지 않으면 변수는 없애기
+        UserModel requesterUserModel = userService.getById(userId);
+        ConversationModel conversationModel = ConversationModel.create(withUserModel);
 
-        return conversationService.create(conversationModel, userModel);
+        return conversationService.create(conversationModel, requesterUserModel);
     }
 
     @Transactional
