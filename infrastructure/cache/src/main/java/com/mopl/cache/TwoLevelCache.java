@@ -128,6 +128,9 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
     }
 
     private String generateKey(Object key) {
+        if (key == null) {
+            throw new IllegalArgumentException("Cache key must not be null");
+        }
         return properties.keyPrefix() + name + "::" + key.toString();
     }
 
