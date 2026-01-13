@@ -107,4 +107,33 @@ public interface ContentApiSpec {
 
         @Parameter(description = "새 썸네일 이미지 파일 (선택)") MultipartFile thumbnail
     );
+
+    @Operation(
+        summary = "콘텐츠 삭제 (관리자)",
+        description = """
+            콘텐츠를 소프트 삭제합니다.
+            - 콘텐츠와 리뷰는 soft delete 처리됩니다.
+            - 태그, 플레이리스트 등 연관관계는 유지됩니다.
+            - purge 시점에 연관 데이터는 함께 하드 삭제됩니다.
+            """
+    )
+    @ApiResponse(
+        responseCode = "204",
+        description = "콘텐츠가 성공적으로 삭제됨"
+    )
+    @ApiResponse(
+        responseCode = "404",
+        description = "존재하지 않는 콘텐츠",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    void delete(
+        @Parameter(
+            description = "콘텐츠 UUID",
+            required = true,
+            example = "550e8400-e29b-41d4-a716-446655440000"
+        ) UUID contentId
+    );
 }

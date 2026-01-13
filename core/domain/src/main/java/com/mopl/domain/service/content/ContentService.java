@@ -65,6 +65,14 @@ public class ContentService {
         return applyTags(saved, tagNames);
     }
 
+    public void delete(UUID contentId) {
+        ContentModel content = getById(contentId);
+
+        contentRepository.save(
+            content.deleteContent()
+        );
+    }
+
     private ContentModel applyTags(ContentModel content, List<String> tagNames) {
         if (tagNames == null || tagNames.isEmpty()) {
             return content.withTags(List.of());

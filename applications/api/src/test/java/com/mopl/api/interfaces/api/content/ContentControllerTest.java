@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -237,6 +238,27 @@ class ContentControllerTest {
                 .andExpect(jsonPath("$.title").value("수정된 제목"));
 
             then(contentFacade).should().update(eq(contentId), any(), any());
+        }
+    }
+
+    @Nested
+    @DisplayName("DELETE /api/contents/{contentId} - 콘텐츠 삭제")
+    class DeleteTest {
+
+        @Test
+        @DisplayName("삭제 요청 시 204 No Content 응답")
+        void delete_returns204NoContent() throws Exception {
+            // given
+            UUID contentId = UUID.randomUUID();
+
+            // when & then
+            mockMvc.perform(
+                delete("/api/contents/{id}", contentId)
+                    .accept(MediaType.APPLICATION_JSON)
+            )
+                .andExpect(status().isNoContent());
+
+            then(contentFacade).should().delete(contentId);
         }
     }
 }
