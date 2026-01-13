@@ -30,8 +30,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
 
     @Override
     public NotificationModel save(NotificationModel notification) {
-        UserEntity receiver = jpaUserRepository.findById(notification.getReceiverId())
-            .orElseThrow();
+        UserEntity receiver = jpaUserRepository.getReferenceById(notification.getReceiverId());
 
         NotificationEntity entity = notificationEntityMapper.toEntity(notification, receiver);
         NotificationEntity saved = jpaNotificationRepository.save(entity);
