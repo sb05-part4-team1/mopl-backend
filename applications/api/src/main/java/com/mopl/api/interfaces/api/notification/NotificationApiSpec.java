@@ -50,6 +50,6 @@ public interface NotificationApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    ResponseEntity<Void> readNotification(@Parameter(hidden = true) MoplUserDetails userDetails,
+    void readNotification(@Parameter(hidden = true) MoplUserDetails userDetails,
         @Parameter(name = "notificationId", required = true) UUID notificationId);
 }
