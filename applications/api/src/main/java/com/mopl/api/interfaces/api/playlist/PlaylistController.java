@@ -57,7 +57,7 @@ public class PlaylistController {
     }
 
     @DeleteMapping("/{playlistId}")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePlaylist(
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable UUID playlistId
