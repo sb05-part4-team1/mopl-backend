@@ -7,6 +7,8 @@ dependencies {
     implementation(project(":infrastructure:redis"))
     implementation(project(":infrastructure:cache"))
     implementation(project(":shared:jackson"))
+    implementation(project(":applications:sse"))
+
     // web
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
