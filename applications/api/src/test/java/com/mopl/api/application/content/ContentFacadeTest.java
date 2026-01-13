@@ -53,7 +53,8 @@ class ContentFacadeTest {
             // given
             List<String> tagNames = List.of("SF", "액션");
 
-            ContentCreateRequest request = new ContentCreateRequest("영화", "인셉션", "꿈속의 꿈", tagNames);
+            ContentCreateRequest request = new ContentCreateRequest(ContentModel.ContentType.movie,
+                "인셉션", "꿈속의 꿈", tagNames);
 
             MultipartFile thumbnail = mock(MultipartFile.class);
             InputStream inputStream = mock(InputStream.class);
@@ -72,7 +73,7 @@ class ContentFacadeTest {
 
             ContentModel savedModel = ContentModel.builder()
                 .id(UUID.randomUUID())
-                .type("영화")
+                .type(ContentModel.ContentType.movie)
                 .title("인셉션")
                 .description("꿈속의 꿈")
                 .thumbnailUrl(thumbnailUrl)
@@ -99,8 +100,9 @@ class ContentFacadeTest {
         @DisplayName("썸네일이 null이면 예외 발생")
         void withNullThumbnail_throwsException() {
             // given
-            ContentCreateRequest request = new ContentCreateRequest("영화", "인셉션", "꿈속의 꿈", List
-                .of());
+            ContentCreateRequest request = new ContentCreateRequest(ContentModel.ContentType.movie,
+                "인셉션", "꿈속의 꿈", List
+                    .of());
 
             // when & then
             assertThatThrownBy(() -> contentFacade.upload(request, null))
@@ -111,8 +113,9 @@ class ContentFacadeTest {
         @DisplayName("파일 업로드 중 IOException 발생 시 RuntimeException")
         void withInputStreamError_throwsRuntimeException() throws IOException {
             // given
-            ContentCreateRequest request = new ContentCreateRequest("영화", "인셉션", "꿈속의 꿈", List
-                .of());
+            ContentCreateRequest request = new ContentCreateRequest(ContentModel.ContentType.movie,
+                "인셉션", "꿈속의 꿈", List
+                    .of());
 
             MultipartFile thumbnail = mock(MultipartFile.class);
             given(thumbnail.isEmpty()).willReturn(false);

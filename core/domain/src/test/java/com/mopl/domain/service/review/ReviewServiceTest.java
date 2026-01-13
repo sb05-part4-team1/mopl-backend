@@ -6,6 +6,7 @@ import com.mopl.domain.fixture.ReviewModelFixture;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.review.ReviewModel;
 import com.mopl.domain.model.user.UserModel;
+import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.review.ReviewRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -15,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,6 +33,9 @@ class ReviewServiceTest {
 
     @Mock
     private ReviewRepository reviewRepository;
+
+    @Mock
+    private ContentRepository contentRepository;
 
     @InjectMocks
     private ReviewService reviewService;
@@ -53,7 +56,7 @@ class ReviewServiceTest {
             given(author.getId()).willReturn(UUID.randomUUID());
 
             String text = "리뷰 내용입니다.";
-            BigDecimal rating = new BigDecimal("5.0");
+            double rating = 5.0;
 
             // save 호출 시 넘어온 객체를 그대로 반환하도록 설정 (Service의 리턴값 검증용)
             given(reviewRepository.save(any(ReviewModel.class)))
@@ -88,7 +91,7 @@ class ReviewServiceTest {
             UUID authorId = existingReview.getAuthor().getId();
 
             String newText = "수정된 내용";
-            BigDecimal newRating = new BigDecimal("5.0");
+            double newRating = 5.0;
 
             given(reviewRepository.findById(reviewId)).willReturn(Optional.of(existingReview));
             given(reviewRepository.save(any(ReviewModel.class)))
@@ -115,8 +118,7 @@ class ReviewServiceTest {
             given(reviewRepository.findById(reviewId)).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> reviewService.update(reviewId, requesterId, "text",
-                BigDecimal.ONE))
+            assertThatThrownBy(() -> reviewService.update(reviewId, requesterId, "text", 1.0))
                 .isInstanceOf(ReviewNotFoundException.class);
 
             then(reviewRepository).should(never()).save(any());
@@ -135,8 +137,7 @@ class ReviewServiceTest {
             given(reviewRepository.findById(reviewId)).willReturn(Optional.of(existingReview));
 
             // when & then
-            assertThatThrownBy(() -> reviewService.update(reviewId, requesterId, "text",
-                BigDecimal.ONE))
+            assertThatThrownBy(() -> reviewService.update(reviewId, requesterId, "text", 1.0))
                 .isInstanceOf(ReviewForbiddenException.class);
 
             then(reviewRepository).should(never()).save(any());

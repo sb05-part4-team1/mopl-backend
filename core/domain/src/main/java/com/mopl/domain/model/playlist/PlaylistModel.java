@@ -66,16 +66,6 @@ public class PlaylistModel extends BaseUpdatableModel {
         return this;
     }
 
-    public PlaylistModel deletePlaylist() {
-        // 이미 삭제됬는지 아닌지 검사
-        if (this.getDeletedAt() != null) {
-            return this;
-        }
-
-        super.delete();
-        return this;
-    }
-
     private static void validateTitle(String title) {
         if (title.isBlank()) {
             throw new InvalidPlaylistDataException("플레이리스트 제목은 공백일 수 없습니다.");

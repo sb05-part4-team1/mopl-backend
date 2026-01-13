@@ -1,19 +1,20 @@
 package com.mopl.api.interfaces.api.content;
 
+import com.mopl.domain.model.content.ContentModel.ContentType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
 
+import jakarta.validation.constraints.Size;
 import java.util.List;
 
 import static com.mopl.domain.model.content.ContentModel.TITLE_MAX_LENGTH;
-import static com.mopl.domain.model.content.ContentModel.TYPE_MAX_LENGTH;
 
 @Schema(
     description = "콘텐츠 생성 요청 DTO",
     example = """
         {
-          "type": "영화",
+          "type": "movie",
           "title": "인셉션",
           "description": "꿈속의 꿈",
           "tags": ["SF", "액션"]
@@ -22,7 +23,7 @@ import static com.mopl.domain.model.content.ContentModel.TYPE_MAX_LENGTH;
 )
 public record ContentCreateRequest(
 
-    @NotBlank @Size(max = TYPE_MAX_LENGTH) String type,
+    @NotNull @Schema(description = "콘텐츠 타입 (movie, tvSeries, sport)") ContentType type,
 
     @NotBlank @Size(max = TITLE_MAX_LENGTH) String title,
 

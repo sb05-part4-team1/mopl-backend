@@ -17,7 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
@@ -87,7 +86,7 @@ class ReviewControllerTest {
             ReviewCreateRequest request = new ReviewCreateRequest(
                 contentId,
                 "테스트 리뷰",
-                new BigDecimal("4.0")
+                4.0
             );
 
             ReviewResponse response = new ReviewResponse(
@@ -95,7 +94,7 @@ class ReviewControllerTest {
                 contentId,
                 new UserSummary(mockUserId, "홍길동", "profile.png"),
                 "테스트 리뷰",
-                new BigDecimal("4.0")
+                4.0
             );
 
             given(reviewFacade.createReview(eq(mockUserId), refEq(request))).willReturn(response);
@@ -120,7 +119,7 @@ class ReviewControllerTest {
         @DisplayName("인증 정보가 없으면 401을 반환한다")
         void createReview_withoutAuth_returns401() throws Exception {
             ReviewCreateRequest request = new ReviewCreateRequest(
-                UUID.randomUUID(), "내용", BigDecimal.TEN
+                UUID.randomUUID(), "내용", 5.0
             );
 
             mockMvc.perform(
@@ -146,7 +145,7 @@ class ReviewControllerTest {
             UUID reviewId = UUID.randomUUID();
             ReviewUpdateRequest request = new ReviewUpdateRequest(
                 "수정된 내용",
-                new BigDecimal("5.0")
+                5.0
             );
 
             ReviewResponse response = new ReviewResponse(
@@ -154,7 +153,7 @@ class ReviewControllerTest {
                 UUID.randomUUID(),
                 new UserSummary(mockUserId, "홍길동", null),
                 "수정된 내용",
-                new BigDecimal("5.0")
+                5.0
             );
 
             given(reviewFacade.updateReview(eq(mockUserId), eq(reviewId), refEq(request)))

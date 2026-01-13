@@ -3,9 +3,12 @@ package com.mopl.domain.service.content;
 import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.tag.TagModel;
+import com.mopl.domain.repository.content.ContentQueryRepository;
+import com.mopl.domain.repository.content.ContentQueryRequest;
 import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
 import com.mopl.domain.service.tag.TagService;
+import com.mopl.domain.support.cursor.CursorResponse;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -16,6 +19,7 @@ public class ContentService {
 
     private final TagService tagService;
     private final ContentRepository contentRepository;
+    private final ContentQueryRepository contentQueryRepository;
     private final ContentTagRepository contentTagRepository;
 
     public ContentModel create(ContentModel content, List<String> tagNames) {
@@ -25,6 +29,10 @@ public class ContentService {
 
     public boolean exists(UUID contentId) {
         return contentRepository.existsById(contentId);
+    }
+
+    public CursorResponse<ContentModel> getAll(ContentQueryRequest request) {
+        return contentQueryRepository.findAll(request);
     }
 
     public ContentModel getById(UUID contentId) {
@@ -67,10 +75,8 @@ public class ContentService {
 
     public void delete(UUID contentId) {
         ContentModel content = getById(contentId);
-
-        contentRepository.save(
-            content.deleteContent()
-        );
+        content.delete();
+        contentRepository.save(content);
     }
 
     private ContentModel applyTags(ContentModel content, List<String> tagNames) {

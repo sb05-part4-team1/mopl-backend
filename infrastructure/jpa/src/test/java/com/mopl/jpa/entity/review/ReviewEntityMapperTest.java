@@ -15,7 +15,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -54,7 +53,7 @@ class ReviewEntityMapperTest {
             // given
             UUID reviewId = UUID.randomUUID();
             String text = "리뷰 내용";
-            BigDecimal rating = BigDecimal.valueOf(5);
+            double rating = 4.5;
             Instant now = Instant.now();
 
             // 협력 Entity 준비
@@ -137,7 +136,7 @@ class ReviewEntityMapperTest {
                 .content(contentModel)
                 .author(authorModel)
                 .text("테스트 리뷰")
-                .rating(BigDecimal.valueOf(4.5))
+                .rating(4.5)
                 .createdAt(Instant.now())
                 .build();
 

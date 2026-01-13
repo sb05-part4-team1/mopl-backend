@@ -25,6 +25,13 @@ public class SecurityRegistryImpl implements SecurityRegistry {
                 "/api/auth/refresh"
             ).permitAll()
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+
+            .requestMatchers(
+                new AntPathRequestMatcher("/api/contents", HttpMethod.POST.name()),
+                new AntPathRequestMatcher("/api/contents/{contentId}", HttpMethod.PATCH.name()),
+                new AntPathRequestMatcher("/api/contents/{contentId}", HttpMethod.DELETE.name())
+            ).hasRole("ADMIN")
+            
             .requestMatchers(new NegatedRequestMatcher(
                 new AntPathRequestMatcher("/api/**"))
             ).permitAll()

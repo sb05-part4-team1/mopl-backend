@@ -1,9 +1,12 @@
 package com.mopl.domain.service.playlist;
 
+import com.mopl.domain.exception.playlist.PlaylistContentAlreadyExistsException;
+import com.mopl.domain.exception.playlist.PlaylistContentNotFoundException;
 import com.mopl.domain.exception.playlist.PlaylistForbiddenException;
 import com.mopl.domain.exception.playlist.PlaylistNotFoundException;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
+import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.domain.repository.playlist.PlaylistRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -13,6 +16,7 @@ import java.util.UUID;
 public class PlaylistService {
 
     private final PlaylistRepository playlistRepository;
+    private final PlaylistContentRepository playlistContentRepository;
 
     public PlaylistModel create(
         UserModel owner,
@@ -66,7 +70,7 @@ public class PlaylistService {
             throw new PlaylistForbiddenException(playlistid, requesterid, ownerId);
         }
 
-        playlistModel.deletePlaylist();
+        playlistModel.delete();
 
         playlistRepository.save(playlistModel);
     }
@@ -75,4 +79,49 @@ public class PlaylistService {
         return playlistRepository.findById(playlistId)
             .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
     }
+
+    // ============= 여기서 부터는 순수 플레이리스트 CRUD가 아님===================
+
+    public void addContent(
+        UUID playlistId,
+        UUID requesterId,
+        UUID contentId
+    ) {
+        PlaylistModel playlistModel = playlistRepository.findById(playlistId)
+            .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
+
+        UUID ownerId = (playlistModel.getOwner() != null) ? playlistModel.getOwner().getId() : null;
+
+        if (ownerId == null || !ownerId.equals(requesterId)) {
+            throw new PlaylistForbiddenException(playlistId, requesterId, ownerId);
+        }
+
+        if (playlistContentRepository.exists(playlistId, contentId)) {
+            throw new PlaylistContentAlreadyExistsException(playlistId, contentId);
+        }
+
+        playlistContentRepository.save(playlistId, contentId);
+    }
+
+    public void removeContent(
+        UUID playlistId,
+        UUID requesterId,
+        UUID contentId
+    ) {
+        PlaylistModel playlistModel = playlistRepository.findById(playlistId)
+            .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
+
+        UUID ownerId = (playlistModel.getOwner() != null) ? playlistModel.getOwner().getId() : null;
+
+        if (ownerId == null || !ownerId.equals(requesterId)) {
+            throw new PlaylistForbiddenException(playlistId, requesterId, ownerId);
+        }
+
+        if (!playlistContentRepository.exists(playlistId, contentId)) {
+            throw new PlaylistContentNotFoundException(playlistId, contentId);
+        }
+
+        playlistContentRepository.delete(playlistId, contentId);
+    }
+
 }
