@@ -1,4 +1,4 @@
-package com.mopl.sse.interfaces.api;
+package com.mopl.api.interfaces.api.notification;
 
 import java.time.Instant;
 import java.util.UUID;
