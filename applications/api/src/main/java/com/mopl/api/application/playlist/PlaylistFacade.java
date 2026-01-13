@@ -74,6 +74,16 @@ public class PlaylistFacade {
     }
 
     @Transactional
+    public void deletePlaylist(
+        UUID requesterId,
+        UUID playlistId
+    ) {
+        // requester 존재 보장 (ReviewFacade delete와 동일 패턴)
+        userService.getById(requesterId);
+        playlistService.delete(playlistId, requesterId);
+    }
+
+    @Transactional
     public PlaylistResponse getPlaylist(
         UUID requesterId,
         UUID playlistId
@@ -94,17 +104,17 @@ public class PlaylistFacade {
 
     @Transactional
     public void addContentToPlaylist(
-        UUID requsterId,
+        UUID requesterId,
         UUID playlistId,
         UUID contentId
     ) {
-        userService.getById(requsterId);
+        userService.getById(requesterId);
 
         if (!contentService.exists(contentId)) {
             throw ContentNotFoundException.withId(contentId);
         }
 
-        playlistService.addContent(playlistId, requsterId, contentId);
+        playlistService.addContent(playlistId, requesterId, contentId);
     }
 
     @Transactional
