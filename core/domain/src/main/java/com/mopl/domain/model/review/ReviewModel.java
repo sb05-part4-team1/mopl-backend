@@ -2,13 +2,14 @@ package com.mopl.domain.model.review;
 
 import com.mopl.domain.exception.review.InvalidReviewDataException;
 import com.mopl.domain.model.base.BaseUpdatableModel;
+import com.mopl.domain.model.content.ContentModel;
+import com.mopl.domain.model.user.UserModel;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Getter
 @SuperBuilder
@@ -17,23 +18,23 @@ public class ReviewModel extends BaseUpdatableModel {
 
     public static final int TEXT_MAX_LENGTH = 10_000;
 
-    private UUID contentId;
-    private UUID authorId; // 리뷰를 쓴 작성자 객체
+    private ContentModel content;
+    private UserModel author; // 리뷰를 쓴 작성자 객체
     private String text;
     private BigDecimal rating;
 
     // 생성자 대신에 스태틱을 이용해 객체를 만듦, 유효성 검사
     public static ReviewModel create(
-        UUID contentId,
-        UUID authorId,
+        ContentModel content,
+        UserModel author,
         String text,
         BigDecimal rating
     ) {
-        if (contentId == null) {
-            throw new InvalidReviewDataException("콘텐츠 ID는 null일 수 없습니다.");
+        if (content == null || content.getId() == null) {
+            throw new InvalidReviewDataException("콘텐츠 정보는 null일 수 없습니다.");
         }
-        if (authorId == null) {
-            throw new InvalidReviewDataException("작성자 ID는 null일 수 없습니다.");
+        if (author == null || author.getId() == null) {
+            throw new InvalidReviewDataException("작성자 정보는 null일 수 없습니다.");
         }
         if (rating == null) {
             throw new InvalidReviewDataException("평점은 null일 수 없습니다.");
@@ -45,8 +46,8 @@ public class ReviewModel extends BaseUpdatableModel {
 
         // 검사 통과시 객체 생성 및 반환
         return ReviewModel.builder()
-            .contentId(contentId)
-            .authorId(authorId)
+            .content(content)
+            .author(author)
             .text(text)
             .rating(rating)
             .build();

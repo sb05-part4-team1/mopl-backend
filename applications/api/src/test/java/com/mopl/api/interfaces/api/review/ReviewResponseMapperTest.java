@@ -2,125 +2,78 @@ package com.mopl.api.interfaces.api.review;
 
 import com.mopl.api.interfaces.api.user.UserSummary;
 import com.mopl.api.interfaces.api.user.UserSummaryMapper;
+import com.mopl.domain.fixture.ReviewModelFixture;
 import com.mopl.domain.model.review.ReviewModel;
 import com.mopl.domain.model.user.UserModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 @DisplayName("ReviewResponseMapper 단위 테스트")
 class ReviewResponseMapperTest {
 
-    private final UserSummaryMapper userSummaryMapper = new UserSummaryMapper();
-    private final ReviewResponseMapper reviewResponseMapper = new ReviewResponseMapper(
-        userSummaryMapper);
+    @InjectMocks
+    private ReviewResponseMapper reviewResponseMapper;
+
+    @Mock
+    private UserSummaryMapper userSummaryMapper;
 
     @Test
-    @DisplayName("ReviewModel과 UserModel을 받아 ReviewResponse로 변환한다")
-    void toResponse_withAuthor_mapsToResponse() {
+    @DisplayName("ReviewModel을 받아 ReviewResponse로 변환한다")
+    void toResponse_mapsFieldsCorrectly() {
         // given
-        UUID reviewId = UUID.randomUUID();
-        UUID contentId = UUID.randomUUID();
-        UUID authorId = UUID.randomUUID();
+        ReviewModel reviewModel = ReviewModelFixture.create();
 
-        // 작성자 정보
-        UserModel author = UserModel.builder()
-            .id(authorId)
-            .name("홍길동")
-            .profileImageUrl("https://example.com/profile.png")
-            .build();
-
-        // 🚨 [수정] BigDecimal("4.0")을 사용하여 Scale 문제 예방
-        ReviewModel reviewModel = ReviewModel.builder()
-            .id(reviewId)
-            .contentId(contentId)
-            .authorId(authorId)
-            .text("리뷰 내용")
-            .rating(new BigDecimal("4.0"))
-            .build();
+        // 어떤 UserModel이 들어오든(any) 무조건 이 Summary를 리턴해라 (유연한 Stubbing)
+        UserSummary expectedUserSummary = new UserSummary(
+            UUID.randomUUID(), "테스터", "http://image.com"
+        );
+        given(userSummaryMapper.toSummary(any(UserModel.class))).willReturn(expectedUserSummary);
 
         // when
-        ReviewResponse response = reviewResponseMapper.toResponse(reviewModel, author);
+        ReviewResponse response = reviewResponseMapper.toResponse(reviewModel);
 
         // then
-        assertThat(response.id()).isEqualTo(reviewId);
-        assertThat(response.contentId()).isEqualTo(contentId);
-        assertThat(response.text()).isEqualTo("리뷰 내용");
+        assertThat(response.id()).isEqualTo(reviewModel.getId());
+        assertThat(response.author()).isEqualTo(expectedUserSummary);
 
-        // 값 비교 (4.0 == 4.00)
-        assertThat(response.rating()).isEqualByComparingTo(new BigDecimal("4.0"));
-
-        assertThat(response.author()).isNotNull();
-        assertThat(response.author()).isInstanceOf(UserSummary.class);
-        assertThat(response.author().userId()).isEqualTo(authorId);
-        assertThat(response.author().name()).isEqualTo("홍길동");
-        assertThat(response.author().profileImageUrl()).isEqualTo(
-            "https://example.com/profile.png");
+        verify(userSummaryMapper).toSummary(reviewModel.getAuthor());
     }
 
     @Test
-    @DisplayName("넘겨받은 author가 null이면 Response의 author도 null이다")
-    void toResponse_withNullAuthor_mapsAuthorToNull() {
+    @DisplayName("작성자(Author) 정보가 정확히 매핑되는지 확인한다")
+    void toResponse_checksAuthorMapping() {
         // given
-        UUID reviewId = UUID.randomUUID();
-        UUID contentId = UUID.randomUUID();
+        // 1. Fixture가 ReviewModel과 그 안의 UserModel(Author)까지 알아서 생성하게 둠
+        ReviewModel reviewModel = ReviewModelFixture.create();
 
-        // 🚨 [수정] 안전한 값 사용
-        ReviewModel reviewModel = ReviewModel.builder()
-            .id(reviewId)
-            .contentId(contentId)
-            .authorId(UUID.randomUUID())
-            .text("리뷰 내용")
-            .rating(new BigDecimal("3.0"))
-            .build();
+        // 2. 생성된 그 Author를 꺼냄 (이게 핵심!)
+        UserModel generatedAuthor = reviewModel.getAuthor();
+
+        UserSummary expectedSummary = new UserSummary(
+            generatedAuthor.getId(), "테스터", "http://image.url"
+        );
+
+        // 3. "아까 그 Author가 들어오면 -> 이 Summary를 줘" 라고 설정
+        given(userSummaryMapper.toSummary(generatedAuthor)).willReturn(expectedSummary);
 
         // when
-        ReviewResponse response = reviewResponseMapper.toResponse(reviewModel, null);
-
-        // then
-        assertThat(response.id()).isEqualTo(reviewId);
-        assertThat(response.contentId()).isEqualTo(contentId);
-        assertThat(response.text()).isEqualTo("리뷰 내용");
-        assertThat(response.rating()).isEqualByComparingTo(new BigDecimal("3.0"));
-
-        // author 정보가 null로 매핑되었는지 확인
-        assertThat(response.author()).isNull();
-    }
-
-    @Test
-    @DisplayName("author의 필드(name/image)가 null이어도 UserSummary에 그대로 매핑된다")
-    void toResponse_withAuthorNullFields_mapsNulls() {
-        // given
-        UUID reviewId = UUID.randomUUID();
-        UUID contentId = UUID.randomUUID();
-        UUID authorId = UUID.randomUUID();
-
-        UserModel author = UserModel.builder()
-            .id(authorId)
-            .name(null)
-            .profileImageUrl(null)
-            .build();
-
-        // 🚨 [수정] 안전한 값 사용
-        ReviewModel reviewModel = ReviewModel.builder()
-            .id(reviewId)
-            .contentId(contentId)
-            .authorId(authorId)
-            .text("리뷰 내용")
-            .rating(new BigDecimal("5.0"))
-            .build();
-
-        // when
-        ReviewResponse response = reviewResponseMapper.toResponse(reviewModel, author);
+        ReviewResponse response = reviewResponseMapper.toResponse(reviewModel);
 
         // then
         assertThat(response.author()).isNotNull();
-        assertThat(response.author().userId()).isEqualTo(authorId);
-        assertThat(response.author().name()).isNull();
-        assertThat(response.author().profileImageUrl()).isNull();
+        assertThat(response.author().userId()).isEqualTo(generatedAuthor.getId());
+        assertThat(response.author().name()).isEqualTo("테스터");
     }
 }

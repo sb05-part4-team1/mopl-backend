@@ -4,8 +4,10 @@ import com.mopl.api.interfaces.api.playlist.PlaylistCreateRequest;
 import com.mopl.api.interfaces.api.playlist.PlaylistResponse;
 import com.mopl.api.interfaces.api.playlist.PlaylistResponseMapper;
 import com.mopl.api.interfaces.api.playlist.PlaylistUpdateRequest;
+import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
+import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.playlist.PlaylistService;
 import com.mopl.domain.service.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class PlaylistFacade {
 
     private final PlaylistService playlistService;
     private final UserService userService;
+    private final ContentService contentService;
     private final PlaylistResponseMapper playlistResponseMapper;
 
     @Transactional
@@ -40,7 +43,7 @@ public class PlaylistFacade {
         );
 
         // 응답 DTO 변환 후 반환
-        return playlistResponseMapper.toResponse(savedPlaylist, owner);
+        return playlistResponseMapper.toResponse(savedPlaylist);
     }
 
     @Transactional
@@ -49,7 +52,9 @@ public class PlaylistFacade {
         UUID playlistId,
         PlaylistUpdateRequest request
     ) {
-        UserModel requester = userService.getById(requesterId);
+
+        // requester 존재 보장
+        userService.getById(requesterId);
 
         PlaylistModel updatedPlaylist = playlistService.update(
             playlistId,
@@ -60,10 +65,64 @@ public class PlaylistFacade {
 
         return playlistResponseMapper.toResponse(
             updatedPlaylist,
-            requester,
-            0L,
-            false,
+            0L, // subscriberCount (추후 구현)
+            false,           // subscribedByMe (추후 구현)
             Collections.emptyList()
         );
     }
+
+    @Transactional
+    public void deletePlaylist(
+        UUID requesterId,
+        UUID playlistId
+    ) {
+        // requester 존재 보장 (ReviewFacade delete와 동일 패턴)
+        userService.getById(requesterId);
+        playlistService.delete(playlistId, requesterId);
+    }
+
+    @Transactional
+    public PlaylistResponse getPlaylist(
+        UUID requesterId,
+        UUID playlistId
+    ) {
+        userService.getById(requesterId);
+
+        PlaylistModel playlist = playlistService.getById(playlistId);
+
+        return playlistResponseMapper.toResponse(
+            playlist,
+            0L,  // subscriberCount (추후 구현)
+            false,            // subscribedByMe (추후 구현)
+            Collections.emptyList()
+        );
+    }
+
+    // ============= 여기서 부터는 순수 플레이리스트 CRUD가 아님===================
+
+    @Transactional
+    public void addContentToPlaylist(
+        UUID requesterId,
+        UUID playlistId,
+        UUID contentId
+    ) {
+        userService.getById(requesterId);
+
+        if (!contentService.exists(contentId)) {
+            throw ContentNotFoundException.withId(contentId);
+        }
+
+        playlistService.addContent(playlistId, requesterId, contentId);
+    }
+
+    @Transactional
+    public void deleteContentFromPlaylist(
+        UUID requesterId,
+        UUID playlistId,
+        UUID contentId
+    ) {
+        userService.getById(requesterId);
+        playlistService.removeContent(playlistId, requesterId, contentId);
+    }
+
 }

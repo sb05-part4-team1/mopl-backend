@@ -6,6 +6,7 @@ import com.mopl.domain.model.tag.TagModel;
 import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
 import com.mopl.domain.service.tag.TagService;
+import java.time.Instant;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -219,6 +221,58 @@ class ContentServiceTest {
 
             // then
             assertThat(result).isTrue();
+        }
+    }
+
+    @Nested
+    @DisplayName("delete()")
+    class DeleteTest {
+
+        @Test
+        @DisplayName("콘텐츠 삭제 시 deleteContent 후 저장된다")
+        void delete_softDeletesContent() {
+            // given
+            UUID contentId = UUID.randomUUID();
+            ContentModel content = ContentModel.builder()
+                .id(contentId)
+                .build();
+
+            given(contentRepository.findById(contentId))
+                .willReturn(Optional.of(content));
+            given(contentRepository.save(any()))
+                .willAnswer(inv -> inv.getArgument(0));
+
+            // when
+            contentService.delete(contentId);
+
+            // then
+            then(contentRepository).should().save(
+                argThat(ContentModel::isDeleted)
+            );
+        }
+
+        @Test
+        @DisplayName("이미 삭제된 콘텐츠도 예외 없이 처리된다 (멱등성)")
+        void delete_isIdempotent() {
+            // given
+            UUID contentId = UUID.randomUUID();
+            ContentModel content = ContentModel.builder()
+                .id(contentId)
+                .deletedAt(Instant.now())
+                .build();
+
+            given(contentRepository.findById(contentId))
+                .willReturn(Optional.of(content));
+
+            // when
+            contentService.delete(contentId);
+
+            // then
+            then(contentRepository).should().save(
+                argThat(model -> model.getId().equals(contentId) &&
+                    model.getDeletedAt() != null
+                )
+            );
         }
     }
 }

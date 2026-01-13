@@ -6,6 +6,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,7 +42,7 @@ public class PlaylistController {
 
     @PatchMapping("/{playlistId}")
     @ResponseStatus(HttpStatus.OK)
-    public PlaylistResponse updatePlayList(
+    public PlaylistResponse updatePlaylist(
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable UUID playlistId,
         @RequestBody @Valid PlaylistUpdateRequest request
@@ -54,4 +56,52 @@ public class PlaylistController {
         );
     }
 
+    @DeleteMapping("/{playlistId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deletePlaylist(
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @PathVariable UUID playlistId
+    ) {
+        UUID requesterId = userDetails.userId();
+
+        playlistFacade.deletePlaylist(requesterId, playlistId);
+    }
+
+    @GetMapping("/{playlistId}")
+    @ResponseStatus(HttpStatus.OK)
+    public PlaylistResponse getPlaylist(
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @PathVariable UUID playlistId
+    ) {
+        UUID requesterId = userDetails.userId();
+
+        return playlistFacade.getPlaylist(
+            requesterId,
+            playlistId
+        );
+    }
+
+    // ============= 여기서 부터는 순수 플레이리스트 CRUD가 아님===================
+
+    @PostMapping("/{playlistId}/contents/{contentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void addContentToPlaylist(
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @PathVariable UUID playlistId,
+        @PathVariable UUID contentId
+    ) {
+        UUID requesterId = userDetails.userId();
+        playlistFacade.addContentToPlaylist(requesterId, playlistId, contentId);
+    }
+
+    @DeleteMapping("/{playlistId}/contents/{contentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteContentFromPlaylist(
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @PathVariable UUID playlistId,
+        @PathVariable UUID contentId
+    ) {
+        UUID requesterId = userDetails.userId();
+        playlistFacade.deleteContentFromPlaylist(requesterId, playlistId, contentId);
+    }
 }

@@ -3,6 +3,7 @@ package com.mopl.api.config;
 import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
 import com.mopl.domain.repository.follow.FollowRepository;
+import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.domain.repository.playlist.PlaylistRepository;
 import com.mopl.domain.repository.review.ReviewRepository;
 import com.mopl.domain.repository.tag.TagRepository;
@@ -59,10 +60,12 @@ public class DomainServiceConfig {
 
     @Bean
     public PlaylistService playlistService(
-        PlaylistRepository playlistRepository
+        PlaylistRepository playlistRepository,
+        PlaylistContentRepository playlistContentRepository
     ) {
         return new PlaylistService(
-            playlistRepository
+            playlistRepository,
+            playlistContentRepository
         );
     }
 }

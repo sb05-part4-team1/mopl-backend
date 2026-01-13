@@ -35,7 +35,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// addFilters = false를 제거해야 @AuthenticationPrincipal이 동작합니다.
 @WebMvcTest(ReviewController.class)
 @Import(ApiControllerAdvice.class)
 @DisplayName("ReviewController 단위 테스트")
@@ -120,12 +119,10 @@ class ReviewControllerTest {
         @Test
         @DisplayName("인증 정보가 없으면 401을 반환한다")
         void createReview_withoutAuth_returns401() throws Exception {
-            // given
             ReviewCreateRequest request = new ReviewCreateRequest(
                 UUID.randomUUID(), "내용", BigDecimal.TEN
             );
 
-            // when & then
             mockMvc.perform(
                 post("/api/reviews")
                     .with(csrf())
@@ -203,10 +200,8 @@ class ReviewControllerTest {
         @Test
         @DisplayName("인증 정보가 없으면 삭제 요청 시 401을 반환한다")
         void deleteReview_withoutAuth_returns401() throws Exception {
-            // given
             UUID reviewId = UUID.randomUUID();
 
-            // when & then
             mockMvc.perform(
                 delete("/api/reviews/{reviewId}", reviewId)
                     .with(csrf())

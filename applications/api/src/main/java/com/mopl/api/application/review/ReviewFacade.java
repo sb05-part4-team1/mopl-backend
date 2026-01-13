@@ -5,6 +5,7 @@ import com.mopl.api.interfaces.api.review.ReviewResponse;
 import com.mopl.api.interfaces.api.review.ReviewResponseMapper;
 import com.mopl.api.interfaces.api.review.ReviewUpdateRequest;
 import com.mopl.domain.exception.review.InvalidReviewDataException;
+import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.review.ReviewModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.content.ContentService;
@@ -31,6 +32,7 @@ public class ReviewFacade {
         ReviewCreateRequest request
     ) {
         UserModel author = userService.getById(requesterId);
+        ContentModel content = contentService.getById(request.contentId());
 
         // 요청값 검증 느낌이라 Service -> Facade로 옮김
         if (!contentService.exists(request.contentId())) {
@@ -41,13 +43,13 @@ public class ReviewFacade {
         }
 
         ReviewModel savedReview = reviewService.create(
-            request.contentId(),
+            content,
             author,
             request.text(),
             request.rating()
         );
 
-        return reviewResponseMapper.toResponse(savedReview, author);
+        return reviewResponseMapper.toResponse(savedReview);
 
     }
 
@@ -57,17 +59,18 @@ public class ReviewFacade {
         UUID reviewId,
         ReviewUpdateRequest request
     ) {
-        UserModel requester = userService.getById(requesterId);
+        // 존재 보장
+        userService.getById(requesterId);
 
         ReviewModel updatedReview = reviewService.update(
             reviewId,
-            requester.getId(),
+            requesterId,
             request.text(),
             request.rating()
         );
 
         // 작성자만 수정 가능
-        return reviewResponseMapper.toResponse(updatedReview, requester);
+        return reviewResponseMapper.toResponse(updatedReview);
     }
 
     @Transactional
