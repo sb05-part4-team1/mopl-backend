@@ -3,7 +3,9 @@ package com.mopl.jpa.repository.notification.query;
 import com.mopl.domain.repository.notification.NotificationSortField;
 import com.mopl.jpa.entity.notification.NotificationEntity;
 import com.mopl.jpa.support.cursor.SortField;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.ComparableExpression;
+import com.querydsl.core.types.dsl.SimpleExpression;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +21,8 @@ public enum NotificationSortFieldJpa implements SortField<Comparable<?>> {
     CREATED_AT(
         NotificationSortField.createdAt,
         cast(notificationEntity.createdAt),
-        NotificationEntity::getCreatedAt, value -> ((Instant) value).toString(),
+        NotificationEntity::getCreatedAt,
+        value -> ((Instant) value).toString(),
         Instant::parse
     );
 
@@ -38,6 +41,26 @@ public enum NotificationSortFieldJpa implements SortField<Comparable<?>> {
         return switch (domainField) {
             case createdAt -> CREATED_AT;
         };
+    }
+
+    @Override
+    public SimpleExpression<Comparable<?>> getExpression() {
+        return expression;
+    }
+
+    @Override
+    public BooleanExpression gt(Comparable<?> value) {
+        return expression.gt(value);
+    }
+
+    @Override
+    public BooleanExpression lt(Comparable<?> value) {
+        return expression.lt(value);
+    }
+
+    @Override
+    public BooleanExpression eq(Comparable<?> value) {
+        return expression.eq(value);
     }
 
     @Override
