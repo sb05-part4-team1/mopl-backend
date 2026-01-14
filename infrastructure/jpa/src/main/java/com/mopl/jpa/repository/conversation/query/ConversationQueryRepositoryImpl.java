@@ -99,4 +99,4 @@ public class ConversationQueryRepositoryImpl implements ConversationQueryReposit
         );
     }
 
-}0
+}
