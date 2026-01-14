@@ -7,6 +7,6 @@ import java.util.UUID;
 public interface DirectMessageQueryRepository {
 
     CursorResponse<DirectMessageModel> findAllByConversationId(
-            UUID conversationId,DirectMessageQueryRequest requst,UUID userId);
+        UUID conversationId, DirectMessageQueryRequest requst, UUID userId);
 
 }

@@ -6,9 +6,7 @@ import java.util.UUID;
 
 public interface ConversationQueryRepository {
 
-    CursorResponse<ConversationModel> findAllConversation(ConversationQueryRequest request,UUID userId);
+    CursorResponse<ConversationModel> findAllConversation(ConversationQueryRequest request,
+        UUID userId);
 
 }
-
-
-

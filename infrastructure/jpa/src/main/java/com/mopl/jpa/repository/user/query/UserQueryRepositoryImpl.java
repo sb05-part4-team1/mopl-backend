@@ -30,18 +30,18 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
         UserSortFieldJpa sortFieldJpa = UserSortFieldJpa.from(request.sortBy());
 
         JPAQuery<UserEntity> jpaQuery = queryFactory
-                .selectFrom(userEntity)
-                .where(
-                        emailLike(request.emailLike()),
-                        roleEqual(request.roleEqual()),
-                        isLocked(request.isLocked())
-                );
+            .selectFrom(userEntity)
+            .where(
+                emailLike(request.emailLike()),
+                roleEqual(request.roleEqual()),
+                isLocked(request.isLocked())
+            );
 
         CursorPaginationHelper.applyCursorPagination(
-                request,
-                sortFieldJpa,
-                jpaQuery,
-                userEntity.id
+            request,
+            sortFieldJpa,
+            jpaQuery,
+            userEntity.id
         );
 
         List<UserEntity> rows = jpaQuery.fetch();

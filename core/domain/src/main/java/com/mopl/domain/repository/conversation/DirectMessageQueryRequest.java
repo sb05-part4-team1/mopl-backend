@@ -5,12 +5,11 @@ import com.mopl.domain.support.cursor.SortDirection;
 import java.util.UUID;
 
 public record DirectMessageQueryRequest(
-        String cursor,
-        UUID idAfter,
-        Integer limit,
-        SortDirection sortDirection,
-        DirectMessageSortField sortBy
-
+    String cursor,
+    UUID idAfter,
+    Integer limit,
+    SortDirection sortDirection,
+    DirectMessageSortField sortBy
 
 ) implements CursorRequest<DirectMessageSortField> {
 

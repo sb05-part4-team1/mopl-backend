@@ -5,14 +5,15 @@ import com.mopl.domain.support.cursor.SortDirection;
 import java.util.UUID;
 
 public record ConversationQueryRequest(
-        String keywordLike,
-        String cursor,
-        UUID idAfter,
-        Integer limit,
-        SortDirection sortDirection,
-        ConversationSortField sortBy
+    String keywordLike,
+    String cursor,
+    UUID idAfter,
+    Integer limit,
+    SortDirection sortDirection,
+    ConversationSortField sortBy
 
 ) implements CursorRequest<ConversationSortField> {
+
     private static final int DEFAULT_LIMIT = 30;
     private static final int MAX_LIMIT = 100;
 
@@ -23,5 +24,3 @@ public record ConversationQueryRequest(
     }
 
 }
-
-

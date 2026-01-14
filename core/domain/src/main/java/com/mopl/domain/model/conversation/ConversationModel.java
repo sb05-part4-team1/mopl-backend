@@ -1,6 +1,5 @@
 package com.mopl.domain.model.conversation;
 
-import com.mopl.domain.exception.user.InvalidUserDataException;
 import com.mopl.domain.model.base.BaseUpdatableModel;
 import com.mopl.domain.model.user.UserModel;
 import lombok.AccessLevel;

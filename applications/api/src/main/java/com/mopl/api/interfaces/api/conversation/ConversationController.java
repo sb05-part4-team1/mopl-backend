@@ -2,14 +2,12 @@ package com.mopl.api.interfaces.api.conversation;
 
 import com.mopl.api.application.conversation.ConversationFacade;
 import com.mopl.api.application.user.UserFacade;
-import com.mopl.api.interfaces.api.user.UserResponse;
 import com.mopl.api.interfaces.api.user.UserSummary;
 import com.mopl.api.interfaces.api.user.UserSummaryMapper;
 import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.conversation.ConversationQueryRequest;
 import com.mopl.domain.repository.conversation.DirectMessageQueryRequest;
-import com.mopl.domain.repository.user.UserQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.security.userdetails.MoplUserDetails;
 import jakarta.validation.Valid;
@@ -35,25 +33,23 @@ public class ConversationController {
     private final ConversationFacade conversationFacade;
     private final ConversationResponseMapper conversationResponseMapper;
 
-
     @GetMapping("{conversationId}/direct-messages")
     public CursorResponse<DirectMessageResponse> getDirectMessages(
-            @AuthenticationPrincipal MoplUserDetails userDetails,
-            @PathVariable("conversationId") UUID conversationId,
-            @ModelAttribute DirectMessageQueryRequest request
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @PathVariable("conversationId") UUID conversationId,
+        @ModelAttribute DirectMessageQueryRequest request
     ) {
-        return conversationFacade.getAllDirectMessage(conversationId,request,userDetails.userId());
+        return conversationFacade.getAllDirectMessage(conversationId, request, userDetails
+            .userId());
     }
-
 
     @GetMapping
     public CursorResponse<ConversationResponse> getConversation(
-            @AuthenticationPrincipal MoplUserDetails userDetails, //userId, role이 들어있음.
-            @ModelAttribute ConversationQueryRequest request
-    ){
-        return conversationFacade.getAllConversation(request,userDetails.userId());
+        @AuthenticationPrincipal MoplUserDetails userDetails, //userId, role이 들어있음.
+        @ModelAttribute ConversationQueryRequest request
+    ) {
+        return conversationFacade.getAllConversation(request, userDetails.userId());
     }
-
 
     @GetMapping("/with")
     public ConversationResponse findByWith(
@@ -74,7 +70,7 @@ public class ConversationController {
         @PathVariable("directMessageId") UUID directMessageId
     ) {
 
-        conversationFacade.directMessageRead(conversationId, directMessageId,userDetails.userId());
+        conversationFacade.directMessageRead(conversationId, directMessageId, userDetails.userId());
 
     }
 

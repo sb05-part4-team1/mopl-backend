@@ -10,20 +10,18 @@ import java.util.function.Function;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-
 @Getter
 @RequiredArgsConstructor
 public enum ConversationSortFieldJpa implements SortField<Comparable<?>> {
 
     CREATED_AT(ConversationSortField.createdAt, cast(conversationEntity.createdAt),
-            ConversationEntity::getCreatedAt, value -> ((Instant) value).toString(), Instant::parse);
+        ConversationEntity::getCreatedAt, value -> ((Instant) value).toString(), Instant::parse);
 
     private final ConversationSortField domainField;
     private final ComparableExpression<Comparable<?>> expression;
     private final Function<ConversationEntity, Object> valueExtractor;
     private final Function<Object, String> serializer;
     private final Function<String, Comparable<?>> deserializer;
-
 
     @SuppressWarnings("unchecked")
     private static ComparableExpression<Comparable<?>> cast(ComparableExpression<?> expression) {

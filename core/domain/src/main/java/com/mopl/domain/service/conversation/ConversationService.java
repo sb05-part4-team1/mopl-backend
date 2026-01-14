@@ -4,12 +4,10 @@ import com.mopl.domain.exception.conversation.ConversationNotFoundException;
 import com.mopl.domain.exception.conversation.DirectMessageNotFoundException;
 import com.mopl.domain.exception.conversation.ReadStatusNotFoundException;
 import com.mopl.domain.exception.user.UserNotFoundException;
-import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.model.conversation.DirectMessageModel;
 import com.mopl.domain.model.conversation.ReadStatusModel;
 import com.mopl.domain.model.user.UserModel;
-import com.mopl.domain.repository.content.ContentQueryRequest;
 import com.mopl.domain.repository.conversation.ConversationQueryRepository;
 import com.mopl.domain.repository.conversation.ConversationQueryRequest;
 import com.mopl.domain.repository.conversation.ConversationRepository;
@@ -56,30 +54,29 @@ public class ConversationService {
     }
 
     public CursorResponse<DirectMessageModel> getAllDirectMessage(
-            UUID conversationId,
-            DirectMessageQueryRequest request,
-            UUID userId
+        UUID conversationId,
+        DirectMessageQueryRequest request,
+        UUID userId
     ) {
 
-        return directMessageQueryRepository.findAllByConversationId(conversationId,request,userId);
+        return directMessageQueryRepository.findAllByConversationId(conversationId, request,
+            userId);
 
     }
-
 
     public CursorResponse<ConversationModel> getAllConversation(
-            ConversationQueryRequest request,
-            UUID userId
+        ConversationQueryRequest request,
+        UUID userId
     ) {
 
-        return conversationQueryRepository.findAllConversation(request,userId);
+        return conversationQueryRepository.findAllConversation(request, userId);
     }
-
 
     public void directMessageRead(
         DirectMessageModel directMessageModel,
         ReadStatusModel readStatusModel
     ) {
-        if(directMessageModel!=null){
+        if (directMessageModel != null) {
             readStatusModel.updateLastRead(Instant.now());
             readStatusRepository.save(readStatusModel);
         }
@@ -87,15 +84,16 @@ public class ConversationService {
     }
 
     public DirectMessageModel getOtherDirectMessage(
-            UUID conversationId,
-            UUID directMessageId,
-            UUID userId
-    ){
+        UUID conversationId,
+        UUID directMessageId,
+        UUID userId
+    ) {
 
-        return directMessageRepository.findOtherDirectMessage(conversationId,directMessageId,userId)
-                .orElseThrow(() -> new DirectMessageNotFoundException(conversationId,directMessageId,userId));
+        return directMessageRepository.findOtherDirectMessage(conversationId, directMessageId,
+            userId)
+            .orElseThrow(() -> new DirectMessageNotFoundException(conversationId, directMessageId,
+                userId));
     }
-
 
     public ConversationModel getConversationByWith(UUID userId, UUID withId) {
         //readStatus 를 가지고 와서 conversation_id로 비교해서 찾은 뒤에 conversation 조회 및 message조회
@@ -103,8 +101,9 @@ public class ConversationService {
         UserModel withModel = userRepository.findById(withId)
             .orElseThrow(() -> UserNotFoundException.withId(withId));
 
-        ConversationModel conversationModel = conversationRepository.findByParticipants(userId,withId)
-                .orElseThrow(()-> new  ConversationNotFoundException(userId,withId));
+        ConversationModel conversationModel = conversationRepository.findByParticipants(userId,
+            withId)
+            .orElseThrow(() -> new ConversationNotFoundException(userId, withId));
 
         conversationModel.withUser(withModel);
 
@@ -116,11 +115,10 @@ public class ConversationService {
             conversationId);
 
         UserModel userModel = userReadStatus.stream()
-                .filter(rs -> !rs.getUser().getId().equals((userId)))
-                .map(rs -> userRepository.findById(rs.getUser().getId()).orElse(null))
-                .findFirst()
-                .orElse(null);
-
+            .filter(rs -> !rs.getUser().getId().equals((userId)))
+            .map(rs -> userRepository.findById(rs.getUser().getId()).orElse(null))
+            .findFirst()
+            .orElse(null);
 
         ConversationModel conversationModel = conversationRepository.find(conversationId)
             .orElseThrow(() -> new ConversationNotFoundException(conversationId));
@@ -140,10 +138,10 @@ public class ConversationService {
         return readStatusRepository.findByConversationId(conversationId);
     }
 
-    public ReadStatusModel getReadStatusByConversationIdAndUserId(UUID conversationId,UUID userId) {
-        return readStatusRepository.findByConversationIdAndUserId(conversationId,userId);
+    public ReadStatusModel getReadStatusByConversationIdAndUserId(UUID conversationId,
+        UUID userId) {
+        return readStatusRepository.findByConversationIdAndUserId(conversationId, userId);
     }
-
 
     public ReadStatusModel getReadStatusById(UUID readStatusId) {
         return readStatusRepository.findById(readStatusId)

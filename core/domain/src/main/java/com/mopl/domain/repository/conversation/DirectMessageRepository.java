@@ -12,5 +12,6 @@ public interface DirectMessageRepository {
 
     DirectMessageModel findByConversationIdAndSenderId(UUID conversationId, UUID senderId);
 
-    Optional<DirectMessageModel> findOtherDirectMessage(UUID conversationId,UUID directMessageId ,UUID userId);
+    Optional<DirectMessageModel> findOtherDirectMessage(UUID conversationId, UUID directMessageId,
+        UUID userId);
 }

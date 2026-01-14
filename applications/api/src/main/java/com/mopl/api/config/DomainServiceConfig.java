@@ -95,7 +95,6 @@ public class DomainServiceConfig {
         return new PlaylistSubscriptionService(playlistSubscriberRepository);
     }
 
-
     @Bean
     public NotificationService notificationService(
         NotificationRepository notificationRepository
@@ -105,23 +104,22 @@ public class DomainServiceConfig {
         );
     }
 
-
     @Bean
     public ConversationService conversationService(
-            ConversationRepository conversationRepository,
-            ReadStatusRepository readStatusRepository,
-            DirectMessageRepository directMessageRepository,
-            UserRepository userRepository,
-            ConversationQueryRepository conversationQueryRepository,
-            DirectMessageQueryRepository directMessageQueryRepository
-    ){
+        ConversationRepository conversationRepository,
+        ReadStatusRepository readStatusRepository,
+        DirectMessageRepository directMessageRepository,
+        UserRepository userRepository,
+        ConversationQueryRepository conversationQueryRepository,
+        DirectMessageQueryRepository directMessageQueryRepository
+    ) {
         return new ConversationService(
-                conversationRepository,
-                readStatusRepository,
-                directMessageRepository,
-                userRepository,
-                conversationQueryRepository,
-                directMessageQueryRepository
+            conversationRepository,
+            readStatusRepository,
+            directMessageRepository,
+            userRepository,
+            conversationQueryRepository,
+            directMessageQueryRepository
         );
     }
 }

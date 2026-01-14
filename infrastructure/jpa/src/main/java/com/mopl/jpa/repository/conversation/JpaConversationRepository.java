@@ -10,16 +10,15 @@ import org.springframework.data.repository.query.Param;
 
 public interface JpaConversationRepository extends JpaRepository<ConversationEntity, UUID> {
 
-
     @Query("""
-        SELECT rs.conversation
-        FROM ReadStatusEntity rs
-        WHERE rs.participant.id in (:userId, :withId)
-        GROUP By rs.conversation.id
-        HAVING COUNT(DISTINCT rs.participant.id) = 2
-    """)
+            SELECT rs.conversation
+            FROM ReadStatusEntity rs
+            WHERE rs.participant.id in (:userId, :withId)
+            GROUP By rs.conversation.id
+            HAVING COUNT(DISTINCT rs.participant.id) = 2
+        """)
     Optional<ConversationEntity> findConversationIdByParticipants(
-            @Param("userId") UUID userId,
-            @Param("withId") UUID withId
+        @Param("userId") UUID userId,
+        @Param("withId") UUID withId
     );
 }

@@ -17,7 +17,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-
 @Repository
 @RequiredArgsConstructor
 public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepository {
@@ -25,69 +24,67 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
     private final JPAQueryFactory queryFactory;
     private final DirectMessageEntityMapper directMessageEntityMapper;
 
-
     @Override
     public CursorResponse<DirectMessageModel> findAllByConversationId(
-            UUID conversationId,
-            DirectMessageQueryRequest request,
-            UUID userId) {
+        UUID conversationId,
+        DirectMessageQueryRequest request,
+        UUID userId) {
         QDirectMessageEntity directMessage = QDirectMessageEntity.directMessageEntity;
         QConversationEntity conversation = QConversationEntity.conversationEntity;
         QReadStatusEntity readStatus = QReadStatusEntity.readStatusEntity;
 
-        DirectMessageSortFieldJpa sortField =
-                DirectMessageSortFieldJpa.from(request.sortBy());
+        DirectMessageSortFieldJpa sortField = DirectMessageSortFieldJpa.from(request.sortBy());
 
         // base query
         JPAQuery<DirectMessageEntity> query = queryFactory
-                .select(directMessage)
-                .from(directMessage)
-                .join(directMessage.conversation, conversation)
-                .join(readStatus)
-                .on(readStatus.conversation.eq(conversation))
-                .where(
-                        // 특정 대화방
-                        conversation.id.eq(conversationId),
-                        // 내가 해당 대화방의 참여자인지 검증
-                        readStatus.participant.id.eq(userId),
-                        // soft delete
-                        directMessage.deletedAt.isNull()
-                );
+            .select(directMessage)
+            .from(directMessage)
+            .join(directMessage.conversation, conversation)
+            .join(readStatus)
+            .on(readStatus.conversation.eq(conversation))
+            .where(
+                // 특정 대화방
+                conversation.id.eq(conversationId),
+                // 내가 해당 대화방의 참여자인지 검증
+                readStatus.participant.id.eq(userId),
+                // soft delete
+                directMessage.deletedAt.isNull()
+            );
 
         // cursor pagination 적용
         CursorPaginationHelper.applyCursorPagination(
-                request,
-                sortField,
-                query,
-                directMessage.id
+            request,
+            sortField,
+            query,
+            directMessage.id
         );
 
         List<DirectMessageEntity> rows = query.fetch();
 
         // total count
         Long totalCountValue = queryFactory
-                .select(directMessage.count())
-                .from(directMessage)
-                .join(directMessage.conversation, conversation)
-                .join(readStatus)
-                .on(readStatus.conversation.eq(conversation))
-                .where(
-                        conversation.id.eq(conversationId),
-                        readStatus.participant.id.eq(userId),
-                        directMessage.deletedAt.isNull()
-                )
-                .fetchOne();
+            .select(directMessage.count())
+            .from(directMessage)
+            .join(directMessage.conversation, conversation)
+            .join(readStatus)
+            .on(readStatus.conversation.eq(conversation))
+            .where(
+                conversation.id.eq(conversationId),
+                readStatus.participant.id.eq(userId),
+                directMessage.deletedAt.isNull()
+            )
+            .fetchOne();
 
         long totalCount = totalCountValue != null ? totalCountValue : 0L;
 
         return CursorPaginationHelper.buildResponse(
-                rows,
-                request,
-                sortField,
-                totalCount,
-                directMessageEntityMapper::toModel,
-                sortField::extractValue,
-                DirectMessageEntity::getId
+            rows,
+            request,
+            sortField,
+            totalCount,
+            directMessageEntityMapper::toModel,
+            sortField::extractValue,
+            DirectMessageEntity::getId
         );
     }
 }

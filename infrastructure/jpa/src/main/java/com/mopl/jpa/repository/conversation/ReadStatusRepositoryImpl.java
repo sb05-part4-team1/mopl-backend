@@ -66,8 +66,8 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
 
     @Override
     public ReadStatusModel findByConversationIdAndUserId(UUID conversationId, UUID userId) {
-        ReadStatusEntity readStatusEntity =
-                jpaReadStatusRepository.findByConversationIdAndParticipantId(conversationId, userId);
+        ReadStatusEntity readStatusEntity = jpaReadStatusRepository
+            .findByConversationIdAndParticipantId(conversationId, userId);
 
         return readStatusEntityMapper.toModel(readStatusEntity);
     }

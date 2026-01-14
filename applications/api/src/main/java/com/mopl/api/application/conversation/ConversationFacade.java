@@ -5,18 +5,15 @@ import com.mopl.api.interfaces.api.conversation.ConversationResponse;
 import com.mopl.api.interfaces.api.conversation.ConversationResponseMapper;
 import com.mopl.api.interfaces.api.conversation.DirectMessageMapper;
 import com.mopl.api.interfaces.api.conversation.DirectMessageResponse;
-import com.mopl.api.interfaces.api.user.UserResponse;
 import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.model.conversation.DirectMessageModel;
 import com.mopl.domain.model.conversation.ReadStatusModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.conversation.ConversationQueryRequest;
 import com.mopl.domain.repository.conversation.DirectMessageQueryRequest;
-import com.mopl.domain.repository.user.UserQueryRequest;
 import com.mopl.domain.service.conversation.ConversationService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.support.cursor.CursorResponse;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -33,12 +30,13 @@ public class ConversationFacade {
     private final DirectMessageMapper directMessageMapper;
 
     @Transactional
-    public void directMessageRead(UUID conversationId, UUID directMessageId,UUID userId) {
+    public void directMessageRead(UUID conversationId, UUID directMessageId, UUID userId) {
         DirectMessageModel directMessageModel = conversationService.getOtherDirectMessage(
-            conversationId,directMessageId,userId);
+            conversationId, directMessageId, userId);
 
-        ReadStatusModel readStatusModels = conversationService.getReadStatusByConversationIdAndUserId(
-            conversationId,userId);
+        ReadStatusModel readStatusModels = conversationService
+            .getReadStatusByConversationIdAndUserId(
+                conversationId, userId);
 
         conversationService.directMessageRead(directMessageModel, readStatusModels);
     }
@@ -50,29 +48,26 @@ public class ConversationFacade {
 
     }
 
-
     @Transactional
     public CursorResponse<DirectMessageResponse> getAllDirectMessage(
         UUID conversationId,
         DirectMessageQueryRequest request,
         UUID userId
-    ){
-        return conversationService.getAllDirectMessage(conversationId,request,userId)
-                .map(directMessageMapper::toResponse);
+    ) {
+        return conversationService.getAllDirectMessage(conversationId, request, userId)
+            .map(directMessageMapper::toResponse);
 
     }
-
 
     @Transactional
     public CursorResponse<ConversationResponse> getAllConversation(
-            ConversationQueryRequest request,
-            UUID userId
+        ConversationQueryRequest request,
+        UUID userId
     ) {
-        return conversationService.getAllConversation(request,userId)
-                .map(conversationResponseMapper::toResponse);
+        return conversationService.getAllConversation(request, userId)
+            .map(conversationResponseMapper::toResponse);
 
     }
-
 
     @Transactional
     public ConversationModel createConversation(ConversationCreateRequest request, UUID userId) {
@@ -89,6 +84,5 @@ public class ConversationFacade {
 
         return conversationService.getConversation(conversationId, userId);
     }
-
 
 }

@@ -16,14 +16,13 @@ import lombok.RequiredArgsConstructor;
 public enum DirectMessageSortFieldJpa implements SortField<Comparable<?>> {
 
     CREATED_AT(DirectMessageSortField.createdAt, cast(directMessageEntity.createdAt),
-            DirectMessageEntity::getCreatedAt, value -> ((Instant) value).toString(), Instant::parse);
+        DirectMessageEntity::getCreatedAt, value -> ((Instant) value).toString(), Instant::parse);
 
     private final DirectMessageSortField domainField;
     private final ComparableExpression<Comparable<?>> expression;
     private final Function<DirectMessageEntity, Object> valueExtractor;
     private final Function<Object, String> serializer;
     private final Function<String, Comparable<?>> deserializer;
-
 
     @SuppressWarnings("unchecked")
     private static ComparableExpression<Comparable<?>> cast(ComparableExpression<?> expression) {

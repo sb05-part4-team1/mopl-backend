@@ -42,13 +42,13 @@ public class DirectMessageRepositoryImpl implements DirectMessageRepository {
 
     @Override
     public Optional<DirectMessageModel> findOtherDirectMessage(
-            UUID conversationId,
-            UUID directMessageId,
-            UUID userId
+        UUID conversationId,
+        UUID directMessageId,
+        UUID userId
     ) {
 
-        return jpaDirectMessageRepository.findOther(conversationId,directMessageId,userId)
-                .map(directMessageEntityMapper::toModel);
+        return jpaDirectMessageRepository.findOther(conversationId, directMessageId, userId)
+            .map(directMessageEntityMapper::toModel);
     }
 
 }

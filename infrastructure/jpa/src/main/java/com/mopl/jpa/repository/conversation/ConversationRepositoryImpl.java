@@ -56,7 +56,7 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     public Optional<ConversationModel> findByParticipants(UUID userId, UUID withId) {
 
         return jpaConversationRepository.findConversationIdByParticipants(userId, withId)
-                .map(conversationEntityMapper::toModel);
+            .map(conversationEntityMapper::toModel);
     }
 
 }

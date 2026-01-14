@@ -11,9 +11,9 @@ public class DirectMessageNotFoundException extends ConversationException {
 
     public DirectMessageNotFoundException(UUID conversationId, UUID directMessageId, UUID userId) {
         super(ConversationErrorCode.DIRECTMESSAGE_NOT_FOUND, Map.of(
-                "conversationId", conversationId,
-                "directMessageId", directMessageId,
-                "userId", userId)
+            "conversationId", conversationId,
+            "directMessageId", directMessageId,
+            "userId", userId)
         );
     }
 
