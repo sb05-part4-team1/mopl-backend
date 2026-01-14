@@ -4,12 +4,13 @@ plugins {
 }
 
 dependencies {
-    // Test (순수 JUnit, Spring 제외)
+    // spring cache
+    implementation("org.springframework:spring-context")
+    // Test
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.assertj:assertj-core")
     testImplementation("org.mockito:mockito-core")
     testImplementation("org.mockito:mockito-junit-jupiter")
-
-    // Test Fixtures (Fixture Monkey)
+    // Fixturemonkey
     testFixturesApi("com.navercorp.fixturemonkey:fixture-monkey-starter:${project.properties["fixtureMonkeyVersion"]}")
 }

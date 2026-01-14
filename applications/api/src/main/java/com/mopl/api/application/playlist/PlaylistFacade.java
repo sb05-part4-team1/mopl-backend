@@ -150,5 +150,4 @@ public class PlaylistFacade {
 
         playlistSubscriptionService.unsubscribe(playlistId, requesterId);
     }
-
 }
