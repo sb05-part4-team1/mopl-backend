@@ -23,12 +23,14 @@ public class NotificationService {
     }
 
     public NotificationModel getById(UUID notificationId) {
-        return notificationRepository.findByIdAndDeletedAtIsNull(notificationId)
+        return notificationRepository.findById(notificationId)
             .orElseThrow(() -> new NotificationNotFoundException(notificationId));
     }
 
-    public CursorResponse<NotificationModel> getAll(UUID receiverId,
-        NotificationQueryRequest request) {
+    public CursorResponse<NotificationModel> getAll(
+        UUID receiverId,
+        NotificationQueryRequest request
+    ) {
         return notificationQueryRepository.findAll(receiverId, request);
     }
 }

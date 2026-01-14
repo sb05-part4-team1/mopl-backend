@@ -1,9 +1,9 @@
 package com.mopl.jpa.entity.notification;
 
-import org.springframework.stereotype.Component;
-
 import com.mopl.domain.model.notification.NotificationModel;
+import com.mopl.domain.model.user.UserModel;
 import com.mopl.jpa.entity.user.UserEntity;
+import org.springframework.stereotype.Component;
 
 @Component
 public class NotificationEntityMapper {
@@ -20,7 +20,7 @@ public class NotificationEntityMapper {
             .title(entity.getTitle())
             .content(entity.getContent())
             .level(entity.getLevel())
-            .receiverId(entity.getReceiver().getId())
+            .receiver(UserModel.builder().id(entity.getReceiver().getId()).build())
             .build();
     }
 

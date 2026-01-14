@@ -21,18 +21,21 @@ public class NotificationFacade {
     private final NotificationResponseMapper notificationResponseMapper;
     private final UserService userService;
 
-    public CursorResponse<NotificationResponse> getNotifications(UUID userId,
-        NotificationQueryRequest request) {
+    public CursorResponse<NotificationResponse> getNotifications(
+        UUID userId,
+        NotificationQueryRequest request
+    ) {
         userService.getById(userId);
         return notificationService.getAll(userId, request).map(
-            notificationResponseMapper::toResponse);
+            notificationResponseMapper::toResponse
+        );
     }
 
     public void readNotification(UUID userId, UUID notificationId) {
         userService.getById(userId);
         NotificationModel notification = notificationService.getById(notificationId);
 
-        if (!notification.getReceiverId().equals(userId)) {
+        if (!notification.getReceiver().getId().equals(userId)) {
             throw new NotificationOwnershipException(notificationId, userId);
         }
 

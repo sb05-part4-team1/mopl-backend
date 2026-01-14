@@ -63,11 +63,11 @@ class NotificationFacadeTest {
                 .sample();
 
             NotificationModel notification1 = NotificationModelFixture.builder()
-                .set("receiverId", userId)
+                .set("receiver", userModel)
                 .set("title", "알림1")
                 .sample();
             NotificationModel notification2 = NotificationModelFixture.builder()
-                .set("receiverId", userId)
+                .set("receiver", userModel)
                 .set("title", "알림2")
                 .sample();
 
@@ -89,7 +89,8 @@ class NotificationFacadeTest {
             given(notificationService.getAll(userId, request)).willReturn(serviceResponse);
 
             // when
-            CursorResponse<NotificationResponse> result = notificationFacade.getNotifications(userId, request);
+            CursorResponse<NotificationResponse> result = notificationFacade.getNotifications(
+                userId, request);
 
             // then
             assertThat(result.data()).hasSize(2);
@@ -124,7 +125,8 @@ class NotificationFacadeTest {
             given(notificationService.getAll(userId, request)).willReturn(emptyResponse);
 
             // when
-            CursorResponse<NotificationResponse> result = notificationFacade.getNotifications(userId, request);
+            CursorResponse<NotificationResponse> result = notificationFacade.getNotifications(
+                userId, request);
 
             // then
             assertThat(result.data()).isEmpty();
@@ -171,7 +173,7 @@ class NotificationFacadeTest {
 
             NotificationModel notification = NotificationModelFixture.builder()
                 .set("id", notificationId)
-                .set("receiverId", userId)
+                .set("receiver", userModel)
                 .sample();
 
             given(userService.getById(userId)).willReturn(userModel);
@@ -199,9 +201,13 @@ class NotificationFacadeTest {
                 .set("id", userId)
                 .sample();
 
+            UserModel otherUserModel = UserModelFixture.builder()
+                .set("id", otherUserId)
+                .sample();
+
             NotificationModel notification = NotificationModelFixture.builder()
                 .set("id", notificationId)
-                .set("receiverId", otherUserId)
+                .set("receiver", otherUserModel)
                 .sample();
 
             given(userService.getById(userId)).willReturn(userModel);

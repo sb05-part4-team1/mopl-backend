@@ -104,15 +104,16 @@ class NotificationControllerTest {
                 SortDirection.ASCENDING
             );
 
-            given(notificationFacade.getNotifications(eq(userId), any(NotificationQueryRequest.class)))
+            given(notificationFacade.getNotifications(eq(userId), any(
+                NotificationQueryRequest.class)))
                 .willReturn(cursorResponse);
 
             // when & then
             mockMvc.perform(get("/api/notifications")
-                    .with(user(mockUserDetails))
-                    .param("limit", "10")
-                    .param("sortDirection", "ASCENDING")
-                    .param("sortBy", "createdAt"))
+                .with(user(mockUserDetails))
+                .param("limit", "10")
+                .param("sortDirection", "ASCENDING")
+                .param("sortBy", "createdAt"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(2))
@@ -125,7 +126,8 @@ class NotificationControllerTest {
                 .andExpect(jsonPath("$.sortBy").value("createdAt"))
                 .andExpect(jsonPath("$.sortDirection").value("ASCENDING"));
 
-            then(notificationFacade).should().getNotifications(eq(userId), any(NotificationQueryRequest.class));
+            then(notificationFacade).should().getNotifications(eq(userId), any(
+                NotificationQueryRequest.class));
         }
 
         @Test
@@ -148,22 +150,24 @@ class NotificationControllerTest {
                 SortDirection.DESCENDING
             );
 
-            given(notificationFacade.getNotifications(eq(userId), any(NotificationQueryRequest.class)))
+            given(notificationFacade.getNotifications(eq(userId), any(
+                NotificationQueryRequest.class)))
                 .willReturn(cursorResponse);
 
             // when & then
             mockMvc.perform(get("/api/notifications")
-                    .with(user(mockUserDetails))
-                    .param("cursor", "2025-01-01T00:00:00Z")
-                    .param("idAfter", idAfter.toString())
-                    .param("limit", "10")
-                    .param("sortDirection", "DESCENDING"))
+                .with(user(mockUserDetails))
+                .param("cursor", "2025-01-01T00:00:00Z")
+                .param("idAfter", idAfter.toString())
+                .param("limit", "10")
+                .param("sortDirection", "DESCENDING"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(1))
                 .andExpect(jsonPath("$.hasNext").value(false))
                 .andExpect(jsonPath("$.nextCursor").doesNotExist());
 
-            then(notificationFacade).should().getNotifications(eq(userId), any(NotificationQueryRequest.class));
+            then(notificationFacade).should().getNotifications(eq(userId), any(
+                NotificationQueryRequest.class));
         }
 
         @Test
@@ -175,19 +179,21 @@ class NotificationControllerTest {
                 SortDirection.ASCENDING
             );
 
-            given(notificationFacade.getNotifications(eq(userId), any(NotificationQueryRequest.class)))
+            given(notificationFacade.getNotifications(eq(userId), any(
+                NotificationQueryRequest.class)))
                 .willReturn(emptyResponse);
 
             // when & then
             mockMvc.perform(get("/api/notifications")
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(0))
                 .andExpect(jsonPath("$.hasNext").value(false))
                 .andExpect(jsonPath("$.totalCount").value(0));
 
-            then(notificationFacade).should().getNotifications(eq(userId), any(NotificationQueryRequest.class));
+            then(notificationFacade).should().getNotifications(eq(userId), any(
+                NotificationQueryRequest.class));
         }
 
     }
@@ -206,7 +212,7 @@ class NotificationControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/notifications/{notificationId}", notificationId)
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isNoContent());
 
             then(notificationFacade).should().readNotification(userId, notificationId);
@@ -223,7 +229,7 @@ class NotificationControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/notifications/{notificationId}", notificationId)
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isNotFound());
         }
 
@@ -238,7 +244,7 @@ class NotificationControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/notifications/{notificationId}", notificationId)
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isForbidden());
         }
     }

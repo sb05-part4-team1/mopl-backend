@@ -33,8 +33,7 @@ public class NotificationQueryRepositoryImpl implements NotificationQueryReposit
         JPAQuery<NotificationEntity> jpaQuery = queryFactory
             .selectFrom(notificationEntity)
             .where(
-                receiverIdEqual(receiverId),
-                notificationEntity.deletedAt.isNull()
+                receiverIdEqual(receiverId)
             );
 
         CursorPaginationHelper.applyCursorPagination(
@@ -63,8 +62,7 @@ public class NotificationQueryRepositoryImpl implements NotificationQueryReposit
             .select(notificationEntity.count())
             .from(notificationEntity)
             .where(
-                receiverIdEqual(receiverId),
-                notificationEntity.deletedAt.isNull()
+                receiverIdEqual(receiverId)
             )
             .fetchOne();
         return total != null ? total : 0;
