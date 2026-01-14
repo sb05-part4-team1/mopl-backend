@@ -1,8 +1,9 @@
 package com.mopl.jpa.repository.conversation.query;
 
-import static com.mopl.jpa.entity.conversation.QConversationEntity.conversationEntity;
-import com.mopl.domain.repository.conversation.ConversationSortField;
-import com.mopl.jpa.entity.conversation.ConversationEntity;
+import static com.mopl.jpa.entity.conversation.QDirectMessageEntity.directMessageEntity;
+
+import com.mopl.domain.repository.conversation.DirectMessageSortField;
+import com.mopl.jpa.entity.conversation.DirectMessageEntity;
 import com.mopl.jpa.support.cursor.SortField;
 import com.querydsl.core.types.dsl.ComparableExpression;
 import java.time.Instant;
@@ -10,17 +11,16 @@ import java.util.function.Function;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-
 @Getter
 @RequiredArgsConstructor
-public enum ConversationSortFieldJpa implements SortField<Comparable<?>> {
+public enum DirectMessageSortFieldJpa implements SortField<Comparable<?>> {
 
-    CREATED_AT(ConversationSortField.createdAt, cast(conversationEntity.createdAt),
-            ConversationEntity::getCreatedAt, value -> ((Instant) value).toString(), Instant::parse);
+    CREATED_AT(DirectMessageSortField.createdAt, cast(directMessageEntity.createdAt),
+            DirectMessageEntity::getCreatedAt, value -> ((Instant) value).toString(), Instant::parse);
 
-    private final ConversationSortField domainField;
+    private final DirectMessageSortField domainField;
     private final ComparableExpression<Comparable<?>> expression;
-    private final Function<ConversationEntity, Object> valueExtractor;
+    private final Function<DirectMessageEntity, Object> valueExtractor;
     private final Function<Object, String> serializer;
     private final Function<String, Comparable<?>> deserializer;
 
@@ -30,7 +30,7 @@ public enum ConversationSortFieldJpa implements SortField<Comparable<?>> {
         return (ComparableExpression<Comparable<?>>) expression;
     }
 
-    public static ConversationSortFieldJpa from(ConversationSortField domainField) {
+    public static DirectMessageSortFieldJpa from(DirectMessageSortField domainField) {
         return switch (domainField) {
             case createdAt -> CREATED_AT;
         };
@@ -46,7 +46,7 @@ public enum ConversationSortFieldJpa implements SortField<Comparable<?>> {
         return deserializer.apply(cursor);
     }
 
-    public Object extractValue(ConversationEntity entity) {
+    public Object extractValue(DirectMessageEntity entity) {
         return valueExtractor.apply(entity);
     }
 

@@ -1,5 +1,5 @@
 package com.mopl.domain.repository.conversation;
 
-public enum ConversationSortField {
+public enum DirectMessageSortField {
     createdAt
 }

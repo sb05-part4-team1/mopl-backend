@@ -12,13 +12,13 @@ public interface JpaConversationRepository extends JpaRepository<ConversationEnt
 
 
     @Query("""
-        SELECT rs.conversation.id
+        SELECT rs.conversation
         FROM ReadStatusEntity rs
         WHERE rs.participant.id in (:userId, :withId)
         GROUP By rs.conversation.id
         HAVING COUNT(DISTINCT rs.participant.id) = 2
     """)
-    Optional<UUID> findConversationIdByParticipants(
+    Optional<ConversationEntity> findConversationIdByParticipants(
             @Param("userId") UUID userId,
             @Param("withId") UUID withId
     );

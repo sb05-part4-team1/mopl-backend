@@ -13,4 +13,5 @@ public interface JpaReadStatusRepository extends JpaRepository<ReadStatusEntity,
 
     List<ReadStatusEntity> findByParticipantId(UUID participantId);
 
+
 }

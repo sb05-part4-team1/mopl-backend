@@ -12,5 +12,5 @@ public interface ConversationRepository {
 
     Optional<ConversationModel> findById(UUID conversationId);
 
-    Optional<UUID> findByParticipants(UUID userId, UUID withId);
+    Optional<ConversationModel> findByParticipants(UUID userId, UUID withId);
 }

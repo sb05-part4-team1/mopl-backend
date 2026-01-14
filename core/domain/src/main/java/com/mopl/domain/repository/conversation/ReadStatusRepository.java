@@ -16,4 +16,6 @@ public interface ReadStatusRepository {
     ReadStatusModel findByConversationIdAndParticipantId(UUID conversationId, UUID participantId);
 
     List<ReadStatusModel> findByParticipantId(UUID participantId);
+
+    ReadStatusModel findByConversationIdAndUserId(UUID conversationId, UUID userId);
 }

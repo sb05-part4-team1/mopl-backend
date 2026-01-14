@@ -4,6 +4,8 @@ import com.mopl.jpa.entity.conversation.DirectMessageEntity;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface JpaDirectMessageRepository extends JpaRepository<DirectMessageEntity, UUID> {
 
@@ -11,5 +13,19 @@ public interface JpaDirectMessageRepository extends JpaRepository<DirectMessageE
 
     DirectMessageEntity findTopByConversationIdAndSenderIdOrderByCreatedAtDesc(UUID conversationId,
         UUID senderId);
+
+
+    @Query("""
+         SELECT dm
+         FROM DirectMessageEntity dm
+         WHERE dm.conversation.id = :conversationId
+           AND dm.sender.id <> :userId
+           AND dm.id = :directMessageId
+    """)
+    Optional<DirectMessageEntity> findOther(
+            @Param("conversationId") UUID conversationId,
+            @Param("directMessageId") UUID directMessageId,
+            @Param("userId") UUID userId
+    );
 
 }

@@ -64,4 +64,12 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
             .collect(Collectors.toList());
     }
 
+    @Override
+    public ReadStatusModel findByConversationIdAndUserId(UUID conversationId, UUID userId) {
+        ReadStatusEntity readStatusEntity =
+                jpaReadStatusRepository.findByConversationIdAndParticipantId(conversationId, userId);
+
+        return readStatusEntityMapper.toModel(readStatusEntity);
+    }
+
 }

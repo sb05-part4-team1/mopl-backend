@@ -56,7 +56,7 @@ public class ConversationEntityMapper {
             .id(conversationEntity.getId())
             .createdAt(conversationEntity.getCreatedAt())
             .updatedAt(conversationEntity.getUpdatedAt())
-            .directMessage(messageModel)
+            .lastMessage(messageModel)
             .build()).orElse(null);
 
     }
@@ -76,7 +76,7 @@ public class ConversationEntityMapper {
             .createdAt(conversationEntity.getCreatedAt())
             .updatedAt(conversationEntity.getUpdatedAt())
             .withUser(userModel)
-            .directMessage(directMessageModel)
+            .lastMessage(directMessageModel)
             .build();
     }
 

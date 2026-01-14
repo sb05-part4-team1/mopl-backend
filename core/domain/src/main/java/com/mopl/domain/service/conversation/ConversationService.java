@@ -4,14 +4,21 @@ import com.mopl.domain.exception.conversation.ConversationNotFoundException;
 import com.mopl.domain.exception.conversation.DirectMessageNotFoundException;
 import com.mopl.domain.exception.conversation.ReadStatusNotFoundException;
 import com.mopl.domain.exception.user.UserNotFoundException;
+import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.model.conversation.DirectMessageModel;
 import com.mopl.domain.model.conversation.ReadStatusModel;
 import com.mopl.domain.model.user.UserModel;
+import com.mopl.domain.repository.content.ContentQueryRequest;
+import com.mopl.domain.repository.conversation.ConversationQueryRepository;
+import com.mopl.domain.repository.conversation.ConversationQueryRequest;
 import com.mopl.domain.repository.conversation.ConversationRepository;
+import com.mopl.domain.repository.conversation.DirectMessageQueryRepository;
+import com.mopl.domain.repository.conversation.DirectMessageQueryRequest;
 import com.mopl.domain.repository.conversation.DirectMessageRepository;
 import com.mopl.domain.repository.conversation.ReadStatusRepository;
 import com.mopl.domain.repository.user.UserRepository;
+import com.mopl.domain.support.cursor.CursorResponse;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -20,21 +27,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ConversationService {
 
-//    생각해봐야 할 부분
-//    @Query("SELECT c FROM ConversationEntity c " +
-//            "LEFT JOIN FETCH c.withUser " +
-//            "LEFT JOIN FETCH c.lastMessage m " +
-//            "LEFT JOIN FETCH m.sender " +
-//            "WHERE c.id = :id")
-//    Optional<ConversationEntity> findByIdWithDetails(@Param("id") UUID id);
-//    이런 식으로 JPQL을 짜면 다른 Repository가 필요 없어지긴 합니다.
-//    데이터 조합의 책임을 Service로 두면 저 쿼리를
-//    Service에서 따로따로 쿼리를 날려서할 수는 있는데 복잡할 것 같네요.
-
     private final ConversationRepository conversationRepository;
     private final ReadStatusRepository readStatusRepository;
     private final DirectMessageRepository directMessageRepository;
     private final UserRepository userRepository;
+    private final ConversationQueryRepository conversationQueryRepository;
+    private final DirectMessageQueryRepository directMessageQueryRepository;
 
     public ConversationModel create(
         ConversationModel conversationModel,
@@ -57,52 +55,56 @@ public class ConversationService {
 
     }
 
+    public CursorResponse<DirectMessageModel> getAllDirectMessage(
+            UUID conversationId,
+            DirectMessageQueryRequest request,
+            UUID userId
+    ) {
+
+        return directMessageQueryRepository.findAllByConversationId(conversationId,request,userId);
+
+    }
+
+
+    public CursorResponse<ConversationModel> getAllConversation(
+            ConversationQueryRequest request,
+            UUID userId
+    ) {
+
+        return conversationQueryRepository.findAllConversation(request,userId);
+    }
+
+
     public void directMessageRead(
         DirectMessageModel directMessageModel,
-        List<ReadStatusModel> readStatusModels
+        ReadStatusModel readStatusModel
     ) {
-        for (ReadStatusModel readStatusModel : readStatusModels) {
-            if (!(readStatusModel.getUser().getId().equals(directMessageModel.getSender()
-                .getId()))) {
-                readStatusModel.updateLastRead(Instant.now());
-                readStatusRepository.save(readStatusModel);
-            }
-
+        if(directMessageModel!=null){
+            readStatusModel.updateLastRead(Instant.now());
+            readStatusRepository.save(readStatusModel);
         }
 
+    }
+
+    public DirectMessageModel getOtherDirectMessage(
+            UUID conversationId,
+            UUID directMessageId,
+            UUID userId
+    ){
+
+        return directMessageRepository.findOtherDirectMessage(conversationId,directMessageId,userId)
+                .orElseThrow(() -> new DirectMessageNotFoundException(conversationId,directMessageId,userId));
     }
 
 
     public ConversationModel getConversationByWith(UUID userId, UUID withId) {
         //readStatus 를 가지고 와서 conversation_id로 비교해서 찾은 뒤에 conversation 조회 및 message조회
 
-        //JPQL or Dsl 로  conversation_id를 가지고 오는 쿼리 직접 작성하기
-
-//        List<ReadStatusModel> userReadStatus = readStatusRepository.findByParticipantId(userId);
-//        List<ReadStatusModel> withReadStatus = readStatusRepository.findByParticipantId(withId);
-
         UserModel withModel = userRepository.findById(withId)
             .orElseThrow(() -> UserNotFoundException.withId(withId));
-        UUID conversationId = conversationRepository.findByParticipants(userId,withId)
+
+        ConversationModel conversationModel = conversationRepository.findByParticipants(userId,withId)
                 .orElseThrow(()-> new  ConversationNotFoundException(userId,withId));
-
-
-//        for (ReadStatusModel userRead : userReadStatus) {
-//            for (ReadStatusModel withRead : withReadStatus) {
-//                if (userRead.getConversation().getId().equals(withRead.getConversation().getId())) {
-//                    conversationId = userRead.getConversation().getId();
-//                    break;
-//                }
-//            }
-//            if (conversationId != null) {
-//                break;
-//            }
-//        }
-
-        UUID finalConversationId = conversationId;
-
-        ConversationModel conversationModel = conversationRepository.find(conversationId)
-            .orElseThrow(() -> new ConversationNotFoundException(finalConversationId));
 
         conversationModel.withUser(withModel);
 
@@ -137,6 +139,11 @@ public class ConversationService {
     public List<ReadStatusModel> getReadStatusByConversationId(UUID conversationId) {
         return readStatusRepository.findByConversationId(conversationId);
     }
+
+    public ReadStatusModel getReadStatusByConversationIdAndUserId(UUID conversationId,UUID userId) {
+        return readStatusRepository.findByConversationIdAndUserId(conversationId,userId);
+    }
+
 
     public ReadStatusModel getReadStatusById(UUID readStatusId) {
         return readStatusRepository.findById(readStatusId)
