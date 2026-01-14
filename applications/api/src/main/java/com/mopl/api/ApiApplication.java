@@ -7,7 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
     "com.mopl.api",
     "com.mopl.sse",
     "com.mopl.jpa",
-    "com.mopl.storage"
+    "com.mopl.storage",
+    "com.mopl.redis",
+    "com.mopl.cache"
 })
 public class ApiApplication {
 

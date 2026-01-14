@@ -261,7 +261,6 @@ class UserFacadeTest {
                     request));
 
             then(userService).should().getById(targetUser.getId());
-            then(userService).should().getById(targetUser.getId());
             then(userService).should().update(any(UserModel.class));
         }
 
@@ -280,33 +279,20 @@ class UserFacadeTest {
         }
 
         @Test
-        @DisplayName("자기 자신의 역할 변경 시 SelfRoleChangeException 발생")
-        void withSameRequesterAndTarget_throwsSelfRoleChangeException() {
-            // given
-            UUID userId = UUID.randomUUID();
-            UserRoleUpdateRequest request = new UserRoleUpdateRequest(UserModel.Role.USER);
-
-            // when & then
-            assertThatThrownBy(() -> userFacade.updateRole(userId, request, userId))
-                .isInstanceOf(SelfRoleChangeException.class);
-
-            then(userService).shouldHaveNoInteractions();
-        }
-
-        @Test
-        @DisplayName("다른 사용자의 역할 변경은 정상 동작")
+        @DisplayName("다른 사용자의 잠금 상태 변경은 정상 동작")
         void withDifferentRequesterAndTarget_shouldSucceed() {
             // given
             UUID requesterId = UUID.randomUUID();
             UserModel targetUser = UserModelFixture.create();
-            UserRoleUpdateRequest request = new UserRoleUpdateRequest(UserModel.Role.ADMIN);
+            UserLockUpdateRequest request = new UserLockUpdateRequest(true);
 
             given(userService.getById(targetUser.getId())).willReturn(targetUser);
             given(userService.update(any(UserModel.class))).willReturn(targetUser);
 
             // when & then
             assertThatNoException()
-                .isThrownBy(() -> userFacade.updateRole(requesterId, request, targetUser.getId()));
+                .isThrownBy(() -> userFacade.updateLocked(requesterId, targetUser.getId(),
+                    request));
         }
     }
 
