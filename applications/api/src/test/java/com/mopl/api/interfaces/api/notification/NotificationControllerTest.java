@@ -6,8 +6,10 @@ import com.mopl.api.interfaces.api.ApiControllerAdvice;
 import com.mopl.domain.exception.notification.NotificationNotFoundException;
 import com.mopl.domain.exception.notification.NotificationOwnershipException;
 import com.mopl.domain.fixture.NotificationModelFixture;
+import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.notification.NotificationLevel;
 import com.mopl.domain.model.notification.NotificationModel;
+import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.notification.NotificationQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
@@ -78,14 +80,17 @@ class NotificationControllerTest {
         @DisplayName("유효한 요청 시 200 OK 응답과 알림 목록 반환")
         void withValidRequest_returns200OKWithNotificationList() throws Exception {
             // given
+            UserModel receiver = UserModelFixture.builder()
+                .set("id", userId)
+                .sample();
             NotificationModel notification1 = NotificationModelFixture.builder()
-                .set("receiverId", userId)
+                .set("receiver", receiver)
                 .set("title", "알림1")
                 .set("content", "알림 내용1")
                 .set("level", NotificationLevel.INFO)
                 .sample();
             NotificationModel notification2 = NotificationModelFixture.builder()
-                .set("receiverId", userId)
+                .set("receiver", receiver)
                 .set("title", "알림2")
                 .set("content", "알림 내용2")
                 .set("level", NotificationLevel.WARNING)
@@ -135,8 +140,11 @@ class NotificationControllerTest {
         void withCursorParams_handlesPagination() throws Exception {
             // given
             UUID idAfter = UUID.randomUUID();
+            UserModel receiver = UserModelFixture.builder()
+                .set("id", userId)
+                .sample();
             NotificationModel notification = NotificationModelFixture.builder()
-                .set("receiverId", userId)
+                .set("receiver", receiver)
                 .sample();
             NotificationResponse response = notificationResponseMapper.toResponse(notification);
 
