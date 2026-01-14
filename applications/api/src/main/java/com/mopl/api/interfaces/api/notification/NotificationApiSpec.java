@@ -2,8 +2,6 @@ package com.mopl.api.interfaces.api.notification;
 
 import java.util.UUID;
 
-import org.springframework.http.ResponseEntity;
-
 import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.security.userdetails.MoplUserDetails;
 

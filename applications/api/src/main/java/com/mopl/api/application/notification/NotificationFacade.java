@@ -17,11 +17,11 @@ import lombok.RequiredArgsConstructor;
 public class NotificationFacade {
 
     private final NotificationService notificationService;
-	private final UserService userService;
+    private final UserService userService;
 
     @Transactional
     public void readNotification(UUID userId, UUID notificationId) {
-		userService.getById(userId);
+        userService.getById(userId);
         NotificationModel notification = notificationService.getById(notificationId);
 
         if (!notification.getReceiverId().equals(userId)) {
