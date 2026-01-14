@@ -89,7 +89,6 @@ public class DomainServiceConfig {
         return new PlaylistSubscriptionService(playlistSubscriberRepository);
     }
 
-
     @Bean
     public NotificationService notificationService(
         NotificationRepository notificationRepository

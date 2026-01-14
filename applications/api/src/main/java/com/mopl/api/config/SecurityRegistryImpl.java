@@ -31,7 +31,7 @@ public class SecurityRegistryImpl implements SecurityRegistry {
                 new AntPathRequestMatcher("/api/contents/{contentId}", HttpMethod.PATCH.name()),
                 new AntPathRequestMatcher("/api/contents/{contentId}", HttpMethod.DELETE.name())
             ).hasRole("ADMIN")
-            
+
             .requestMatchers(new NegatedRequestMatcher(
                 new AntPathRequestMatcher("/api/**"))
             ).permitAll()
