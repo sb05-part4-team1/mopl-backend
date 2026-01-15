@@ -1,9 +1,9 @@
 package com.mopl.jpa.entity.playlist;
 
 import com.mopl.domain.model.playlist.PlaylistModel;
-import com.mopl.domain.model.user.UserModel;
 import com.mopl.jpa.entity.user.UserEntity;
 import com.mopl.jpa.entity.user.UserEntityMapper;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,20 +12,35 @@ import org.springframework.stereotype.Component;
 public class PlaylistEntityMapper {
 
     private final UserEntityMapper userEntityMapper;
+    private final EntityManager entityManager;
 
     public PlaylistModel toModel(PlaylistEntity playlistEntity) {
         if (playlistEntity == null) {
             return null;
         }
 
-        UserModel ownerModel = userEntityMapper.toModel(playlistEntity.getOwner());
+        return PlaylistModel.builder()
+            .id(playlistEntity.getId())
+            .createdAt(playlistEntity.getCreatedAt())
+            .updatedAt(playlistEntity.getUpdatedAt())
+            .deletedAt(playlistEntity.getDeletedAt())
+            .owner(userEntityMapper.toModelIdOnly(playlistEntity.getOwner()))
+            .title(playlistEntity.getTitle())
+            .description(playlistEntity.getDescription())
+            .build();
+    }
+
+    public PlaylistModel toModelWithOwner(PlaylistEntity playlistEntity) {
+        if (playlistEntity == null) {
+            return null;
+        }
 
         return PlaylistModel.builder()
             .id(playlistEntity.getId())
             .createdAt(playlistEntity.getCreatedAt())
             .updatedAt(playlistEntity.getUpdatedAt())
             .deletedAt(playlistEntity.getDeletedAt())
-            .owner(ownerModel)
+            .owner(userEntityMapper.toModel(playlistEntity.getOwner()))
             .title(playlistEntity.getTitle())
             .description(playlistEntity.getDescription())
             .build();
@@ -41,19 +56,9 @@ public class PlaylistEntityMapper {
             .createdAt(playlistModel.getCreatedAt())
             .updatedAt(playlistModel.getUpdatedAt())
             .deletedAt(playlistModel.getDeletedAt())
-            .owner(toOwnerEntity(playlistModel.getOwner()))
+            .owner(entityManager.getReference(UserEntity.class, playlistModel.getOwner().getId()))
             .title(playlistModel.getTitle())
             .description(playlistModel.getDescription())
-            .build();
-    }
-
-    private UserEntity toOwnerEntity(UserModel owner) {
-        if (owner == null) {
-            return null;
-        }
-
-        return UserEntity.builder()
-            .id(owner.getId())
             .build();
     }
 }

@@ -33,13 +33,13 @@ public class PlaylistRepositoryImpl implements PlaylistRepository {
         // 3) owner를 EntityGraph로 다시 로딩
         PlaylistEntity savedWithOwner = jpaPlaylistRepository.findWithOwnerById(saved.getId())
             .orElse(saved);
-        return playlistEntityMapper.toModel(savedWithOwner);
+        return playlistEntityMapper.toModelWithOwner(savedWithOwner);
 
     }
 
     @Override
     public Optional<PlaylistModel> findById(UUID playlistId) {
         return jpaPlaylistRepository.findWithOwnerById(playlistId)
-            .map(playlistEntityMapper::toModel);
+            .map(playlistEntityMapper::toModelWithOwner);
     }
 }

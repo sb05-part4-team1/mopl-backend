@@ -26,6 +26,16 @@ public class UserEntityMapper {
             .build();
     }
 
+    public UserModel toModelIdOnly(UserEntity userEntity) {
+        if (userEntity == null) {
+            return null;
+        }
+
+        return UserModel.builder()
+            .id(userEntity.getId())
+            .build();
+    }
+
     public UserEntity toEntity(UserModel userModel) {
         if (userModel == null) {
             return null;
