@@ -53,6 +53,70 @@ class PlaylistRepositoryImplTest {
     }
 
     @Nested
+    @DisplayName("findById()")
+    class FindByIdTest {
+
+        @Test
+        @DisplayName("존재하는 플레이리스트 ID로 조회하면 PlaylistModel을 반환한다")
+        void withExistingId_returnsPlaylistModel() {
+            // given
+            PlaylistModel savedPlaylist = playlistRepository.save(
+                PlaylistModel.create(
+                    savedOwner,
+                    "내 플레이리스트",
+                    "좋아하는 영화 모음"
+                )
+            );
+
+            // when
+            Optional<PlaylistModel> foundPlaylist = playlistRepository.findById(savedPlaylist.getId());
+
+            // then
+            assertThat(foundPlaylist).isPresent();
+            assertThat(foundPlaylist.get().getId()).isEqualTo(savedPlaylist.getId());
+            assertThat(foundPlaylist.get().getTitle()).isEqualTo("내 플레이리스트");
+            assertThat(foundPlaylist.get().getDescription()).isEqualTo("좋아하는 영화 모음");
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 플레이리스트 ID로 조회하면 빈 Optional을 반환한다")
+        void withNonExistingId_returnsEmptyOptional() {
+            // given
+            UUID nonExistingId = UUID.randomUUID();
+
+            // when
+            Optional<PlaylistModel> foundPlaylist = playlistRepository.findById(nonExistingId);
+
+            // then
+            assertThat(foundPlaylist).isEmpty();
+        }
+
+        @Test
+        @DisplayName("조회 결과에 Owner 정보가 포함된다")
+        void withExistingId_includesOwnerInfo() {
+            // given
+            PlaylistModel savedPlaylist = playlistRepository.save(
+                PlaylistModel.create(
+                    savedOwner,
+                    "내 플레이리스트",
+                    "설명"
+                )
+            );
+
+            // when
+            Optional<PlaylistModel> foundPlaylist = playlistRepository.findById(savedPlaylist.getId());
+
+            // then
+            assertThat(foundPlaylist).isPresent();
+            UserModel owner = foundPlaylist.get().getOwner();
+            assertThat(owner).isNotNull();
+            assertThat(owner.getId()).isEqualTo(savedOwner.getId());
+            assertThat(owner.getName()).isEqualTo("플레이리스트 소유자");
+            assertThat(owner.getEmail()).isEqualTo("owner@example.com");
+        }
+    }
+
+    @Nested
     @DisplayName("save()")
     class SaveTest {
 
@@ -117,70 +181,6 @@ class PlaylistRepositoryImplTest {
             assertThat(savedPlaylist.getId()).isNotNull();
             assertThat(savedPlaylist.getTitle()).isEqualTo("설명 없는 플레이리스트");
             assertThat(savedPlaylist.getDescription()).isNull();
-        }
-    }
-
-    @Nested
-    @DisplayName("findById()")
-    class FindByIdTest {
-
-        @Test
-        @DisplayName("존재하는 플레이리스트 ID로 조회하면 PlaylistModel을 반환한다")
-        void withExistingId_returnsPlaylistModel() {
-            // given
-            PlaylistModel savedPlaylist = playlistRepository.save(
-                PlaylistModel.create(
-                    savedOwner,
-                    "내 플레이리스트",
-                    "좋아하는 영화 모음"
-                )
-            );
-
-            // when
-            Optional<PlaylistModel> foundPlaylist = playlistRepository.findById(savedPlaylist.getId());
-
-            // then
-            assertThat(foundPlaylist).isPresent();
-            assertThat(foundPlaylist.get().getId()).isEqualTo(savedPlaylist.getId());
-            assertThat(foundPlaylist.get().getTitle()).isEqualTo("내 플레이리스트");
-            assertThat(foundPlaylist.get().getDescription()).isEqualTo("좋아하는 영화 모음");
-        }
-
-        @Test
-        @DisplayName("존재하지 않는 플레이리스트 ID로 조회하면 빈 Optional을 반환한다")
-        void withNonExistingId_returnsEmptyOptional() {
-            // given
-            UUID nonExistingId = UUID.randomUUID();
-
-            // when
-            Optional<PlaylistModel> foundPlaylist = playlistRepository.findById(nonExistingId);
-
-            // then
-            assertThat(foundPlaylist).isEmpty();
-        }
-
-        @Test
-        @DisplayName("조회 결과에 Owner 정보가 포함된다")
-        void withExistingId_includesOwnerInfo() {
-            // given
-            PlaylistModel savedPlaylist = playlistRepository.save(
-                PlaylistModel.create(
-                    savedOwner,
-                    "내 플레이리스트",
-                    "설명"
-                )
-            );
-
-            // when
-            Optional<PlaylistModel> foundPlaylist = playlistRepository.findById(savedPlaylist.getId());
-
-            // then
-            assertThat(foundPlaylist).isPresent();
-            UserModel owner = foundPlaylist.get().getOwner();
-            assertThat(owner).isNotNull();
-            assertThat(owner.getId()).isEqualTo(savedOwner.getId());
-            assertThat(owner.getName()).isEqualTo("플레이리스트 소유자");
-            assertThat(owner.getEmail()).isEqualTo("owner@example.com");
         }
     }
 }
