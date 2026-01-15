@@ -40,6 +40,7 @@ public enum NotificationSortFieldJpa implements SortField<Comparable<?>> {
             case createdAt -> CREATED_AT;
         };
     }
+
     @Override
     public String serializeCursor(Object value) {
         return value != null ? serializer.apply(value) : "";
