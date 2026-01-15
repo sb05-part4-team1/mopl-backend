@@ -61,6 +61,7 @@ public class ReviewController implements ReviewApiSpec {
     }
 
     @DeleteMapping("/{reviewId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteReview(
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable UUID reviewId
