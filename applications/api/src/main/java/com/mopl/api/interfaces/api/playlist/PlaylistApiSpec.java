@@ -124,8 +124,11 @@ public interface PlaylistApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    PlaylistResponse updatePlaylist(MoplUserDetails userDetails, UUID playlistId,
-        PlaylistUpdateRequest request);
+    PlaylistResponse updatePlaylist(
+        MoplUserDetails userDetails,
+        UUID playlistId,
+        PlaylistUpdateRequest request
+    );
 
     @Operation(summary = "플레이리스트 삭제")
     @Parameter(name = "playlistId", description = "삭제할 플레이리스트 ID", required = true)
