@@ -4,12 +4,14 @@ import com.mopl.domain.exception.playlist.PlaylistContentAlreadyExistsException;
 import com.mopl.domain.exception.playlist.PlaylistContentNotFoundException;
 import com.mopl.domain.exception.playlist.PlaylistForbiddenException;
 import com.mopl.domain.exception.playlist.PlaylistNotFoundException;
+import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.domain.repository.playlist.PlaylistRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -83,6 +85,10 @@ public class PlaylistService {
         }
 
         playlistContentRepository.delete(playlistId, contentId);
+    }
+
+    public List<ContentModel> getContents(UUID playlistId) {
+        return playlistContentRepository.findContentsByPlaylistId(playlistId);
     }
 
     private PlaylistModel getByIdAndValidateOwner(UUID playlistId, UUID requesterId) {
