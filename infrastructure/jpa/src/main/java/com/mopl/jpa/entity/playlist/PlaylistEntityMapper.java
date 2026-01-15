@@ -4,7 +4,6 @@ import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.jpa.entity.user.UserEntity;
 import com.mopl.jpa.entity.user.UserEntityMapper;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Component;
 public class PlaylistEntityMapper {
 
     private final UserEntityMapper userEntityMapper;
-    private final EntityManager entityManager;
 
     public PlaylistModel toModel(PlaylistEntity playlistEntity) {
         if (playlistEntity == null) {
@@ -41,7 +39,7 @@ public class PlaylistEntityMapper {
             .createdAt(playlistModel.getCreatedAt())
             .updatedAt(playlistModel.getUpdatedAt())
             .deletedAt(playlistModel.getDeletedAt())
-            .owner(entityManager.getReference(UserEntity.class, playlistModel.getOwner().getId()))
+            .owner(userEntityMapper.toEntity(playlistModel.getOwner()))
             .title(playlistModel.getTitle())
             .description(playlistModel.getDescription())
             .build();
