@@ -3,6 +3,7 @@ package com.mopl.api.application.playlist;
 import com.mopl.api.interfaces.api.playlist.PlaylistCreateRequest;
 import com.mopl.api.interfaces.api.playlist.PlaylistUpdateRequest;
 import com.mopl.domain.exception.content.ContentNotFoundException;
+import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.content.ContentService;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -60,12 +62,14 @@ public class PlaylistFacade {
         playlistService.delete(playlistId, requesterId);
     }
 
-    public PlaylistModel getPlaylist(
-        UUID requesterId,
-        UUID playlistId
-    ) {
-        userService.getById(requesterId);
-        return playlistService.getById(playlistId);
+    public PlaylistDetail getPlaylist(UUID requesterId, UUID playlistId) {
+        UserModel requester = userService.getById(requesterId);
+        PlaylistModel playlist = playlistService.getById(playlistId);
+        long subscriberCount = playlistSubscriptionService.getSubscriberCount(playlist.getId());
+        boolean subscribedByMe = playlistSubscriptionService.isSubscribedBy(playlist.getId(), requester.getId());
+        List<ContentModel> contents = playlistService.getContents(playlist.getId());
+
+        return new PlaylistDetail(playlist, subscriberCount, subscribedByMe, contents);
     }
 
     @Transactional

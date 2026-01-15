@@ -3,8 +3,10 @@ package com.mopl.api.application.playlist;
 import com.mopl.api.interfaces.api.playlist.PlaylistCreateRequest;
 import com.mopl.api.interfaces.api.playlist.PlaylistUpdateRequest;
 import com.mopl.domain.exception.content.ContentNotFoundException;
+import com.mopl.domain.fixture.ContentModelFixture;
 import com.mopl.domain.fixture.PlaylistModelFixture;
 import com.mopl.domain.fixture.UserModelFixture;
+import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.content.ContentService;
@@ -19,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -151,26 +154,40 @@ class PlaylistFacadeTest {
     class GetPlaylistTest {
 
         @Test
-        @DisplayName("유효한 요청 시 플레이리스트 조회 성공")
-        void withValidRequest_getsPlaylistSuccess() {
+        @DisplayName("유효한 요청 시 플레이리스트 상세 정보 조회 성공")
+        void withValidRequest_getsPlaylistDetailSuccess() {
             // given
             UserModel owner = UserModelFixture.create();
             UUID playlistId = UUID.randomUUID();
             PlaylistModel playlistModel = PlaylistModelFixture.builder(owner)
                 .set("id", playlistId)
                 .sample();
+            List<ContentModel> contents = List.of(ContentModelFixture.create());
+            long subscriberCount = 10L;
+            boolean subscribedByMe = true;
 
             given(userService.getById(owner.getId())).willReturn(owner);
             given(playlistService.getById(playlistId)).willReturn(playlistModel);
+            given(playlistSubscriptionService.getSubscriberCount(playlistId))
+                .willReturn(subscriberCount);
+            given(playlistSubscriptionService.isSubscribedBy(playlistId, owner.getId()))
+                .willReturn(subscribedByMe);
+            given(playlistService.getContents(playlistId)).willReturn(contents);
 
             // when
-            PlaylistModel result = playlistFacade.getPlaylist(owner.getId(), playlistId);
+            PlaylistDetail result = playlistFacade.getPlaylist(owner.getId(), playlistId);
 
             // then
-            assertThat(result.getId()).isEqualTo(playlistId);
+            assertThat(result.playlist().getId()).isEqualTo(playlistId);
+            assertThat(result.subscriberCount()).isEqualTo(subscriberCount);
+            assertThat(result.subscribedByMe()).isTrue();
+            assertThat(result.contents()).hasSize(1);
 
             then(userService).should().getById(owner.getId());
             then(playlistService).should().getById(playlistId);
+            then(playlistSubscriptionService).should().getSubscriberCount(playlistId);
+            then(playlistSubscriptionService).should().isSubscribedBy(playlistId, owner.getId());
+            then(playlistService).should().getContents(playlistId);
         }
     }
 
