@@ -30,8 +30,8 @@ public class PlaylistRepositoryImpl implements PlaylistRepository {
         // 2) 1차 캐시 비우기 (그래야 fetch join이 실제로 다시 로딩됨)
         entityManager.clear();
 
-        // 3) owner를 fetch join으로 다시 로딩
-        PlaylistEntity savedWithOwner = jpaPlaylistRepository.findByIdWithOwner(saved.getId())
+        // 3) owner를 EntityGraph로 다시 로딩
+        PlaylistEntity savedWithOwner = jpaPlaylistRepository.findWithOwnerById(saved.getId())
             .orElse(saved);
         return playlistEntityMapper.toModel(savedWithOwner);
 
@@ -39,7 +39,7 @@ public class PlaylistRepositoryImpl implements PlaylistRepository {
 
     @Override
     public Optional<PlaylistModel> findById(UUID playlistId) {
-        return jpaPlaylistRepository.findByIdWithOwner(playlistId)
+        return jpaPlaylistRepository.findWithOwnerById(playlistId)
             .map(playlistEntityMapper::toModel);
     }
 }
