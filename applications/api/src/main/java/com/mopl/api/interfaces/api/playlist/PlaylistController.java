@@ -1,6 +1,7 @@
 package com.mopl.api.interfaces.api.playlist;
 
 import com.mopl.api.application.playlist.PlaylistFacade;
+import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.security.userdetails.MoplUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +22,10 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/playlists")
 @RequiredArgsConstructor
-public class PlaylistController {
+public class PlaylistController implements PlaylistApiSpec {
 
     private final PlaylistFacade playlistFacade;
+    private final PlaylistResponseMapper playlistResponseMapper;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -31,29 +33,32 @@ public class PlaylistController {
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @RequestBody @Valid PlaylistCreateRequest request
     ) {
-        // 인증된 객체에서 id만 가져옴
-        UUID requesterId = userDetails.userId();
+        PlaylistModel playlistModel = playlistFacade.createPlaylist(userDetails.userId(), request);
+        return playlistResponseMapper.toResponse(playlistModel);
+    }
 
-        return playlistFacade.createPlaylist(
-            requesterId,
-            request
-        );
+    @GetMapping("/{playlistId}")
+    public PlaylistResponse getPlaylist(
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @PathVariable UUID playlistId
+    ) {
+        PlaylistModel playlistModel = playlistFacade.getPlaylist(userDetails.userId(), playlistId);
+        return playlistResponseMapper.toResponse(playlistModel);
     }
 
     @PatchMapping("/{playlistId}")
-    @ResponseStatus(HttpStatus.OK)
     public PlaylistResponse updatePlaylist(
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable UUID playlistId,
         @RequestBody @Valid PlaylistUpdateRequest request
     ) {
         UUID requesterId = userDetails.userId();
-
-        return playlistFacade.updatePlaylist(
+        PlaylistModel playlistModel = playlistFacade.updatePlaylist(
             requesterId,
             playlistId,
             request
         );
+        return playlistResponseMapper.toResponse(playlistModel);
     }
 
     @DeleteMapping("/{playlistId}")
@@ -62,26 +67,8 @@ public class PlaylistController {
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable UUID playlistId
     ) {
-        UUID requesterId = userDetails.userId();
-
-        playlistFacade.deletePlaylist(requesterId, playlistId);
+        playlistFacade.deletePlaylist(userDetails.userId(), playlistId);
     }
-
-    @GetMapping("/{playlistId}")
-    @ResponseStatus(HttpStatus.OK)
-    public PlaylistResponse getPlaylist(
-        @AuthenticationPrincipal MoplUserDetails userDetails,
-        @PathVariable UUID playlistId
-    ) {
-        UUID requesterId = userDetails.userId();
-
-        return playlistFacade.getPlaylist(
-            requesterId,
-            playlistId
-        );
-    }
-
-    // ============= 여기서 부터는 순수 플레이리스트 CRUD가 아님===================
 
     @PostMapping("/{playlistId}/contents/{contentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -90,8 +77,7 @@ public class PlaylistController {
         @PathVariable UUID playlistId,
         @PathVariable UUID contentId
     ) {
-        UUID requesterId = userDetails.userId();
-        playlistFacade.addContentToPlaylist(requesterId, playlistId, contentId);
+        playlistFacade.addContentToPlaylist(userDetails.userId(), playlistId, contentId);
     }
 
     @DeleteMapping("/{playlistId}/contents/{contentId}")
@@ -101,8 +87,7 @@ public class PlaylistController {
         @PathVariable UUID playlistId,
         @PathVariable UUID contentId
     ) {
-        UUID requesterId = userDetails.userId();
-        playlistFacade.deleteContentFromPlaylist(requesterId, playlistId, contentId);
+        playlistFacade.deleteContentFromPlaylist(userDetails.userId(), playlistId, contentId);
     }
 
     @PostMapping("/{playlistId}/subscription")
@@ -111,8 +96,7 @@ public class PlaylistController {
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable UUID playlistId
     ) {
-        UUID requesterId = userDetails.userId();
-        playlistFacade.subscribePlaylist(requesterId, playlistId);
+        playlistFacade.subscribePlaylist(userDetails.userId(), playlistId);
     }
 
     @DeleteMapping("/{playlistId}/subscription")
@@ -121,8 +105,6 @@ public class PlaylistController {
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable UUID playlistId
     ) {
-        UUID requesterId = userDetails.userId();
-        playlistFacade.unsubscribePlaylist(requesterId, playlistId);
+        playlistFacade.unsubscribePlaylist(userDetails.userId(), playlistId);
     }
-
 }
