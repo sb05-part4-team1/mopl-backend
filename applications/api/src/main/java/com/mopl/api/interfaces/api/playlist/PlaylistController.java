@@ -1,5 +1,6 @@
 package com.mopl.api.interfaces.api.playlist;
 
+import com.mopl.api.application.playlist.PlaylistDetail;
 import com.mopl.api.application.playlist.PlaylistFacade;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.security.userdetails.MoplUserDetails;
@@ -42,8 +43,13 @@ public class PlaylistController implements PlaylistApiSpec {
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable UUID playlistId
     ) {
-        PlaylistModel playlistModel = playlistFacade.getPlaylist(userDetails.userId(), playlistId);
-        return playlistResponseMapper.toResponse(playlistModel);
+        PlaylistDetail detail = playlistFacade.getPlaylist(userDetails.userId(), playlistId);
+        return playlistResponseMapper.toResponse(
+            detail.playlist(),
+            detail.subscriberCount(),
+            detail.subscribedByMe(),
+            detail.contents()
+        );
     }
 
     @PatchMapping("/{playlistId}")
