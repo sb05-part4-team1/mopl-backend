@@ -14,13 +14,10 @@ public class PlaylistSubscriptionService {
         UUID playlistId,
         UUID subscriberId
     ) {
-        // 이미 구독 중이면 그냥 성공(멱등)
         if (playlistSubscriberRepository.existsByPlaylistIdAndSubscriberId(playlistId,
             subscriberId)) {
             return;
         }
-
-        // 아니면 구독 관계 저장
         playlistSubscriberRepository.save(playlistId, subscriberId);
     }
 
@@ -28,8 +25,6 @@ public class PlaylistSubscriptionService {
         UUID playlistId,
         UUID subscriberId
     ) {
-        // 구독이 없으면 그냥 성공(멱등)
         playlistSubscriberRepository.deleteByPlaylistIdAndSubscriberId(playlistId, subscriberId);
     }
-
 }
