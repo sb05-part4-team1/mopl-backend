@@ -1,13 +1,18 @@
 package com.mopl.jpa.repository.playlist;
 
 import com.mopl.jpa.entity.playlist.PlaylistContentEntity;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface JpaPlaylistContentRepository extends JpaRepository<PlaylistContentEntity, UUID> {
 
-    boolean existsByPlaylist_IdAndContent_Id(UUID playlistId, UUID contentId);
+    @EntityGraph(attributePaths = {"content"})
+    List<PlaylistContentEntity> findByPlaylistId(UUID playlistId);
 
-    void deleteByPlaylist_IdAndContent_Id(UUID playlistId, UUID contentId);
+    boolean existsByPlaylistIdAndContentId(UUID playlistId, UUID contentId);
+
+    void deleteByPlaylistIdAndContentId(UUID playlistId, UUID contentId);
 }
