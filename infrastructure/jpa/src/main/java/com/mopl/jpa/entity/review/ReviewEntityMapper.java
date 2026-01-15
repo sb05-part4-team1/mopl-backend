@@ -40,6 +40,31 @@ public class ReviewEntityMapper {
             .build();
     }
 
+    public ReviewModel toModelWithIds(ReviewEntity reviewEntity) {
+        if (reviewEntity == null) {
+            return null;
+        }
+
+        ContentModel contentModel = reviewEntity.getContent() != null
+            ? ContentModel.builder().id(reviewEntity.getContent().getId()).build()
+            : null;
+
+        UserModel authorModel = reviewEntity.getAuthor() != null
+            ? UserModel.builder().id(reviewEntity.getAuthor().getId()).build()
+            : null;
+
+        return ReviewModel.builder()
+            .id(reviewEntity.getId())
+            .createdAt(reviewEntity.getCreatedAt())
+            .deletedAt(reviewEntity.getDeletedAt())
+            .updatedAt(reviewEntity.getUpdatedAt())
+            .content(contentModel)
+            .author(authorModel)
+            .text(reviewEntity.getText())
+            .rating(reviewEntity.getRating())
+            .build();
+    }
+
     public ReviewEntity toEntity(ReviewModel reviewModel) {
         if (reviewModel == null) {
             return null;
@@ -56,5 +81,4 @@ public class ReviewEntityMapper {
             .rating(reviewModel.getRating())
             .build();
     }
-
 }

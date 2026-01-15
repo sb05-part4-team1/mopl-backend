@@ -4,7 +4,6 @@ import com.mopl.api.interfaces.api.review.ReviewCreateRequest;
 import com.mopl.api.interfaces.api.review.ReviewResponse;
 import com.mopl.api.interfaces.api.review.ReviewResponseMapper;
 import com.mopl.api.interfaces.api.review.ReviewUpdateRequest;
-import com.mopl.api.interfaces.api.user.UserSummary;
 import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.fixture.ReviewModelFixture;
 import com.mopl.domain.model.content.ContentModel;
@@ -127,20 +126,8 @@ class ReviewFacadeTest {
             ReviewModel review1 = ReviewModelFixture.create();
             ReviewModel review2 = ReviewModelFixture.create();
 
-            ReviewResponse response1 = new ReviewResponse(
-                review1.getId(),
-                review1.getContent().getId(),
-                new UserSummary(review1.getAuthor().getId(), review1.getAuthor().getName(), null),
-                review1.getText(),
-                review1.getRating()
-            );
-            ReviewResponse response2 = new ReviewResponse(
-                review2.getId(),
-                review2.getContent().getId(),
-                new UserSummary(review2.getAuthor().getId(), review2.getAuthor().getName(), null),
-                review2.getText(),
-                review2.getRating()
-            );
+            ReviewResponse response1 = mock(ReviewResponse.class);
+            ReviewResponse response2 = mock(ReviewResponse.class);
 
             CursorResponse<ReviewModel> serviceResponse = CursorResponse.of(
                 List.of(review1, review2),
@@ -208,7 +195,6 @@ class ReviewFacadeTest {
             UUID reviewId = UUID.randomUUID();
             ReviewUpdateRequest request = new ReviewUpdateRequest("수정된 내용", 4.5);
 
-            // Fixture 활용: 업데이트된 결과 모델 생성
             ReviewModel updatedReview = ReviewModelFixture.create();
             ReviewResponse expectedResponse = mock(ReviewResponse.class);
 
@@ -228,6 +214,56 @@ class ReviewFacadeTest {
 
             then(reviewService).should().update(reviewId, requesterId, request.text(), request
                 .rating());
+        }
+
+        @Test
+        @DisplayName("텍스트만 수정 요청하면 텍스트만 전달한다")
+        void withOnlyText_passesTextOnly() {
+            // given
+            UUID requesterId = UUID.randomUUID();
+            UUID reviewId = UUID.randomUUID();
+            ReviewUpdateRequest request = new ReviewUpdateRequest("수정된 내용", null);
+
+            ReviewModel updatedReview = ReviewModelFixture.create();
+            ReviewResponse expectedResponse = mock(ReviewResponse.class);
+
+            given(userService.getById(requesterId)).willReturn(mock(UserModel.class));
+            given(reviewService.update(reviewId, requesterId, "수정된 내용", null))
+                .willReturn(updatedReview);
+            given(reviewResponseMapper.toResponse(updatedReview))
+                .willReturn(expectedResponse);
+
+            // when
+            ReviewResponse result = reviewFacade.updateReview(requesterId, reviewId, request);
+
+            // then
+            assertThat(result).isEqualTo(expectedResponse);
+            then(reviewService).should().update(reviewId, requesterId, "수정된 내용", null);
+        }
+
+        @Test
+        @DisplayName("평점만 수정 요청하면 평점만 전달한다")
+        void withOnlyRating_passesRatingOnly() {
+            // given
+            UUID requesterId = UUID.randomUUID();
+            UUID reviewId = UUID.randomUUID();
+            ReviewUpdateRequest request = new ReviewUpdateRequest(null, 4.5);
+
+            ReviewModel updatedReview = ReviewModelFixture.create();
+            ReviewResponse expectedResponse = mock(ReviewResponse.class);
+
+            given(userService.getById(requesterId)).willReturn(mock(UserModel.class));
+            given(reviewService.update(reviewId, requesterId, null, 4.5))
+                .willReturn(updatedReview);
+            given(reviewResponseMapper.toResponse(updatedReview))
+                .willReturn(expectedResponse);
+
+            // when
+            ReviewResponse result = reviewFacade.updateReview(requesterId, reviewId, request);
+
+            // then
+            assertThat(result).isEqualTo(expectedResponse);
+            then(reviewService).should().update(reviewId, requesterId, null, 4.5);
         }
     }
 
