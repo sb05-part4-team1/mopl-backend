@@ -107,12 +107,12 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                post("/api/reviews")
-                    .with(csrf())
-                    .with(user(mockUserDetails))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request))
-            )
+                    post("/api/reviews")
+                        .with(csrf())
+                        .with(user(mockUserDetails))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                )
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(reviewId.toString()))
                 .andExpect(jsonPath("$.text").value("테스트 리뷰"))
@@ -129,11 +129,11 @@ class ReviewControllerTest {
             );
 
             mockMvc.perform(
-                post("/api/reviews")
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request))
-            )
+                    post("/api/reviews")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                )
                 .andExpect(status().isForbidden());
 
             then(reviewFacade).shouldHaveNoInteractions();
@@ -182,10 +182,10 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/reviews")
-                .param("contentId", contentId.toString())
-                .param("limit", "10")
-                .param("sortDirection", "DESCENDING")
-                .param("sortBy", "createdAt"))
+                    .param("contentId", contentId.toString())
+                    .param("limit", "10")
+                    .param("sortDirection", "DESCENDING")
+                    .param("sortBy", "createdAt"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(2))
@@ -220,8 +220,8 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/reviews")
-                .param("sortBy", "rating")
-                .param("sortDirection", "DESCENDING"))
+                    .param("sortBy", "rating")
+                    .param("sortDirection", "DESCENDING"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.sortBy").value("rating"));
         }
@@ -246,9 +246,9 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/reviews")
-                .param("cursor", "2025-01-01T00:00:00Z")
-                .param("idAfter", idAfter.toString())
-                .param("limit", "10"))
+                    .param("cursor", "2025-01-01T00:00:00Z")
+                    .param("idAfter", idAfter.toString())
+                    .param("limit", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.hasNext").value(false));
         }
@@ -302,12 +302,12 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                patch("/api/reviews/{reviewId}", reviewId)
-                    .with(csrf())
-                    .with(user(mockUserDetails))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request))
-            )
+                    patch("/api/reviews/{reviewId}", reviewId)
+                        .with(csrf())
+                        .with(user(mockUserDetails))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.text").value("수정된 내용"));
 
@@ -327,10 +327,10 @@ class ReviewControllerTest {
 
             // when & then
             mockMvc.perform(
-                delete("/api/reviews/{reviewId}", reviewId)
-                    .with(csrf())
-                    .with(user(mockUserDetails))
-            )
+                    delete("/api/reviews/{reviewId}", reviewId)
+                        .with(csrf())
+                        .with(user(mockUserDetails))
+                )
                 .andExpect(status().isOk());
 
             // Facade 호출 검증
@@ -343,9 +343,9 @@ class ReviewControllerTest {
             UUID reviewId = UUID.randomUUID();
 
             mockMvc.perform(
-                delete("/api/reviews/{reviewId}", reviewId)
-                    .with(csrf())
-            )
+                    delete("/api/reviews/{reviewId}", reviewId)
+                        .with(csrf())
+                )
                 .andExpect(status().isForbidden());
 
             then(reviewFacade).shouldHaveNoInteractions();
