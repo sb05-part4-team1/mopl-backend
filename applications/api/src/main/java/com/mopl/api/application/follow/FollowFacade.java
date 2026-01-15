@@ -8,7 +8,6 @@ import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.follow.FollowService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.sse.application.SseFacade;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +25,7 @@ public class FollowFacade {
     @Transactional
     public FollowModel follow(UUID followerId, UUID followeeId) {
         UserModel follower = userService.getById(followerId);
-        userService.getById(followeeId);
+        UserModel followee = userService.getById(followeeId);
 
         FollowModel followModel = FollowModel.create(followeeId, followerId);
         FollowModel savedFollow = followService.create(followModel);
@@ -35,7 +34,7 @@ public class FollowFacade {
             "새로운 팔로우",
             follower.getName() + "님이 팔로우했습니다.",
             NotificationLevel.INFO,
-            followeeId
+            followee
         );
 
         sseFacade.sendNotification(notification);
