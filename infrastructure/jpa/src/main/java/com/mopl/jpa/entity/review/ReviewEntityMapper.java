@@ -20,21 +20,13 @@ public class ReviewEntityMapper {
             return null;
         }
 
-        ContentModel contentModel = reviewEntity.getContent() != null
-            ? contentEntityMapper.toModel(reviewEntity.getContent())
-            : null;
-
-        UserModel authorModel = reviewEntity.getAuthor() != null
-            ? userEntityMapper.toModel(reviewEntity.getAuthor())
-            : null;
-
         return ReviewModel.builder()
             .id(reviewEntity.getId())
             .createdAt(reviewEntity.getCreatedAt())
             .deletedAt(reviewEntity.getDeletedAt())
             .updatedAt(reviewEntity.getUpdatedAt())
-            .content(contentModel)
-            .author(authorModel)
+            .content(contentEntityMapper.toModel(reviewEntity.getContent()))
+            .author(userEntityMapper.toModel(reviewEntity.getAuthor()))
             .text(reviewEntity.getText())
             .rating(reviewEntity.getRating())
             .build();
