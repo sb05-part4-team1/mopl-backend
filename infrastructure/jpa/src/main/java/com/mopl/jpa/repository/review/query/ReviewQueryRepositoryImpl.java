@@ -50,7 +50,7 @@ public class ReviewQueryRepositoryImpl implements ReviewQueryRepository {
             request,
             sortFieldJpa,
             totalCount,
-            reviewEntityMapper::toModelWithIds,
+            reviewEntityMapper::toModelWithAuthor,
             sortFieldJpa::extractValue,
             ReviewEntity::getId
         );

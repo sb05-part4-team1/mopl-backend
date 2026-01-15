@@ -3,7 +3,9 @@ package com.mopl.jpa.entity.review;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.review.ReviewModel;
 import com.mopl.domain.model.user.UserModel;
+import com.mopl.jpa.entity.content.ContentEntity;
 import com.mopl.jpa.entity.content.ContentEntityMapper;
+import com.mopl.jpa.entity.user.UserEntity;
 import com.mopl.jpa.entity.user.UserEntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -20,41 +22,47 @@ public class ReviewEntityMapper {
             return null;
         }
 
-        return ReviewModel.builder()
-            .id(reviewEntity.getId())
-            .createdAt(reviewEntity.getCreatedAt())
-            .deletedAt(reviewEntity.getDeletedAt())
-            .updatedAt(reviewEntity.getUpdatedAt())
-            .content(contentEntityMapper.toModel(reviewEntity.getContent()))
-            .author(userEntityMapper.toModel(reviewEntity.getAuthor()))
-            .text(reviewEntity.getText())
-            .rating(reviewEntity.getRating())
-            .build();
+        return buildReviewModel(
+            reviewEntity,
+            toContentIdOnly(reviewEntity.getContent()),
+            toAuthorIdOnly(reviewEntity.getAuthor())
+        );
     }
 
-    public ReviewModel toModelWithIds(ReviewEntity reviewEntity) {
+    public ReviewModel toModelWithContent(ReviewEntity reviewEntity) {
         if (reviewEntity == null) {
             return null;
         }
 
-        ContentModel contentModel = reviewEntity.getContent() != null
-            ? ContentModel.builder().id(reviewEntity.getContent().getId()).build()
-            : null;
+        return buildReviewModel(
+            reviewEntity,
+            toContentModel(reviewEntity.getContent()),
+            toAuthorIdOnly(reviewEntity.getAuthor())
+        );
+    }
 
-        UserModel authorModel = reviewEntity.getAuthor() != null
-            ? UserModel.builder().id(reviewEntity.getAuthor().getId()).build()
-            : null;
+    public ReviewModel toModelWithAuthor(ReviewEntity reviewEntity) {
+        if (reviewEntity == null) {
+            return null;
+        }
 
-        return ReviewModel.builder()
-            .id(reviewEntity.getId())
-            .createdAt(reviewEntity.getCreatedAt())
-            .deletedAt(reviewEntity.getDeletedAt())
-            .updatedAt(reviewEntity.getUpdatedAt())
-            .content(contentModel)
-            .author(authorModel)
-            .text(reviewEntity.getText())
-            .rating(reviewEntity.getRating())
-            .build();
+        return buildReviewModel(
+            reviewEntity,
+            toContentIdOnly(reviewEntity.getContent()),
+            toAuthorModel(reviewEntity.getAuthor())
+        );
+    }
+
+    public ReviewModel toModelWithContentAndAuthor(ReviewEntity reviewEntity) {
+        if (reviewEntity == null) {
+            return null;
+        }
+
+        return buildReviewModel(
+            reviewEntity,
+            toContentModel(reviewEntity.getContent()),
+            toAuthorModel(reviewEntity.getAuthor())
+        );
     }
 
     public ReviewEntity toEntity(ReviewModel reviewModel) {
@@ -72,5 +80,46 @@ public class ReviewEntityMapper {
             .text(reviewModel.getText())
             .rating(reviewModel.getRating())
             .build();
+    }
+
+    private ReviewModel buildReviewModel(
+        ReviewEntity reviewEntity,
+        ContentModel contentModel,
+        UserModel authorModel
+    ) {
+        return ReviewModel.builder()
+            .id(reviewEntity.getId())
+            .createdAt(reviewEntity.getCreatedAt())
+            .deletedAt(reviewEntity.getDeletedAt())
+            .updatedAt(reviewEntity.getUpdatedAt())
+            .content(contentModel)
+            .author(authorModel)
+            .text(reviewEntity.getText())
+            .rating(reviewEntity.getRating())
+            .build();
+    }
+
+    private ContentModel toContentIdOnly(ContentEntity contentEntity) {
+        return contentEntity != null
+            ? ContentModel.builder().id(contentEntity.getId()).build()
+            : null;
+    }
+
+    private ContentModel toContentModel(ContentEntity contentEntity) {
+        return contentEntity != null
+            ? contentEntityMapper.toModel(contentEntity)
+            : null;
+    }
+
+    private UserModel toAuthorIdOnly(UserEntity authorEntity) {
+        return authorEntity != null
+            ? UserModel.builder().id(authorEntity.getId()).build()
+            : null;
+    }
+
+    private UserModel toAuthorModel(UserEntity authorEntity) {
+        return authorEntity != null
+            ? userEntityMapper.toModel(authorEntity)
+            : null;
     }
 }
