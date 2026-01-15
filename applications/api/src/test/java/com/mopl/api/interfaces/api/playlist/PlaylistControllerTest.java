@@ -1,6 +1,7 @@
 package com.mopl.api.interfaces.api.playlist;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mopl.api.application.playlist.PlaylistDetail;
 import com.mopl.api.application.playlist.PlaylistFacade;
 import com.mopl.api.config.TestSecurityConfig;
 import com.mopl.api.interfaces.api.ApiControllerAdvice;
@@ -30,6 +31,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -179,8 +181,14 @@ class PlaylistControllerTest {
                 .title("테스트 플레이리스트")
                 .description("테스트 설명")
                 .build();
+            PlaylistDetail playlistDetail = new PlaylistDetail(
+                playlistModel,
+                10L,
+                true,
+                Collections.emptyList()
+            );
 
-            given(playlistFacade.getPlaylist(userId, playlistId)).willReturn(playlistModel);
+            given(playlistFacade.getPlaylist(userId, playlistId)).willReturn(playlistDetail);
 
             // when & then
             mockMvc.perform(get("/api/playlists/{playlistId}", playlistId)
@@ -188,7 +196,9 @@ class PlaylistControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(playlistId.toString()))
                 .andExpect(jsonPath("$.title").value(playlistModel.getTitle()))
-                .andExpect(jsonPath("$.owner.userId").value(userId.toString()));
+                .andExpect(jsonPath("$.owner.userId").value(userId.toString()))
+                .andExpect(jsonPath("$.subscriberCount").value(10))
+                .andExpect(jsonPath("$.subscribedByMe").value(true));
 
             then(playlistFacade).should().getPlaylist(userId, playlistId);
         }
