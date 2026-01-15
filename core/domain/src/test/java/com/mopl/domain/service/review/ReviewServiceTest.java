@@ -88,7 +88,8 @@ class ReviewServiceTest {
             UUID authorId = existingReview.getAuthor().getId();
 
             String newText = "수정된 내용";
-            Double newRating = 5.0;
+            double originalRating = existingReview.getRating();
+            Double newRating = originalRating == 5.0 ? 4.0 : 5.0;
 
             given(reviewRepository.findById(reviewId)).willReturn(Optional.of(existingReview));
             given(reviewRepository.save(any(ReviewModel.class)))
