@@ -3,6 +3,7 @@ package com.mopl.api.interfaces.api.content;
 import com.mopl.domain.model.content.ContentModel;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class ContentSummaryMapper {
         );
     }
 
-    public List<ContentSummary> toSummaries(List<ContentModel> models) {
+    public List<ContentSummary> toSummaries(Collection<ContentModel> models) {
         if (models == null || models.isEmpty()) {
             return Collections.emptyList();
         }

@@ -65,7 +65,6 @@ public class PlaylistFacade {
         UUID playlistId
     ) {
         userService.getById(requesterId);
-
         return playlistService.getById(playlistId);
     }
 

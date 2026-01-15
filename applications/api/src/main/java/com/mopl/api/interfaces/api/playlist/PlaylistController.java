@@ -52,9 +52,8 @@ public class PlaylistController implements PlaylistApiSpec {
         @PathVariable UUID playlistId,
         @RequestBody @Valid PlaylistUpdateRequest request
     ) {
-        UUID requesterId = userDetails.userId();
         PlaylistModel playlistModel = playlistFacade.updatePlaylist(
-            requesterId,
+            userDetails.userId(),
             playlistId,
             request
         );
