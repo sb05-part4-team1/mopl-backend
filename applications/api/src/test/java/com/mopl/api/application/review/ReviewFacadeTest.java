@@ -4,14 +4,19 @@ import com.mopl.api.interfaces.api.review.ReviewCreateRequest;
 import com.mopl.api.interfaces.api.review.ReviewResponse;
 import com.mopl.api.interfaces.api.review.ReviewResponseMapper;
 import com.mopl.api.interfaces.api.review.ReviewUpdateRequest;
+import com.mopl.api.interfaces.api.user.UserSummary;
 import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.fixture.ReviewModelFixture;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.review.ReviewModel;
 import com.mopl.domain.model.user.UserModel;
+import com.mopl.domain.repository.review.ReviewQueryRequest;
+import com.mopl.domain.repository.review.ReviewSortField;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.review.ReviewService;
 import com.mopl.domain.service.user.UserService;
+import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.domain.support.cursor.SortDirection;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -20,6 +25,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -102,6 +108,91 @@ class ReviewFacadeTest {
                 .isInstanceOf(ContentNotFoundException.class);
 
             then(reviewService).should(never()).create(any(), any(), any(), anyDouble());
+        }
+    }
+
+    @Nested
+    @DisplayName("getReviews()")
+    class GetReviewsTest {
+
+        @Test
+        @DisplayName("요청이 주어지면 리뷰 목록을 조회하고 응답을 반환한다")
+        void withValidRequest_returnsReviews() {
+            // given
+            UUID contentId = UUID.randomUUID();
+            ReviewQueryRequest request = new ReviewQueryRequest(
+                contentId, null, null, 10, SortDirection.DESCENDING, ReviewSortField.createdAt
+            );
+
+            ReviewModel review1 = ReviewModelFixture.create();
+            ReviewModel review2 = ReviewModelFixture.create();
+
+            ReviewResponse response1 = new ReviewResponse(
+                review1.getId(),
+                review1.getContent().getId(),
+                new UserSummary(review1.getAuthor().getId(), review1.getAuthor().getName(), null),
+                review1.getText(),
+                review1.getRating()
+            );
+            ReviewResponse response2 = new ReviewResponse(
+                review2.getId(),
+                review2.getContent().getId(),
+                new UserSummary(review2.getAuthor().getId(), review2.getAuthor().getName(), null),
+                review2.getText(),
+                review2.getRating()
+            );
+
+            CursorResponse<ReviewModel> serviceResponse = CursorResponse.of(
+                List.of(review1, review2),
+                null,
+                null,
+                false,
+                2,
+                "createdAt",
+                SortDirection.DESCENDING
+            );
+
+            given(reviewService.getAll(request)).willReturn(serviceResponse);
+            given(reviewResponseMapper.toResponse(review1)).willReturn(response1);
+            given(reviewResponseMapper.toResponse(review2)).willReturn(response2);
+
+            // when
+            CursorResponse<ReviewResponse> result = reviewFacade.getReviews(request);
+
+            // then
+            assertThat(result.data()).hasSize(2);
+            assertThat(result.data().get(0)).isEqualTo(response1);
+            assertThat(result.data().get(1)).isEqualTo(response2);
+            assertThat(result.hasNext()).isFalse();
+            assertThat(result.totalCount()).isEqualTo(2);
+
+            then(reviewService).should().getAll(request);
+        }
+
+        @Test
+        @DisplayName("결과가 없으면 빈 응답을 반환한다")
+        void withNoResults_returnsEmptyResponse() {
+            // given
+            ReviewQueryRequest request = new ReviewQueryRequest(
+                null, null, null, 10, SortDirection.DESCENDING, ReviewSortField.createdAt
+            );
+
+            CursorResponse<ReviewModel> emptyResponse = CursorResponse.empty(
+                "createdAt",
+                SortDirection.DESCENDING
+            );
+
+            given(reviewService.getAll(request)).willReturn(emptyResponse);
+
+            // when
+            CursorResponse<ReviewResponse> result = reviewFacade.getReviews(request);
+
+            // then
+            assertThat(result.data()).isEmpty();
+            assertThat(result.hasNext()).isFalse();
+            assertThat(result.totalCount()).isZero();
+
+            then(reviewService).should().getAll(request);
         }
     }
 
