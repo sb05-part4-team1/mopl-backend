@@ -8,6 +8,7 @@ import com.mopl.domain.repository.notification.NotificationQueryRepository;
 import com.mopl.domain.repository.notification.NotificationRepository;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.domain.repository.playlist.PlaylistRepository;
+import com.mopl.domain.repository.playlist.PlaylistSubscriberCountRepository;
 import com.mopl.domain.repository.playlist.PlaylistSubscriberRepository;
 import com.mopl.domain.repository.review.ReviewQueryRepository;
 import com.mopl.domain.repository.review.ReviewRepository;
@@ -87,9 +88,13 @@ public class DomainServiceConfig {
 
     @Bean
     public PlaylistSubscriptionService playlistSubscriptionService(
-        PlaylistSubscriberRepository playlistSubscriberRepository
+        PlaylistSubscriberRepository playlistSubscriberRepository,
+        PlaylistSubscriberCountRepository playlistSubscriberCountRepository
     ) {
-        return new PlaylistSubscriptionService(playlistSubscriberRepository);
+        return new PlaylistSubscriptionService(
+            playlistSubscriberRepository,
+            playlistSubscriberCountRepository
+        );
     }
 
     @Bean
