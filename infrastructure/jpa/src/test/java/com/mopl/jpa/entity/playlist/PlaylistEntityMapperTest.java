@@ -4,7 +4,6 @@ import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.jpa.entity.user.UserEntity;
 import com.mopl.jpa.entity.user.UserEntityMapper;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,9 +30,6 @@ class PlaylistEntityMapperTest {
 
     @Mock
     private UserEntityMapper userEntityMapper;
-
-    @Mock
-    private EntityManager entityManager;
 
     @Nested
     @DisplayName("toModel()")
@@ -181,17 +177,16 @@ class PlaylistEntityMapperTest {
         }
 
         @Test
-        @DisplayName("유효한 Model을 Entity로 변환한다 (프록시 사용)")
-        void withValidModel_mapsToEntityWithProxy() {
+        @DisplayName("유효한 Model을 Entity로 변환한다")
+        void withValidModel_mapsToEntity() {
             // given
             UUID playlistId = UUID.randomUUID();
-            UUID ownerId = UUID.randomUUID();
             String title = "플레이리스트 제목";
             String description = "플레이리스트 설명";
             Instant now = Instant.now();
 
-            UserModel ownerModel = UserModel.builder().id(ownerId).build();
-            UserEntity ownerProxy = mock(UserEntity.class);
+            UserModel ownerModel = mock(UserModel.class);
+            UserEntity expectedOwnerEntity = UserEntity.builder().id(UUID.randomUUID()).build();
 
             PlaylistModel playlistModel = PlaylistModel.builder()
                 .id(playlistId)
@@ -202,7 +197,7 @@ class PlaylistEntityMapperTest {
                 .updatedAt(now)
                 .build();
 
-            given(entityManager.getReference(UserEntity.class, ownerId)).willReturn(ownerProxy);
+            given(userEntityMapper.toEntity(ownerModel)).willReturn(expectedOwnerEntity);
 
             // when
             PlaylistEntity result = playlistEntityMapper.toEntity(playlistModel);
@@ -214,10 +209,29 @@ class PlaylistEntityMapperTest {
             assertThat(result.getDescription()).isEqualTo(description);
             assertThat(result.getCreatedAt()).isEqualTo(now);
             assertThat(result.getUpdatedAt()).isEqualTo(now);
-            assertThat(result.getOwner()).isEqualTo(ownerProxy);
+            assertThat(result.getOwner()).isEqualTo(expectedOwnerEntity);
 
-            verify(entityManager).getReference(UserEntity.class, ownerId);
-            verifyNoInteractions(userEntityMapper);
+            verify(userEntityMapper).toEntity(ownerModel);
+        }
+
+        @Test
+        @DisplayName("Model의 owner가 null이면 Entity의 owner도 null이다")
+        void withNullOwner_mapsNull() {
+            // given
+            PlaylistModel playlistModel = PlaylistModel.builder()
+                .id(UUID.randomUUID())
+                .owner(null)
+                .title("제목")
+                .build();
+
+            given(userEntityMapper.toEntity(null)).willReturn(null);
+
+            // when
+            PlaylistEntity result = playlistEntityMapper.toEntity(playlistModel);
+
+            // then
+            assertThat(result).isNotNull();
+            assertThat(result.getOwner()).isNull();
         }
     }
 }
