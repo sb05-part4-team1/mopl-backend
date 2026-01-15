@@ -7,9 +7,11 @@ import com.mopl.api.interfaces.api.review.ReviewUpdateRequest;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.review.ReviewModel;
 import com.mopl.domain.model.user.UserModel;
+import com.mopl.domain.repository.review.ReviewQueryRequest;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.review.ReviewService;
 import com.mopl.domain.service.user.UserService;
+import com.mopl.domain.support.cursor.CursorResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +43,10 @@ public class ReviewFacade {
         );
 
         return reviewResponseMapper.toResponse(savedReview);
+    }
 
+    public CursorResponse<ReviewResponse> getReviews(ReviewQueryRequest request) {
+        return reviewService.getAll(request).map(reviewResponseMapper::toResponse);
     }
 
     @Transactional
@@ -50,7 +55,6 @@ public class ReviewFacade {
         UUID reviewId,
         ReviewUpdateRequest request
     ) {
-        // 존재 보장
         userService.getById(requesterId);
 
         ReviewModel updatedReview = reviewService.update(
@@ -60,7 +64,6 @@ public class ReviewFacade {
             request.rating()
         );
 
-        // 작성자만 수정 가능
         return reviewResponseMapper.toResponse(updatedReview);
     }
 
