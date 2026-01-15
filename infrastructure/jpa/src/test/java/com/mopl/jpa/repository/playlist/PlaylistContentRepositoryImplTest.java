@@ -89,6 +89,62 @@ class PlaylistContentRepositoryImplTest {
     }
 
     @Nested
+    @DisplayName("exists()")
+    class ExistsTest {
+
+        @Test
+        @DisplayName("플레이리스트에 콘텐츠가 존재하면 true를 반환한다")
+        void whenContentExists_returnsTrue() {
+            // given
+            playlistContentRepository.save(playlist.getId(), content.getId());
+
+            // when
+            boolean exists = playlistContentRepository.exists(playlist.getId(), content.getId());
+
+            // then
+            assertThat(exists).isTrue();
+        }
+
+        @Test
+        @DisplayName("플레이리스트에 콘텐츠가 존재하지 않으면 false를 반환한다")
+        void whenContentNotExists_returnsFalse() {
+            // when
+            boolean exists = playlistContentRepository.exists(playlist.getId(), content.getId());
+
+            // then
+            assertThat(exists).isFalse();
+        }
+
+        @Test
+        @DisplayName("다른 플레이리스트 ID로 조회하면 false를 반환한다")
+        void whenDifferentPlaylistId_returnsFalse() {
+            // given
+            playlistContentRepository.save(playlist.getId(), content.getId());
+            UUID differentPlaylistId = UUID.randomUUID();
+
+            // when
+            boolean exists = playlistContentRepository.exists(differentPlaylistId, content.getId());
+
+            // then
+            assertThat(exists).isFalse();
+        }
+
+        @Test
+        @DisplayName("다른 콘텐츠 ID로 조회하면 false를 반환한다")
+        void whenDifferentContentId_returnsFalse() {
+            // given
+            playlistContentRepository.save(playlist.getId(), content.getId());
+            UUID differentContentId = UUID.randomUUID();
+
+            // when
+            boolean exists = playlistContentRepository.exists(playlist.getId(), differentContentId);
+
+            // then
+            assertThat(exists).isFalse();
+        }
+    }
+
+    @Nested
     @DisplayName("save()")
     class SaveTest {
 
@@ -155,62 +211,6 @@ class PlaylistContentRepositoryImplTest {
             // then
             List<PlaylistContentEntity> playlistContents = jpaPlaylistContentRepository.findAll();
             assertThat(playlistContents).hasSize(2);
-        }
-    }
-
-    @Nested
-    @DisplayName("exists()")
-    class ExistsTest {
-
-        @Test
-        @DisplayName("플레이리스트에 콘텐츠가 존재하면 true를 반환한다")
-        void whenContentExists_returnsTrue() {
-            // given
-            playlistContentRepository.save(playlist.getId(), content.getId());
-
-            // when
-            boolean exists = playlistContentRepository.exists(playlist.getId(), content.getId());
-
-            // then
-            assertThat(exists).isTrue();
-        }
-
-        @Test
-        @DisplayName("플레이리스트에 콘텐츠가 존재하지 않으면 false를 반환한다")
-        void whenContentNotExists_returnsFalse() {
-            // when
-            boolean exists = playlistContentRepository.exists(playlist.getId(), content.getId());
-
-            // then
-            assertThat(exists).isFalse();
-        }
-
-        @Test
-        @DisplayName("다른 플레이리스트 ID로 조회하면 false를 반환한다")
-        void whenDifferentPlaylistId_returnsFalse() {
-            // given
-            playlistContentRepository.save(playlist.getId(), content.getId());
-            UUID differentPlaylistId = UUID.randomUUID();
-
-            // when
-            boolean exists = playlistContentRepository.exists(differentPlaylistId, content.getId());
-
-            // then
-            assertThat(exists).isFalse();
-        }
-
-        @Test
-        @DisplayName("다른 콘텐츠 ID로 조회하면 false를 반환한다")
-        void whenDifferentContentId_returnsFalse() {
-            // given
-            playlistContentRepository.save(playlist.getId(), content.getId());
-            UUID differentContentId = UUID.randomUUID();
-
-            // when
-            boolean exists = playlistContentRepository.exists(playlist.getId(), differentContentId);
-
-            // then
-            assertThat(exists).isFalse();
         }
     }
 
