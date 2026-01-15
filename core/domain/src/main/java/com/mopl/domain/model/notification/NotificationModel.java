@@ -1,9 +1,7 @@
 package com.mopl.domain.model.notification;
 
-import java.util.UUID;
-
 import com.mopl.domain.model.base.BaseModel;
-
+import com.mopl.domain.model.user.UserModel;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,19 +15,19 @@ public class NotificationModel extends BaseModel {
     private String title;
     private String content;
     private NotificationLevel level;
-    private UUID receiverId;
+    private UserModel receiver;
 
     public static NotificationModel create(
         String title,
         String content,
         NotificationLevel level,
-        UUID receiverId
+        UserModel receiver
     ) {
         return NotificationModel.builder()
             .title(title)
             .content(content)
             .level(level)
-            .receiverId(receiverId)
+            .receiver(receiver)
             .build();
     }
 }

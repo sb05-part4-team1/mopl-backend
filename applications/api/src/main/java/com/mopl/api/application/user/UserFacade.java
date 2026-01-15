@@ -1,9 +1,9 @@
 package com.mopl.api.application.user;
 
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
+import com.mopl.api.interfaces.api.user.UserLockUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserResponse;
 import com.mopl.api.interfaces.api.user.UserResponseMapper;
-import com.mopl.api.interfaces.api.user.UserLockUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserUpdateRequest;
 import com.mopl.domain.exception.user.SelfLockChangeException;
@@ -17,7 +17,6 @@ import com.mopl.storage.provider.FileStorageProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -34,7 +33,6 @@ public class UserFacade {
     private final FileStorageProvider fileStorageProvider;
     private final PasswordEncoder passwordEncoder;
 
-    @Transactional
     public UserModel signUp(UserCreateRequest userCreateRequest) {
         String email = userCreateRequest.email().strip().toLowerCase(Locale.ROOT);
         String name = userCreateRequest.name().strip();
@@ -50,17 +48,14 @@ public class UserFacade {
         return userService.create(userModel);
     }
 
-    @Transactional(readOnly = true)
     public CursorResponse<UserResponse> getUsers(UserQueryRequest request) {
         return userService.getAll(request).map(userResponseMapper::toResponse);
     }
 
-    @Transactional(readOnly = true)
     public UserModel getUser(UUID userId) {
         return userService.getById(userId);
     }
 
-    @Transactional
     public UserModel updateRole(
         UUID requesterId,
         UserRoleUpdateRequest request,
@@ -72,14 +67,12 @@ public class UserFacade {
         return updateRoleInternal(targetUserId, request.role());
     }
 
-    @Transactional
     public UserModel updateRoleInternal(UUID userId, UserModel.Role role) {
         UserModel userModel = userService.getById(userId);
         userModel.updateRole(role);
         return userService.update(userModel);
     }
 
-    @Transactional
     public void updateLocked(
         UUID requesterId,
         UUID targetUserId,
@@ -97,7 +90,6 @@ public class UserFacade {
         userService.update(userModel);
     }
 
-    @Transactional
     public UserModel updateProfile(UUID userId, UserUpdateRequest request, MultipartFile image) {
         UserModel userModel = userService.getById(userId);
 

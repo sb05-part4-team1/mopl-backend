@@ -1,13 +1,9 @@
 package com.mopl.jpa.repository.notification;
 
-import java.util.Optional;
-import java.util.UUID;
-
+import com.mopl.jpa.entity.notification.NotificationEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.mopl.jpa.entity.notification.NotificationEntity;
+import java.util.UUID;
 
 public interface JpaNotificationRepository extends JpaRepository<NotificationEntity, UUID> {
-
-    Optional<NotificationEntity> findByIdAndDeletedAtIsNull(UUID id);
 }

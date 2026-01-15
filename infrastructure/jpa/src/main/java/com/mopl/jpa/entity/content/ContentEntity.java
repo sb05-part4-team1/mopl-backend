@@ -1,6 +1,6 @@
 package com.mopl.jpa.entity.content;
 
-import com.mopl.domain.model.content.ContentModel.ContentType; // 내부 이넘 임포트
+import com.mopl.domain.model.content.ContentModel.ContentType;
 import com.mopl.jpa.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
