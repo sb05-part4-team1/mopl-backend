@@ -18,27 +18,20 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ContentWebSocketController {
 
-    private final ContentWebSocketFacade contentWebSocketFacade;
+	private final ContentWebSocketFacade contentWebSocketFacade;
 
-    @MessageMapping("/contents/{contentId}/watch")
-    @SendTo("/sub/contents/{contentId}/watch")
-    public WatchingSessionChange watchStatus(
-        @DestinationVariable UUID contentId,
-        WatchingSessionChange request,
-        Principal principal
-    ) {
-        UUID userId;
+	@MessageMapping("/contents/{contentId}/watch")
+	@SendTo("/sub/contents/{contentId}/watch")
+	public WatchingSessionChange watchStatus(
+		@DestinationVariable UUID contentId,
+		WatchingSessionChange request,
+		Principal principal
+	) {
 
-        // 테스트용 임시 처리
-        if (principal != null) {
-            UserModel user = (UserModel) ((Authentication) principal).getPrincipal();
-            userId = user.getId();
-        } else {
-            // 테스트용 임시 userId, 추후 삭제 예정
-            userId = UUID.fromString("019439a0-0001-7000-8000-000000000001");
-        }
+		UserModel user = (UserModel)((Authentication)principal).getPrincipal();
+		UUID userId = user.getId();
 
-        return contentWebSocketFacade.updateSession(contentId, userId, request.type());
-    }
+		return contentWebSocketFacade.updateSession(contentId, userId, request.type());
+	}
 
 }
