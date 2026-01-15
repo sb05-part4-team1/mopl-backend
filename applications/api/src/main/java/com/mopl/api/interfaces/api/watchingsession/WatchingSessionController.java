@@ -1,25 +1,29 @@
 package com.mopl.api.interfaces.api.watchingsession;
 
 import com.mopl.api.application.watchingsession.WatchingSessionFacade;
+import com.mopl.domain.repository.watchingsession.WatchingSessionQueryRequest;
+import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.security.userdetails.MoplUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class WatchingSessionController {
 
     private final WatchingSessionFacade watchingSessionFacade;
 
-    @GetMapping("/{watcherId}/watching-sessions")
+    @GetMapping("/users/{watcherId}/watching-sessions")
     public ResponseEntity<WatchingSessionDto> getWatchingSession( // 여기만 예외로 ResponseEntity를 사용 (응답이 2개여서)
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable UUID watcherId
@@ -30,5 +34,20 @@ public class WatchingSessionController {
         return watchingSessionFacade.getWatchingSession(requesterId, watcherId)
             .map(ResponseEntity::ok)    // 시청 중이면 200 + body
             .orElseGet(() -> ResponseEntity.noContent().build()); // 시청 안 하면 204
+    }
+
+    @GetMapping("contents/{contentId}/watching-sessions")
+    @ResponseStatus(HttpStatus.OK)
+    public CursorResponse<WatchingSessionDto> getWatchingSessions(
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @PathVariable UUID contentId,
+        WatchingSessionQueryRequest request
+    ) {
+        UUID requesterId = userDetails.userId(); // 요청자(로그인 사용자) ID 추출
+
+        return watchingSessionFacade.getWatchingSessions( // Facade로 위임하여 목록 조회 수행
+            contentId,
+            request
+        );
     }
 }
