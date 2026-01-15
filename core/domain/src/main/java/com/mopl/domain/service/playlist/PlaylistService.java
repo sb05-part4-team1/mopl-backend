@@ -30,7 +30,11 @@ public class PlaylistService {
         );
 
         return playlistRepository.save(playlistModel);
+    }
 
+    public PlaylistModel getById(UUID playlistId) {
+        return playlistRepository.findById(playlistId)
+            .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
     }
 
     public PlaylistModel update(
@@ -39,62 +43,26 @@ public class PlaylistService {
         String title,
         String description
     ) {
-        PlaylistModel playlistModel = playlistRepository.findById(playlistId)
-            .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
-
-        UUID ownerId = (playlistModel.getOwner() != null) ? playlistModel.getOwner().getId() : null;
-
-        if (ownerId == null || !ownerId.equals(requesterId)) {
-            throw new PlaylistForbiddenException(
-                playlistId,
-                requesterId,
-                ownerId
-            );
-        }
-
+        PlaylistModel playlistModel = getByIdAndValidateOwner(playlistId, requesterId);
         playlistModel.update(title, description);
-
         return playlistRepository.save(playlistModel);
     }
 
     public void delete(
-        UUID playlistid,
-        UUID requesterid
+        UUID playlistId,
+        UUID requesterId
     ) {
-        PlaylistModel playlistModel = playlistRepository.findById(playlistid)
-            .orElseThrow(() -> new PlaylistNotFoundException(playlistid));
-
-        UUID ownerId = (playlistModel.getOwner() != null) ? playlistModel.getOwner().getId() : null;
-
-        if (ownerId == null || !ownerId.equals(requesterid)) {
-            throw new PlaylistForbiddenException(playlistid, requesterid, ownerId);
-        }
-
+        PlaylistModel playlistModel = getByIdAndValidateOwner(playlistId, requesterId);
         playlistModel.delete();
-
         playlistRepository.save(playlistModel);
     }
-
-    public PlaylistModel getById(UUID playlistId) {
-        return playlistRepository.findById(playlistId)
-            .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
-    }
-
-    // ============= 여기서 부터는 순수 플레이리스트 CRUD가 아님===================
 
     public void addContent(
         UUID playlistId,
         UUID requesterId,
         UUID contentId
     ) {
-        PlaylistModel playlistModel = playlistRepository.findById(playlistId)
-            .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
-
-        UUID ownerId = (playlistModel.getOwner() != null) ? playlistModel.getOwner().getId() : null;
-
-        if (ownerId == null || !ownerId.equals(requesterId)) {
-            throw new PlaylistForbiddenException(playlistId, requesterId, ownerId);
-        }
+        getByIdAndValidateOwner(playlistId, requesterId);
 
         if (playlistContentRepository.exists(playlistId, contentId)) {
             throw new PlaylistContentAlreadyExistsException(playlistId, contentId);
@@ -108,14 +76,7 @@ public class PlaylistService {
         UUID requesterId,
         UUID contentId
     ) {
-        PlaylistModel playlistModel = playlistRepository.findById(playlistId)
-            .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
-
-        UUID ownerId = (playlistModel.getOwner() != null) ? playlistModel.getOwner().getId() : null;
-
-        if (ownerId == null || !ownerId.equals(requesterId)) {
-            throw new PlaylistForbiddenException(playlistId, requesterId, ownerId);
-        }
+        getByIdAndValidateOwner(playlistId, requesterId);
 
         if (!playlistContentRepository.exists(playlistId, contentId)) {
             throw new PlaylistContentNotFoundException(playlistId, contentId);
@@ -124,4 +85,14 @@ public class PlaylistService {
         playlistContentRepository.delete(playlistId, contentId);
     }
 
+    private PlaylistModel getByIdAndValidateOwner(UUID playlistId, UUID requesterId) {
+        PlaylistModel playlistModel = getById(playlistId);
+        UUID ownerId = (playlistModel.getOwner() != null) ? playlistModel.getOwner().getId() : null;
+
+        if (ownerId == null || !ownerId.equals(requesterId)) {
+            throw new PlaylistForbiddenException(playlistId, requesterId, ownerId);
+        }
+
+        return playlistModel;
+    }
 }
