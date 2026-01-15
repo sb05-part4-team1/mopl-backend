@@ -92,7 +92,6 @@ public final class CursorPaginationHelper {
         }
 
         boolean isAscending = request.sortDirection().isAscending();
-
         ComparableExpression expression = sortField.getExpression();
         Comparable cursorValue = sortField.deserializeCursor(cursor);
 
@@ -105,7 +104,6 @@ public final class CursorPaginationHelper {
         }
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     private static <S extends Enum<S>> OrderSpecifier<?>[] buildOrderSpecifiers(
         CursorRequest<S> request,
         SortField<?> sortField,
@@ -113,10 +111,8 @@ public final class CursorPaginationHelper {
     ) {
         Order order = request.sortDirection().isAscending() ? Order.ASC : Order.DESC;
 
-        ComparableExpression expression = sortField.getExpression();
-
         return new OrderSpecifier<?>[]{
-            new OrderSpecifier<>(order, expression),
+            new OrderSpecifier<>(order, sortField.getExpression()),
             new OrderSpecifier<>(order, idExpression)
         };
     }

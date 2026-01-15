@@ -1,32 +1,45 @@
-package com.mopl.jpa.repository.notification.query;
+package com.mopl.jpa.repository.review.query;
 
-import com.mopl.domain.repository.notification.NotificationSortField;
-import com.mopl.jpa.entity.notification.NotificationEntity;
+import com.mopl.domain.repository.review.ReviewSortField;
+import com.mopl.jpa.entity.review.ReviewEntity;
 import com.mopl.jpa.support.cursor.SortField;
 import com.querydsl.core.types.dsl.ComparableExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
 import java.util.function.Function;
 
-import static com.mopl.jpa.entity.notification.QNotificationEntity.notificationEntity;
+import static com.mopl.jpa.entity.review.QReviewEntity.reviewEntity;
 
 @Getter
 @RequiredArgsConstructor
-public enum NotificationSortFieldJpa implements SortField<Comparable<?>> {
+public enum ReviewSortFieldJpa implements SortField<Comparable<?>> {
 
     CREATED_AT(
-        NotificationSortField.createdAt,
-        cast(notificationEntity.createdAt),
-        NotificationEntity::getCreatedAt,
+        ReviewSortField.createdAt,
+        cast(reviewEntity.createdAt),
+        ReviewEntity::getCreatedAt,
         Object::toString,
         Instant::parse
+    ),
+
+    RATING(
+        ReviewSortField.rating,
+        Expressions.comparableTemplate(
+            Double.class,
+            "{0}",
+            reviewEntity.rating
+        ),
+        ReviewEntity::getRating,
+        Object::toString,
+        Double::parseDouble
     );
 
-    private final NotificationSortField domainField;
+    private final ReviewSortField domainField;
     private final ComparableExpression<Comparable<?>> expression;
-    private final Function<NotificationEntity, Object> valueExtractor;
+    private final Function<ReviewEntity, Object> valueExtractor;
     private final Function<Object, String> serializer;
     private final Function<String, Comparable<?>> deserializer;
 
@@ -35,9 +48,10 @@ public enum NotificationSortFieldJpa implements SortField<Comparable<?>> {
         return (ComparableExpression<Comparable<?>>) expression;
     }
 
-    public static NotificationSortFieldJpa from(NotificationSortField domainField) {
+    public static ReviewSortFieldJpa from(ReviewSortField domainField) {
         return switch (domainField) {
             case createdAt -> CREATED_AT;
+            case rating -> RATING;
         };
     }
 
@@ -51,7 +65,7 @@ public enum NotificationSortFieldJpa implements SortField<Comparable<?>> {
         return deserializer.apply(cursor);
     }
 
-    public Object extractValue(NotificationEntity entity) {
+    public Object extractValue(ReviewEntity entity) {
         return valueExtractor.apply(entity);
     }
 

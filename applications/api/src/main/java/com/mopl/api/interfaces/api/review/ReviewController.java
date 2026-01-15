@@ -1,12 +1,16 @@
 package com.mopl.api.interfaces.api.review;
 
 import com.mopl.api.application.review.ReviewFacade;
+import com.mopl.domain.repository.review.ReviewQueryRequest;
+import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.security.userdetails.MoplUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +24,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/reviews")
 @RequiredArgsConstructor
-public class ReviewController {
+public class ReviewController implements ReviewApiSpec {
 
     private final ReviewFacade reviewFacade;
 
@@ -30,43 +34,41 @@ public class ReviewController {
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @RequestBody @Valid ReviewCreateRequest request
     ) {
-        // 인증된 객체에서 id만 가져옴
-        UUID requesterId = userDetails.userId();
-
-        // 파사드가 이미 Response를 반환하므로 바로 리턴하면 끝!
         return reviewFacade.createReview(
-            requesterId,
+            userDetails.userId(),
             request
         );
     }
 
+    @GetMapping
+    public CursorResponse<ReviewResponse> getReviews(
+        @ModelAttribute ReviewQueryRequest request
+    ) {
+        return reviewFacade.getReviews(request);
+    }
+
     @PatchMapping("/{reviewId}")
-    @ResponseStatus(HttpStatus.OK)
     public ReviewResponse updateReview(
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable UUID reviewId,
         @RequestBody @Valid ReviewUpdateRequest request
     ) {
-
-        // 인증된 객체에서 id만 가져옴
-        UUID requesterId = userDetails.userId();
-
         return reviewFacade.updateReview(
-            requesterId,
+            userDetails.userId(),
             reviewId,
             request
         );
     }
 
     @DeleteMapping("/{reviewId}")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteReview(
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable UUID reviewId
     ) {
-        // 인증된 객체에서 id만 가져옴
-        UUID requesterId = userDetails.userId();
-
-        reviewFacade.deleteReview(requesterId, reviewId);
+        reviewFacade.deleteReview(
+            userDetails.userId(),
+            reviewId
+        );
     }
 }
