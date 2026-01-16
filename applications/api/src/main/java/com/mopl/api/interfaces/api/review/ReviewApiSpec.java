@@ -17,24 +17,14 @@ import java.util.UUID;
 @Tag(name = "Review API", description = "리뷰 API")
 public interface ReviewApiSpec {
 
-    @Operation(summary = "리뷰 생성")
-    @RequestBody(
-        required = true,
-        content = @Content(
-            schema = @Schema(implementation = ReviewCreateRequest.class)
-        )
-    )
+    @Operation(summary = "리뷰 목록 조회")
     @ApiResponse(
-        responseCode = "201",
-        description = "리뷰 생성 성공",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ReviewResponse.class)
-        )
+        responseCode = "200",
+        description = "성공"
     )
     @ApiResponse(
         responseCode = "400",
-        description = "잘못된 요청 데이터",
+        description = "잘못된 요청",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
@@ -42,7 +32,46 @@ public interface ReviewApiSpec {
     )
     @ApiResponse(
         responseCode = "401",
-        description = "인증 실패",
+        description = "인증 오류",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "500",
+        description = "서버 오류",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    CursorResponse<ReviewResponse> getReviews(ReviewQueryRequest request);
+
+    @Operation(summary = "리뷰 생성")
+    @RequestBody(
+        required = true,
+        content = @Content(schema = @Schema(implementation = ReviewCreateRequest.class))
+    )
+    @ApiResponse(
+        responseCode = "201",
+        description = "생성 성공",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ReviewResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "400",
+        description = "잘못된 요청",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "401",
+        description = "인증 오류",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
@@ -58,36 +87,15 @@ public interface ReviewApiSpec {
     )
     ReviewResponse createReview(MoplUserDetails userDetails, ReviewCreateRequest request);
 
-    @Operation(summary = "리뷰 목록 조회", description = "커서 기반 페이지네이션으로 리뷰 목록을 조회합니다.")
-    @ApiResponse(
-        responseCode = "200",
-        description = "리뷰 목록 조회 성공",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = CursorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "400",
-        description = "잘못된 요청 데이터",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    CursorResponse<ReviewResponse> getReviews(ReviewQueryRequest request);
-
     @Operation(summary = "리뷰 수정")
     @Parameter(name = "reviewId", description = "수정할 리뷰 ID", required = true)
     @RequestBody(
         required = true,
-        content = @Content(
-            schema = @Schema(implementation = ReviewUpdateRequest.class)
-        )
+        content = @Content(schema = @Schema(implementation = ReviewUpdateRequest.class))
     )
     @ApiResponse(
         responseCode = "200",
-        description = "리뷰 수정 성공",
+        description = "수정 성공",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ReviewResponse.class)
@@ -95,7 +103,7 @@ public interface ReviewApiSpec {
     )
     @ApiResponse(
         responseCode = "400",
-        description = "잘못된 요청 데이터",
+        description = "잘못된 요청",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
@@ -103,7 +111,7 @@ public interface ReviewApiSpec {
     )
     @ApiResponse(
         responseCode = "401",
-        description = "인증 실패",
+        description = "인증 오류",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
@@ -125,18 +133,14 @@ public interface ReviewApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    ReviewResponse updateReview(MoplUserDetails userDetails, UUID reviewId,
-        ReviewUpdateRequest request);
+    ReviewResponse updateReview(MoplUserDetails userDetails, UUID reviewId, ReviewUpdateRequest request);
 
     @Operation(summary = "리뷰 삭제")
     @Parameter(name = "reviewId", description = "삭제할 리뷰 ID", required = true)
-    @ApiResponse(
-        responseCode = "204",
-        description = "리뷰 삭제 성공"
-    )
+    @ApiResponse(responseCode = "204", description = "삭제 성공")
     @ApiResponse(
         responseCode = "401",
-        description = "인증 실패",
+        description = "인증 오류",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)

@@ -28,6 +28,13 @@ public class ReviewController implements ReviewApiSpec {
 
     private final ReviewFacade reviewFacade;
 
+    @GetMapping
+    public CursorResponse<ReviewResponse> getReviews(
+        @ModelAttribute @Valid ReviewQueryRequest request
+    ) {
+        return reviewFacade.getReviews(request);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ReviewResponse createReview(
@@ -38,13 +45,6 @@ public class ReviewController implements ReviewApiSpec {
             userDetails.userId(),
             request
         );
-    }
-
-    @GetMapping
-    public CursorResponse<ReviewResponse> getReviews(
-        @ModelAttribute ReviewQueryRequest request
-    ) {
-        return reviewFacade.getReviews(request);
     }
 
     @PatchMapping("/{reviewId}")
