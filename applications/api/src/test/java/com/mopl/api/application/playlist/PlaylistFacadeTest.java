@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -69,9 +70,10 @@ class PlaylistFacadeTest {
     private PlaylistFacade playlistFacade;
 
     @BeforeEach
+    @SuppressWarnings("unchecked")
     void setUp() {
         lenient().doAnswer(invocation -> {
-            invocation.getArgument(0, java.util.function.Consumer.class).accept(null);
+            invocation.getArgument(0, Consumer.class).accept(null);
             return null;
         }).when(transactionTemplate).executeWithoutResult(any());
 
