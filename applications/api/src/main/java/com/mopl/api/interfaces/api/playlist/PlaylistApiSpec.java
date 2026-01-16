@@ -1,6 +1,8 @@
 package com.mopl.api.interfaces.api.playlist;
 
 import com.mopl.domain.exception.ErrorResponse;
+import com.mopl.domain.repository.playlist.PlaylistQueryRequest;
+import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.security.userdetails.MoplUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,24 +17,14 @@ import java.util.UUID;
 @Tag(name = "Playlist API", description = "플레이리스트 API")
 public interface PlaylistApiSpec {
 
-    @Operation(summary = "플레이리스트 생성")
-    @RequestBody(
-        required = true,
-        content = @Content(
-            schema = @Schema(implementation = PlaylistCreateRequest.class)
-        )
-    )
+    @Operation(summary = "플레이리스트 목록 조회")
     @ApiResponse(
-        responseCode = "201",
-        description = "플레이리스트 생성 성공",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = PlaylistResponse.class)
-        )
+        responseCode = "200",
+        description = "성공"
     )
     @ApiResponse(
         responseCode = "400",
-        description = "잘못된 요청 데이터",
+        description = "잘못된 요청",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
@@ -40,19 +32,30 @@ public interface PlaylistApiSpec {
     )
     @ApiResponse(
         responseCode = "401",
-        description = "인증 실패",
+        description = "인증 오류",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    PlaylistResponse createPlaylist(MoplUserDetails userDetails, PlaylistCreateRequest request);
+    @ApiResponse(
+        responseCode = "500",
+        description = "서버 오류",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    CursorResponse<PlaylistResponse> getPlaylists(
+        MoplUserDetails userDetails,
+        PlaylistQueryRequest request
+    );
 
     @Operation(summary = "플레이리스트 상세 조회")
     @Parameter(name = "playlistId", description = "조회할 플레이리스트 ID", required = true)
     @ApiResponse(
         responseCode = "200",
-        description = "플레이리스트 조회 성공",
+        description = "성공",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = PlaylistResponse.class)
@@ -60,7 +63,7 @@ public interface PlaylistApiSpec {
     )
     @ApiResponse(
         responseCode = "401",
-        description = "인증 실패",
+        description = "인증 오류",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
@@ -76,17 +79,14 @@ public interface PlaylistApiSpec {
     )
     PlaylistResponse getPlaylist(MoplUserDetails userDetails, UUID playlistId);
 
-    @Operation(summary = "플레이리스트 수정")
-    @Parameter(name = "playlistId", description = "수정할 플레이리스트 ID", required = true)
+    @Operation(summary = "플레이리스트 생성")
     @RequestBody(
         required = true,
-        content = @Content(
-            schema = @Schema(implementation = PlaylistUpdateRequest.class)
-        )
+        content = @Content(schema = @Schema(implementation = PlaylistCreateRequest.class))
     )
     @ApiResponse(
-        responseCode = "200",
-        description = "플레이리스트 수정 성공",
+        responseCode = "201",
+        description = "생성 성공",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = PlaylistResponse.class)
@@ -94,7 +94,7 @@ public interface PlaylistApiSpec {
     )
     @ApiResponse(
         responseCode = "400",
-        description = "잘못된 요청 데이터",
+        description = "잘못된 요청",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
@@ -102,7 +102,39 @@ public interface PlaylistApiSpec {
     )
     @ApiResponse(
         responseCode = "401",
-        description = "인증 실패",
+        description = "인증 오류",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    PlaylistResponse createPlaylist(MoplUserDetails userDetails, PlaylistCreateRequest request);
+
+    @Operation(summary = "플레이리스트 수정")
+    @Parameter(name = "playlistId", description = "수정할 플레이리스트 ID", required = true)
+    @RequestBody(
+        required = true,
+        content = @Content(schema = @Schema(implementation = PlaylistUpdateRequest.class))
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "수정 성공",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = PlaylistResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "400",
+        description = "잘못된 요청",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "401",
+        description = "인증 오류",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
@@ -132,13 +164,10 @@ public interface PlaylistApiSpec {
 
     @Operation(summary = "플레이리스트 삭제")
     @Parameter(name = "playlistId", description = "삭제할 플레이리스트 ID", required = true)
-    @ApiResponse(
-        responseCode = "204",
-        description = "플레이리스트 삭제 성공"
-    )
+    @ApiResponse(responseCode = "204", description = "삭제 성공")
     @ApiResponse(
         responseCode = "401",
-        description = "인증 실패",
+        description = "인증 오류",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
@@ -165,13 +194,10 @@ public interface PlaylistApiSpec {
     @Operation(summary = "플레이리스트에 콘텐츠 추가")
     @Parameter(name = "playlistId", description = "플레이리스트 ID", required = true)
     @Parameter(name = "contentId", description = "추가할 콘텐츠 ID", required = true)
-    @ApiResponse(
-        responseCode = "204",
-        description = "콘텐츠 추가 성공"
-    )
+    @ApiResponse(responseCode = "204", description = "추가 성공")
     @ApiResponse(
         responseCode = "401",
-        description = "인증 실패",
+        description = "인증 오류",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
@@ -206,13 +232,10 @@ public interface PlaylistApiSpec {
     @Operation(summary = "플레이리스트에서 콘텐츠 삭제")
     @Parameter(name = "playlistId", description = "플레이리스트 ID", required = true)
     @Parameter(name = "contentId", description = "삭제할 콘텐츠 ID", required = true)
-    @ApiResponse(
-        responseCode = "204",
-        description = "콘텐츠 삭제 성공"
-    )
+    @ApiResponse(responseCode = "204", description = "삭제 성공")
     @ApiResponse(
         responseCode = "401",
-        description = "인증 실패",
+        description = "인증 오류",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
@@ -238,13 +261,10 @@ public interface PlaylistApiSpec {
 
     @Operation(summary = "플레이리스트 구독")
     @Parameter(name = "playlistId", description = "구독할 플레이리스트 ID", required = true)
-    @ApiResponse(
-        responseCode = "204",
-        description = "구독 성공"
-    )
+    @ApiResponse(responseCode = "204", description = "구독 성공")
     @ApiResponse(
         responseCode = "401",
-        description = "인증 실패",
+        description = "인증 오류",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
@@ -262,13 +282,10 @@ public interface PlaylistApiSpec {
 
     @Operation(summary = "플레이리스트 구독 취소")
     @Parameter(name = "playlistId", description = "구독 취소할 플레이리스트 ID", required = true)
-    @ApiResponse(
-        responseCode = "204",
-        description = "구독 취소 성공"
-    )
+    @ApiResponse(responseCode = "204", description = "구독 취소 성공")
     @ApiResponse(
         responseCode = "401",
-        description = "인증 실패",
+        description = "인증 오류",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
