@@ -16,7 +16,6 @@ import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.support.cursor.CursorResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -111,7 +110,6 @@ public class PlaylistFacade {
         playlistService.delete(playlistId, requesterId);
     }
 
-    @Transactional
     public void addContentToPlaylist(
         UUID requesterId,
         UUID playlistId,
@@ -126,7 +124,6 @@ public class PlaylistFacade {
         playlistService.addContent(playlistId, requesterId, contentId);
     }
 
-    @Transactional
     public void deleteContentFromPlaylist(
         UUID requesterId,
         UUID playlistId,
