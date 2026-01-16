@@ -44,12 +44,12 @@ public class PlaylistController implements PlaylistApiSpec {
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable UUID playlistId
     ) {
-        PlaylistDetail detail = playlistFacade.getPlaylist(userDetails.userId(), playlistId);
+        PlaylistDetail playlistDetail = playlistFacade.getPlaylist(userDetails.userId(), playlistId);
         return playlistResponseMapper.toResponse(
-            detail.playlist(),
-            detail.subscriberCount(),
-            detail.subscribedByMe(),
-            detail.contents()
+            playlistDetail.playlist(),
+            playlistDetail.subscriberCount(),
+            playlistDetail.subscribedByMe(),
+            playlistDetail.contents()
         );
     }
 
