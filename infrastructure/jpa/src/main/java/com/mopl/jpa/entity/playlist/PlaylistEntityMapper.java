@@ -26,7 +26,8 @@ public class PlaylistEntityMapper {
             return null;
         }
 
-        return buildPlaylistModel(playlistEntity, userEntityMapper.toModel(playlistEntity.getOwner()));
+        return buildPlaylistModel(playlistEntity, userEntityMapper.toModel(playlistEntity
+            .getOwner()));
     }
 
     public PlaylistEntity toEntity(PlaylistModel playlistModel) {

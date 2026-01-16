@@ -69,7 +69,8 @@ class PlaylistRepositoryImplTest {
             );
 
             // when
-            Optional<PlaylistModel> foundPlaylist = playlistRepository.findById(savedPlaylist.getId());
+            Optional<PlaylistModel> foundPlaylist = playlistRepository.findById(savedPlaylist
+                .getId());
 
             // then
             assertThat(foundPlaylist).isPresent();
@@ -104,7 +105,8 @@ class PlaylistRepositoryImplTest {
             );
 
             // when
-            Optional<PlaylistModel> foundPlaylist = playlistRepository.findById(savedPlaylist.getId());
+            Optional<PlaylistModel> foundPlaylist = playlistRepository.findById(savedPlaylist
+                .getId());
 
             // then
             assertThat(foundPlaylist).isPresent();

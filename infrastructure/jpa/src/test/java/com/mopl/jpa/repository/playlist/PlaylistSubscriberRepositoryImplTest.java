@@ -158,7 +158,8 @@ class PlaylistSubscriberRepositoryImplTest {
             playlistSubscriberRepository.save(playlist.getId(), subscriber.getId());
 
             // then
-            List<PlaylistSubscriberEntity> subscriptions = jpaPlaylistSubscriberRepository.findAll();
+            List<PlaylistSubscriberEntity> subscriptions = jpaPlaylistSubscriberRepository
+                .findAll();
             assertThat(subscriptions).hasSize(1);
             assertThat(subscriptions.get(0).getPlaylist().getId()).isEqualTo(playlist.getId());
             assertThat(subscriptions.get(0).getSubscriber().getId()).isEqualTo(subscriber.getId());
@@ -182,7 +183,8 @@ class PlaylistSubscriberRepositoryImplTest {
             playlistSubscriberRepository.save(playlist.getId(), anotherSubscriber.getId());
 
             // then
-            List<PlaylistSubscriberEntity> subscriptions = jpaPlaylistSubscriberRepository.findAll();
+            List<PlaylistSubscriberEntity> subscriptions = jpaPlaylistSubscriberRepository
+                .findAll();
             assertThat(subscriptions).hasSize(2);
         }
     }
@@ -233,7 +235,8 @@ class PlaylistSubscriberRepositoryImplTest {
             // then
             List<PlaylistSubscriberEntity> remaining = jpaPlaylistSubscriberRepository.findAll();
             assertThat(remaining).hasSize(1);
-            assertThat(remaining.get(0).getSubscriber().getId()).isEqualTo(anotherSubscriber.getId());
+            assertThat(remaining.get(0).getSubscriber().getId()).isEqualTo(anotherSubscriber
+                .getId());
         }
 
         @Test

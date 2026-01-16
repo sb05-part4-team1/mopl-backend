@@ -21,7 +21,8 @@ public class PlaylistSubscriptionService {
     }
 
     public void subscribe(UUID playlistId, UUID subscriberId) {
-        if (playlistSubscriberRepository.existsByPlaylistIdAndSubscriberId(playlistId, subscriberId)) {
+        if (playlistSubscriberRepository.existsByPlaylistIdAndSubscriberId(playlistId,
+            subscriberId)) {
             return;
         }
         playlistSubscriberRepository.save(playlistId, subscriberId);
@@ -29,7 +30,8 @@ public class PlaylistSubscriptionService {
     }
 
     public void unsubscribe(UUID playlistId, UUID subscriberId) {
-        if (!playlistSubscriberRepository.existsByPlaylistIdAndSubscriberId(playlistId, subscriberId)) {
+        if (!playlistSubscriberRepository.existsByPlaylistIdAndSubscriberId(playlistId,
+            subscriberId)) {
             return;
         }
         playlistSubscriberRepository.deleteByPlaylistIdAndSubscriberId(playlistId, subscriberId);
