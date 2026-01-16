@@ -133,7 +133,11 @@ public interface ReviewApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    ReviewResponse updateReview(MoplUserDetails userDetails, UUID reviewId, ReviewUpdateRequest request);
+    ReviewResponse updateReview(
+        MoplUserDetails userDetails,
+        UUID reviewId,
+        ReviewUpdateRequest request
+    );
 
     @Operation(summary = "리뷰 삭제")
     @Parameter(name = "reviewId", description = "삭제할 리뷰 ID", required = true)
