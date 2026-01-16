@@ -1,5 +1,7 @@
 package com.mopl.websocket.config;
 
+import java.util.UUID;
+
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -57,6 +59,20 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
                     accessor.setUser(authentication);
                 } catch (Exception e) {
                     return null;
+                }
+            }
+        }
+
+        else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
+            String destination = accessor.getDestination();
+            if (StringUtils.hasText(destination) && destination.startsWith("/sub/contents/") && destination.endsWith("/watch")) {
+                // 경로 파싱: /sub/contents/{contentId}/watch
+                String contentIdStr = destination.split("/")[3];
+                UUID contentId = UUID.fromString(contentIdStr);
+
+                // 세션 속성에 저장 (Disconnect 시점에 꺼내 쓰기 위함)
+                if (accessor.getSessionAttributes() != null) {
+                    accessor.getSessionAttributes().put("watchingContentId", contentId);
                 }
             }
         }
