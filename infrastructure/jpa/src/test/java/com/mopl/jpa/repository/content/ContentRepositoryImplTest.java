@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,7 +45,7 @@ class ContentRepositoryImplTest {
             ContentModel saved = contentRepository.save(original);
 
             // when
-            java.util.Optional<ContentModel> found = contentRepository.findById(saved.getId());
+            Optional<ContentModel> found = contentRepository.findById(saved.getId());
 
             // then
             assertThat(found).isPresent();
@@ -57,7 +58,7 @@ class ContentRepositoryImplTest {
         @DisplayName("존재하지 않는 ID로 조회하면 빈 Optional을 반환한다")
         void findById_withNonExistentId_returnsEmpty() {
             // when
-            java.util.Optional<ContentModel> found = contentRepository.findById(UUID.randomUUID());
+            Optional<ContentModel> found = contentRepository.findById(UUID.randomUUID());
 
             // then
             assertThat(found).isEmpty();
