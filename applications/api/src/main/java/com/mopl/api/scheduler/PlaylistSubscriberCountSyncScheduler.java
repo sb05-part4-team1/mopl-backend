@@ -18,7 +18,7 @@ public class PlaylistSubscriberCountSyncScheduler {
     private final PlaylistSubscriberRepository playlistSubscriberRepository;
     private final PlaylistSubscriberCountRepository playlistSubscriberCountRepository;
 
-    @Scheduled(cron = "${mopl.scheduler.playlist-subscriber-count-sync.cron:0 0 * * * *}")
+    @Scheduled(cron = "0 0 4 * * *")
     public void syncSubscriberCounts() {
         log.info("Starting playlist subscriber count sync...");
 
@@ -47,10 +47,5 @@ public class PlaylistSubscriberCountSyncScheduler {
             "Playlist subscriber count sync completed. Total: {}, Synced: {}",
             playlistIds.size(), syncedCount
         );
-    }
-
-    public void syncSinglePlaylist(UUID playlistId) {
-        long dbCount = playlistSubscriberRepository.countByPlaylistId(playlistId);
-        playlistSubscriberCountRepository.setCount(playlistId, dbCount);
     }
 }
