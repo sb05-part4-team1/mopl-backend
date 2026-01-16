@@ -18,6 +18,7 @@ import com.mopl.websocket.interfaces.api.content.WatchingSessionChange;
 import com.mopl.websocket.service.content.WatchingSessionService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
@@ -31,15 +32,15 @@ public class ContentWebSocketFacade {
 
     public WatchingSessionChange updateSession(UUID contentId, UUID userId, ChangeType type) {
         WatchingSessionModel session;
-        UserModel watcher;
-        ContentModel content;
+        UserModel watcher = null;
+        ContentModel content = null;
 
         if (type == ChangeType.JOIN) {
             watcher = userService.getById(userId);
             content = contentService.getById(contentId);
 
             session = WatchingSessionModel.create(watcher, content);
-            watchingSessionService.create(session);
+            session = watchingSessionService.create(session);
         } else {
             // LEAVE인 경우 삭제 전에 세션 조회
             session = watchingSessionService.findByUserIdAndContentId(userId, contentId)
@@ -48,14 +49,10 @@ public class ContentWebSocketFacade {
             if (session != null) {
                 watcher = session.getWatcher();
                 content = session.getContent();
-            } else {
-                watcher = null;
-                content = null;
+
+                watchingSessionService.delete(session);
             }
-
-            watchingSessionService.delete(userId, contentId);
         }
-
         long watcherCount = watchingSessionService.getWatcherCount(contentId);
 
         WatchingSessionDto dto = (session != null && watcher != null && content != null)
