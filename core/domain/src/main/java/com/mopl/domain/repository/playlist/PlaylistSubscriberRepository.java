@@ -14,7 +14,7 @@ public interface PlaylistSubscriberRepository {
 
     boolean existsByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId);
 
-    boolean save(UUID playlistId, UUID subscriberId);
+    void save(UUID playlistId, UUID subscriberId);
 
     boolean deleteByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId);
 }

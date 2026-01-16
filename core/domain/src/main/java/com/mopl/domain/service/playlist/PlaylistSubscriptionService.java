@@ -41,10 +41,8 @@ public class PlaylistSubscriptionService {
     }
 
     public void subscribe(UUID playlistId, UUID subscriberId) {
-        boolean saved = playlistSubscriberRepository.save(playlistId, subscriberId);
-        if (saved) {
-            playlistSubscriberCountRepository.increment(playlistId);
-        }
+        playlistSubscriberRepository.save(playlistId, subscriberId);
+        playlistSubscriberCountRepository.increment(playlistId);
     }
 
     public void unsubscribe(UUID playlistId, UUID subscriberId) {
