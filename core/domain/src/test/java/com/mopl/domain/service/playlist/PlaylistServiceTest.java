@@ -7,7 +7,6 @@ import com.mopl.domain.exception.playlist.PlaylistNotFoundException;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
-import com.mopl.domain.repository.playlist.PlaylistRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,7 +15,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,7 +29,7 @@ import static org.mockito.Mockito.never;
 class PlaylistServiceTest {
 
     @Mock
-    private PlaylistRepository playlistRepository;
+    private PlaylistCacheService playlistCacheService;
 
     @Mock
     private PlaylistContentRepository playlistContentRepository;
@@ -63,7 +61,7 @@ class PlaylistServiceTest {
             String title = "내 플레이리스트";
             String description = "플레이리스트 설명";
 
-            given(playlistRepository.save(any(PlaylistModel.class)))
+            given(playlistCacheService.save(any(PlaylistModel.class)))
                 .willAnswer(invocation -> invocation.getArgument(0));
 
             // when
@@ -73,7 +71,7 @@ class PlaylistServiceTest {
             assertThat(result.getOwner()).isEqualTo(owner);
             assertThat(result.getTitle()).isEqualTo(title);
             assertThat(result.getDescription()).isEqualTo(description);
-            then(playlistRepository).should().save(any(PlaylistModel.class));
+            then(playlistCacheService).should().save(any(PlaylistModel.class));
         }
     }
 
@@ -89,14 +87,14 @@ class PlaylistServiceTest {
             UserModel owner = createOwner();
             PlaylistModel playlistModel = createPlaylist(owner);
 
-            given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlistModel));
+            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
 
             // when
             PlaylistModel result = playlistService.getById(playlistId);
 
             // then
             assertThat(result).isEqualTo(playlistModel);
-            then(playlistRepository).should().findById(playlistId);
+            then(playlistCacheService).should().getById(playlistId);
         }
 
         @Test
@@ -105,13 +103,14 @@ class PlaylistServiceTest {
             // given
             UUID playlistId = UUID.randomUUID();
 
-            given(playlistRepository.findById(playlistId)).willReturn(Optional.empty());
+            given(playlistCacheService.getById(playlistId))
+                .willThrow(new PlaylistNotFoundException(playlistId));
 
             // when & then
             assertThatThrownBy(() -> playlistService.getById(playlistId))
                 .isInstanceOf(PlaylistNotFoundException.class);
 
-            then(playlistRepository).should().findById(playlistId);
+            then(playlistCacheService).should().getById(playlistId);
         }
     }
 
@@ -130,8 +129,8 @@ class PlaylistServiceTest {
             String newTitle = "수정된 제목";
             String newDescription = "수정된 설명";
 
-            given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlistModel));
-            given(playlistRepository.save(any(PlaylistModel.class)))
+            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
+            given(playlistCacheService.save(any(PlaylistModel.class)))
                 .willAnswer(invocation -> invocation.getArgument(0));
 
             // when
@@ -141,8 +140,8 @@ class PlaylistServiceTest {
             // then
             assertThat(result.getTitle()).isEqualTo(newTitle);
             assertThat(result.getDescription()).isEqualTo(newDescription);
-            then(playlistRepository).should().findById(playlistId);
-            then(playlistRepository).should().save(playlistModel);
+            then(playlistCacheService).should().getById(playlistId);
+            then(playlistCacheService).should().save(playlistModel);
         }
 
         @Test
@@ -154,15 +153,15 @@ class PlaylistServiceTest {
             UUID requesterId = UUID.randomUUID();
             PlaylistModel playlistModel = createPlaylist(owner);
 
-            given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlistModel));
+            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
 
             // when & then
             assertThatThrownBy(() -> playlistService.update(playlistId, requesterId, "새 제목",
                 "새 설명"))
                 .isInstanceOf(PlaylistForbiddenException.class);
 
-            then(playlistRepository).should().findById(playlistId);
-            then(playlistRepository).should(never()).save(any(PlaylistModel.class));
+            then(playlistCacheService).should().getById(playlistId);
+            then(playlistCacheService).should(never()).save(any(PlaylistModel.class));
         }
     }
 
@@ -179,8 +178,8 @@ class PlaylistServiceTest {
             UUID requesterId = owner.getId();
             PlaylistModel playlistModel = createPlaylist(owner);
 
-            given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlistModel));
-            given(playlistRepository.save(any(PlaylistModel.class)))
+            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
+            given(playlistCacheService.save(any(PlaylistModel.class)))
                 .willAnswer(invocation -> invocation.getArgument(0));
 
             // when
@@ -188,8 +187,9 @@ class PlaylistServiceTest {
 
             // then
             assertThat(playlistModel.getDeletedAt()).isNotNull();
-            then(playlistRepository).should().findById(playlistId);
-            then(playlistRepository).should().save(playlistModel);
+            then(playlistCacheService).should().getById(playlistId);
+            then(playlistCacheService).should().save(playlistModel);
+            then(playlistCacheService).should().evictPlaylist(playlistId);
         }
 
         @Test
@@ -201,14 +201,14 @@ class PlaylistServiceTest {
             UUID requesterId = UUID.randomUUID();
             PlaylistModel playlistModel = createPlaylist(owner);
 
-            given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlistModel));
+            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
 
             // when & then
             assertThatThrownBy(() -> playlistService.delete(playlistId, requesterId))
                 .isInstanceOf(PlaylistForbiddenException.class);
 
-            then(playlistRepository).should().findById(playlistId);
-            then(playlistRepository).should(never()).save(any(PlaylistModel.class));
+            then(playlistCacheService).should().getById(playlistId);
+            then(playlistCacheService).should(never()).save(any(PlaylistModel.class));
         }
     }
 
@@ -226,16 +226,17 @@ class PlaylistServiceTest {
             UUID contentId = UUID.randomUUID();
             PlaylistModel playlistModel = createPlaylist(owner);
 
-            given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlistModel));
+            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
             given(playlistContentRepository.exists(playlistId, contentId)).willReturn(false);
 
             // when
             playlistService.addContent(playlistId, requesterId, contentId);
 
             // then
-            then(playlistRepository).should().findById(playlistId);
+            then(playlistCacheService).should().getById(playlistId);
             then(playlistContentRepository).should().exists(playlistId, contentId);
             then(playlistContentRepository).should().save(playlistId, contentId);
+            then(playlistCacheService).should().evictContents(playlistId);
         }
 
         @Test
@@ -248,7 +249,7 @@ class PlaylistServiceTest {
             UUID contentId = UUID.randomUUID();
             PlaylistModel playlistModel = createPlaylist(owner);
 
-            given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlistModel));
+            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
 
             // when & then
             assertThatThrownBy(() -> playlistService.addContent(playlistId, requesterId, contentId))
@@ -267,7 +268,7 @@ class PlaylistServiceTest {
             UUID contentId = UUID.randomUUID();
             PlaylistModel playlistModel = createPlaylist(owner);
 
-            given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlistModel));
+            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
             given(playlistContentRepository.exists(playlistId, contentId)).willReturn(true);
 
             // when & then
@@ -292,16 +293,17 @@ class PlaylistServiceTest {
             UUID contentId = UUID.randomUUID();
             PlaylistModel playlistModel = createPlaylist(owner);
 
-            given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlistModel));
+            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
             given(playlistContentRepository.exists(playlistId, contentId)).willReturn(true);
 
             // when
             playlistService.removeContent(playlistId, requesterId, contentId);
 
             // then
-            then(playlistRepository).should().findById(playlistId);
+            then(playlistCacheService).should().getById(playlistId);
             then(playlistContentRepository).should().exists(playlistId, contentId);
             then(playlistContentRepository).should().delete(playlistId, contentId);
+            then(playlistCacheService).should().evictContents(playlistId);
         }
 
         @Test
@@ -314,7 +316,7 @@ class PlaylistServiceTest {
             UUID contentId = UUID.randomUUID();
             PlaylistModel playlistModel = createPlaylist(owner);
 
-            given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlistModel));
+            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
 
             // when & then
             assertThatThrownBy(() -> playlistService.removeContent(playlistId, requesterId,
@@ -335,7 +337,7 @@ class PlaylistServiceTest {
             UUID contentId = UUID.randomUUID();
             PlaylistModel playlistModel = createPlaylist(owner);
 
-            given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlistModel));
+            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
             given(playlistContentRepository.exists(playlistId, contentId)).willReturn(false);
 
             // when & then
