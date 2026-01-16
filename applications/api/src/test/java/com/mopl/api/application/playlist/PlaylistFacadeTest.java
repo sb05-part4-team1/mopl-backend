@@ -4,9 +4,6 @@ import com.mopl.api.interfaces.api.playlist.PlaylistCreateRequest;
 import com.mopl.api.interfaces.api.playlist.PlaylistResponse;
 import com.mopl.api.interfaces.api.playlist.PlaylistResponseMapper;
 import com.mopl.api.interfaces.api.playlist.PlaylistUpdateRequest;
-import com.mopl.domain.repository.playlist.PlaylistQueryRequest;
-import com.mopl.domain.support.cursor.CursorResponse;
-import com.mopl.domain.support.cursor.SortDirection;
 import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.fixture.ContentModelFixture;
 import com.mopl.domain.fixture.PlaylistModelFixture;
@@ -14,17 +11,21 @@ import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
+import com.mopl.domain.repository.playlist.PlaylistQueryRequest;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.playlist.PlaylistService;
 import com.mopl.domain.service.playlist.PlaylistSubscriptionService;
 import com.mopl.domain.service.user.UserService;
+import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.domain.support.cursor.SortDirection;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +41,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,8 +63,27 @@ class PlaylistFacadeTest {
     @Mock
     private PlaylistResponseMapper playlistResponseMapper;
 
-    @InjectMocks
+    @Mock
+    private TransactionTemplate transactionTemplate;
+
     private PlaylistFacade playlistFacade;
+
+    @BeforeEach
+    void setUp() {
+        lenient().doAnswer(invocation -> {
+            invocation.getArgument(0, java.util.function.Consumer.class).accept(null);
+            return null;
+        }).when(transactionTemplate).executeWithoutResult(any());
+
+        playlistFacade = new PlaylistFacade(
+            playlistService,
+            playlistSubscriptionService,
+            userService,
+            contentService,
+            playlistResponseMapper,
+            transactionTemplate
+        );
+    }
 
     @Nested
     @DisplayName("getPlaylists()")

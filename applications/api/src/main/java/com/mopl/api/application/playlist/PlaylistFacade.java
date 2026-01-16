@@ -16,6 +16,7 @@ import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.support.cursor.CursorResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +33,7 @@ public class PlaylistFacade {
     private final UserService userService;
     private final ContentService contentService;
     private final PlaylistResponseMapper playlistResponseMapper;
+    private final TransactionTemplate transactionTemplate;
 
     public CursorResponse<PlaylistResponse> getPlaylists(UUID requesterId, PlaylistQueryRequest request) {
         CursorResponse<PlaylistModel> playlistPage = playlistService.getAll(request);
@@ -139,7 +141,9 @@ public class PlaylistFacade {
     ) {
         userService.getById(requesterId);
         playlistService.getById(playlistId);
-        playlistSubscriptionService.subscribe(playlistId, requesterId);
+        transactionTemplate.executeWithoutResult(status ->
+            playlistSubscriptionService.subscribe(playlistId, requesterId)
+        );
         // TODO: 구독 알림 이벤트 발행
     }
 
@@ -149,6 +153,8 @@ public class PlaylistFacade {
     ) {
         userService.getById(requesterId);
         playlistService.getById(playlistId);
-        playlistSubscriptionService.unsubscribe(playlistId, requesterId);
+        transactionTemplate.executeWithoutResult(status ->
+            playlistSubscriptionService.unsubscribe(playlistId, requesterId)
+        );
     }
 }
