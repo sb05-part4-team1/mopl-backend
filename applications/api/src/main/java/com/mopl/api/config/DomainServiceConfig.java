@@ -9,6 +9,7 @@ import com.mopl.domain.repository.conversation.DirectMessageQueryRepository;
 import com.mopl.domain.repository.conversation.DirectMessageRepository;
 import com.mopl.domain.repository.conversation.ReadStatusRepository;
 import com.mopl.domain.repository.follow.FollowRepository;
+import com.mopl.domain.repository.notification.NotificationQueryRepository;
 import com.mopl.domain.repository.notification.NotificationRepository;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.domain.repository.playlist.PlaylistRepository;
@@ -97,10 +98,12 @@ public class DomainServiceConfig {
 
     @Bean
     public NotificationService notificationService(
-        NotificationRepository notificationRepository
+        NotificationRepository notificationRepository,
+        NotificationQueryRepository notificationQueryRepository
     ) {
         return new NotificationService(
-            notificationRepository
+            notificationRepository,
+            notificationQueryRepository
         );
     }
 

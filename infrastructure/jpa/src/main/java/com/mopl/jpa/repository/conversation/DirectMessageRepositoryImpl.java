@@ -4,8 +4,12 @@ import com.mopl.domain.model.conversation.DirectMessageModel;
 import com.mopl.domain.repository.conversation.DirectMessageRepository;
 import com.mopl.jpa.entity.conversation.DirectMessageEntity;
 import com.mopl.jpa.entity.conversation.DirectMessageEntityMapper;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -49,6 +53,26 @@ public class DirectMessageRepositoryImpl implements DirectMessageRepository {
 
         return jpaDirectMessageRepository.findOther(conversationId, directMessageId, userId)
             .map(directMessageEntityMapper::toModel);
+    }
+
+    @Override
+    public Optional<DirectMessageModel> findLastMessageByConversationId(UUID conversationId) {
+        return jpaDirectMessageRepository.findTopByConversationIdOrderByCreatedAtDesc(
+            conversationId)
+            .map(directMessageEntityMapper::toModel);
+    }
+
+    @Override
+    public Map<UUID, DirectMessageModel> findLastMessagesByConversationIds(
+        List<UUID> conversationIds) {
+        return jpaDirectMessageRepository
+            .findLastMessagesByConversationIds(conversationIds)
+            .stream()
+            .map(directMessageEntityMapper::toModel)
+            .collect(Collectors.toMap(
+                dm -> dm.getConversation().getId(),
+                Function.identity()
+            ));
     }
 
 }

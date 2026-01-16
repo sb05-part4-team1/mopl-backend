@@ -52,12 +52,13 @@ public class ConversationEntityMapper {
         if (conversationEntity == null) {
             return null;
         }
-        return directMessageModel.map(messageModel -> ConversationModel.builder()
+
+        return ConversationModel.builder()
             .id(conversationEntity.getId())
             .createdAt(conversationEntity.getCreatedAt())
             .updatedAt(conversationEntity.getUpdatedAt())
-            .lastMessage(messageModel)
-            .build()).orElse(null);
+            .lastMessage(directMessageModel.orElse(null))
+            .build();
 
     }
 

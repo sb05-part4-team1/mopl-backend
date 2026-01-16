@@ -1,6 +1,7 @@
 package com.mopl.jpa.repository.conversation;
 
 import com.mopl.jpa.entity.conversation.DirectMessageEntity;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,6 +26,20 @@ public interface JpaDirectMessageRepository extends JpaRepository<DirectMessageE
         @Param("conversationId") UUID conversationId,
         @Param("directMessageId") UUID directMessageId,
         @Param("userId") UUID userId
+    );
+
+    @Query("""
+            SELECT dm
+            FROM DirectMessageEntity dm
+            WHERE dm.conversation.id IN :conversationIds
+              AND dm.createdAt = (
+                  SELECT MAX(dm2.createdAt)
+                  FROM DirectMessageEntity dm2
+                  WHERE dm2.conversation.id = dm.conversation.id
+              )
+        """)
+    List<DirectMessageEntity> findLastMessagesByConversationIds(
+        @Param("conversationIds") List<UUID> conversationIds
     );
 
 }

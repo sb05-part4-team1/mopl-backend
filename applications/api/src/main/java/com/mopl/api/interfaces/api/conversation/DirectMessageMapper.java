@@ -19,6 +19,7 @@ public class DirectMessageMapper {
             directMessageModel.getConversation().getId(),
             directMessageModel.getCreatedAt(),
             userSummaryMapper.toSummary(directMessageModel.getSender()),
+            userSummaryMapper.toSummary(directMessageModel.getReceiver()),
             directMessageModel.getContent()
         );
     }

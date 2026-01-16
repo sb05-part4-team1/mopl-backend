@@ -1,8 +1,7 @@
 package com.mopl.api.interfaces.api.notification;
 
-import org.springframework.stereotype.Component;
-
 import com.mopl.domain.model.notification.NotificationModel;
+import org.springframework.stereotype.Component;
 
 @Component
 public class NotificationResponseMapper {
@@ -15,7 +14,7 @@ public class NotificationResponseMapper {
         return new NotificationResponse(
             model.getId(),
             model.getCreatedAt(),
-            model.getReceiverId(),
+            model.getReceiver().getId(),
             model.getTitle(),
             model.getContent(),
             model.getLevel()

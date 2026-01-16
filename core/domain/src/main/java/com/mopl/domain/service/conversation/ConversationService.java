@@ -19,6 +19,7 @@ import com.mopl.domain.repository.user.UserRepository;
 import com.mopl.domain.support.cursor.CursorResponse;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 
@@ -34,10 +35,11 @@ public class ConversationService {
 
     public ConversationModel create(
         ConversationModel conversationModel,
-        UserModel userModel
+        UserModel userModel,
+        UserModel withUserModel
     ) {
         ConversationModel model = conversationRepository.save(conversationModel);
-        model.withUser(userModel);
+        model.withUser(userModel);  // message/hasUnread에 null/false 넣어둠.
 
         // ReadStatus 생성 후 저장 , 위는 상대/아래는 본인
         ReadStatusModel withReadStatusModel = readStatusRepository.save(ReadStatusModel.create(
@@ -45,12 +47,7 @@ public class ConversationService {
         ReadStatusModel userReadStatusModel = readStatusRepository.save(ReadStatusModel.create(
             model, userModel));
 
-        // directMessageModel이 들어가야 됨.
-        // message에 따라 hasunread 값도 같이.
-        // -> 처음 생성했을 때는 directMessage가 없어도 될 것 같음.
-
         return model;
-
     }
 
     public CursorResponse<DirectMessageModel> getAllDirectMessage(
@@ -58,9 +55,25 @@ public class ConversationService {
         DirectMessageQueryRequest request,
         UUID userId
     ) {
+        CursorResponse<DirectMessageModel> directMessageModels = directMessageQueryRepository
+            .findAllByConversationId(
+                conversationId, request, userId
+            );
 
-        return directMessageQueryRepository.findAllByConversationId(conversationId, request,
-            userId);
+        //메시지 모두에 receiver를 해줘야 됨.
+        ReadStatusModel otherReadStatusModel = readStatusRepository
+            .findOtherReadStatus(conversationId, userId);
+        UserModel userModel = userRepository.findById(userId)
+            .orElseThrow(() -> UserNotFoundException.withId(userId));
+        for (DirectMessageModel directMessageModel : directMessageModels.data()) {
+            if (directMessageModel.getSender().getId().equals(userModel.getId())) {
+                directMessageModel.setReceiver(otherReadStatusModel.getUser());
+            } else {
+                directMessageModel.setReceiver(userModel);
+            }
+        }
+
+        return directMessageModels;
 
     }
 
@@ -68,8 +81,74 @@ public class ConversationService {
         ConversationQueryRequest request,
         UUID userId
     ) {
+        
+        CursorResponse<ConversationModel> conversationModels = conversationQueryRepository
+            .findAllConversation(request, userId);
+        if (conversationModels.data().isEmpty()) {
+            return conversationModels;
+        }
+        // 2. conversationIds 추출
+        List<UUID> conversationIds = conversationModels.data().stream()
+            .map(ConversationModel::getId)
+            .toList();
 
-        return conversationQueryRepository.findAllConversation(request, userId);
+        // 3. lastMessage 조회 (conversationId → DirectMessage)
+        Map<UUID, DirectMessageModel> lastMessages = directMessageRepository
+            .findLastMessagesByConversationIds(conversationIds);
+
+        // 4. 상대방 ReadStatus 조회 (conversationId → ReadStatus)
+        Map<UUID, ReadStatusModel> otherReadStatuses = readStatusRepository
+            .findOthersByConversationIds(conversationIds, userId);
+
+        // 5. 현재 사용자
+        UserModel me = userRepository.findById(userId)
+            .orElseThrow(() -> UserNotFoundException.withId(userId));
+
+        // 6. 현재 사용자의 readStatus
+        Map<UUID,ReadStatusModel> meReadStatuses = readStatusRepository
+                .findMineByConversationIds(conversationIds, userId);
+
+        // 6. ConversationModel 조립
+        for (ConversationModel conversation : conversationModels.data()) {
+            UUID conversationId = conversation.getId();
+
+            ReadStatusModel otherReadStatus = otherReadStatuses.get(conversationId);
+            DirectMessageModel lastMessage = lastMessages.get(conversationId);
+            ReadStatusModel meReadStatus = meReadStatuses.get(conversationId);
+
+            if (otherReadStatus != null) {
+                conversation.withUser(otherReadStatus.getUser());
+            }
+
+            if (lastMessage != null) {
+                // sender / receiver 보정
+                if (lastMessage.getSender().getId().equals(me.getId())) {
+                    if (otherReadStatus != null) {
+                        lastMessage.setReceiver(otherReadStatus.getUser());
+                    }
+                } else {
+                    lastMessage.setReceiver(me);
+                }
+
+                conversation.lastMessage(lastMessage);
+
+                // hasUnread 계산
+                if (!lastMessage.getSender().getId().equals(userId)) {
+                    conversation.hasUnread(
+                            meReadStatus != null &&
+                            lastMessage.getCreatedAt().isAfter(meReadStatus.getLastRead())
+                    );
+                } else{
+                    conversation.hasUnread(false);
+                }
+
+            } else {
+                conversation.hasUnread(false);
+            }
+        }
+
+        return conversationModels;
+
     }
 
     public void directMessageRead(
@@ -96,34 +175,85 @@ public class ConversationService {
     }
 
     public ConversationModel getConversationByWith(UUID userId, UUID withId) {
-        //readStatus 를 가지고 와서 conversation_id로 비교해서 찾은 뒤에 conversation 조회 및 message조회
 
         UserModel withModel = userRepository.findById(withId)
             .orElseThrow(() -> UserNotFoundException.withId(withId));
-
+        // message 포함
         ConversationModel conversationModel = conversationRepository.findByParticipants(userId,
             withId)
             .orElseThrow(() -> new ConversationNotFoundException(userId, withId));
+
+        DirectMessageModel lastMessage = conversationModel.getLastMessage();
+
+        ReadStatusModel readStatusModel = null;
+        if (lastMessage != null) {
+            readStatusModel = lastMessage.getSender().getId().equals(userId)
+                ? readStatusRepository.findByConversationIdAndParticipantId(conversationModel
+                    .getId(), withId)
+                : readStatusRepository.findByConversationIdAndParticipantId(conversationModel
+                    .getId(), userId);
+        }
+
+        if (lastMessage != null && !lastMessage.getSender().getId().equals(userId)) {
+            conversationModel.hasUnread(
+                lastMessage.getCreatedAt().isAfter(readStatusModel.getLastRead())
+            );
+        } else {
+            conversationModel.hasUnread(false);
+        }
+
+        if (lastMessage != null) {
+            DirectMessageModel directMessageModel = lastMessage.getSender().getId().equals(userId)
+                ? conversationModel.getLastMessage().setReceiver(withModel)
+                : conversationModel.getLastMessage()
+                    .setReceiver(readStatusModel.getUser());
+        }
 
         conversationModel.withUser(withModel);
 
         return conversationModel;
     }
 
+    // conversation 찾고 거기에 readStatus 조회해서 조회한 userId가 포함되는지 확인하고 반환
     public ConversationModel getConversation(UUID conversationId, UUID userId) {
-        List<ReadStatusModel> userReadStatus = readStatusRepository.findByConversationId(
-            conversationId);
-
-        UserModel userModel = userReadStatus.stream()
-            .filter(rs -> !rs.getUser().getId().equals((userId)))
-            .map(rs -> userRepository.findById(rs.getUser().getId()).orElse(null))
-            .findFirst()
-            .orElse(null);
-
+        //lastmessage랑 같이 옴
         ConversationModel conversationModel = conversationRepository.find(conversationId)
             .orElseThrow(() -> new ConversationNotFoundException(conversationId));
+        DirectMessageModel lastMessage = conversationModel.getLastMessage();
 
-        conversationModel.withUser(userModel);
+        //conversation message의 sender에 따라 다시 생각해봐야 될 것 같음.
+        //unread는 내 기준으로 lastMessage sender가 상대방이면 계산
+
+        // 상대방 ReadStatus
+        ReadStatusModel otherReadStatus = readStatusRepository.findOtherReadStatus(conversationId,
+            userId);
+
+        // 상대방 유저 세팅
+        conversationModel.withUser(otherReadStatus.getUser());
+
+        //receiver
+        if (lastMessage != null) {
+            DirectMessageModel directMessageModel = lastMessage.getSender().getId().equals(userId)
+                ? conversationModel.getLastMessage()
+                    .setReceiver(otherReadStatus.getUser())
+                : conversationModel.getLastMessage().setReceiver(
+                    userRepository.findById(userId)
+                        .orElseThrow(() -> UserNotFoundException.withId(userId))
+                );
+        }
+        // unread 계산
+        if (lastMessage != null && !lastMessage.getSender().getId().equals(userId)) {
+
+            ReadStatusModel myReadStatus = readStatusRepository
+                .findByConversationIdAndParticipantId(conversationId, userId);
+
+            conversationModel.hasUnread(
+                lastMessage.getCreatedAt().isAfter(myReadStatus.getLastRead())
+
+            );
+        } else {
+            conversationModel.hasUnread(false);
+        }
 
         return conversationModel;
     }

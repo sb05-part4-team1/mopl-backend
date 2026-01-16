@@ -74,9 +74,9 @@ public class ConversationFacade {
 
         UserModel withUserModel = userService.getById(request.withUserId()); //나중에 더 이상 사용되지 않으면 변수는 없애기
         UserModel requesterUserModel = userService.getById(userId);
-        ConversationModel conversationModel = ConversationModel.create(withUserModel);
+        ConversationModel conversationModel = ConversationModel.create();
 
-        return conversationService.create(conversationModel, requesterUserModel);
+        return conversationService.create(conversationModel, requesterUserModel, withUserModel);
     }
 
     @Transactional

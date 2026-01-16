@@ -1,14 +1,12 @@
 package com.mopl.sse.application;
 
-import java.util.UUID;
-
+import com.mopl.domain.model.notification.NotificationModel;
+import com.mopl.sse.service.SseService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import com.mopl.domain.model.notification.NotificationModel;
-import com.mopl.sse.service.SseService;
-
-import lombok.RequiredArgsConstructor;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -33,7 +31,7 @@ public class SseFacade {
     }
 
     public void sendNotification(NotificationModel model) {
-        sseService.sendToUser(model.getReceiverId(), "notification", model);
+        sseService.sendToUser(model.getReceiver().getId(), "notification", model);
     }
 
     // TODO: DM 알림 메서드 추가 구현 필요

@@ -9,7 +9,7 @@ public record DirectMessageResponse(
     UUID conversationId,
     Instant createdAt,
     UserSummary sender,
-//    UserSummary receiver,
+    UserSummary receiver,
     String content
 ) {
 }

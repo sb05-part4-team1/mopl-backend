@@ -2,10 +2,8 @@ package com.mopl.api.interfaces.api.conversation;
 
 import com.mopl.api.application.conversation.ConversationFacade;
 import com.mopl.api.application.user.UserFacade;
-import com.mopl.api.interfaces.api.user.UserSummary;
 import com.mopl.api.interfaces.api.user.UserSummaryMapper;
 import com.mopl.domain.model.conversation.ConversationModel;
-import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.conversation.ConversationQueryRequest;
 import com.mopl.domain.repository.conversation.DirectMessageQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
@@ -44,7 +42,7 @@ public class ConversationController {
     }
 
     @GetMapping
-    public CursorResponse<ConversationResponse> getConversation(
+    public CursorResponse<ConversationResponse> getConversations(
         @AuthenticationPrincipal MoplUserDetails userDetails, //userId, role이 들어있음.
         @ModelAttribute ConversationQueryRequest request
     ) {
@@ -91,11 +89,8 @@ public class ConversationController {
         @Valid @RequestBody ConversationCreateRequest request
     ) {
 
-        UserModel withUser = userFacade.getUser(request.withUserId());
-        UserSummary with = userSummaryMapper.toSummary(withUser);
-
-        ConversationModel conversationModel = conversationFacade.createConversation(request,
-            userDetails.userId());
+        ConversationModel conversationModel = conversationFacade.createConversation(
+            request, userDetails.userId());
 
         return conversationResponseMapper.toResponse(conversationModel);
     }

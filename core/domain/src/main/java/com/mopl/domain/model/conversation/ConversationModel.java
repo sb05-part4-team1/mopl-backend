@@ -12,8 +12,6 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ConversationModel extends BaseUpdatableModel {
 
-//    ConversationDto에 UserSummary, DirectMessageDto가 필요하므로,
-//    id 대신 UserModel withUser, DirectMessage lastMessage를 사용하는 것이 좋겠네요.
     private UserModel withUser;
     private DirectMessageModel lastMessage;
     private boolean hasUnread;
@@ -24,6 +22,16 @@ public class ConversationModel extends BaseUpdatableModel {
 
         return ConversationModel.builder()
             .withUser(with)
+            .lastMessage(null)
+            .hasUnread(false)
+            .build();
+    }
+
+    public static ConversationModel create() {
+
+        return ConversationModel.builder()
+            .withUser(null)
+            .lastMessage(null)
             .hasUnread(false)
             .build();
     }
@@ -31,6 +39,20 @@ public class ConversationModel extends BaseUpdatableModel {
     public ConversationModel withUser(UserModel withUser) {
 
         this.withUser = withUser;
+
+        return this;
+    }
+
+    public ConversationModel lastMessage(DirectMessageModel lastMessage) {
+
+        this.lastMessage = lastMessage;
+
+        return this;
+    }
+
+    public ConversationModel hasUnread(boolean hasUnread) {
+
+        this.hasUnread = hasUnread;
 
         return this;
     }
