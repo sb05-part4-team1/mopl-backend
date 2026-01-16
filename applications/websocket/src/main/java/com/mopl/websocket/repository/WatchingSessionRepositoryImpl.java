@@ -1,55 +1,43 @@
 package com.mopl.websocket.repository;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.mopl.domain.model.watchingsession.WatchingSessionModel;
 
+import lombok.RequiredArgsConstructor;
+
 @Repository
+@RequiredArgsConstructor
 public class WatchingSessionRepositoryImpl implements WatchingSessionRepository {
 
-    // TODO: Redis로 변경 필요
-    private final Map<UUID, Set<UUID>> contentWatchers = new ConcurrentHashMap<>();
-    private final Map<String, WatchingSessionModel> sessions = new ConcurrentHashMap<>();
+    private final RedisTemplate<String, Object> redisTemplate;
+    private static final String COUNT_KEY_PREFIX = "watching_count:";
 
     @Override
-    public void save(WatchingSessionModel model) {
-        UUID contentId = model.getContent().getId();
-        UUID userId = model.getWatcher().getId();
-
-        contentWatchers.computeIfAbsent(contentId, k -> ConcurrentHashMap.newKeySet()).add(userId);
-        sessions.put(generateKey(contentId, userId), model);
+    public WatchingSessionModel save(WatchingSessionModel model) {
+        redisTemplate.opsForSet().add(COUNT_KEY_PREFIX + model.getContent().getId(),
+            model.getWatcher().getId().toString());
+        return model;
     }
 
     @Override
-    public void delete(UUID userId, UUID contentId) {
-        Set<UUID> watchers = contentWatchers.get(contentId);
-        if (watchers != null) {
-            watchers.remove(userId);
-            if (watchers.isEmpty()) {
-                contentWatchers.remove(contentId);
-            }
-        }
-        sessions.remove(generateKey(contentId, userId));
-    }
-
-    @Override
-    public Optional<WatchingSessionModel> findByUserIdAndContentId(UUID userId, UUID contentId) {
-        return Optional.ofNullable(sessions.get(generateKey(contentId, userId)));
+    public void delete(WatchingSessionModel model) {
+        redisTemplate.opsForSet().remove(COUNT_KEY_PREFIX + model.getContent().getId(), model.getWatcher().getId().toString());
     }
 
     @Override
     public long countByContentId(UUID contentId) {
-        Set<UUID> watchers = contentWatchers.get(contentId);
-        return watchers != null ? watchers.size() : 0L;
+        Long count = redisTemplate.opsForSet().size(COUNT_KEY_PREFIX + contentId);
+        return count != null ? count : 0L;
     }
 
-    private String generateKey(UUID contentId, UUID userId) {
-        return contentId.toString() + ":" + userId.toString();
+    @Override
+    public Optional<WatchingSessionModel> findByUserIdAndContentId(UUID userId, UUID contentId) {
+        // Service 계층의 @Cacheable이 우선하므로 이 메서드는 호출될 일이 거의 없음
+        return Optional.empty();
     }
 }

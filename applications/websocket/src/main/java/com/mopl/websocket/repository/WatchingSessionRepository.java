@@ -7,9 +7,9 @@ import com.mopl.domain.model.watchingsession.WatchingSessionModel;
 
 public interface WatchingSessionRepository {
 
-    void save(WatchingSessionModel model);
+    WatchingSessionModel save(WatchingSessionModel model);
 
-    void delete(UUID userId, UUID contentId);
+    void delete(WatchingSessionModel model);
 
     Optional<WatchingSessionModel> findByUserIdAndContentId(UUID userId, UUID contentId);
 
