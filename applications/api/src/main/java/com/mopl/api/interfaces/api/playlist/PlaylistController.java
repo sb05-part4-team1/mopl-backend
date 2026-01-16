@@ -3,6 +3,8 @@ package com.mopl.api.interfaces.api.playlist;
 import com.mopl.api.application.playlist.PlaylistDetail;
 import com.mopl.api.application.playlist.PlaylistFacade;
 import com.mopl.domain.model.playlist.PlaylistModel;
+import com.mopl.domain.repository.playlist.PlaylistQueryRequest;
+import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.security.userdetails.MoplUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,14 +31,12 @@ public class PlaylistController implements PlaylistApiSpec {
     private final PlaylistFacade playlistFacade;
     private final PlaylistResponseMapper playlistResponseMapper;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public PlaylistResponse createPlaylist(
+    @GetMapping
+    public CursorResponse<PlaylistResponse> getPlaylists(
         @AuthenticationPrincipal MoplUserDetails userDetails,
-        @RequestBody @Valid PlaylistCreateRequest request
+        @ModelAttribute PlaylistQueryRequest request
     ) {
-        PlaylistModel playlistModel = playlistFacade.createPlaylist(userDetails.userId(), request);
-        return playlistResponseMapper.toResponse(playlistModel);
+        return playlistFacade.getPlaylists(userDetails.userId(), request);
     }
 
     @GetMapping("/{playlistId}")
@@ -50,6 +51,16 @@ public class PlaylistController implements PlaylistApiSpec {
             detail.subscribedByMe(),
             detail.contents()
         );
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public PlaylistResponse createPlaylist(
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @RequestBody @Valid PlaylistCreateRequest request
+    ) {
+        PlaylistModel playlistModel = playlistFacade.createPlaylist(userDetails.userId(), request);
+        return playlistResponseMapper.toResponse(playlistModel);
     }
 
     @PatchMapping("/{playlistId}")
