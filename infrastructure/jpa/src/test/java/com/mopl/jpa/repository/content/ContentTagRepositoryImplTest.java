@@ -46,34 +46,6 @@ class ContentTagRepositoryImplTest {
     private JpaContentTagRepository jpaContentTagRepository;
 
     @Nested
-    @DisplayName("saveAll()")
-    class SaveAllTest {
-
-        @Test
-        @DisplayName("콘텐츠와 태그를 연결한다")
-        void saveAll_linksContentAndTags() {
-            ContentModel savedContent = contentRepository.save(
-                ContentModel.create(ContentModel.ContentType.movie, "인셉션", "꿈속의 꿈", "url")
-            );
-
-            TagModel tag1 = tagRepository.save(TagModel.create("SF"));
-            TagModel tag2 = tagRepository.save(TagModel.create("액션"));
-
-            contentTagRepository.saveAll(
-                savedContent.getId(),
-                List.of(tag1, tag2)
-            );
-
-            List<ContentTagEntity> contentTags = jpaContentTagRepository.findAll();
-
-            assertThat(contentTags).hasSize(2);
-            assertThat(contentTags)
-                .extracting(ct -> ct.getTag().getName())
-                .containsExactlyInAnyOrder("SF", "액션");
-        }
-    }
-
-    @Nested
     @DisplayName("findTagsByContentId()")
     class FindTagsByContentIdTest {
 
@@ -110,6 +82,34 @@ class ContentTagRepositoryImplTest {
             List<TagModel> result = contentTagRepository.findTagsByContentId(savedContent.getId());
 
             assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("saveAll()")
+    class SaveAllTest {
+
+        @Test
+        @DisplayName("콘텐츠와 태그를 연결한다")
+        void saveAll_linksContentAndTags() {
+            ContentModel savedContent = contentRepository.save(
+                ContentModel.create(ContentModel.ContentType.movie, "인셉션", "꿈속의 꿈", "url")
+            );
+
+            TagModel tag1 = tagRepository.save(TagModel.create("SF"));
+            TagModel tag2 = tagRepository.save(TagModel.create("액션"));
+
+            contentTagRepository.saveAll(
+                savedContent.getId(),
+                List.of(tag1, tag2)
+            );
+
+            List<ContentTagEntity> contentTags = jpaContentTagRepository.findAll();
+
+            assertThat(contentTags).hasSize(2);
+            assertThat(contentTags)
+                .extracting(ct -> ct.getTag().getName())
+                .containsExactlyInAnyOrder("SF", "액션");
         }
     }
 

@@ -18,13 +18,6 @@ public class UserRepositoryImpl implements UserRepository {
     private final UserEntityMapper userEntityMapper;
 
     @Override
-    public UserModel save(UserModel userModel) {
-        UserEntity userEntity = userEntityMapper.toEntity(userModel);
-        UserEntity savedUserEntity = jpaUserRepository.save(userEntity);
-        return userEntityMapper.toModel(savedUserEntity);
-    }
-
-    @Override
     public Optional<UserModel> findById(UUID userId) {
         return jpaUserRepository.findById(userId)
             .map(userEntityMapper::toModel);
@@ -39,5 +32,12 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public boolean existsByEmail(String email) {
         return jpaUserRepository.existsByEmail(email);
+    }
+
+    @Override
+    public UserModel save(UserModel userModel) {
+        UserEntity userEntity = userEntityMapper.toEntity(userModel);
+        UserEntity savedUserEntity = jpaUserRepository.save(userEntity);
+        return userEntityMapper.toModel(savedUserEntity);
     }
 }

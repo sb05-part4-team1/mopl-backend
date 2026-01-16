@@ -18,16 +18,15 @@ public class PlaylistRepositoryImpl implements PlaylistRepository {
     private final PlaylistEntityMapper playlistEntityMapper;
 
     @Override
+    public Optional<PlaylistModel> findById(UUID playlistId) {
+        return jpaPlaylistRepository.findWithOwnerById(playlistId)
+            .map(playlistEntityMapper::toModelWithOwner);
+    }
+
+    @Override
     public PlaylistModel save(PlaylistModel playlistModel) {
         PlaylistEntity playlistEntity = playlistEntityMapper.toEntity(playlistModel);
         PlaylistEntity savedPlaylistEntity = jpaPlaylistRepository.save(playlistEntity);
         return playlistEntityMapper.toModelWithOwner(savedPlaylistEntity);
-
-    }
-
-    @Override
-    public Optional<PlaylistModel> findById(UUID playlistId) {
-        return jpaPlaylistRepository.findWithOwnerById(playlistId)
-            .map(playlistEntityMapper::toModelWithOwner);
     }
 }
