@@ -9,7 +9,6 @@ import com.mopl.api.interfaces.api.content.ContentSummaryMapper;
 import com.mopl.api.interfaces.api.user.UserSummary;
 import com.mopl.api.interfaces.api.user.UserSummaryMapper;
 import com.mopl.domain.exception.content.ContentNotFoundException;
-import com.mopl.domain.exception.playlist.PlaylistContentAlreadyExistsException;
 import com.mopl.domain.exception.playlist.PlaylistContentNotFoundException;
 import com.mopl.domain.exception.playlist.PlaylistForbiddenException;
 import com.mopl.domain.exception.playlist.PlaylistNotFoundException;
@@ -437,24 +436,6 @@ class PlaylistControllerTest {
                 .with(user(mockUserDetails))
                 .with(csrf()))
                 .andExpect(status().isNotFound());
-        }
-
-        @Test
-        @DisplayName("이미 존재하는 콘텐츠 추가 시 409 Conflict 응답")
-        void withExistingContent_returns409Conflict() throws Exception {
-            // given
-            UUID playlistId = UUID.randomUUID();
-            UUID contentId = UUID.randomUUID();
-
-            willThrow(new PlaylistContentAlreadyExistsException(playlistId, contentId))
-                .given(playlistFacade).addContentToPlaylist(userId, playlistId, contentId);
-
-            // when & then
-            mockMvc.perform(post("/api/playlists/{playlistId}/contents/{contentId}",
-                playlistId, contentId)
-                .with(user(mockUserDetails))
-                .with(csrf()))
-                .andExpect(status().isConflict());
         }
 
         @Test

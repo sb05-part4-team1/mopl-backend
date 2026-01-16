@@ -149,31 +149,16 @@ class PlaylistContentRepositoryImplTest {
     class SaveTest {
 
         @Test
-        @DisplayName("플레이리스트에 콘텐츠를 추가하면 true를 반환한다")
-        void save_addsContentToPlaylist_returnsTrue() {
+        @DisplayName("플레이리스트에 콘텐츠를 추가한다")
+        void save_addsContentToPlaylist() {
             // when
-            boolean saved = playlistContentRepository.save(playlist.getId(), content.getId());
+            playlistContentRepository.save(playlist.getId(), content.getId());
 
             // then
-            assertThat(saved).isTrue();
             List<PlaylistContentEntity> playlistContents = jpaPlaylistContentRepository.findAll();
             assertThat(playlistContents).hasSize(1);
             assertThat(playlistContents.get(0).getPlaylist().getId()).isEqualTo(playlist.getId());
             assertThat(playlistContents.get(0).getContent().getId()).isEqualTo(content.getId());
-        }
-
-        @Test
-        @DisplayName("이미 존재하는 콘텐츠를 추가하면 false를 반환한다")
-        void save_duplicateContent_returnsFalse() {
-            // given
-            playlistContentRepository.save(playlist.getId(), content.getId());
-
-            // when
-            boolean saved = playlistContentRepository.save(playlist.getId(), content.getId());
-
-            // then
-            assertThat(saved).isFalse();
-            assertThat(jpaPlaylistContentRepository.findAll()).hasSize(1);
         }
 
         @Test
@@ -190,13 +175,10 @@ class PlaylistContentRepositoryImplTest {
             );
 
             // when
-            boolean saved1 = playlistContentRepository.save(playlist.getId(), content.getId());
-            boolean saved2 = playlistContentRepository.save(playlist.getId(), anotherContent
-                .getId());
+            playlistContentRepository.save(playlist.getId(), content.getId());
+            playlistContentRepository.save(playlist.getId(), anotherContent.getId());
 
             // then
-            assertThat(saved1).isTrue();
-            assertThat(saved2).isTrue();
             List<PlaylistContentEntity> playlistContents = jpaPlaylistContentRepository.findAll();
             assertThat(playlistContents).hasSize(2);
         }
@@ -223,13 +205,10 @@ class PlaylistContentRepositoryImplTest {
             );
 
             // when
-            boolean saved1 = playlistContentRepository.save(playlist.getId(), content.getId());
-            boolean saved2 = playlistContentRepository.save(anotherPlaylist.getId(), content
-                .getId());
+            playlistContentRepository.save(playlist.getId(), content.getId());
+            playlistContentRepository.save(anotherPlaylist.getId(), content.getId());
 
             // then
-            assertThat(saved1).isTrue();
-            assertThat(saved2).isTrue();
             List<PlaylistContentEntity> playlistContents = jpaPlaylistContentRepository.findAll();
             assertThat(playlistContents).hasSize(2);
         }

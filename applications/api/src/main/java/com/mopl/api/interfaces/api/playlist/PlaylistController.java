@@ -44,7 +44,8 @@ public class PlaylistController implements PlaylistApiSpec {
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable UUID playlistId
     ) {
-        PlaylistDetail playlistDetail = playlistFacade.getPlaylist(userDetails.userId(), playlistId);
+        PlaylistDetail playlistDetail = playlistFacade.getPlaylist(userDetails.userId(),
+            playlistId);
         return playlistResponseMapper.toResponse(
             playlistDetail.playlist(),
             playlistDetail.subscriberCount(),

@@ -1,6 +1,5 @@
 package com.mopl.domain.service.playlist;
 
-import com.mopl.domain.exception.playlist.PlaylistContentAlreadyExistsException;
 import com.mopl.domain.exception.playlist.PlaylistContentNotFoundException;
 import com.mopl.domain.exception.playlist.PlaylistForbiddenException;
 import com.mopl.domain.exception.playlist.PlaylistNotFoundException;
@@ -179,8 +178,6 @@ class PlaylistServiceTest {
             PlaylistModel playlistModel = createPlaylist(owner);
 
             given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
-            given(playlistCacheService.save(any(PlaylistModel.class)))
-                .willAnswer(invocation -> invocation.getArgument(0));
 
             // when
             playlistService.delete(playlistId, requesterId);
@@ -188,8 +185,7 @@ class PlaylistServiceTest {
             // then
             assertThat(playlistModel.getDeletedAt()).isNotNull();
             then(playlistCacheService).should().getById(playlistId);
-            then(playlistCacheService).should().save(playlistModel);
-            then(playlistCacheService).should().evictPlaylist(playlistId);
+            then(playlistCacheService).should().saveAndEvict(playlistModel);
         }
 
         @Test
@@ -208,7 +204,7 @@ class PlaylistServiceTest {
                 .isInstanceOf(PlaylistForbiddenException.class);
 
             then(playlistCacheService).should().getById(playlistId);
-            then(playlistCacheService).should(never()).save(any(PlaylistModel.class));
+            then(playlistCacheService).should(never()).saveAndEvict(any(PlaylistModel.class));
         }
     }
 
@@ -227,7 +223,6 @@ class PlaylistServiceTest {
             PlaylistModel playlistModel = createPlaylist(owner);
 
             given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
-            given(playlistContentRepository.save(playlistId, contentId)).willReturn(true);
 
             // when
             playlistService.addContent(playlistId, requesterId, contentId);
@@ -255,26 +250,6 @@ class PlaylistServiceTest {
                 .isInstanceOf(PlaylistForbiddenException.class);
 
             then(playlistContentRepository).should(never()).save(any(UUID.class), any(UUID.class));
-        }
-
-        @Test
-        @DisplayName("이미 존재하는 콘텐츠 추가 시 PlaylistContentAlreadyExistsException 발생")
-        void withExistingContent_throwsPlaylistContentAlreadyExistsException() {
-            // given
-            UserModel owner = createOwner();
-            UUID playlistId = UUID.randomUUID();
-            UUID requesterId = owner.getId();
-            UUID contentId = UUID.randomUUID();
-            PlaylistModel playlistModel = createPlaylist(owner);
-
-            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
-            given(playlistContentRepository.save(playlistId, contentId)).willReturn(false);
-
-            // when & then
-            assertThatThrownBy(() -> playlistService.addContent(playlistId, requesterId, contentId))
-                .isInstanceOf(PlaylistContentAlreadyExistsException.class);
-
-            then(playlistCacheService).should(never()).evictContents(any(UUID.class));
         }
     }
 

@@ -7,9 +7,7 @@ import com.mopl.jpa.entity.content.ContentEntityMapper;
 import com.mopl.jpa.entity.playlist.PlaylistContentEntity;
 import com.mopl.jpa.entity.playlist.PlaylistEntity;
 import com.mopl.jpa.repository.content.JpaContentRepository;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -27,7 +25,6 @@ public class PlaylistContentRepositoryImpl implements PlaylistContentRepository 
     private final JpaPlaylistRepository jpaPlaylistRepository;
     private final JpaContentRepository jpaContentRepository;
     private final ContentEntityMapper contentEntityMapper;
-    private final EntityManager entityManager;
 
     @Override
     public List<ContentModel> findContentsByPlaylistId(UUID playlistId) {
@@ -43,7 +40,7 @@ public class PlaylistContentRepositoryImpl implements PlaylistContentRepository 
     }
 
     @Override
-    public boolean save(UUID playlistId, UUID contentId) {
+    public void save(UUID playlistId, UUID contentId) {
         PlaylistEntity playlistRef = jpaPlaylistRepository.getReferenceById(playlistId);
         ContentEntity contentRef = jpaContentRepository.getReferenceById(contentId);
 
@@ -52,13 +49,7 @@ public class PlaylistContentRepositoryImpl implements PlaylistContentRepository 
             .content(contentRef)
             .build();
 
-        try {
-            jpaPlaylistContentRepository.saveAndFlush(entity);
-            return true;
-        } catch (DataIntegrityViolationException e) {
-            entityManager.clear();
-            return false;
-        }
+        jpaPlaylistContentRepository.save(entity);
     }
 
     @Override

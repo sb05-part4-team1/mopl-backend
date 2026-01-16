@@ -153,6 +153,25 @@ class PlaylistCacheServiceTest {
     }
 
     @Nested
+    @DisplayName("saveAndEvict()")
+    class SaveAndEvictTest {
+
+        @Test
+        @DisplayName("플레이리스트 저장 후 캐시 evict")
+        void savesPlaylistAndEvictsCache() {
+            // given
+            UserModel owner = createOwner();
+            PlaylistModel playlistModel = createPlaylist(owner);
+
+            // when
+            playlistCacheService.saveAndEvict(playlistModel);
+
+            // then
+            then(playlistRepository).should().save(playlistModel);
+        }
+    }
+
+    @Nested
     @DisplayName("evictPlaylist()")
     class EvictPlaylistTest {
 

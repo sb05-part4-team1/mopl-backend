@@ -15,7 +15,7 @@ public interface PlaylistContentRepository {
 
     boolean exists(UUID playlistId, UUID contentId);
 
-    boolean save(UUID playlistId, UUID contentId);
+    void save(UUID playlistId, UUID contentId);
 
     boolean delete(UUID playlistId, UUID contentId);
 }
