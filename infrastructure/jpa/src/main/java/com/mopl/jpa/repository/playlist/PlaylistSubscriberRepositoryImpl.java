@@ -29,6 +29,17 @@ public class PlaylistSubscriberRepositoryImpl implements PlaylistSubscriberRepos
     }
 
     @Override
+    public Set<UUID> findSubscribedPlaylistIds(UUID subscriberId, Collection<UUID> playlistIds) {
+        if (playlistIds.isEmpty()) {
+            return Set.of();
+        }
+        return jpaPlaylistSubscriberRepository.findPlaylistIdsBySubscriberIdAndPlaylistIdIn(
+            subscriberId,
+            playlistIds
+        );
+    }
+
+    @Override
     public boolean save(UUID playlistId, UUID subscriberId) {
         PlaylistEntity playlistReference = jpaPlaylistRepository.getReferenceById(playlistId);
         UserEntity subscriberReference = jpaUserRepository.getReferenceById(subscriberId);
@@ -67,16 +78,5 @@ public class PlaylistSubscriberRepositoryImpl implements PlaylistSubscriberRepos
     @Override
     public long countByPlaylistId(UUID playlistId) {
         return jpaPlaylistSubscriberRepository.countByPlaylistId(playlistId);
-    }
-
-    @Override
-    public Set<UUID> findSubscribedPlaylistIds(UUID subscriberId, Collection<UUID> playlistIds) {
-        if (playlistIds.isEmpty()) {
-            return Set.of();
-        }
-        return jpaPlaylistSubscriberRepository.findPlaylistIdsBySubscriberIdAndPlaylistIdIn(
-            subscriberId,
-            playlistIds
-        );
     }
 }

@@ -8,11 +8,11 @@ public interface PlaylistSubscriberRepository {
 
     Set<UUID> findAllPlaylistIds();
 
+    Set<UUID> findSubscribedPlaylistIds(UUID subscriberId, Collection<UUID> playlistIds);
+
     long countByPlaylistId(UUID playlistId);
 
     boolean existsByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId);
-
-    Set<UUID> findSubscribedPlaylistIds(UUID subscriberId, Collection<UUID> playlistIds);
 
     boolean save(UUID playlistId, UUID subscriberId);
 

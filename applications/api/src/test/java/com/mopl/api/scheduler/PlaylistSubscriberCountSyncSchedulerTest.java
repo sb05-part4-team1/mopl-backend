@@ -117,5 +117,28 @@ class PlaylistSubscriberCountSyncSchedulerTest {
             then(playlistSubscriberCountRepository).should(never()).setCount(matchedId, 5L);
             then(playlistSubscriberCountRepository).should().setCount(mismatchedId, 10L);
         }
+
+        @Test
+        @DisplayName("예외 발생 시 다른 플레이리스트 처리 계속 진행")
+        void whenExceptionOccurs_continuesProcessingOtherPlaylists() {
+            // given
+            UUID failingId = UUID.randomUUID();
+            UUID successId = UUID.randomUUID();
+
+            given(playlistSubscriberRepository.findAllPlaylistIds())
+                .willReturn(Set.of(failingId, successId));
+
+            given(playlistSubscriberRepository.countByPlaylistId(failingId))
+                .willThrow(new RuntimeException("DB error"));
+
+            given(playlistSubscriberRepository.countByPlaylistId(successId)).willReturn(10L);
+            given(playlistSubscriberCountRepository.getCount(successId)).willReturn(5L);
+
+            // when
+            scheduler.syncSubscriberCounts();
+
+            // then
+            then(playlistSubscriberCountRepository).should().setCount(successId, 10L);
+        }
     }
 }
