@@ -128,7 +128,7 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/playlists")
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].id").value(playlistId.toString()))
                 .andExpect(jsonPath("$.data[0].title").value("테스트 플레이리스트"))
@@ -151,7 +151,7 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/playlists")
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isEmpty())
                 .andExpect(jsonPath("$.hasNext").value(false));
@@ -189,7 +189,7 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/playlists/{playlistId}", playlistId)
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(playlistId.toString()))
                 .andExpect(jsonPath("$.title").value(playlistModel.getTitle()))
@@ -211,7 +211,7 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/playlists/{playlistId}", playlistId)
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isNotFound());
         }
     }
@@ -245,10 +245,10 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/playlists")
-                    .with(user(mockUserDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(playlistModel.getId().toString()))
                 .andExpect(jsonPath("$.title").value(title))
@@ -282,10 +282,10 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/playlists")
-                    .with(user(mockUserDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(requestBody)))
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isBadRequest());
 
             then(playlistFacade).should(never()).createPlaylist(any(), any());
@@ -323,10 +323,10 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(patch("/api/playlists/{playlistId}", playlistId)
-                    .with(user(mockUserDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(playlistId.toString()))
                 .andExpect(jsonPath("$.title").value(newTitle))
@@ -350,10 +350,10 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(patch("/api/playlists/{playlistId}", playlistId)
-                    .with(user(mockUserDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
         }
     }
@@ -372,8 +372,8 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/playlists/{playlistId}", playlistId)
-                    .with(user(mockUserDetails))
-                    .with(csrf()))
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isNoContent());
 
             then(playlistFacade).should().deletePlaylist(userId, playlistId);
@@ -391,8 +391,8 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/playlists/{playlistId}", playlistId)
-                    .with(user(mockUserDetails))
-                    .with(csrf()))
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isForbidden());
         }
     }
@@ -413,9 +413,9 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/playlists/{playlistId}/contents/{contentId}",
-                    playlistId, contentId)
-                    .with(user(mockUserDetails))
-                    .with(csrf()))
+                playlistId, contentId)
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isNoContent());
 
             then(playlistFacade).should().addContentToPlaylist(userId, playlistId, contentId);
@@ -433,9 +433,9 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/playlists/{playlistId}/contents/{contentId}",
-                    playlistId, contentId)
-                    .with(user(mockUserDetails))
-                    .with(csrf()))
+                playlistId, contentId)
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isNotFound());
         }
 
@@ -451,9 +451,9 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/playlists/{playlistId}/contents/{contentId}",
-                    playlistId, contentId)
-                    .with(user(mockUserDetails))
-                    .with(csrf()))
+                playlistId, contentId)
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isConflict());
         }
 
@@ -470,9 +470,9 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/playlists/{playlistId}/contents/{contentId}",
-                    playlistId, contentId)
-                    .with(user(mockUserDetails))
-                    .with(csrf()))
+                playlistId, contentId)
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isForbidden());
         }
     }
@@ -493,9 +493,9 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/playlists/{playlistId}/contents/{contentId}",
-                    playlistId, contentId)
-                    .with(user(mockUserDetails))
-                    .with(csrf()))
+                playlistId, contentId)
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isNoContent());
 
             then(playlistFacade).should().deleteContentFromPlaylist(userId, playlistId, contentId);
@@ -513,9 +513,9 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/playlists/{playlistId}/contents/{contentId}",
-                    playlistId, contentId)
-                    .with(user(mockUserDetails))
-                    .with(csrf()))
+                playlistId, contentId)
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isNotFound());
         }
 
@@ -532,9 +532,9 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/playlists/{playlistId}/contents/{contentId}",
-                    playlistId, contentId)
-                    .with(user(mockUserDetails))
-                    .with(csrf()))
+                playlistId, contentId)
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isForbidden());
         }
     }
@@ -553,8 +553,8 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/playlists/{playlistId}/subscription", playlistId)
-                    .with(user(mockUserDetails))
-                    .with(csrf()))
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isNoContent());
 
             then(playlistFacade).should().subscribePlaylist(userId, playlistId);
@@ -571,8 +571,8 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/playlists/{playlistId}/subscription", playlistId)
-                    .with(user(mockUserDetails))
-                    .with(csrf()))
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isNotFound());
         }
     }
@@ -591,8 +591,8 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/playlists/{playlistId}/subscription", playlistId)
-                    .with(user(mockUserDetails))
-                    .with(csrf()))
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isNoContent());
 
             then(playlistFacade).should().unsubscribePlaylist(userId, playlistId);
@@ -609,8 +609,8 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/playlists/{playlistId}/subscription", playlistId)
-                    .with(user(mockUserDetails))
-                    .with(csrf()))
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isNotFound());
         }
     }
