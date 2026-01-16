@@ -38,6 +38,14 @@ public class PlaylistCacheService {
     }
 
     @Caching(evict = {
+        @CacheEvict(cacheNames = CacheName.PLAYLISTS, key = "#playlistModel.id"),
+        @CacheEvict(cacheNames = CacheName.PLAYLIST_CONTENTS, key = "#playlistModel.id")
+    })
+    public void saveAndEvict(PlaylistModel playlistModel) {
+        playlistRepository.save(playlistModel);
+    }
+
+    @Caching(evict = {
         @CacheEvict(cacheNames = CacheName.PLAYLISTS, key = "#playlistId"),
         @CacheEvict(cacheNames = CacheName.PLAYLIST_CONTENTS, key = "#playlistId")
     })

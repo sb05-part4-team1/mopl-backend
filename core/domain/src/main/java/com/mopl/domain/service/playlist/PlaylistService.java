@@ -70,8 +70,7 @@ public class PlaylistService {
     ) {
         PlaylistModel playlistModel = getByIdAndValidateOwner(playlistId, requesterId);
         playlistModel.delete();
-        playlistCacheService.save(playlistModel);
-        playlistCacheService.evictPlaylist(playlistId);
+        playlistCacheService.saveAndEvict(playlistModel);
     }
 
     public void addContent(
