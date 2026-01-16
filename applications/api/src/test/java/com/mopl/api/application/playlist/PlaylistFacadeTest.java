@@ -170,8 +170,10 @@ class PlaylistFacadeTest {
             given(playlistService.getById(playlistId)).willReturn(playlistModel);
             given(playlistSubscriptionService.getSubscriberCount(playlistId))
                 .willReturn(subscriberCount);
-            given(playlistSubscriptionService.isSubscribedBy(playlistId, owner.getId()))
-                .willReturn(subscribedByMe);
+            given(playlistSubscriptionService.isSubscribedByPlaylistIdAndSubscriberId(
+                playlistId,
+                owner.getId()
+            )).willReturn(subscribedByMe);
             given(playlistService.getContents(playlistId)).willReturn(contents);
 
             // when
@@ -186,7 +188,10 @@ class PlaylistFacadeTest {
             then(userService).should().getById(owner.getId());
             then(playlistService).should().getById(playlistId);
             then(playlistSubscriptionService).should().getSubscriberCount(playlistId);
-            then(playlistSubscriptionService).should().isSubscribedBy(playlistId, owner.getId());
+            then(playlistSubscriptionService).should().isSubscribedByPlaylistIdAndSubscriberId(
+                playlistId,
+                owner.getId()
+            );
             then(playlistService).should().getContents(playlistId);
         }
     }

@@ -66,7 +66,10 @@ public class PlaylistFacade {
         UserModel requester = userService.getById(requesterId);
         PlaylistModel playlist = playlistService.getById(playlistId);
         long subscriberCount = playlistSubscriptionService.getSubscriberCount(playlist.getId());
-        boolean subscribedByMe = playlistSubscriptionService.isSubscribedBy(playlist.getId(), requester.getId());
+        boolean subscribedByMe = playlistSubscriptionService.isSubscribedByPlaylistIdAndSubscriberId(
+            playlist.getId(),
+            requester.getId()
+        );
         List<ContentModel> contents = playlistService.getContents(playlist.getId());
 
         return new PlaylistDetail(playlist, subscriberCount, subscribedByMe, contents);
