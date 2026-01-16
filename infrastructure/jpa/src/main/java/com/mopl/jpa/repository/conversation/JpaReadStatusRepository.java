@@ -45,7 +45,6 @@ public interface JpaReadStatusRepository extends JpaRepository<ReadStatusEntity,
         @Param("userId") UUID userId
     );
 
-
     @Query("""
             SELECT rs
             FROM ReadStatusEntity rs
@@ -54,8 +53,8 @@ public interface JpaReadStatusRepository extends JpaRepository<ReadStatusEntity,
               AND rs.participant.id = :userId
         """)
     List<ReadStatusEntity> findMineByConversationIds(
-            @Param("conversationIds") List<UUID> conversationIds,
-            @Param("userId") UUID userId
+        @Param("conversationIds") List<UUID> conversationIds,
+        @Param("userId") UUID userId
     );
 
 }

@@ -81,7 +81,7 @@ public class ConversationService {
         ConversationQueryRequest request,
         UUID userId
     ) {
-        
+
         CursorResponse<ConversationModel> conversationModels = conversationQueryRepository
             .findAllConversation(request, userId);
         if (conversationModels.data().isEmpty()) {
@@ -105,8 +105,8 @@ public class ConversationService {
             .orElseThrow(() -> UserNotFoundException.withId(userId));
 
         // 6. 현재 사용자의 readStatus
-        Map<UUID,ReadStatusModel> meReadStatuses = readStatusRepository
-                .findMineByConversationIds(conversationIds, userId);
+        Map<UUID, ReadStatusModel> meReadStatuses = readStatusRepository
+            .findMineByConversationIds(conversationIds, userId);
 
         // 6. ConversationModel 조립
         for (ConversationModel conversation : conversationModels.data()) {
@@ -135,10 +135,10 @@ public class ConversationService {
                 // hasUnread 계산
                 if (!lastMessage.getSender().getId().equals(userId)) {
                     conversation.hasUnread(
-                            meReadStatus != null &&
+                        meReadStatus != null &&
                             lastMessage.getCreatedAt().isAfter(meReadStatus.getLastRead())
                     );
-                } else{
+                } else {
                     conversation.hasUnread(false);
                 }
 

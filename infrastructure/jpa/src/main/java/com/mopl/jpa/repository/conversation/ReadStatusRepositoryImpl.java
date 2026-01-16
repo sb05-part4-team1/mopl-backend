@@ -97,15 +97,15 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
 
     @Override
     public Map<UUID, ReadStatusModel> findMineByConversationIds(List<UUID> conversationIds,
-            UUID userId) {
+        UUID userId) {
         return jpaReadStatusRepository
-                .findMineByConversationIds(conversationIds, userId)
-                .stream()
-                .map(readStatusEntityMapper::toModel)
-                .collect(Collectors.toMap(
-                        rs -> rs.getConversation().getId(),
-                        Function.identity()
-                ));
+            .findMineByConversationIds(conversationIds, userId)
+            .stream()
+            .map(readStatusEntityMapper::toModel)
+            .collect(Collectors.toMap(
+                rs -> rs.getConversation().getId(),
+                Function.identity()
+            ));
     }
 
 }
