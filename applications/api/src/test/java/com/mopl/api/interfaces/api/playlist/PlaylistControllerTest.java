@@ -6,6 +6,7 @@ import com.mopl.api.application.playlist.PlaylistFacade;
 import com.mopl.api.config.TestSecurityConfig;
 import com.mopl.api.interfaces.api.ApiControllerAdvice;
 import com.mopl.api.interfaces.api.content.ContentSummaryMapper;
+import com.mopl.api.interfaces.api.user.UserSummary;
 import com.mopl.api.interfaces.api.user.UserSummaryMapper;
 import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.exception.playlist.PlaylistContentAlreadyExistsException;
@@ -14,6 +15,8 @@ import com.mopl.domain.exception.playlist.PlaylistForbiddenException;
 import com.mopl.domain.exception.playlist.PlaylistNotFoundException;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
+import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.domain.support.cursor.SortDirection;
 import com.mopl.security.userdetails.MoplUserDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -56,8 +59,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = PlaylistController.class)
-@Import({ApiControllerAdvice.class, PlaylistResponseMapper.class, UserSummaryMapper.class,
-    ContentSummaryMapper.class, TestSecurityConfig.class})
+@Import({
+    ApiControllerAdvice.class,
+    PlaylistResponseMapper.class,
+    UserSummaryMapper.class,
+    ContentSummaryMapper.class,
+    TestSecurityConfig.class
+})
 @DisplayName("PlaylistController 슬라이스 테스트")
 class PlaylistControllerTest {
 
@@ -87,78 +95,66 @@ class PlaylistControllerTest {
     }
 
     @Nested
-    @DisplayName("POST /api/playlists - 플레이리스트 생성")
-    class CreatePlaylistTest {
+    @DisplayName("GET /api/playlists - 플레이리스트 목록 조회")
+    class GetPlaylistsTest {
 
         @Test
-        @DisplayName("유효한 요청 시 201 Created 응답")
-        void withValidRequest_returns201Created() throws Exception {
+        @DisplayName("유효한 요청 시 200 OK 응답")
+        void withValidRequest_returns200OK() throws Exception {
             // given
-            String title = "내 플레이리스트";
-            String description = "플레이리스트 설명";
-            PlaylistCreateRequest request = new PlaylistCreateRequest(title, description);
-
-            UserModel owner = UserModel.builder()
-                .id(userId)
-                .name("테스트 사용자")
-                .email("test@example.com")
-                .build();
-            PlaylistModel playlistModel = PlaylistModel.builder()
-                .id(UUID.randomUUID())
-                .owner(owner)
-                .title(title)
-                .description(description)
-                .build();
-
-            given(playlistFacade.createPlaylist(eq(userId), any(PlaylistCreateRequest.class)))
-                .willReturn(playlistModel);
-
-            // when & then
-            mockMvc.perform(post("/api/playlists")
-                .with(user(mockUserDetails))
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(playlistModel.getId().toString()))
-                .andExpect(jsonPath("$.title").value(title))
-                .andExpect(jsonPath("$.description").value(description))
-                .andExpect(jsonPath("$.owner.userId").value(userId.toString()));
-
-            then(playlistFacade).should().createPlaylist(eq(userId), any(
-                PlaylistCreateRequest.class));
-        }
-
-        static Stream<Arguments> invalidRequestProvider() {
-            return Stream.of(
-                Arguments.of("제목이 비어있음", "", "설명"),
-                Arguments.of("제목이 null", null, "설명"),
-                Arguments.of("제목이 255자 초과", "a".repeat(256), "설명")
+            UUID playlistId = UUID.randomUUID();
+            UserSummary ownerSummary = new UserSummary(userId, "테스트 사용자", null);
+            PlaylistResponse playlistResponse = new PlaylistResponse(
+                playlistId,
+                ownerSummary,
+                "테스트 플레이리스트",
+                "테스트 설명",
+                null,
+                10L,
+                true,
+                Collections.emptyList()
             );
-        }
+            CursorResponse<PlaylistResponse> response = CursorResponse.of(
+                List.of(playlistResponse),
+                null,
+                null,
+                false,
+                1L,
+                "updatedAt",
+                SortDirection.ASCENDING
+            );
 
-        @ParameterizedTest(name = "{0}")
-        @MethodSource("invalidRequestProvider")
-        @DisplayName("유효하지 않은 요청 시 400 Bad Request 응답")
-        void withInvalidRequest_returns400BadRequest(
-            String description,
-            String title,
-            String desc
-        ) throws Exception {
-            // given
-            Map<String, String> requestBody = new HashMap<>();
-            requestBody.put("title", title);
-            requestBody.put("description", desc);
+            given(playlistFacade.getPlaylists(eq(userId), any())).willReturn(response);
 
             // when & then
-            mockMvc.perform(post("/api/playlists")
-                .with(user(mockUserDetails))
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(requestBody)))
-                .andExpect(status().isBadRequest());
+            mockMvc.perform(get("/api/playlists")
+                    .with(user(mockUserDetails)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].id").value(playlistId.toString()))
+                .andExpect(jsonPath("$.data[0].title").value("테스트 플레이리스트"))
+                .andExpect(jsonPath("$.data[0].subscriberCount").value(10))
+                .andExpect(jsonPath("$.data[0].subscribedByMe").value(true));
 
-            then(playlistFacade).should(never()).createPlaylist(any(), any());
+            then(playlistFacade).should().getPlaylists(eq(userId), any());
+        }
+
+        @Test
+        @DisplayName("빈 목록 시 200 OK 응답")
+        void withEmptyList_returns200OK() throws Exception {
+            // given
+            CursorResponse<PlaylistResponse> response = CursorResponse.empty(
+                "updatedAt",
+                SortDirection.ASCENDING
+            );
+
+            given(playlistFacade.getPlaylists(eq(userId), any())).willReturn(response);
+
+            // when & then
+            mockMvc.perform(get("/api/playlists")
+                    .with(user(mockUserDetails)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isEmpty())
+                .andExpect(jsonPath("$.hasNext").value(false));
         }
     }
 
@@ -193,7 +189,7 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/playlists/{playlistId}", playlistId)
-                .with(user(mockUserDetails)))
+                    .with(user(mockUserDetails)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(playlistId.toString()))
                 .andExpect(jsonPath("$.title").value(playlistModel.getTitle()))
@@ -215,8 +211,84 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/playlists/{playlistId}", playlistId)
-                .with(user(mockUserDetails)))
+                    .with(user(mockUserDetails)))
                 .andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
+    @DisplayName("POST /api/playlists - 플레이리스트 생성")
+    class CreatePlaylistTest {
+
+        @Test
+        @DisplayName("유효한 요청 시 201 Created 응답")
+        void withValidRequest_returns201Created() throws Exception {
+            // given
+            String title = "내 플레이리스트";
+            String description = "플레이리스트 설명";
+            PlaylistCreateRequest request = new PlaylistCreateRequest(title, description);
+
+            UserModel owner = UserModel.builder()
+                .id(userId)
+                .name("테스트 사용자")
+                .email("test@example.com")
+                .build();
+            PlaylistModel playlistModel = PlaylistModel.builder()
+                .id(UUID.randomUUID())
+                .owner(owner)
+                .title(title)
+                .description(description)
+                .build();
+
+            given(playlistFacade.createPlaylist(eq(userId), any(PlaylistCreateRequest.class)))
+                .willReturn(playlistModel);
+
+            // when & then
+            mockMvc.perform(post("/api/playlists")
+                    .with(user(mockUserDetails))
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(playlistModel.getId().toString()))
+                .andExpect(jsonPath("$.title").value(title))
+                .andExpect(jsonPath("$.description").value(description))
+                .andExpect(jsonPath("$.owner.userId").value(userId.toString()));
+
+            then(playlistFacade).should().createPlaylist(eq(userId), any(
+                PlaylistCreateRequest.class));
+        }
+
+        static Stream<Arguments> invalidRequestProvider() {
+            return Stream.of(
+                Arguments.of("제목이 비어있음", "", "설명"),
+                Arguments.of("제목이 null", null, "설명"),
+                Arguments.of("제목이 255자 초과", "a".repeat(256), "설명")
+            );
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("invalidRequestProvider")
+        @DisplayName("유효하지 않은 요청 시 400 Bad Request 응답")
+        void withInvalidRequest_returns400BadRequest(
+            String description,
+            String title,
+            String desc
+        ) throws Exception {
+            // given
+            Map<String, String> requestBody = new HashMap<>();
+            requestBody.put("title", title);
+            requestBody.put("description", desc);
+
+            // when & then
+            mockMvc.perform(post("/api/playlists")
+                    .with(user(mockUserDetails))
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(requestBody)))
+                .andExpect(status().isBadRequest());
+
+            then(playlistFacade).should(never()).createPlaylist(any(), any());
         }
     }
 
@@ -251,10 +323,10 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(patch("/api/playlists/{playlistId}", playlistId)
-                .with(user(mockUserDetails))
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                    .with(user(mockUserDetails))
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(playlistId.toString()))
                 .andExpect(jsonPath("$.title").value(newTitle))
@@ -278,10 +350,10 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(patch("/api/playlists/{playlistId}", playlistId)
-                .with(user(mockUserDetails))
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                    .with(user(mockUserDetails))
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
         }
     }
@@ -300,8 +372,8 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/playlists/{playlistId}", playlistId)
-                .with(user(mockUserDetails))
-                .with(csrf()))
+                    .with(user(mockUserDetails))
+                    .with(csrf()))
                 .andExpect(status().isNoContent());
 
             then(playlistFacade).should().deletePlaylist(userId, playlistId);
@@ -319,8 +391,8 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/playlists/{playlistId}", playlistId)
-                .with(user(mockUserDetails))
-                .with(csrf()))
+                    .with(user(mockUserDetails))
+                    .with(csrf()))
                 .andExpect(status().isForbidden());
         }
     }
@@ -341,9 +413,9 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/playlists/{playlistId}/contents/{contentId}",
-                playlistId, contentId)
-                .with(user(mockUserDetails))
-                .with(csrf()))
+                    playlistId, contentId)
+                    .with(user(mockUserDetails))
+                    .with(csrf()))
                 .andExpect(status().isNoContent());
 
             then(playlistFacade).should().addContentToPlaylist(userId, playlistId, contentId);
@@ -361,9 +433,9 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/playlists/{playlistId}/contents/{contentId}",
-                playlistId, contentId)
-                .with(user(mockUserDetails))
-                .with(csrf()))
+                    playlistId, contentId)
+                    .with(user(mockUserDetails))
+                    .with(csrf()))
                 .andExpect(status().isNotFound());
         }
 
@@ -379,9 +451,9 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/playlists/{playlistId}/contents/{contentId}",
-                playlistId, contentId)
-                .with(user(mockUserDetails))
-                .with(csrf()))
+                    playlistId, contentId)
+                    .with(user(mockUserDetails))
+                    .with(csrf()))
                 .andExpect(status().isConflict());
         }
 
@@ -398,9 +470,9 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/playlists/{playlistId}/contents/{contentId}",
-                playlistId, contentId)
-                .with(user(mockUserDetails))
-                .with(csrf()))
+                    playlistId, contentId)
+                    .with(user(mockUserDetails))
+                    .with(csrf()))
                 .andExpect(status().isForbidden());
         }
     }
@@ -421,9 +493,9 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/playlists/{playlistId}/contents/{contentId}",
-                playlistId, contentId)
-                .with(user(mockUserDetails))
-                .with(csrf()))
+                    playlistId, contentId)
+                    .with(user(mockUserDetails))
+                    .with(csrf()))
                 .andExpect(status().isNoContent());
 
             then(playlistFacade).should().deleteContentFromPlaylist(userId, playlistId, contentId);
@@ -441,10 +513,29 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/playlists/{playlistId}/contents/{contentId}",
-                playlistId, contentId)
-                .with(user(mockUserDetails))
-                .with(csrf()))
+                    playlistId, contentId)
+                    .with(user(mockUserDetails))
+                    .with(csrf()))
                 .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("권한이 없는 사용자가 콘텐츠 삭제 시 403 Forbidden 응답")
+        void withNonOwner_returns403Forbidden() throws Exception {
+            // given
+            UUID playlistId = UUID.randomUUID();
+            UUID contentId = UUID.randomUUID();
+            UUID ownerId = UUID.randomUUID();
+
+            willThrow(new PlaylistForbiddenException(playlistId, userId, ownerId))
+                .given(playlistFacade).deleteContentFromPlaylist(userId, playlistId, contentId);
+
+            // when & then
+            mockMvc.perform(delete("/api/playlists/{playlistId}/contents/{contentId}",
+                    playlistId, contentId)
+                    .with(user(mockUserDetails))
+                    .with(csrf()))
+                .andExpect(status().isForbidden());
         }
     }
 
@@ -462,8 +553,8 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/playlists/{playlistId}/subscription", playlistId)
-                .with(user(mockUserDetails))
-                .with(csrf()))
+                    .with(user(mockUserDetails))
+                    .with(csrf()))
                 .andExpect(status().isNoContent());
 
             then(playlistFacade).should().subscribePlaylist(userId, playlistId);
@@ -480,8 +571,8 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/playlists/{playlistId}/subscription", playlistId)
-                .with(user(mockUserDetails))
-                .with(csrf()))
+                    .with(user(mockUserDetails))
+                    .with(csrf()))
                 .andExpect(status().isNotFound());
         }
     }
@@ -500,8 +591,8 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/playlists/{playlistId}/subscription", playlistId)
-                .with(user(mockUserDetails))
-                .with(csrf()))
+                    .with(user(mockUserDetails))
+                    .with(csrf()))
                 .andExpect(status().isNoContent());
 
             then(playlistFacade).should().unsubscribePlaylist(userId, playlistId);
@@ -518,8 +609,8 @@ class PlaylistControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/playlists/{playlistId}/subscription", playlistId)
-                .with(user(mockUserDetails))
-                .with(csrf()))
+                    .with(user(mockUserDetails))
+                    .with(csrf()))
                 .andExpect(status().isNotFound());
         }
     }
