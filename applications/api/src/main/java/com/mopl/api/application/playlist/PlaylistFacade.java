@@ -1,20 +1,27 @@
 package com.mopl.api.application.playlist;
 
 import com.mopl.api.interfaces.api.playlist.PlaylistCreateRequest;
+import com.mopl.api.interfaces.api.playlist.PlaylistResponse;
+import com.mopl.api.interfaces.api.playlist.PlaylistResponseMapper;
 import com.mopl.api.interfaces.api.playlist.PlaylistUpdateRequest;
 import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
+import com.mopl.domain.repository.playlist.PlaylistQueryRequest;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.playlist.PlaylistService;
 import com.mopl.domain.service.playlist.PlaylistSubscriptionService;
 import com.mopl.domain.service.user.UserService;
+import com.mopl.domain.support.cursor.CursorResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @Component
@@ -25,6 +32,48 @@ public class PlaylistFacade {
     private final PlaylistSubscriptionService playlistSubscriptionService;
     private final UserService userService;
     private final ContentService contentService;
+    private final PlaylistResponseMapper playlistResponseMapper;
+
+    public CursorResponse<PlaylistResponse> getPlaylists(UUID requesterId, PlaylistQueryRequest request) {
+        CursorResponse<PlaylistModel> playlistPage = playlistService.getAll(request);
+        List<PlaylistModel> playlists = playlistPage.data();
+
+        if (playlists.isEmpty()) {
+            return playlistPage.map(playlistResponseMapper::toResponse);
+        }
+
+        List<UUID> playlistIds = playlists.stream()
+            .map(PlaylistModel::getId)
+            .toList();
+
+        Map<UUID, Long> subscriberCounts = playlistSubscriptionService.getSubscriberCounts(playlistIds);
+        Set<UUID> subscribedPlaylistIds = playlistSubscriptionService.findSubscribedPlaylistIds(
+            requesterId,
+            playlistIds
+        );
+        Map<UUID, List<ContentModel>> contentsMap = playlistService.getContentsByPlaylistIds(playlistIds);
+
+        return playlistPage.map(playlist -> playlistResponseMapper.toResponse(
+            playlist,
+            subscriberCounts.getOrDefault(playlist.getId(), 0L),
+            subscribedPlaylistIds.contains(playlist.getId()),
+            contentsMap.getOrDefault(playlist.getId(), Collections.emptyList())
+        ));
+    }
+
+    public PlaylistDetail getPlaylist(UUID requesterId, UUID playlistId) {
+        UserModel requester = userService.getById(requesterId);
+        PlaylistModel playlist = playlistService.getById(playlistId);
+        long subscriberCount = playlistSubscriptionService.getSubscriberCount(playlist.getId());
+        boolean subscribedByMe = playlistSubscriptionService
+            .isSubscribedByPlaylistIdAndSubscriberId(
+                playlist.getId(),
+                requester.getId()
+            );
+        List<ContentModel> contents = playlistService.getContents(playlist.getId());
+
+        return new PlaylistDetail(playlist, subscriberCount, subscribedByMe, contents);
+    }
 
     public PlaylistModel createPlaylist(
         UUID requesterId,
@@ -60,20 +109,6 @@ public class PlaylistFacade {
     ) {
         userService.getById(requesterId);
         playlistService.delete(playlistId, requesterId);
-    }
-
-    public PlaylistDetail getPlaylist(UUID requesterId, UUID playlistId) {
-        UserModel requester = userService.getById(requesterId);
-        PlaylistModel playlist = playlistService.getById(playlistId);
-        long subscriberCount = playlistSubscriptionService.getSubscriberCount(playlist.getId());
-        boolean subscribedByMe = playlistSubscriptionService
-            .isSubscribedByPlaylistIdAndSubscriberId(
-                playlist.getId(),
-                requester.getId()
-            );
-        List<ContentModel> contents = playlistService.getContents(playlist.getId());
-
-        return new PlaylistDetail(playlist, subscriberCount, subscribedByMe, contents);
     }
 
     @Transactional
