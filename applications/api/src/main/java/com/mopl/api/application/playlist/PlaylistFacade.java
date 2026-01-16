@@ -35,7 +35,10 @@ public class PlaylistFacade {
     private final PlaylistResponseMapper playlistResponseMapper;
     private final TransactionTemplate transactionTemplate;
 
-    public CursorResponse<PlaylistResponse> getPlaylists(UUID requesterId, PlaylistQueryRequest request) {
+    public CursorResponse<PlaylistResponse> getPlaylists(
+        UUID requesterId,
+        PlaylistQueryRequest request
+    ) {
         CursorResponse<PlaylistModel> playlistPage = playlistService.getAll(request);
         List<PlaylistModel> playlists = playlistPage.data();
 
@@ -47,12 +50,14 @@ public class PlaylistFacade {
             .map(PlaylistModel::getId)
             .toList();
 
-        Map<UUID, Long> subscriberCounts = playlistSubscriptionService.getSubscriberCounts(playlistIds);
+        Map<UUID, Long> subscriberCounts = playlistSubscriptionService.getSubscriberCounts(
+            playlistIds);
         Set<UUID> subscribedPlaylistIds = playlistSubscriptionService.findSubscribedPlaylistIds(
             requesterId,
             playlistIds
         );
-        Map<UUID, List<ContentModel>> contentsMap = playlistService.getContentsByPlaylistIds(playlistIds);
+        Map<UUID, List<ContentModel>> contentsMap = playlistService.getContentsByPlaylistIds(
+            playlistIds);
 
         return playlistPage.map(playlist -> playlistResponseMapper.toResponse(
             playlist,
@@ -95,7 +100,6 @@ public class PlaylistFacade {
         PlaylistUpdateRequest request
     ) {
         userService.getById(requesterId);
-
         return playlistService.update(
             playlistId,
             requesterId,
@@ -141,8 +145,8 @@ public class PlaylistFacade {
     ) {
         userService.getById(requesterId);
         playlistService.getById(playlistId);
-        transactionTemplate.executeWithoutResult(status ->
-            playlistSubscriptionService.subscribe(playlistId, requesterId)
+        transactionTemplate.executeWithoutResult(status -> playlistSubscriptionService.subscribe(
+            playlistId, requesterId)
         );
         // TODO: 구독 알림 이벤트 발행
     }
@@ -153,8 +157,8 @@ public class PlaylistFacade {
     ) {
         userService.getById(requesterId);
         playlistService.getById(playlistId);
-        transactionTemplate.executeWithoutResult(status ->
-            playlistSubscriptionService.unsubscribe(playlistId, requesterId)
+        transactionTemplate.executeWithoutResult(status -> playlistSubscriptionService.unsubscribe(
+            playlistId, requesterId)
         );
     }
 }

@@ -121,7 +121,8 @@ class PlaylistFacadeTest {
             given(playlistService.getAll(request)).willReturn(playlistPage);
             given(playlistSubscriptionService.getSubscriberCounts(List.of(playlistId)))
                 .willReturn(Map.of(playlistId, 10L));
-            given(playlistSubscriptionService.findSubscribedPlaylistIds(requesterId, List.of(playlistId)))
+            given(playlistSubscriptionService.findSubscribedPlaylistIds(requesterId, List.of(
+                playlistId)))
                 .willReturn(Set.of(playlistId));
             given(playlistService.getContentsByPlaylistIds(List.of(playlistId)))
                 .willReturn(Map.of(playlistId, Collections.emptyList()));
@@ -130,7 +131,8 @@ class PlaylistFacadeTest {
             )).willReturn(playlistResponse);
 
             // when
-            CursorResponse<PlaylistResponse> result = playlistFacade.getPlaylists(requesterId, request);
+            CursorResponse<PlaylistResponse> result = playlistFacade.getPlaylists(requesterId,
+                request);
 
             // then
             assertThat(result.data()).hasSize(1);
@@ -138,7 +140,8 @@ class PlaylistFacadeTest {
 
             then(playlistService).should().getAll(request);
             then(playlistSubscriptionService).should().getSubscriberCounts(List.of(playlistId));
-            then(playlistSubscriptionService).should().findSubscribedPlaylistIds(requesterId, List.of(playlistId));
+            then(playlistSubscriptionService).should().findSubscribedPlaylistIds(requesterId, List
+                .of(playlistId));
             then(playlistService).should().getContentsByPlaylistIds(List.of(playlistId));
         }
 
@@ -158,13 +161,15 @@ class PlaylistFacadeTest {
             given(playlistService.getAll(request)).willReturn(emptyPage);
 
             // when
-            CursorResponse<PlaylistResponse> result = playlistFacade.getPlaylists(requesterId, request);
+            CursorResponse<PlaylistResponse> result = playlistFacade.getPlaylists(requesterId,
+                request);
 
             // then
             assertThat(result.data()).isEmpty();
 
             then(playlistSubscriptionService).should(never()).getSubscriberCounts(any());
-            then(playlistSubscriptionService).should(never()).findSubscribedPlaylistIds(any(), any());
+            then(playlistSubscriptionService).should(never()).findSubscribedPlaylistIds(any(),
+                any());
             then(playlistService).should(never()).getContentsByPlaylistIds(any());
         }
     }
