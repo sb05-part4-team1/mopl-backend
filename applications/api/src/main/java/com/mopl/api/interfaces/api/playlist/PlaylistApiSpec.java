@@ -183,7 +183,7 @@ public interface PlaylistApiSpec {
     )
     @ApiResponse(
         responseCode = "404",
-        description = "플레이리스트를 찾을 수 없음",
+        description = "유저를 찾을 수 없음",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
