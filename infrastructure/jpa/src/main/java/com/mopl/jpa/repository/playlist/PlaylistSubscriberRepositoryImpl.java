@@ -8,6 +8,7 @@ import com.mopl.jpa.repository.user.JpaUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -17,6 +18,11 @@ public class PlaylistSubscriberRepositoryImpl implements PlaylistSubscriberRepos
     private final JpaPlaylistSubscriberRepository jpaPlaylistSubscriberRepository;
     private final JpaPlaylistRepository jpaPlaylistRepository;
     private final JpaUserRepository jpaUserRepository;
+
+    @Override
+    public Set<UUID> findAllPlaylistIds() {
+        return jpaPlaylistSubscriberRepository.findAllPlaylistIds();
+    }
 
     @Override
     public void save(UUID playlistId, UUID subscriberId) {
@@ -33,17 +39,19 @@ public class PlaylistSubscriberRepositoryImpl implements PlaylistSubscriberRepos
 
     @Override
     public void deleteByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId) {
-        jpaPlaylistSubscriberRepository.deleteByPlaylist_IdAndSubscriber_Id(
+        jpaPlaylistSubscriberRepository.deleteByPlaylistIdAndSubscriberId(playlistId, subscriberId);
+    }
+
+    @Override
+    public boolean existsByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId) {
+        return jpaPlaylistSubscriberRepository.existsByPlaylistIdAndSubscriberId(
             playlistId,
             subscriberId
         );
     }
 
     @Override
-    public boolean existsByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId) {
-        return jpaPlaylistSubscriberRepository.existsByPlaylist_IdAndSubscriber_Id(
-            playlistId,
-            subscriberId
-        );
+    public long countByPlaylistId(UUID playlistId) {
+        return jpaPlaylistSubscriberRepository.countByPlaylistId(playlistId);
     }
 }

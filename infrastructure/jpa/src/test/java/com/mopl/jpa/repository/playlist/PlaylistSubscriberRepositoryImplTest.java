@@ -80,46 +80,6 @@ class PlaylistSubscriberRepositoryImplTest {
     }
 
     @Nested
-    @DisplayName("save()")
-    class SaveTest {
-
-        @Test
-        @DisplayName("플레이리스트 구독 관계를 저장한다")
-        void save_createsSubscriptionRelationship() {
-            // when
-            playlistSubscriberRepository.save(playlist.getId(), subscriber.getId());
-
-            // then
-            List<PlaylistSubscriberEntity> subscriptions = jpaPlaylistSubscriberRepository.findAll();
-            assertThat(subscriptions).hasSize(1);
-            assertThat(subscriptions.get(0).getPlaylist().getId()).isEqualTo(playlist.getId());
-            assertThat(subscriptions.get(0).getSubscriber().getId()).isEqualTo(subscriber.getId());
-        }
-
-        @Test
-        @DisplayName("여러 사용자가 같은 플레이리스트를 구독할 수 있다")
-        void save_multipleSubscribersForSamePlaylist() {
-            // given
-            UserModel anotherSubscriber = userRepository.save(
-                UserModel.create(
-                    UserModel.AuthProvider.EMAIL,
-                    "another@example.com",
-                    "다른 구독자",
-                    "encodedPassword"
-                )
-            );
-
-            // when
-            playlistSubscriberRepository.save(playlist.getId(), subscriber.getId());
-            playlistSubscriberRepository.save(playlist.getId(), anotherSubscriber.getId());
-
-            // then
-            List<PlaylistSubscriberEntity> subscriptions = jpaPlaylistSubscriberRepository.findAll();
-            assertThat(subscriptions).hasSize(2);
-        }
-    }
-
-    @Nested
     @DisplayName("existsByPlaylistIdAndSubscriberId()")
     class ExistsByPlaylistIdAndSubscriberIdTest {
 
@@ -184,6 +144,46 @@ class PlaylistSubscriberRepositoryImplTest {
 
             // then
             assertThat(exists).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("save()")
+    class SaveTest {
+
+        @Test
+        @DisplayName("플레이리스트 구독 관계를 저장한다")
+        void save_createsSubscriptionRelationship() {
+            // when
+            playlistSubscriberRepository.save(playlist.getId(), subscriber.getId());
+
+            // then
+            List<PlaylistSubscriberEntity> subscriptions = jpaPlaylistSubscriberRepository.findAll();
+            assertThat(subscriptions).hasSize(1);
+            assertThat(subscriptions.get(0).getPlaylist().getId()).isEqualTo(playlist.getId());
+            assertThat(subscriptions.get(0).getSubscriber().getId()).isEqualTo(subscriber.getId());
+        }
+
+        @Test
+        @DisplayName("여러 사용자가 같은 플레이리스트를 구독할 수 있다")
+        void save_multipleSubscribersForSamePlaylist() {
+            // given
+            UserModel anotherSubscriber = userRepository.save(
+                UserModel.create(
+                    UserModel.AuthProvider.EMAIL,
+                    "another@example.com",
+                    "다른 구독자",
+                    "encodedPassword"
+                )
+            );
+
+            // when
+            playlistSubscriberRepository.save(playlist.getId(), subscriber.getId());
+            playlistSubscriberRepository.save(playlist.getId(), anotherSubscriber.getId());
+
+            // then
+            List<PlaylistSubscriberEntity> subscriptions = jpaPlaylistSubscriberRepository.findAll();
+            assertThat(subscriptions).hasSize(2);
         }
     }
 
