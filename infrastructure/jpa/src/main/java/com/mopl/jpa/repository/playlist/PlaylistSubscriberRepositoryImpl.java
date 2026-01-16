@@ -5,9 +5,12 @@ import com.mopl.jpa.entity.playlist.PlaylistEntity;
 import com.mopl.jpa.entity.playlist.PlaylistSubscriberEntity;
 import com.mopl.jpa.entity.user.UserEntity;
 import com.mopl.jpa.repository.user.JpaUserRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 
@@ -18,6 +21,7 @@ public class PlaylistSubscriberRepositoryImpl implements PlaylistSubscriberRepos
     private final JpaPlaylistSubscriberRepository jpaPlaylistSubscriberRepository;
     private final JpaPlaylistRepository jpaPlaylistRepository;
     private final JpaUserRepository jpaUserRepository;
+    private final EntityManager entityManager;
 
     @Override
     public Set<UUID> findAllPlaylistIds() {
@@ -25,7 +29,7 @@ public class PlaylistSubscriberRepositoryImpl implements PlaylistSubscriberRepos
     }
 
     @Override
-    public void save(UUID playlistId, UUID subscriberId) {
+    public boolean save(UUID playlistId, UUID subscriberId) {
         PlaylistEntity playlistReference = jpaPlaylistRepository.getReferenceById(playlistId);
         UserEntity subscriberReference = jpaUserRepository.getReferenceById(subscriberId);
 
@@ -34,12 +38,22 @@ public class PlaylistSubscriberRepositoryImpl implements PlaylistSubscriberRepos
             .subscriber(subscriberReference)
             .build();
 
-        jpaPlaylistSubscriberRepository.save(playlistSubscriberEntity);
+        try {
+            jpaPlaylistSubscriberRepository.saveAndFlush(playlistSubscriberEntity);
+            return true;
+        } catch (DataIntegrityViolationException e) {
+            entityManager.clear();
+            return false;
+        }
     }
 
     @Override
-    public void deleteByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId) {
-        jpaPlaylistSubscriberRepository.deleteByPlaylistIdAndSubscriberId(playlistId, subscriberId);
+    public boolean deleteByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId) {
+        int deletedCount = jpaPlaylistSubscriberRepository.deleteByPlaylistIdAndSubscriberId(
+            playlistId,
+            subscriberId
+        );
+        return deletedCount > 0;
     }
 
     @Override
@@ -53,5 +67,16 @@ public class PlaylistSubscriberRepositoryImpl implements PlaylistSubscriberRepos
     @Override
     public long countByPlaylistId(UUID playlistId) {
         return jpaPlaylistSubscriberRepository.countByPlaylistId(playlistId);
+    }
+
+    @Override
+    public Set<UUID> findSubscribedPlaylistIds(UUID subscriberId, Collection<UUID> playlistIds) {
+        if (playlistIds.isEmpty()) {
+            return Set.of();
+        }
+        return jpaPlaylistSubscriberRepository.findPlaylistIdsBySubscriberIdAndPlaylistIdIn(
+            subscriberId,
+            playlistIds
+        );
     }
 }

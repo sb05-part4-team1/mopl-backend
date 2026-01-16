@@ -152,17 +152,32 @@ class PlaylistSubscriberRepositoryImplTest {
     class SaveTest {
 
         @Test
-        @DisplayName("플레이리스트 구독 관계를 저장한다")
-        void save_createsSubscriptionRelationship() {
+        @DisplayName("플레이리스트 구독 관계를 저장하면 true를 반환한다")
+        void save_createsSubscriptionRelationship_returnsTrue() {
             // when
-            playlistSubscriberRepository.save(playlist.getId(), subscriber.getId());
+            boolean saved = playlistSubscriberRepository.save(playlist.getId(), subscriber.getId());
 
             // then
+            assertThat(saved).isTrue();
             List<PlaylistSubscriberEntity> subscriptions = jpaPlaylistSubscriberRepository
                 .findAll();
             assertThat(subscriptions).hasSize(1);
             assertThat(subscriptions.get(0).getPlaylist().getId()).isEqualTo(playlist.getId());
             assertThat(subscriptions.get(0).getSubscriber().getId()).isEqualTo(subscriber.getId());
+        }
+
+        @Test
+        @DisplayName("이미 존재하는 구독 관계를 저장하면 false를 반환한다")
+        void save_duplicateSubscription_returnsFalse() {
+            // given
+            playlistSubscriberRepository.save(playlist.getId(), subscriber.getId());
+
+            // when
+            boolean saved = playlistSubscriberRepository.save(playlist.getId(), subscriber.getId());
+
+            // then
+            assertThat(saved).isFalse();
+            assertThat(jpaPlaylistSubscriberRepository.findAll()).hasSize(1);
         }
 
         @Test
@@ -179,10 +194,16 @@ class PlaylistSubscriberRepositoryImplTest {
             );
 
             // when
-            playlistSubscriberRepository.save(playlist.getId(), subscriber.getId());
-            playlistSubscriberRepository.save(playlist.getId(), anotherSubscriber.getId());
+            boolean saved1 = playlistSubscriberRepository.save(playlist.getId(), subscriber
+                .getId());
+            boolean saved2 = playlistSubscriberRepository.save(
+                playlist.getId(),
+                anotherSubscriber.getId()
+            );
 
             // then
+            assertThat(saved1).isTrue();
+            assertThat(saved2).isTrue();
             List<PlaylistSubscriberEntity> subscriptions = jpaPlaylistSubscriberRepository
                 .findAll();
             assertThat(subscriptions).hasSize(2);
@@ -194,19 +215,20 @@ class PlaylistSubscriberRepositoryImplTest {
     class DeleteByPlaylistIdAndSubscriberIdTest {
 
         @Test
-        @DisplayName("특정 구독 관계를 삭제한다")
-        void deleteByPlaylistIdAndSubscriberId_deletesSubscription() {
+        @DisplayName("특정 구독 관계를 삭제하면 true를 반환한다")
+        void deleteByPlaylistIdAndSubscriberId_deletesSubscription_returnsTrue() {
             // given
             playlistSubscriberRepository.save(playlist.getId(), subscriber.getId());
             assertThat(jpaPlaylistSubscriberRepository.findAll()).hasSize(1);
 
             // when
-            playlistSubscriberRepository.deleteByPlaylistIdAndSubscriberId(
+            boolean deleted = playlistSubscriberRepository.deleteByPlaylistIdAndSubscriberId(
                 playlist.getId(),
                 subscriber.getId()
             );
 
             // then
+            assertThat(deleted).isTrue();
             assertThat(jpaPlaylistSubscriberRepository.findAll()).isEmpty();
         }
 
@@ -227,12 +249,13 @@ class PlaylistSubscriberRepositoryImplTest {
             assertThat(jpaPlaylistSubscriberRepository.findAll()).hasSize(2);
 
             // when
-            playlistSubscriberRepository.deleteByPlaylistIdAndSubscriberId(
+            boolean deleted = playlistSubscriberRepository.deleteByPlaylistIdAndSubscriberId(
                 playlist.getId(),
                 subscriber.getId()
             );
 
             // then
+            assertThat(deleted).isTrue();
             List<PlaylistSubscriberEntity> remaining = jpaPlaylistSubscriberRepository.findAll();
             assertThat(remaining).hasSize(1);
             assertThat(remaining.get(0).getSubscriber().getId()).isEqualTo(anotherSubscriber
@@ -240,14 +263,16 @@ class PlaylistSubscriberRepositoryImplTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는 구독 관계 삭제 시 예외 없이 동작한다")
-        void deleteByPlaylistIdAndSubscriberId_nonExistentSubscription_noException() {
-            // when & then (no exception thrown)
-            playlistSubscriberRepository.deleteByPlaylistIdAndSubscriberId(
+        @DisplayName("존재하지 않는 구독 관계 삭제 시 false를 반환한다")
+        void deleteByPlaylistIdAndSubscriberId_nonExistentSubscription_returnsFalse() {
+            // when
+            boolean deleted = playlistSubscriberRepository.deleteByPlaylistIdAndSubscriberId(
                 playlist.getId(),
                 subscriber.getId()
             );
 
+            // then
+            assertThat(deleted).isFalse();
             assertThat(jpaPlaylistSubscriberRepository.findAll()).isEmpty();
         }
     }

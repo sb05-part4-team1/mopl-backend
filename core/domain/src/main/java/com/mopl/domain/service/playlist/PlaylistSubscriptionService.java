@@ -4,6 +4,9 @@ import com.mopl.domain.repository.playlist.PlaylistSubscriberCountRepository;
 import com.mopl.domain.repository.playlist.PlaylistSubscriberRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -16,25 +19,41 @@ public class PlaylistSubscriptionService {
         return playlistSubscriberCountRepository.getCount(playlistId);
     }
 
-    public boolean isSubscribedByPlaylistIdAndSubscriberId(UUID playlistId, UUID userId) {
-        return playlistSubscriberRepository.existsByPlaylistIdAndSubscriberId(playlistId, userId);
+    public Map<UUID, Long> getSubscriberCounts(Collection<UUID> playlistIds) {
+        return playlistSubscriberCountRepository.getCounts(playlistIds);
+    }
+
+    public boolean isSubscribedByPlaylistIdAndSubscriberId(
+        UUID playlistId,
+        UUID subscriberId
+    ) {
+        return playlistSubscriberRepository.existsByPlaylistIdAndSubscriberId(
+            playlistId,
+            subscriberId
+        );
+    }
+
+    public Set<UUID> findSubscribedPlaylistIds(UUID subscriberId, Collection<UUID> playlistIds) {
+        return playlistSubscriberRepository.findSubscribedPlaylistIds(
+            subscriberId,
+            playlistIds
+        );
     }
 
     public void subscribe(UUID playlistId, UUID subscriberId) {
-        if (playlistSubscriberRepository.existsByPlaylistIdAndSubscriberId(playlistId,
-            subscriberId)) {
-            return;
+        boolean saved = playlistSubscriberRepository.save(playlistId, subscriberId);
+        if (saved) {
+            playlistSubscriberCountRepository.increment(playlistId);
         }
-        playlistSubscriberRepository.save(playlistId, subscriberId);
-        playlistSubscriberCountRepository.increment(playlistId);
     }
 
     public void unsubscribe(UUID playlistId, UUID subscriberId) {
-        if (!playlistSubscriberRepository.existsByPlaylistIdAndSubscriberId(playlistId,
-            subscriberId)) {
-            return;
+        boolean deleted = playlistSubscriberRepository.deleteByPlaylistIdAndSubscriberId(
+            playlistId,
+            subscriberId
+        );
+        if (deleted) {
+            playlistSubscriberCountRepository.decrement(playlistId);
         }
-        playlistSubscriberRepository.deleteByPlaylistIdAndSubscriberId(playlistId, subscriberId);
-        playlistSubscriberCountRepository.decrement(playlistId);
     }
 }

@@ -149,16 +149,31 @@ class PlaylistContentRepositoryImplTest {
     class SaveTest {
 
         @Test
-        @DisplayName("플레이리스트에 콘텐츠를 추가한다")
-        void save_addsContentToPlaylist() {
+        @DisplayName("플레이리스트에 콘텐츠를 추가하면 true를 반환한다")
+        void save_addsContentToPlaylist_returnsTrue() {
             // when
-            playlistContentRepository.save(playlist.getId(), content.getId());
+            boolean saved = playlistContentRepository.save(playlist.getId(), content.getId());
 
             // then
+            assertThat(saved).isTrue();
             List<PlaylistContentEntity> playlistContents = jpaPlaylistContentRepository.findAll();
             assertThat(playlistContents).hasSize(1);
             assertThat(playlistContents.get(0).getPlaylist().getId()).isEqualTo(playlist.getId());
             assertThat(playlistContents.get(0).getContent().getId()).isEqualTo(content.getId());
+        }
+
+        @Test
+        @DisplayName("이미 존재하는 콘텐츠를 추가하면 false를 반환한다")
+        void save_duplicateContent_returnsFalse() {
+            // given
+            playlistContentRepository.save(playlist.getId(), content.getId());
+
+            // when
+            boolean saved = playlistContentRepository.save(playlist.getId(), content.getId());
+
+            // then
+            assertThat(saved).isFalse();
+            assertThat(jpaPlaylistContentRepository.findAll()).hasSize(1);
         }
 
         @Test
@@ -175,10 +190,13 @@ class PlaylistContentRepositoryImplTest {
             );
 
             // when
-            playlistContentRepository.save(playlist.getId(), content.getId());
-            playlistContentRepository.save(playlist.getId(), anotherContent.getId());
+            boolean saved1 = playlistContentRepository.save(playlist.getId(), content.getId());
+            boolean saved2 = playlistContentRepository.save(playlist.getId(), anotherContent
+                .getId());
 
             // then
+            assertThat(saved1).isTrue();
+            assertThat(saved2).isTrue();
             List<PlaylistContentEntity> playlistContents = jpaPlaylistContentRepository.findAll();
             assertThat(playlistContents).hasSize(2);
         }
@@ -205,10 +223,13 @@ class PlaylistContentRepositoryImplTest {
             );
 
             // when
-            playlistContentRepository.save(playlist.getId(), content.getId());
-            playlistContentRepository.save(anotherPlaylist.getId(), content.getId());
+            boolean saved1 = playlistContentRepository.save(playlist.getId(), content.getId());
+            boolean saved2 = playlistContentRepository.save(anotherPlaylist.getId(), content
+                .getId());
 
             // then
+            assertThat(saved1).isTrue();
+            assertThat(saved2).isTrue();
             List<PlaylistContentEntity> playlistContents = jpaPlaylistContentRepository.findAll();
             assertThat(playlistContents).hasSize(2);
         }
@@ -219,16 +240,17 @@ class PlaylistContentRepositoryImplTest {
     class DeleteTest {
 
         @Test
-        @DisplayName("플레이리스트에서 특정 콘텐츠를 삭제한다")
-        void delete_removesContentFromPlaylist() {
+        @DisplayName("플레이리스트에서 특정 콘텐츠를 삭제하면 true를 반환한다")
+        void delete_removesContentFromPlaylist_returnsTrue() {
             // given
             playlistContentRepository.save(playlist.getId(), content.getId());
             assertThat(jpaPlaylistContentRepository.findAll()).hasSize(1);
 
             // when
-            playlistContentRepository.delete(playlist.getId(), content.getId());
+            boolean deleted = playlistContentRepository.delete(playlist.getId(), content.getId());
 
             // then
+            assertThat(deleted).isTrue();
             assertThat(jpaPlaylistContentRepository.findAll()).isEmpty();
         }
 
@@ -249,20 +271,23 @@ class PlaylistContentRepositoryImplTest {
             assertThat(jpaPlaylistContentRepository.findAll()).hasSize(2);
 
             // when
-            playlistContentRepository.delete(playlist.getId(), content.getId());
+            boolean deleted = playlistContentRepository.delete(playlist.getId(), content.getId());
 
             // then
+            assertThat(deleted).isTrue();
             List<PlaylistContentEntity> remaining = jpaPlaylistContentRepository.findAll();
             assertThat(remaining).hasSize(1);
             assertThat(remaining.get(0).getContent().getId()).isEqualTo(anotherContent.getId());
         }
 
         @Test
-        @DisplayName("존재하지 않는 콘텐츠 삭제 시 예외 없이 동작한다")
-        void delete_nonExistentContent_noException() {
-            // when & then (no exception thrown)
-            playlistContentRepository.delete(playlist.getId(), content.getId());
+        @DisplayName("존재하지 않는 콘텐츠 삭제 시 false를 반환한다")
+        void delete_nonExistentContent_returnsFalse() {
+            // when
+            boolean deleted = playlistContentRepository.delete(playlist.getId(), content.getId());
 
+            // then
+            assertThat(deleted).isFalse();
             assertThat(jpaPlaylistContentRepository.findAll()).isEmpty();
         }
 
@@ -292,9 +317,10 @@ class PlaylistContentRepositoryImplTest {
             assertThat(jpaPlaylistContentRepository.findAll()).hasSize(2);
 
             // when
-            playlistContentRepository.delete(playlist.getId(), content.getId());
+            boolean deleted = playlistContentRepository.delete(playlist.getId(), content.getId());
 
             // then
+            assertThat(deleted).isTrue();
             List<PlaylistContentEntity> remaining = jpaPlaylistContentRepository.findAll();
             assertThat(remaining).hasSize(1);
             assertThat(remaining.get(0).getPlaylist().getId()).isEqualTo(anotherPlaylist.getId());

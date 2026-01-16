@@ -1,5 +1,6 @@
 package com.mopl.domain.repository.playlist;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 
@@ -11,7 +12,9 @@ public interface PlaylistSubscriberRepository {
 
     boolean existsByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId);
 
-    void save(UUID playlistId, UUID subscriberId);
+    Set<UUID> findSubscribedPlaylistIds(UUID subscriberId, Collection<UUID> playlistIds);
 
-    void deleteByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId);
+    boolean save(UUID playlistId, UUID subscriberId);
+
+    boolean deleteByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId);
 }

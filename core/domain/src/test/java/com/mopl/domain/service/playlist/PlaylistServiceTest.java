@@ -227,14 +227,13 @@ class PlaylistServiceTest {
             PlaylistModel playlistModel = createPlaylist(owner);
 
             given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
-            given(playlistContentRepository.exists(playlistId, contentId)).willReturn(false);
+            given(playlistContentRepository.save(playlistId, contentId)).willReturn(true);
 
             // when
             playlistService.addContent(playlistId, requesterId, contentId);
 
             // then
             then(playlistCacheService).should().getById(playlistId);
-            then(playlistContentRepository).should().exists(playlistId, contentId);
             then(playlistContentRepository).should().save(playlistId, contentId);
             then(playlistCacheService).should().evictContents(playlistId);
         }
@@ -269,13 +268,13 @@ class PlaylistServiceTest {
             PlaylistModel playlistModel = createPlaylist(owner);
 
             given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
-            given(playlistContentRepository.exists(playlistId, contentId)).willReturn(true);
+            given(playlistContentRepository.save(playlistId, contentId)).willReturn(false);
 
             // when & then
             assertThatThrownBy(() -> playlistService.addContent(playlistId, requesterId, contentId))
                 .isInstanceOf(PlaylistContentAlreadyExistsException.class);
 
-            then(playlistContentRepository).should(never()).save(any(UUID.class), any(UUID.class));
+            then(playlistCacheService).should(never()).evictContents(any(UUID.class));
         }
     }
 
@@ -294,14 +293,13 @@ class PlaylistServiceTest {
             PlaylistModel playlistModel = createPlaylist(owner);
 
             given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
-            given(playlistContentRepository.exists(playlistId, contentId)).willReturn(true);
+            given(playlistContentRepository.delete(playlistId, contentId)).willReturn(true);
 
             // when
             playlistService.removeContent(playlistId, requesterId, contentId);
 
             // then
             then(playlistCacheService).should().getById(playlistId);
-            then(playlistContentRepository).should().exists(playlistId, contentId);
             then(playlistContentRepository).should().delete(playlistId, contentId);
             then(playlistCacheService).should().evictContents(playlistId);
         }
@@ -338,15 +336,14 @@ class PlaylistServiceTest {
             PlaylistModel playlistModel = createPlaylist(owner);
 
             given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
-            given(playlistContentRepository.exists(playlistId, contentId)).willReturn(false);
+            given(playlistContentRepository.delete(playlistId, contentId)).willReturn(false);
 
             // when & then
             assertThatThrownBy(() -> playlistService.removeContent(playlistId, requesterId,
                 contentId))
                 .isInstanceOf(PlaylistContentNotFoundException.class);
 
-            then(playlistContentRepository).should(never()).delete(any(UUID.class), any(
-                UUID.class));
+            then(playlistCacheService).should(never()).evictContents(any(UUID.class));
         }
     }
 }

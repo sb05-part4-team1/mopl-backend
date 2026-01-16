@@ -88,8 +88,10 @@ class PlaylistSubscriberCountSyncSchedulerTest {
             scheduler.syncSubscriberCounts();
 
             // then
-            then(playlistSubscriberRepository).should(never()).countByPlaylistId(org.mockito.ArgumentMatchers.any());
-            then(playlistSubscriberCountRepository).should(never()).getCount(org.mockito.ArgumentMatchers.any());
+            then(playlistSubscriberRepository).should(never()).countByPlaylistId(
+                org.mockito.ArgumentMatchers.any());
+            then(playlistSubscriberCountRepository).should(never()).getCount(
+                org.mockito.ArgumentMatchers.any());
         }
 
         @Test

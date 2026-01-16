@@ -81,11 +81,11 @@ public class PlaylistService {
     ) {
         getByIdAndValidateOwner(playlistId, requesterId);
 
-        if (playlistContentRepository.exists(playlistId, contentId)) {
+        boolean saved = playlistContentRepository.save(playlistId, contentId);
+        if (!saved) {
             throw new PlaylistContentAlreadyExistsException(playlistId, contentId);
         }
 
-        playlistContentRepository.save(playlistId, contentId);
         playlistCacheService.evictContents(playlistId);
     }
 
@@ -96,11 +96,11 @@ public class PlaylistService {
     ) {
         getByIdAndValidateOwner(playlistId, requesterId);
 
-        if (!playlistContentRepository.exists(playlistId, contentId)) {
+        boolean deleted = playlistContentRepository.delete(playlistId, contentId);
+        if (!deleted) {
             throw new PlaylistContentNotFoundException(playlistId, contentId);
         }
 
-        playlistContentRepository.delete(playlistId, contentId);
         playlistCacheService.evictContents(playlistId);
     }
 

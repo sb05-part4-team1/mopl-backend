@@ -5,6 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Repository
@@ -19,16 +23,41 @@ public class RedisPlaylistSubscriberCountRepository implements PlaylistSubscribe
     public long getCount(UUID playlistId) {
         String key = buildKey(playlistId);
         Object value = redisTemplate.opsForValue().get(key);
+        return parseCount(value);
+    }
 
-        if (value == null) {
-            return 0L;
+    @Override
+    public Map<UUID, Long> getCounts(Collection<UUID> playlistIds) {
+        if (playlistIds.isEmpty()) {
+            return Map.of();
         }
 
-        if (value instanceof Number) {
-            return ((Number) value).longValue();
+        List<UUID> playlistIdList = List.copyOf(playlistIds);
+        List<String> keys = playlistIdList.stream()
+            .map(this::buildKey)
+            .toList();
+
+        List<Object> values = redisTemplate.opsForValue().multiGet(keys);
+
+        if (values == null) {
+            return Map.of();
         }
 
-        return Long.parseLong(value.toString());
+        Map<UUID, Long> result = new HashMap<>();
+        for (int i = 0; i < playlistIdList.size(); i++) {
+            UUID playlistId = playlistIdList.get(i);
+            Object value = values.get(i);
+            long count = parseCount(value);
+            result.put(playlistId, count);
+        }
+
+        return result;
+    }
+
+    @Override
+    public void setCount(UUID playlistId, long count) {
+        String key = buildKey(playlistId);
+        redisTemplate.opsForValue().set(key, count);
     }
 
     @Override
@@ -47,10 +76,14 @@ public class RedisPlaylistSubscriberCountRepository implements PlaylistSubscribe
         }
     }
 
-    @Override
-    public void setCount(UUID playlistId, long count) {
-        String key = buildKey(playlistId);
-        redisTemplate.opsForValue().set(key, count);
+    private long parseCount(Object value) {
+        if (value == null) {
+            return 0L;
+        }
+        if (value instanceof Number) {
+            return ((Number) value).longValue();
+        }
+        return Long.parseLong(value.toString());
     }
 
     private String buildKey(UUID playlistId) {
