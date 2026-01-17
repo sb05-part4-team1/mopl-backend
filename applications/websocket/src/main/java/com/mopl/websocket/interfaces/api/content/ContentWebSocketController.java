@@ -20,18 +20,6 @@ public class ContentWebSocketController {
 
     private final ContentWebSocketFacade contentWebSocketFacade;
 
-    @MessageMapping("/contents/{contentId}/watch")
-    @SendTo("/sub/contents/{contentId}/watch")
-    public WatchingSessionChange watchStatus(
-        @DestinationVariable UUID contentId,
-        WatchingSessionChange request,
-        Principal principal
-    ) {
-        UUID userId = extractUserId(principal);
-
-        return contentWebSocketFacade.updateSession(contentId, userId, request.type());
-    }
-
     @MessageMapping("/contents/{contentId}/chat")
     @SendTo("/sub/contents/{contentId}/chat")
     public ContentChatDto chat(
