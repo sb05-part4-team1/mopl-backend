@@ -38,14 +38,6 @@ public interface PlaylistApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    @ApiResponse(
-        responseCode = "500",
-        description = "서버 오류",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
     CursorResponse<PlaylistResponse> getPlaylists(
         MoplUserDetails userDetails,
         PlaylistQueryRequest request
@@ -62,6 +54,14 @@ public interface PlaylistApiSpec {
         )
     )
     @ApiResponse(
+        responseCode = "400",
+        description = "잘못된 요청",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
@@ -71,7 +71,7 @@ public interface PlaylistApiSpec {
     )
     @ApiResponse(
         responseCode = "404",
-        description = "플레이리스트를 찾을 수 없음",
+        description = "유저 또는 플레이리스트를 찾을 수 없음",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
@@ -103,6 +103,14 @@ public interface PlaylistApiSpec {
     @ApiResponse(
         responseCode = "401",
         description = "인증 오류",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "404",
+        description = "유저를 찾을 수 없음",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
@@ -150,7 +158,7 @@ public interface PlaylistApiSpec {
     )
     @ApiResponse(
         responseCode = "404",
-        description = "플레이리스트를 찾을 수 없음",
+        description = "유저 또는 플레이리스트를 찾을 수 없음",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
@@ -166,6 +174,14 @@ public interface PlaylistApiSpec {
     @Parameter(name = "playlistId", description = "삭제할 플레이리스트 ID", required = true)
     @ApiResponse(responseCode = "204", description = "삭제 성공")
     @ApiResponse(
+        responseCode = "400",
+        description = "잘못된 요청",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
@@ -183,7 +199,7 @@ public interface PlaylistApiSpec {
     )
     @ApiResponse(
         responseCode = "404",
-        description = "유저를 찾을 수 없음",
+        description = "유저 또는 플레이리스트를 찾을 수 없음",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
@@ -196,6 +212,14 @@ public interface PlaylistApiSpec {
     @Parameter(name = "contentId", description = "추가할 콘텐츠 ID", required = true)
     @ApiResponse(responseCode = "204", description = "추가 성공")
     @ApiResponse(
+        responseCode = "400",
+        description = "잘못된 요청",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
@@ -213,7 +237,7 @@ public interface PlaylistApiSpec {
     )
     @ApiResponse(
         responseCode = "404",
-        description = "플레이리스트 또는 콘텐츠를 찾을 수 없음",
+        description = "유저, 플레이리스트 또는 콘텐츠를 찾을 수 없음",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
@@ -234,6 +258,14 @@ public interface PlaylistApiSpec {
     @Parameter(name = "contentId", description = "삭제할 콘텐츠 ID", required = true)
     @ApiResponse(responseCode = "204", description = "삭제 성공")
     @ApiResponse(
+        responseCode = "400",
+        description = "잘못된 요청",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
@@ -251,7 +283,7 @@ public interface PlaylistApiSpec {
     )
     @ApiResponse(
         responseCode = "404",
-        description = "플레이리스트 또는 콘텐츠를 찾을 수 없음",
+        description = "유저, 플레이리스트 또는 플레이리스트 콘텐츠를 찾을 수 없음",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
@@ -263,6 +295,14 @@ public interface PlaylistApiSpec {
     @Parameter(name = "playlistId", description = "구독할 플레이리스트 ID", required = true)
     @ApiResponse(responseCode = "204", description = "구독 성공")
     @ApiResponse(
+        responseCode = "400",
+        description = "잘못된 요청",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
@@ -272,7 +312,15 @@ public interface PlaylistApiSpec {
     )
     @ApiResponse(
         responseCode = "404",
-        description = "플레이리스트를 찾을 수 없음",
+        description = "유저 또는 플레이리스트를 찾을 수 없음",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "409",
+        description = "이미 구독 중인 플레이리스트",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
@@ -284,6 +332,14 @@ public interface PlaylistApiSpec {
     @Parameter(name = "playlistId", description = "구독 취소할 플레이리스트 ID", required = true)
     @ApiResponse(responseCode = "204", description = "구독 취소 성공")
     @ApiResponse(
+        responseCode = "400",
+        description = "잘못된 요청",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
@@ -293,7 +349,7 @@ public interface PlaylistApiSpec {
     )
     @ApiResponse(
         responseCode = "404",
-        description = "플레이리스트를 찾을 수 없음",
+        description = "유저 또는 플레이리스트를 찾을 수 없음",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class)
