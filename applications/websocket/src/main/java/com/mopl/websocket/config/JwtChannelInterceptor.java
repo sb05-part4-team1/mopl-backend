@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageDeliveryException;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
@@ -20,9 +21,7 @@ import com.mopl.security.jwt.provider.TokenType;
 import com.mopl.security.userdetails.MoplUserDetails;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtChannelInterceptor implements ChannelInterceptor {
@@ -38,7 +37,6 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
         if (accessor == null)
             return message;
 
-        // 연결 시점 토큰 검증 및 유저 설정
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             String authHeader = accessor.getFirstNativeHeader("Authorization");
 
@@ -55,29 +53,27 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
 
-                    // 세션에 저장
                     accessor.setUser(authentication);
                 } catch (Exception e) {
-                    return null;
+                    throw new MessageDeliveryException("인증에 실패했습니다.");
                 }
             }
         }
 
         else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
             String destination = accessor.getDestination();
-            if (StringUtils.hasText(destination) && destination.startsWith("/sub/contents/") && destination.endsWith("/watch")) {
+            if (StringUtils.hasText(destination) && destination.startsWith("/sub/contents/")
+                && destination.endsWith("/watch")) {
                 // 경로 파싱: /sub/contents/{contentId}/watch
                 String contentIdStr = destination.split("/")[3];
                 UUID contentId = UUID.fromString(contentIdStr);
 
-                // 세션 속성에 저장 (Disconnect 시점에 꺼내 쓰기 위함)
                 if (accessor.getSessionAttributes() != null) {
                     accessor.getSessionAttributes().put("watchingContentId", contentId);
                 }
             }
         }
 
-        // 메시지 전송 시점에 세션의 유저 정보를 SecurityContext에 주입
         else if (accessor.getUser() != null) {
             Authentication authentication = (Authentication) accessor.getUser();
             SecurityContextHolder.getContext().setAuthentication(authentication);
