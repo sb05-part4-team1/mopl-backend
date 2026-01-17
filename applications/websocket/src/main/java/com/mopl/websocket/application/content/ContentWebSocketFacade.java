@@ -1,5 +1,6 @@
 package com.mopl.websocket.application.content;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
@@ -18,7 +19,6 @@ import com.mopl.websocket.interfaces.api.content.WatchingSessionChange;
 import com.mopl.websocket.service.content.WatchingSessionService;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
@@ -31,33 +31,28 @@ public class ContentWebSocketFacade {
     private final UserSummaryMapper userSummaryMapper;
 
     public WatchingSessionChange updateSession(UUID contentId, UUID userId, ChangeType type) {
-        WatchingSessionModel session;
-        UserModel watcher = null;
-        ContentModel content = null;
+        WatchingSessionDto dto = null;
 
         if (type == ChangeType.JOIN) {
-            watcher = userService.getById(userId);
-            content = contentService.getById(contentId);
+            UserModel watcher = userService.getById(userId);
+            ContentModel content = contentService.getById(contentId);
 
-            session = WatchingSessionModel.create(watcher, content);
-            session = watchingSessionService.create(session);
+            WatchingSessionModel session = WatchingSessionModel.create(watcher, content);
+            watchingSessionService.create(session);
+
+            dto = watchingSessionResponseMapper.toDto(session, watcher, content);
         } else {
-            // LEAVE인 경우 삭제 전에 세션 조회
-            session = watchingSessionService.findByUserIdAndContentId(userId, contentId)
-                .orElse(null);
+            Optional<WatchingSessionModel> sessionOpt = watchingSessionService.findByUserIdAndContentId(userId, contentId);
 
-            if (session != null) {
-                watcher = session.getWatcher();
-                content = session.getContent();
+            if (sessionOpt.isPresent()) {
+                WatchingSessionModel session = sessionOpt.get();
 
                 watchingSessionService.delete(session);
+
+                dto = watchingSessionResponseMapper.toDto(session, session.getWatcher(), session.getContent());
             }
         }
         long watcherCount = watchingSessionService.getWatcherCount(contentId);
-
-        WatchingSessionDto dto = (session != null && watcher != null && content != null)
-            ? watchingSessionResponseMapper.toDto(session, watcher, content)
-            : null;
 
         return new WatchingSessionChange(type, dto, watcherCount);
     }
