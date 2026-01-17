@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
@@ -88,10 +89,8 @@ class PlaylistSubscriberCountSyncSchedulerTest {
             scheduler.syncSubscriberCounts();
 
             // then
-            then(playlistSubscriberRepository).should(never()).countByPlaylistId(
-                org.mockito.ArgumentMatchers.any());
-            then(playlistSubscriberCountRepository).should(never()).getCount(
-                org.mockito.ArgumentMatchers.any());
+            then(playlistSubscriberRepository).should(never()).countByPlaylistId(any());
+            then(playlistSubscriberCountRepository).should(never()).getCount(any());
         }
 
         @Test

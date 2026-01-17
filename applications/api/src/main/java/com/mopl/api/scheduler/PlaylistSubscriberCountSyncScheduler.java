@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 import java.util.UUID;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class PlaylistSubscriberCountSyncScheduler {
 
     private final PlaylistSubscriberRepository playlistSubscriberRepository;
