@@ -67,7 +67,7 @@ public class PlaylistFacade {
         ));
     }
 
-    public PlaylistDetail getPlaylist(UUID requesterId, UUID playlistId) {
+    public PlaylistResponse getPlaylist(UUID requesterId, UUID playlistId) {
         UserModel requester = userService.getById(requesterId);
         PlaylistModel playlist = playlistService.getById(playlistId);
         long subscriberCount = playlistSubscriptionService.getSubscriberCount(playlist.getId());
@@ -78,34 +78,42 @@ public class PlaylistFacade {
             );
         List<ContentModel> contents = playlistService.getContents(playlist.getId());
 
-        return new PlaylistDetail(playlist, subscriberCount, subscribedByMe, contents);
+        return playlistResponseMapper.toResponse(
+            playlist,
+            subscriberCount,
+            subscribedByMe,
+            contents
+        );
     }
 
-    public PlaylistModel createPlaylist(
+    public PlaylistResponse createPlaylist(
         UUID requesterId,
         PlaylistCreateRequest request
     ) {
         UserModel owner = userService.getById(requesterId);
 
-        return playlistService.create(
+        PlaylistModel playlistModel = playlistService.create(
             owner,
             request.title(),
             request.description()
         );
+
+        return playlistResponseMapper.toResponse(playlistModel);
     }
 
-    public PlaylistModel updatePlaylist(
+    public PlaylistResponse updatePlaylist(
         UUID requesterId,
         UUID playlistId,
         PlaylistUpdateRequest request
     ) {
         userService.getById(requesterId);
-        return playlistService.update(
+        PlaylistModel playlistModel = playlistService.update(
             playlistId,
             requesterId,
             request.title(),
             request.description()
         );
+        return playlistResponseMapper.toResponse(playlistModel);
     }
 
     public void deletePlaylist(

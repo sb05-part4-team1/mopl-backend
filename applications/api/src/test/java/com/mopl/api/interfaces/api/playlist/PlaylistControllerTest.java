@@ -1,7 +1,6 @@
 package com.mopl.api.interfaces.api.playlist;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mopl.api.application.playlist.PlaylistDetail;
 import com.mopl.api.application.playlist.PlaylistFacade;
 import com.mopl.api.config.TestSecurityConfig;
 import com.mopl.api.interfaces.api.ApiControllerAdvice;
@@ -12,8 +11,6 @@ import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.exception.playlist.PlaylistContentNotFoundException;
 import com.mopl.domain.exception.playlist.PlaylistForbiddenException;
 import com.mopl.domain.exception.playlist.PlaylistNotFoundException;
-import com.mopl.domain.model.playlist.PlaylistModel;
-import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
 import com.mopl.security.userdetails.MoplUserDetails;
@@ -166,32 +163,26 @@ class PlaylistControllerTest {
         void withValidRequest_returns200OK() throws Exception {
             // given
             UUID playlistId = UUID.randomUUID();
-            UserModel owner = UserModel.builder()
-                .id(userId)
-                .name("테스트 사용자")
-                .email("test@example.com")
-                .build();
-            PlaylistModel playlistModel = PlaylistModel.builder()
-                .id(playlistId)
-                .owner(owner)
-                .title("테스트 플레이리스트")
-                .description("테스트 설명")
-                .build();
-            PlaylistDetail playlistDetail = new PlaylistDetail(
-                playlistModel,
+            UserSummary ownerSummary = new UserSummary(userId, "테스트 사용자", null);
+            PlaylistResponse playlistResponse = new PlaylistResponse(
+                playlistId,
+                ownerSummary,
+                "테스트 플레이리스트",
+                "테스트 설명",
+                null,
                 10L,
                 true,
                 Collections.emptyList()
             );
 
-            given(playlistFacade.getPlaylist(userId, playlistId)).willReturn(playlistDetail);
+            given(playlistFacade.getPlaylist(userId, playlistId)).willReturn(playlistResponse);
 
             // when & then
             mockMvc.perform(get("/api/playlists/{playlistId}", playlistId)
                 .with(user(mockUserDetails)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(playlistId.toString()))
-                .andExpect(jsonPath("$.title").value(playlistModel.getTitle()))
+                .andExpect(jsonPath("$.title").value("테스트 플레이리스트"))
                 .andExpect(jsonPath("$.owner.userId").value(userId.toString()))
                 .andExpect(jsonPath("$.subscriberCount").value(10))
                 .andExpect(jsonPath("$.subscribedByMe").value(true));
@@ -227,20 +218,21 @@ class PlaylistControllerTest {
             String description = "플레이리스트 설명";
             PlaylistCreateRequest request = new PlaylistCreateRequest(title, description);
 
-            UserModel owner = UserModel.builder()
-                .id(userId)
-                .name("테스트 사용자")
-                .email("test@example.com")
-                .build();
-            PlaylistModel playlistModel = PlaylistModel.builder()
-                .id(UUID.randomUUID())
-                .owner(owner)
-                .title(title)
-                .description(description)
-                .build();
+            UUID playlistId = UUID.randomUUID();
+            UserSummary ownerSummary = new UserSummary(userId, "테스트 사용자", null);
+            PlaylistResponse playlistResponse = new PlaylistResponse(
+                playlistId,
+                ownerSummary,
+                title,
+                description,
+                null,
+                0L,
+                false,
+                Collections.emptyList()
+            );
 
             given(playlistFacade.createPlaylist(eq(userId), any(PlaylistCreateRequest.class)))
-                .willReturn(playlistModel);
+                .willReturn(playlistResponse);
 
             // when & then
             mockMvc.perform(post("/api/playlists")
@@ -249,7 +241,7 @@ class PlaylistControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(playlistModel.getId().toString()))
+                .andExpect(jsonPath("$.id").value(playlistId.toString()))
                 .andExpect(jsonPath("$.title").value(title))
                 .andExpect(jsonPath("$.description").value(description))
                 .andExpect(jsonPath("$.owner.userId").value(userId.toString()));
@@ -304,21 +296,21 @@ class PlaylistControllerTest {
             String newDescription = "수정된 설명";
             PlaylistUpdateRequest request = new PlaylistUpdateRequest(newTitle, newDescription);
 
-            UserModel owner = UserModel.builder()
-                .id(userId)
-                .name("테스트 사용자")
-                .email("test@example.com")
-                .build();
-            PlaylistModel playlistModel = PlaylistModel.builder()
-                .id(playlistId)
-                .owner(owner)
-                .title(newTitle)
-                .description(newDescription)
-                .build();
+            UserSummary ownerSummary = new UserSummary(userId, "테스트 사용자", null);
+            PlaylistResponse playlistResponse = new PlaylistResponse(
+                playlistId,
+                ownerSummary,
+                newTitle,
+                newDescription,
+                null,
+                0L,
+                false,
+                Collections.emptyList()
+            );
 
             given(playlistFacade.updatePlaylist(eq(userId), eq(playlistId),
                 any(PlaylistUpdateRequest.class)))
-                .willReturn(playlistModel);
+                .willReturn(playlistResponse);
 
             // when & then
             mockMvc.perform(patch("/api/playlists/{playlistId}", playlistId)

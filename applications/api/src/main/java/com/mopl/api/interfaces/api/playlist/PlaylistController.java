@@ -1,8 +1,6 @@
 package com.mopl.api.interfaces.api.playlist;
 
-import com.mopl.api.application.playlist.PlaylistDetail;
 import com.mopl.api.application.playlist.PlaylistFacade;
-import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.repository.playlist.PlaylistQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.security.userdetails.MoplUserDetails;
@@ -29,7 +27,6 @@ import java.util.UUID;
 public class PlaylistController implements PlaylistApiSpec {
 
     private final PlaylistFacade playlistFacade;
-    private final PlaylistResponseMapper playlistResponseMapper;
 
     @GetMapping
     public CursorResponse<PlaylistResponse> getPlaylists(
@@ -44,14 +41,7 @@ public class PlaylistController implements PlaylistApiSpec {
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable UUID playlistId
     ) {
-        PlaylistDetail playlistDetail = playlistFacade.getPlaylist(userDetails.userId(),
-            playlistId);
-        return playlistResponseMapper.toResponse(
-            playlistDetail.playlist(),
-            playlistDetail.subscriberCount(),
-            playlistDetail.subscribedByMe(),
-            playlistDetail.contents()
-        );
+        return playlistFacade.getPlaylist(userDetails.userId(), playlistId);
     }
 
     @PostMapping
@@ -60,8 +50,7 @@ public class PlaylistController implements PlaylistApiSpec {
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @RequestBody @Valid PlaylistCreateRequest request
     ) {
-        PlaylistModel playlistModel = playlistFacade.createPlaylist(userDetails.userId(), request);
-        return playlistResponseMapper.toResponse(playlistModel);
+        return playlistFacade.createPlaylist(userDetails.userId(), request);
     }
 
     @PatchMapping("/{playlistId}")
@@ -70,12 +59,11 @@ public class PlaylistController implements PlaylistApiSpec {
         @PathVariable UUID playlistId,
         @RequestBody @Valid PlaylistUpdateRequest request
     ) {
-        PlaylistModel playlistModel = playlistFacade.updatePlaylist(
+        return playlistFacade.updatePlaylist(
             userDetails.userId(),
             playlistId,
             request
         );
-        return playlistResponseMapper.toResponse(playlistModel);
     }
 
     @DeleteMapping("/{playlistId}")

@@ -180,7 +180,7 @@ class PlaylistFacadeTest {
 
         @Test
         @DisplayName("유효한 요청 시 플레이리스트 상세 정보 조회 성공")
-        void withValidRequest_getsPlaylistDetailSuccess() {
+        void withValidRequest_getsPlaylistSuccess() {
             // given
             UserModel owner = UserModelFixture.create();
             UUID playlistId = UUID.randomUUID();
@@ -191,6 +191,11 @@ class PlaylistFacadeTest {
             long subscriberCount = 10L;
             boolean subscribedByMe = true;
 
+            PlaylistResponse expectedResponse = new PlaylistResponse(
+                playlistId, null, playlistModel.getTitle(), playlistModel.getDescription(),
+                null, subscriberCount, subscribedByMe, Collections.emptyList()
+            );
+
             given(userService.getById(owner.getId())).willReturn(owner);
             given(playlistService.getById(playlistId)).willReturn(playlistModel);
             given(playlistSubscriptionService.getSubscriberCount(playlistId))
@@ -200,15 +205,17 @@ class PlaylistFacadeTest {
                 owner.getId()
             )).willReturn(subscribedByMe);
             given(playlistService.getContents(playlistId)).willReturn(contents);
+            given(playlistResponseMapper.toResponse(
+                playlistModel, subscriberCount, subscribedByMe, contents
+            )).willReturn(expectedResponse);
 
             // when
-            PlaylistDetail result = playlistFacade.getPlaylist(owner.getId(), playlistId);
+            PlaylistResponse result = playlistFacade.getPlaylist(owner.getId(), playlistId);
 
             // then
-            assertThat(result.playlist().getId()).isEqualTo(playlistId);
+            assertThat(result.id()).isEqualTo(playlistId);
             assertThat(result.subscriberCount()).isEqualTo(subscriberCount);
             assertThat(result.subscribedByMe()).isTrue();
-            assertThat(result.contents()).hasSize(1);
 
             then(userService).should().getById(owner.getId());
             then(playlistService).should().getById(playlistId);
@@ -218,6 +225,9 @@ class PlaylistFacadeTest {
                 owner.getId()
             );
             then(playlistService).should().getContents(playlistId);
+            then(playlistResponseMapper).should().toResponse(
+                playlistModel, subscriberCount, subscribedByMe, contents
+            );
         }
     }
 
@@ -239,20 +249,26 @@ class PlaylistFacadeTest {
                 .set("description", description)
                 .sample();
 
+            PlaylistResponse expectedResponse = new PlaylistResponse(
+                playlistModel.getId(), null, title, description,
+                null, 0L, false, Collections.emptyList()
+            );
+
             given(userService.getById(owner.getId())).willReturn(owner);
             given(playlistService.create(eq(owner), eq(title), eq(description)))
                 .willReturn(playlistModel);
+            given(playlistResponseMapper.toResponse(playlistModel)).willReturn(expectedResponse);
 
             // when
-            PlaylistModel result = playlistFacade.createPlaylist(owner.getId(), request);
+            PlaylistResponse result = playlistFacade.createPlaylist(owner.getId(), request);
 
             // then
-            assertThat(result.getTitle()).isEqualTo(title);
-            assertThat(result.getDescription()).isEqualTo(description);
-            assertThat(result.getOwner().getId()).isEqualTo(owner.getId());
+            assertThat(result.title()).isEqualTo(title);
+            assertThat(result.description()).isEqualTo(description);
 
             then(userService).should().getById(owner.getId());
             then(playlistService).should().create(eq(owner), eq(title), eq(description));
+            then(playlistResponseMapper).should().toResponse(playlistModel);
         }
     }
 
@@ -276,21 +292,28 @@ class PlaylistFacadeTest {
                 .set("description", newDescription)
                 .sample();
 
+            PlaylistResponse expectedResponse = new PlaylistResponse(
+                playlistId, null, newTitle, newDescription,
+                null, 0L, false, Collections.emptyList()
+            );
+
             given(userService.getById(owner.getId())).willReturn(owner);
             given(playlistService.update(playlistId, owner.getId(), newTitle, newDescription))
                 .willReturn(updatedPlaylist);
+            given(playlistResponseMapper.toResponse(updatedPlaylist)).willReturn(expectedResponse);
 
             // when
-            PlaylistModel result = playlistFacade.updatePlaylist(owner.getId(), playlistId,
+            PlaylistResponse result = playlistFacade.updatePlaylist(owner.getId(), playlistId,
                 request);
 
             // then
-            assertThat(result.getTitle()).isEqualTo(newTitle);
-            assertThat(result.getDescription()).isEqualTo(newDescription);
+            assertThat(result.title()).isEqualTo(newTitle);
+            assertThat(result.description()).isEqualTo(newDescription);
 
             then(userService).should().getById(owner.getId());
             then(playlistService).should().update(playlistId, owner.getId(), newTitle,
                 newDescription);
+            then(playlistResponseMapper).should().toResponse(updatedPlaylist);
         }
     }
 
