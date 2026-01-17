@@ -85,7 +85,10 @@ public interface ReviewApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    ReviewResponse createReview(MoplUserDetails userDetails, ReviewCreateRequest request);
+    ReviewResponse createReview(
+        @Parameter(hidden = true) MoplUserDetails userDetails,
+        ReviewCreateRequest request
+    );
 
     @Operation(summary = "리뷰 수정")
     @Parameter(name = "reviewId", description = "수정할 리뷰 ID", required = true)
@@ -134,7 +137,7 @@ public interface ReviewApiSpec {
         )
     )
     ReviewResponse updateReview(
-        MoplUserDetails userDetails,
+        @Parameter(hidden = true) MoplUserDetails userDetails,
         UUID reviewId,
         ReviewUpdateRequest request
     );
@@ -166,5 +169,8 @@ public interface ReviewApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    void deleteReview(MoplUserDetails userDetails, UUID reviewId);
+    void deleteReview(
+        @Parameter(hidden = true) MoplUserDetails userDetails,
+        UUID reviewId
+    );
 }

@@ -173,7 +173,11 @@ public interface UserApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    void updateRole(MoplUserDetails userDetails, UUID userId, UserRoleUpdateRequest request);
+    void updateRole(
+        @Parameter(hidden = true) MoplUserDetails userDetails,
+        UUID userId,
+        UserRoleUpdateRequest request
+    );
 
     @Operation(summary = "사용자 잠금 상태 수정", description = "관리자 권한이 필요합니다.")
     @Parameter(name = "userId", description = "수정할 사용자 ID", required = true)
@@ -219,5 +223,9 @@ public interface UserApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    void updateLocked(MoplUserDetails userDetails, UUID userId, UserLockUpdateRequest request);
+    void updateLocked(
+        @Parameter(hidden = true) MoplUserDetails userDetails,
+        UUID userId,
+        UserLockUpdateRequest request
+    );
 }
