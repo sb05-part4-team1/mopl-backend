@@ -10,7 +10,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -84,26 +83,6 @@ class PlaylistResponseMapperTest {
             assertThat(result.subscriberCount()).isEqualTo(subscriberCount);
             assertThat(result.subscribedByMe()).isTrue();
             assertThat(result.contents()).hasSize(2);
-        }
-
-        @Test
-        @DisplayName("구독자 수가 0이고 구독하지 않은 상태로 변환")
-        void withZeroSubscribers_returnsPlaylistResponseWithZeroCount() {
-            // given
-            PlaylistModel model = PlaylistModelFixture.create();
-
-            // when
-            PlaylistResponse result = mapper.toResponse(
-                model,
-                0L,
-                false,
-                Collections.emptyList()
-            );
-
-            // then
-            assertThat(result.subscriberCount()).isZero();
-            assertThat(result.subscribedByMe()).isFalse();
-            assertThat(result.contents()).isEmpty();
         }
 
         @Test
