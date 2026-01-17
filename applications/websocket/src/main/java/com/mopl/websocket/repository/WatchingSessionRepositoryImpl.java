@@ -1,11 +1,16 @@
 package com.mopl.websocket.repository;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.mopl.domain.model.content.ContentModel;
+import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.model.watchingsession.WatchingSessionModel;
 
 import lombok.RequiredArgsConstructor;
@@ -37,7 +42,13 @@ public class WatchingSessionRepositoryImpl implements WatchingSessionRepository 
 
     @Override
     public Optional<WatchingSessionModel> findByUserIdAndContentId(UUID userId, UUID contentId) {
-        // Service 계층의 @Cacheable이 우선하므로 이 메서드는 호출될 일이 거의 없음
+        Boolean isMember = redisTemplate.opsForSet().isMember(COUNT_KEY_PREFIX + contentId, userId.toString());
+
+        if (Boolean.TRUE.equals(isMember)) {
+            UserModel user = UserModel.builder().id(userId).build();
+            ContentModel content = ContentModel.builder().id(contentId).build();
+            return Optional.of(WatchingSessionModel.create(user, content));
+        }
         return Optional.empty();
     }
 }
