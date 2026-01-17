@@ -76,7 +76,7 @@ public class PlaylistFacade {
                 playlist.getId(),
                 requester.getId()
             );
-        List<ContentModel> contents = playlistService.getContents(playlist.getId());
+        List<ContentModel> contents = playlistService.getContentsByPlaylistId(playlist.getId());
 
         return playlistResponseMapper.toResponse(
             playlist,

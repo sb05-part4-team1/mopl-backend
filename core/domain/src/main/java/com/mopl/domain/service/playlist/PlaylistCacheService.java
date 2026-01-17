@@ -28,7 +28,7 @@ public class PlaylistCacheService {
     }
 
     @Cacheable(cacheNames = CacheName.PLAYLIST_CONTENTS, key = "#playlistId")
-    public List<ContentModel> getContents(UUID playlistId) {
+    public List<ContentModel> getContentsByPlaylistId(UUID playlistId) {
         return playlistContentRepository.findContentsByPlaylistId(playlistId);
     }
 

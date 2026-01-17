@@ -32,8 +32,8 @@ public class PlaylistService {
         return playlistCacheService.getById(playlistId);
     }
 
-    public List<ContentModel> getContents(UUID playlistId) {
-        return playlistCacheService.getContents(playlistId);
+    public List<ContentModel> getContentsByPlaylistId(UUID playlistId) {
+        return playlistCacheService.getContentsByPlaylistId(playlistId);
     }
 
     public Map<UUID, List<ContentModel>> getContentsByPlaylistIds(Collection<UUID> playlistIds) {

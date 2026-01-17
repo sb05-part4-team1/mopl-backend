@@ -243,7 +243,7 @@ class PlaylistFacadeTest {
             given(playlistSubscriptionService.isSubscribedByPlaylistIdAndSubscriberId(
                 playlistId, owner.getId()
             )).willReturn(subscribedByMe);
-            given(playlistService.getContents(playlistId)).willReturn(contents);
+            given(playlistService.getContentsByPlaylistId(playlistId)).willReturn(contents);
             given(playlistResponseMapper.toResponse(
                 playlistModel, subscriberCount, subscribedByMe, contents
             )).willReturn(expectedResponse);
@@ -261,7 +261,7 @@ class PlaylistFacadeTest {
             then(playlistSubscriptionService).should().getSubscriberCount(playlistId);
             then(playlistSubscriptionService).should()
                 .isSubscribedByPlaylistIdAndSubscriberId(playlistId, owner.getId());
-            then(playlistService).should().getContents(playlistId);
+            then(playlistService).should().getContentsByPlaylistId(playlistId);
             then(playlistResponseMapper).should()
                 .toResponse(playlistModel, subscriberCount, subscribedByMe, contents);
         }

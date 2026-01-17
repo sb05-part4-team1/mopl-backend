@@ -104,7 +104,7 @@ class PlaylistCacheServiceTest {
                 .willReturn(contents);
 
             // when
-            List<ContentModel> result = playlistCacheService.getContents(playlistId);
+            List<ContentModel> result = playlistCacheService.getContentsByPlaylistId(playlistId);
 
             // then
             assertThat(result).hasSize(2);
@@ -122,7 +122,7 @@ class PlaylistCacheServiceTest {
                 .willReturn(List.of());
 
             // when
-            List<ContentModel> result = playlistCacheService.getContents(playlistId);
+            List<ContentModel> result = playlistCacheService.getContentsByPlaylistId(playlistId);
 
             // then
             assertThat(result).isEmpty();
