@@ -21,4 +21,4 @@ spring:
       enabled: true
 
   cache:
-    type: none
+    type: redis
