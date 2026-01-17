@@ -77,7 +77,10 @@ public interface PlaylistApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    PlaylistResponse getPlaylist(@Parameter(hidden = true) MoplUserDetails userDetails, UUID playlistId);
+    PlaylistResponse getPlaylist(
+        @Parameter(hidden = true) MoplUserDetails userDetails,
+        UUID playlistId
+    );
 
     @Operation(summary = "플레이리스트 생성")
     @RequestBody(
@@ -116,7 +119,10 @@ public interface PlaylistApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    PlaylistResponse createPlaylist(@Parameter(hidden = true) MoplUserDetails userDetails, PlaylistCreateRequest request);
+    PlaylistResponse createPlaylist(
+        @Parameter(hidden = true) MoplUserDetails userDetails,
+        PlaylistCreateRequest request
+    );
 
     @Operation(summary = "플레이리스트 수정")
     @Parameter(name = "playlistId", description = "수정할 플레이리스트 ID", required = true)
@@ -205,7 +211,10 @@ public interface PlaylistApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    void deletePlaylist(@Parameter(hidden = true) MoplUserDetails userDetails, UUID playlistId);
+    void deletePlaylist(
+        @Parameter(hidden = true) MoplUserDetails userDetails,
+        UUID playlistId
+    );
 
     @Operation(summary = "플레이리스트에 콘텐츠 추가")
     @Parameter(name = "playlistId", description = "플레이리스트 ID", required = true)
@@ -251,7 +260,11 @@ public interface PlaylistApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    void addContentToPlaylist(@Parameter(hidden = true) MoplUserDetails userDetails, UUID playlistId, UUID contentId);
+    void addContentToPlaylist(
+        @Parameter(hidden = true) MoplUserDetails userDetails,
+        UUID playlistId,
+        UUID contentId
+    );
 
     @Operation(summary = "플레이리스트에서 콘텐츠 삭제")
     @Parameter(name = "playlistId", description = "플레이리스트 ID", required = true)
@@ -289,7 +302,11 @@ public interface PlaylistApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    void deleteContentFromPlaylist(@Parameter(hidden = true) MoplUserDetails userDetails, UUID playlistId, UUID contentId);
+    void deleteContentFromPlaylist(
+        @Parameter(hidden = true) MoplUserDetails userDetails,
+        UUID playlistId,
+        UUID contentId
+    );
 
     @Operation(summary = "플레이리스트 구독")
     @Parameter(name = "playlistId", description = "구독할 플레이리스트 ID", required = true)
@@ -326,7 +343,10 @@ public interface PlaylistApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    void subscribePlaylist(@Parameter(hidden = true) MoplUserDetails userDetails, UUID playlistId);
+    void subscribePlaylist(
+        @Parameter(hidden = true) MoplUserDetails userDetails,
+        UUID playlistId
+    );
 
     @Operation(summary = "플레이리스트 구독 취소")
     @Parameter(name = "playlistId", description = "구독 취소할 플레이리스트 ID", required = true)
@@ -355,5 +375,8 @@ public interface PlaylistApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    void unsubscribePlaylist(@Parameter(hidden = true) MoplUserDetails userDetails, UUID playlistId);
+    void unsubscribePlaylist(
+        @Parameter(hidden = true) MoplUserDetails userDetails,
+        UUID playlistId
+    );
 }

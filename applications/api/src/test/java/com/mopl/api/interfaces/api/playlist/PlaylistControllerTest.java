@@ -8,9 +8,11 @@ import com.mopl.api.interfaces.api.content.ContentSummaryMapper;
 import com.mopl.api.interfaces.api.user.UserSummary;
 import com.mopl.api.interfaces.api.user.UserSummaryMapper;
 import com.mopl.domain.exception.content.ContentNotFoundException;
+import com.mopl.domain.exception.playlist.PlaylistContentAlreadyExistsException;
 import com.mopl.domain.exception.playlist.PlaylistContentNotFoundException;
 import com.mopl.domain.exception.playlist.PlaylistForbiddenException;
 import com.mopl.domain.exception.playlist.PlaylistNotFoundException;
+import com.mopl.domain.exception.playlist.PlaylistSubscriptionAlreadyExistsException;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
 import com.mopl.security.userdetails.MoplUserDetails;
@@ -347,6 +349,26 @@ class PlaylistControllerTest {
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
         }
+
+        @Test
+        @DisplayName("존재하지 않는 플레이리스트 수정 시 404 Not Found 응답")
+        void withNonExistingPlaylist_returns404NotFound() throws Exception {
+            // given
+            UUID playlistId = UUID.randomUUID();
+            PlaylistUpdateRequest request = new PlaylistUpdateRequest("새 제목", "새 설명");
+
+            given(playlistFacade.updatePlaylist(eq(userId), eq(playlistId),
+                any(PlaylistUpdateRequest.class)))
+                .willThrow(new PlaylistNotFoundException(playlistId));
+
+            // when & then
+            mockMvc.perform(patch("/api/playlists/{playlistId}", playlistId)
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+        }
     }
 
     @Nested
@@ -385,6 +407,22 @@ class PlaylistControllerTest {
                 .with(user(mockUserDetails))
                 .with(csrf()))
                 .andExpect(status().isForbidden());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 플레이리스트 삭제 시 404 Not Found 응답")
+        void withNonExistingPlaylist_returns404NotFound() throws Exception {
+            // given
+            UUID playlistId = UUID.randomUUID();
+
+            willThrow(new PlaylistNotFoundException(playlistId))
+                .given(playlistFacade).deletePlaylist(userId, playlistId);
+
+            // when & then
+            mockMvc.perform(delete("/api/playlists/{playlistId}", playlistId)
+                .with(user(mockUserDetails))
+                .with(csrf()))
+                .andExpect(status().isNotFound());
         }
     }
 
@@ -447,6 +485,24 @@ class PlaylistControllerTest {
                 .with(user(mockUserDetails))
                 .with(csrf()))
                 .andExpect(status().isForbidden());
+        }
+
+        @Test
+        @DisplayName("이미 존재하는 콘텐츠 추가 시 409 Conflict 응답")
+        void withAlreadyExistingContent_returns409Conflict() throws Exception {
+            // given
+            UUID playlistId = UUID.randomUUID();
+            UUID contentId = UUID.randomUUID();
+
+            willThrow(new PlaylistContentAlreadyExistsException(playlistId, contentId))
+                .given(playlistFacade).addContentToPlaylist(userId, playlistId, contentId);
+
+            // when & then
+            mockMvc.perform(post("/api/playlists/{playlistId}/contents/{contentId}",
+                playlistId, contentId)
+                .with(user(mockUserDetails))
+                .with(csrf()))
+                .andExpect(status().isConflict());
         }
     }
 
@@ -547,6 +603,22 @@ class PlaylistControllerTest {
                 .with(user(mockUserDetails))
                 .with(csrf()))
                 .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("이미 구독 중인 플레이리스트 구독 시 409 Conflict 응답")
+        void withAlreadySubscribed_returns409Conflict() throws Exception {
+            // given
+            UUID playlistId = UUID.randomUUID();
+
+            willThrow(new PlaylistSubscriptionAlreadyExistsException(playlistId, userId))
+                .given(playlistFacade).subscribePlaylist(userId, playlistId);
+
+            // when & then
+            mockMvc.perform(post("/api/playlists/{playlistId}/subscription", playlistId)
+                .with(user(mockUserDetails))
+                .with(csrf()))
+                .andExpect(status().isConflict());
         }
     }
 
