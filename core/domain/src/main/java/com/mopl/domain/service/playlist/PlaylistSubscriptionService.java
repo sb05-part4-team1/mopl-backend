@@ -1,6 +1,7 @@
 package com.mopl.domain.service.playlist;
 
 import com.mopl.domain.exception.playlist.PlaylistSubscriptionAlreadyExistsException;
+import com.mopl.domain.exception.playlist.PlaylistSubscriptionNotFoundException;
 import com.mopl.domain.repository.playlist.PlaylistSubscriberCountRepository;
 import com.mopl.domain.repository.playlist.PlaylistSubscriberRepository;
 import lombok.RequiredArgsConstructor;
@@ -56,8 +57,9 @@ public class PlaylistSubscriptionService {
             playlistId,
             subscriberId
         );
-        if (deleted) {
-            playlistSubscriberCountRepository.decrement(playlistId);
+        if (!deleted) {
+            throw new PlaylistSubscriptionNotFoundException(playlistId, subscriberId);
         }
+        playlistSubscriberCountRepository.decrement(playlistId);
     }
 }
