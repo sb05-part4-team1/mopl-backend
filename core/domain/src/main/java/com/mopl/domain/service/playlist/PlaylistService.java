@@ -70,6 +70,7 @@ public class PlaylistService {
         PlaylistModel playlistModel = getByIdAndValidateOwner(playlistId, requesterId);
         playlistModel.delete();
         playlistCacheService.saveAndEvict(playlistModel);
+        // TODO: Cascading hard-delete for playlist contents by event listener
     }
 
     public void addContent(
