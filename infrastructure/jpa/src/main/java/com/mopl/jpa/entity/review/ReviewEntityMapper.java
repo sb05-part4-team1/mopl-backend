@@ -110,5 +110,4 @@ public class ReviewEntityMapper {
             ? UserModel.builder().id(authorEntity.getId()).build()
             : null;
     }
-
 }
