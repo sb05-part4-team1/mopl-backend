@@ -78,8 +78,8 @@ public class RedisPlaylistSubscriberCountRepository implements PlaylistSubscribe
         if (value == null) {
             return 0L;
         }
-        if (value instanceof Number) {
-            return ((Number) value).longValue();
+        if (value instanceof Number number) {
+            return number.longValue();
         }
         return Long.parseLong(value.toString());
     }
