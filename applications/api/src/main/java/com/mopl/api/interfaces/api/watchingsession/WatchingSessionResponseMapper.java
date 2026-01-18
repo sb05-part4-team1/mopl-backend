@@ -1,12 +1,14 @@
 package com.mopl.api.interfaces.api.watchingsession;
 
+import org.springframework.stereotype.Component;
+
 import com.mopl.api.interfaces.api.content.ContentSummaryMapper;
 import com.mopl.api.interfaces.api.user.UserSummaryMapper;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.model.watchingsession.WatchingSessionModel;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
