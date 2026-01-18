@@ -67,7 +67,7 @@ public class ConversationService {
             .orElseThrow(() -> UserNotFoundException.withId(userId));
         for (DirectMessageModel directMessageModel : directMessageModels.data()) {
             if (directMessageModel.getSender().getId().equals(userModel.getId())) {
-                directMessageModel.setReceiver(otherReadStatusModel.getUser());
+                directMessageModel.setReceiver(otherReadStatusModel.getUser()); // 예외 발생 지점
             } else {
                 directMessageModel.setReceiver(userModel);
             }

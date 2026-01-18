@@ -79,7 +79,7 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
         ReadStatusEntity readStatusEntity = jpaReadStatusRepository
             .findOtherReadStatus(conversationId, userId);
 
-        return null;
+        return readStatusEntityMapper.toModel(readStatusEntity);
     }
 
     @Override

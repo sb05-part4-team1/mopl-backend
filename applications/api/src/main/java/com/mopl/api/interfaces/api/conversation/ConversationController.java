@@ -46,6 +46,7 @@ public class ConversationController {
         @AuthenticationPrincipal MoplUserDetails userDetails, //userId, role이 들어있음.
         @ModelAttribute ConversationQueryRequest request
     ) {
+
         return conversationFacade.getAllConversation(request, userDetails.userId());
     }
 

@@ -19,7 +19,7 @@ public class ConversationResponseMapper {
         return new ConversationResponse(
             conversationModel.getId(),
             userSummaryMapper.toSummary(conversationModel.getWithUser()),
-            directMessageMapper.toResponse(conversationModel.getLastMessage()), // 대화의 마지막 message가 들어갈 예정
+            directMessageMapper.toResponse(conversationModel.getLastMessage()),
             conversationModel.isHasUnread()
         );
     }
