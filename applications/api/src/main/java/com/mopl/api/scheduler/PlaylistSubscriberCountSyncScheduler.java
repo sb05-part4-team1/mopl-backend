@@ -27,15 +27,7 @@ public class PlaylistSubscriberCountSyncScheduler {
 
         for (UUID playlistId : playlistIds) {
             try {
-                long dbCount = playlistSubscriberRepository.countByPlaylistId(playlistId);
-                long redisCount = playlistSubscriberCountRepository.getCount(playlistId);
-
-                if (dbCount != redisCount) {
-                    playlistSubscriberCountRepository.setCount(playlistId, dbCount);
-                    log.debug(
-                        "Synced playlist {} subscriber count: Redis {} -> DB {}",
-                        playlistId, redisCount, dbCount
-                    );
+                if (syncSubscriberCount(playlistId)) {
                     syncedCount++;
                 }
             } catch (Exception e) {
@@ -47,5 +39,20 @@ public class PlaylistSubscriberCountSyncScheduler {
             "Playlist subscriber count sync completed. Total: {}, Synced: {}",
             playlistIds.size(), syncedCount
         );
+    }
+
+    public boolean syncSubscriberCount(UUID playlistId) {
+        long dbCount = playlistSubscriberRepository.countByPlaylistId(playlistId);
+        long redisCount = playlistSubscriberCountRepository.getCount(playlistId);
+
+        if (dbCount != redisCount) {
+            playlistSubscriberCountRepository.setCount(playlistId, dbCount);
+            log.debug(
+                "Synced playlist {} subscriber count: Redis {} -> DB {}",
+                playlistId, redisCount, dbCount
+            );
+            return true;
+        }
+        return false;
     }
 }

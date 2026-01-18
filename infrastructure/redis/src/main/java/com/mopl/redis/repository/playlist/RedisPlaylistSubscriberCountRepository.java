@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.UUID;
 public class RedisPlaylistSubscriberCountRepository implements PlaylistSubscriberCountRepository {
 
     private static final String KEY_PREFIX = "playlist:subscriber:count:";
+    private static final Duration TTL = Duration.ofHours(48);
 
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -57,7 +59,7 @@ public class RedisPlaylistSubscriberCountRepository implements PlaylistSubscribe
     @Override
     public void setCount(UUID playlistId, long count) {
         String key = buildKey(playlistId);
-        redisTemplate.opsForValue().set(key, count);
+        redisTemplate.opsForValue().set(key, count, TTL);
     }
 
     @Override
