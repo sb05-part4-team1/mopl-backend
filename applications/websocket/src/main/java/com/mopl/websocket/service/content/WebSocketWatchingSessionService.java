@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class WatchingSessionService {
+public class WebSocketWatchingSessionService {
 
     private final WatchingSessionRepository watchingSessionRepository;
 
