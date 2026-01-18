@@ -25,11 +25,11 @@ import static org.mockito.Mockito.verifyNoInteractions;
 @DisplayName("PlaylistEntityMapper 단위 테스트")
 class PlaylistEntityMapperTest {
 
-    @InjectMocks
-    private PlaylistEntityMapper playlistEntityMapper;
-
     @Mock
     private UserEntityMapper userEntityMapper;
+
+    @InjectMocks
+    private PlaylistEntityMapper playlistEntityMapper;
 
     @Nested
     @DisplayName("toModel()")
