@@ -83,15 +83,13 @@ class ReviewServiceTest {
         @DisplayName("작성자가 본인의 리뷰를 수정하면 정상적으로 업데이트되고 저장된다")
         void withOwner_updatesAndSavesReview() {
             // given
-            // 1. Fixture로 이미 유효한(Content, Author가 포함된) 리뷰 객체 생성
             ReviewModel existingReview = ReviewModelFixture.create();
             UUID reviewId = existingReview.getId();
-
-            // 2. Fixture가 랜덤하게 생성한 Author의 ID를 가져옴 (이 ID로 요청하면 본인 확인 통과)
             UUID authorId = existingReview.getAuthor().getId();
 
             String newText = "수정된 내용";
-            double newRating = 5.0;
+            double originalRating = existingReview.getRating();
+            Double newRating = originalRating == 5.0 ? 4.0 : 5.0;
 
             given(reviewRepository.findById(reviewId)).willReturn(Optional.of(existingReview));
             given(reviewRepository.save(any(ReviewModel.class)))
@@ -106,6 +104,82 @@ class ReviewServiceTest {
             assertThat(updatedReview.getRating()).isEqualTo(newRating);
 
             then(reviewRepository).should().save(existingReview);
+            then(contentRepository).should().save(any(ContentModel.class));
+        }
+
+        @Test
+        @DisplayName("텍스트만 수정하면 텍스트만 업데이트되고 콘텐츠 평점은 업데이트되지 않는다")
+        void withOnlyText_updatesTextOnly() {
+            // given
+            ReviewModel existingReview = ReviewModelFixture.create();
+            UUID reviewId = existingReview.getId();
+            UUID authorId = existingReview.getAuthor().getId();
+
+            double originalRating = existingReview.getRating();
+            String newText = "수정된 내용";
+
+            given(reviewRepository.findById(reviewId)).willReturn(Optional.of(existingReview));
+            given(reviewRepository.save(any(ReviewModel.class)))
+                .willAnswer(invocation -> invocation.getArgument(0));
+
+            // when
+            ReviewModel updatedReview = reviewService.update(reviewId, authorId, newText, null);
+
+            // then
+            assertThat(updatedReview.getText()).isEqualTo(newText);
+            assertThat(updatedReview.getRating()).isEqualTo(originalRating);
+
+            then(reviewRepository).should().save(existingReview);
+            then(contentRepository).should(never()).save(any());
+        }
+
+        @Test
+        @DisplayName("평점만 수정하면 평점만 업데이트되고 콘텐츠 평점도 업데이트된다")
+        void withOnlyRating_updatesRatingOnly() {
+            // given
+            ReviewModel existingReview = ReviewModelFixture.create();
+            UUID reviewId = existingReview.getId();
+            UUID authorId = existingReview.getAuthor().getId();
+
+            String originalText = existingReview.getText();
+            double originalRating = existingReview.getRating();
+            Double newRating = originalRating == 5.0 ? 4.0 : 5.0;
+
+            given(reviewRepository.findById(reviewId)).willReturn(Optional.of(existingReview));
+            given(reviewRepository.save(any(ReviewModel.class)))
+                .willAnswer(invocation -> invocation.getArgument(0));
+
+            // when
+            ReviewModel updatedReview = reviewService.update(reviewId, authorId, null, newRating);
+
+            // then
+            assertThat(updatedReview.getText()).isEqualTo(originalText);
+            assertThat(updatedReview.getRating()).isEqualTo(newRating);
+
+            then(reviewRepository).should().save(existingReview);
+            then(contentRepository).should().save(any(ContentModel.class));
+        }
+
+        @Test
+        @DisplayName("같은 평점으로 수정하면 콘텐츠 평점은 업데이트되지 않는다")
+        void withSameRating_doesNotUpdateContentRating() {
+            // given
+            ReviewModel existingReview = ReviewModelFixture.create();
+            UUID reviewId = existingReview.getId();
+            UUID authorId = existingReview.getAuthor().getId();
+
+            double originalRating = existingReview.getRating();
+
+            given(reviewRepository.findById(reviewId)).willReturn(Optional.of(existingReview));
+            given(reviewRepository.save(any(ReviewModel.class)))
+                .willAnswer(invocation -> invocation.getArgument(0));
+
+            // when
+            reviewService.update(reviewId, authorId, null, originalRating);
+
+            // then
+            then(reviewRepository).should().save(existingReview);
+            then(contentRepository).should(never()).save(any());
         }
 
         @Test
@@ -162,7 +236,7 @@ class ReviewServiceTest {
             reviewService.delete(reviewId, authorId);
 
             // then
-            assertThat(existingReview.getDeletedAt()).isNotNull(); // 삭제 마킹 확인
+            assertThat(existingReview.getDeletedAt()).isNotNull();
             then(reviewRepository).should().save(existingReview);
         }
 

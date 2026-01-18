@@ -24,7 +24,6 @@ public class NotificationController implements NotificationApiSpec {
 
     private final NotificationFacade notificationFacade;
 
-    @Override
     @GetMapping
     public CursorResponse<NotificationResponse> getNotifications(
         @AuthenticationPrincipal MoplUserDetails userDetails,
@@ -33,7 +32,6 @@ public class NotificationController implements NotificationApiSpec {
         return notificationFacade.getNotifications(userDetails.userId(), request);
     }
 
-    @Override
     @DeleteMapping("/{notificationId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void readNotification(

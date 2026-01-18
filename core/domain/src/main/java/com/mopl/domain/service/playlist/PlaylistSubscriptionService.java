@@ -1,35 +1,65 @@
 package com.mopl.domain.service.playlist;
 
+import com.mopl.domain.exception.playlist.PlaylistSubscriptionAlreadyExistsException;
+import com.mopl.domain.exception.playlist.PlaylistSubscriptionNotFoundException;
+import com.mopl.domain.repository.playlist.PlaylistSubscriberCountRepository;
 import com.mopl.domain.repository.playlist.PlaylistSubscriberRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @RequiredArgsConstructor
 public class PlaylistSubscriptionService {
 
     private final PlaylistSubscriberRepository playlistSubscriberRepository;
+    private final PlaylistSubscriberCountRepository playlistSubscriberCountRepository;
 
-    public void subscribe(
+    public long getSubscriberCount(UUID playlistId) {
+        return playlistSubscriberCountRepository.getCount(playlistId);
+    }
+
+    public Map<UUID, Long> getSubscriberCounts(Collection<UUID> playlistIds) {
+        return playlistSubscriberCountRepository.getCounts(playlistIds);
+    }
+
+    public boolean isSubscribedByPlaylistIdAndSubscriberId(
         UUID playlistId,
         UUID subscriberId
     ) {
-        // 이미 구독 중이면 그냥 성공(멱등)
+        return playlistSubscriberRepository.existsByPlaylistIdAndSubscriberId(
+            playlistId,
+            subscriberId
+        );
+    }
+
+    public Set<UUID> findSubscribedPlaylistIds(UUID subscriberId, Collection<UUID> playlistIds) {
+        return playlistSubscriberRepository.findSubscribedPlaylistIds(
+            subscriberId,
+            playlistIds
+        );
+    }
+
+    public void subscribe(UUID playlistId, UUID subscriberId) {
         if (playlistSubscriberRepository.existsByPlaylistIdAndSubscriberId(playlistId,
             subscriberId)) {
-            return;
+            throw new PlaylistSubscriptionAlreadyExistsException(playlistId, subscriberId);
         }
 
-        // 아니면 구독 관계 저장
         playlistSubscriberRepository.save(playlistId, subscriberId);
+        playlistSubscriberCountRepository.increment(playlistId);
     }
 
-    public void unsubscribe(
-        UUID playlistId,
-        UUID subscriberId
-    ) {
-        // 구독이 없으면 그냥 성공(멱등)
-        playlistSubscriberRepository.deleteByPlaylistIdAndSubscriberId(playlistId, subscriberId);
+    public void unsubscribe(UUID playlistId, UUID subscriberId) {
+        boolean deleted = playlistSubscriberRepository.deleteByPlaylistIdAndSubscriberId(
+            playlistId,
+            subscriberId
+        );
+        if (!deleted) {
+            throw new PlaylistSubscriptionNotFoundException(playlistId, subscriberId);
+        }
+        playlistSubscriberCountRepository.decrement(playlistId);
     }
-
 }

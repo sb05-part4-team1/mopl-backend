@@ -18,15 +18,15 @@ public class ReviewRepositoryImpl implements ReviewRepository {
     private final ReviewEntityMapper reviewEntityMapper;
 
     @Override
+    public Optional<ReviewModel> findById(UUID reviewId) {
+        return jpaReviewRepository.findWithContentAndAuthorById(reviewId)
+            .map(reviewEntityMapper::toModel);
+    }
+
+    @Override
     public ReviewModel save(ReviewModel reviewModel) {
         ReviewEntity reviewEntity = reviewEntityMapper.toEntity(reviewModel);
         ReviewEntity savedReviewEntity = jpaReviewRepository.save(reviewEntity);
         return reviewEntityMapper.toModel(savedReviewEntity);
-    }
-
-    @Override
-    public Optional<ReviewModel> findById(UUID reviewId) {
-        return jpaReviewRepository.findByIdWithContentAndAuthor(reviewId)
-            .map(reviewEntityMapper::toModel);
     }
 }

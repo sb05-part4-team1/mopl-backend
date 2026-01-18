@@ -3,6 +3,7 @@ package com.mopl.api.interfaces.api.content;
 import com.mopl.domain.model.content.ContentModel;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,13 +26,13 @@ public class ContentSummaryMapper {
             model.getDescription(),
             model.getThumbnailUrl(),
             model.getTags(),
-            // TODO: 아래 수치 데이터들은 추후 도메인 로직 구현 시 실제 값으로 대체 필요
+            // TODO: Redis 활용하여 계산, 기존 ContentModel에서 제거
             averageRating,
             reviewCount
         );
     }
 
-    public List<ContentSummary> toSummaries(List<ContentModel> models) {
+    public List<ContentSummary> toSummaries(Collection<ContentModel> models) {
         if (models == null || models.isEmpty()) {
             return Collections.emptyList();
         }

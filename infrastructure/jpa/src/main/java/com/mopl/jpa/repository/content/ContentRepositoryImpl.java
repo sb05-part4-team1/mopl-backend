@@ -18,10 +18,9 @@ public class ContentRepositoryImpl implements ContentRepository {
     private final ContentEntityMapper contentEntityMapper;
 
     @Override
-    public ContentModel save(ContentModel contentModel) {
-        ContentEntity entity = contentEntityMapper.toEntity(contentModel);
-        ContentEntity saved = jpaContentRepository.save(entity);
-        return contentEntityMapper.toModel(saved);
+    public Optional<ContentModel> findById(UUID contentId) {
+        Optional<ContentEntity> entity = jpaContentRepository.findById(contentId);
+        return entity.map(contentEntityMapper::toModel);
     }
 
     @Override
@@ -30,8 +29,9 @@ public class ContentRepositoryImpl implements ContentRepository {
     }
 
     @Override
-    public Optional<ContentModel> findById(UUID contentId) {
-        Optional<ContentEntity> entity = jpaContentRepository.findById(contentId);
-        return entity.map(contentEntityMapper::toModel);
+    public ContentModel save(ContentModel contentModel) {
+        ContentEntity entity = contentEntityMapper.toEntity(contentModel);
+        ContentEntity saved = jpaContentRepository.save(entity);
+        return contentEntityMapper.toModel(saved);
     }
 }

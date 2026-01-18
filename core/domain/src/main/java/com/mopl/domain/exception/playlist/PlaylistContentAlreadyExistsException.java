@@ -5,10 +5,7 @@ import java.util.UUID;
 
 public class PlaylistContentAlreadyExistsException extends PlaylistException {
 
-    public PlaylistContentAlreadyExistsException(
-        UUID playlistId,
-        UUID contentId
-    ) {
+    public PlaylistContentAlreadyExistsException(UUID playlistId, UUID contentId) {
         super(
             PlaylistErrorCode.PLAYLIST_CONTENT_ALREADY_EXISTS,
             Map.of(

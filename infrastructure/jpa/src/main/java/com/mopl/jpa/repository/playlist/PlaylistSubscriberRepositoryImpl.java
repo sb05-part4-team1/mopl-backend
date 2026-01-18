@@ -8,6 +8,8 @@ import com.mopl.jpa.repository.user.JpaUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -19,34 +21,53 @@ public class PlaylistSubscriberRepositoryImpl implements PlaylistSubscriberRepos
     private final JpaUserRepository jpaUserRepository;
 
     @Override
-    public boolean existsByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId) {
-        return jpaPlaylistSubscriberRepository.existsByPlaylist_IdAndSubscriber_Id(
-            playlistId,
-            subscriberId
+    public Set<UUID> findAllPlaylistIds() {
+        return jpaPlaylistSubscriberRepository.findAllPlaylistIds();
+    }
+
+    @Override
+    public Set<UUID> findSubscribedPlaylistIds(UUID subscriberId, Collection<UUID> playlistIds) {
+        if (playlistIds.isEmpty()) {
+            return Set.of();
+        }
+        return jpaPlaylistSubscriberRepository.findPlaylistIdsBySubscriberIdAndPlaylistIdIn(
+            subscriberId,
+            playlistIds
         );
     }
 
     @Override
     public void save(UUID playlistId, UUID subscriberId) {
+        PlaylistEntity playlistReference = jpaPlaylistRepository.getReferenceById(playlistId);
+        UserEntity subscriberReference = jpaUserRepository.getReferenceById(subscriberId);
 
-        // FK 제약은 없지만, 참조 엔티티를 프록시로 잡아서 저장하는 방식 <- DB로 SELECT 쿼리 굳이 안나감
-        PlaylistEntity playlistRef = jpaPlaylistRepository.getReferenceById(playlistId);
-        UserEntity subscriberRef = jpaUserRepository.getReferenceById(subscriberId);
-
-        PlaylistSubscriberEntity entity = PlaylistSubscriberEntity.builder()
-            .playlist(playlistRef)
-            .subscriber(subscriberRef)
+        PlaylistSubscriberEntity playlistSubscriberEntity = PlaylistSubscriberEntity.builder()
+            .playlist(playlistReference)
+            .subscriber(subscriberReference)
             .build();
 
-        jpaPlaylistSubscriberRepository.save(entity);
+        jpaPlaylistSubscriberRepository.save(playlistSubscriberEntity);
     }
 
     @Override
-    public void deleteByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId) {
-        jpaPlaylistSubscriberRepository.deleteByPlaylist_IdAndSubscriber_Id(
+    public boolean deleteByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId) {
+        int deletedCount = jpaPlaylistSubscriberRepository.deleteByPlaylistIdAndSubscriberId(
+            playlistId,
+            subscriberId
+        );
+        return deletedCount > 0;
+    }
+
+    @Override
+    public boolean existsByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId) {
+        return jpaPlaylistSubscriberRepository.existsByPlaylistIdAndSubscriberId(
             playlistId,
             subscriberId
         );
     }
 
+    @Override
+    public long countByPlaylistId(UUID playlistId) {
+        return jpaPlaylistSubscriberRepository.countByPlaylistId(playlistId);
+    }
 }
