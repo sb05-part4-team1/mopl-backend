@@ -18,6 +18,7 @@ public class EmailService {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(
         "yyyy-MM-dd HH:mm:ss");
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     private final JavaMailSender mailSender;
 
     @Value("${spring.mail.username}")
