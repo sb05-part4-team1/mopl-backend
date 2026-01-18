@@ -98,7 +98,7 @@ class ReviewModelTest {
             ReviewModel review = ReviewModelFixture.create();
 
             String newText = "수정된 내용";
-            double newRating = 4.5;
+            Double newRating = 4.5;
 
             // when
             ReviewModel updatedReview = review.update(newText, newRating);
@@ -109,20 +109,53 @@ class ReviewModelTest {
         }
 
         @Test
-        @DisplayName("수정할 내용이 null이면 예외 발생")
-        void withNullText_throwsException() {
+        @DisplayName("텍스트만 수정하면 텍스트만 변경되고 평점은 유지된다")
+        void withOnlyText_updatesTextOnly() {
             // given
             ReviewModel review = ReviewModelFixture.create();
+            double originalRating = review.getRating();
 
-            // when & then
-            assertThatThrownBy(() -> review.update(null, 5.0))
-                .isInstanceOf(InvalidReviewDataException.class)
-                .satisfies(e -> {
-                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                    // Object -> String 형변환
-                    assertThat((String) ex.getDetails().get("detailMessage"))
-                        .isEqualTo("리뷰 내용은 null일 수 없습니다.");
-                });
+            String newText = "수정된 내용";
+
+            // when
+            ReviewModel updatedReview = review.update(newText, null);
+
+            // then
+            assertThat(updatedReview.getText()).isEqualTo(newText);
+            assertThat(updatedReview.getRating()).isEqualTo(originalRating);
+        }
+
+        @Test
+        @DisplayName("평점만 수정하면 평점만 변경되고 텍스트는 유지된다")
+        void withOnlyRating_updatesRatingOnly() {
+            // given
+            ReviewModel review = ReviewModelFixture.create();
+            String originalText = review.getText();
+
+            Double newRating = 4.5;
+
+            // when
+            ReviewModel updatedReview = review.update(null, newRating);
+
+            // then
+            assertThat(updatedReview.getText()).isEqualTo(originalText);
+            assertThat(updatedReview.getRating()).isEqualTo(newRating);
+        }
+
+        @Test
+        @DisplayName("둘 다 null이면 아무것도 변경되지 않는다")
+        void withBothNull_noChanges() {
+            // given
+            ReviewModel review = ReviewModelFixture.create();
+            String originalText = review.getText();
+            double originalRating = review.getRating();
+
+            // when
+            ReviewModel updatedReview = review.update(null, null);
+
+            // then
+            assertThat(updatedReview.getText()).isEqualTo(originalText);
+            assertThat(updatedReview.getRating()).isEqualTo(originalRating);
         }
 
         @Test
@@ -136,7 +169,6 @@ class ReviewModelTest {
                 .isInstanceOf(InvalidReviewDataException.class)
                 .satisfies(e -> {
                     InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                    // Object -> String 형변환 후 contains 사용
                     assertThat((String) ex.getDetails().get("detailMessage"))
                         .contains("평점은 0.0 이상 5.0 이하만 가능합니다");
                 });

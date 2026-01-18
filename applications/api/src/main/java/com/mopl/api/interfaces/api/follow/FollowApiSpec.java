@@ -65,8 +65,10 @@ public interface FollowApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    ResponseEntity<FollowResponse> follow(@Parameter(hidden = true) MoplUserDetails userDetails,
-        FollowRequest request);
+    ResponseEntity<FollowResponse> follow(
+        @Parameter(hidden = true) MoplUserDetails userDetails,
+        FollowRequest request
+    );
 
     @Operation(summary = "팔로우 취소")
     @ApiResponse(

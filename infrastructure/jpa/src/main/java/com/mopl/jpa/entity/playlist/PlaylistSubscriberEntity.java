@@ -9,13 +9,17 @@ import jakarta.persistence.ForeignKey;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@Table(name = "playlist_subscribers")
+@Table(
+    name = "playlist_subscribers",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"playlist_id", "subscriber_id"})
+)
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

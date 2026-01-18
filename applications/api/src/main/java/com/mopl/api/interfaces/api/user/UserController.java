@@ -83,4 +83,13 @@ public class UserController implements UserApiSpec {
     ) {
         userFacade.updateLocked(userDetails.userId(), userId, request);
     }
+
+    @PatchMapping("/{userId}/password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updatePassword(
+        @PathVariable UUID userId,
+        @RequestBody @Valid PasswordUpdateRequest request
+    ) {
+        userFacade.updatePassword(userId, request.password());
+    }
 }

@@ -19,7 +19,8 @@ public enum NotificationSortFieldJpa implements SortField<Comparable<?>> {
     CREATED_AT(
         NotificationSortField.createdAt,
         cast(notificationEntity.createdAt),
-        NotificationEntity::getCreatedAt, value -> ((Instant) value).toString(),
+        NotificationEntity::getCreatedAt,
+        Object::toString,
         Instant::parse
     );
 

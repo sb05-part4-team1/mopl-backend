@@ -1,10 +1,18 @@
 package com.mopl.api.interfaces.api.follow;
 
-import java.util.UUID;
-
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.UUID;
+
+@Schema(
+    example = """
+        {
+          "followeeId": "550e8400-e29b-41d4-a716-446655440000"
+        }
+        """
+)
 public record FollowRequest(
-    @NotNull(message = "팔로우할 사용자 ID는 필수입니다.") UUID followeeId
+    @NotNull UUID followeeId
 ) {
 }

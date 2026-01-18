@@ -1,19 +1,13 @@
 package com.mopl.jpa.entity.follow;
 
-import org.springframework.stereotype.Component;
-
 import com.mopl.domain.model.follow.FollowModel;
 import com.mopl.jpa.entity.user.UserEntity;
+import org.springframework.stereotype.Component;
 
-import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
+import java.util.UUID;
 
 @Component
-@RequiredArgsConstructor
 public class FollowEntityMapper {
-
-    // Proxy를 사용해서 성능 최적화하기
-    private final EntityManager em;
 
     public FollowModel toModel(FollowEntity followEntity) {
         if (followEntity == null) {
@@ -30,13 +24,22 @@ public class FollowEntityMapper {
     }
 
     public FollowEntity toEntity(FollowModel followModel) {
-
-        UserEntity followee = em.getReference(UserEntity.class, followModel.getFolloweeId());
-        UserEntity follower = em.getReference(UserEntity.class, followModel.getFollowerId());
+        if (followModel == null) {
+            return null;
+        }
 
         return FollowEntity.builder()
-            .followee(followee)
-            .follower(follower)
+            .id(followModel.getId())
+            .createdAt(followModel.getCreatedAt())
+            .deletedAt(followModel.getDeletedAt())
+            .followee(toUserEntity(followModel.getFolloweeId()))
+            .follower(toUserEntity(followModel.getFollowerId()))
             .build();
+    }
+
+    private UserEntity toUserEntity(UUID userId) {
+        return userId != null
+            ? UserEntity.builder().id(userId).build()
+            : null;
     }
 }

@@ -756,4 +756,105 @@ class UserControllerTest {
                 .andExpect(status().isBadRequest());
         }
     }
+
+    @Nested
+    @DisplayName("PATCH /api/users/{userId}/password - 비밀번호 변경")
+    class UpdatePasswordTest {
+
+        @Test
+        @DisplayName("유효한 요청 시 204 No Content 응답")
+        void withValidRequest_returns204NoContent() throws Exception {
+            // given
+            UUID userId = UUID.randomUUID();
+            PasswordUpdateRequest request = new PasswordUpdateRequest("newP@ssw0rd!");
+
+            willDoNothing().given(userFacade).updatePassword(eq(userId), eq("newP@ssw0rd!"));
+
+            // when & then
+            mockMvc.perform(patch("/api/users/{userId}/password", userId)
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNoContent());
+
+            then(userFacade).should().updatePassword(eq(userId), eq("newP@ssw0rd!"));
+        }
+
+        @Test
+        @DisplayName("비밀번호가 빈 문자열이면 400 Bad Request 응답")
+        void withBlankPassword_returns400BadRequest() throws Exception {
+            // given
+            UUID userId = UUID.randomUUID();
+            Map<String, String> requestBody = new HashMap<>();
+            requestBody.put("password", "");
+
+            // when & then
+            mockMvc.perform(patch("/api/users/{userId}/password", userId)
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody)))
+                .andExpect(status().isBadRequest());
+
+            then(userFacade).should(never()).updatePassword(any(), any());
+        }
+
+        @Test
+        @DisplayName("비밀번호가 null이면 400 Bad Request 응답")
+        void withNullPassword_returns400BadRequest() throws Exception {
+            // given
+            UUID userId = UUID.randomUUID();
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("password", null);
+
+            // when & then
+            mockMvc.perform(patch("/api/users/{userId}/password", userId)
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody)))
+                .andExpect(status().isBadRequest());
+
+            then(userFacade).should(never()).updatePassword(any(), any());
+        }
+
+        @Test
+        @DisplayName("비밀번호가 8자 미만이면 400 Bad Request 응답")
+        void withPasswordLessThan8Chars_returns400BadRequest() throws Exception {
+            // given
+            UUID userId = UUID.randomUUID();
+            PasswordUpdateRequest request = new PasswordUpdateRequest("short");
+
+            // when & then
+            mockMvc.perform(patch("/api/users/{userId}/password", userId)
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+            then(userFacade).should(never()).updatePassword(any(), any());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 사용자 ID로 요청 시 404 Not Found 응답")
+        void withNonExistingUserId_returns404NotFound() throws Exception {
+            // given
+            UUID nonExistingUserId = UUID.randomUUID();
+            PasswordUpdateRequest request = new PasswordUpdateRequest("newP@ssw0rd!");
+
+            willThrow(UserNotFoundException.withId(nonExistingUserId))
+                .given(userFacade)
+                .updatePassword(eq(nonExistingUserId), eq("newP@ssw0rd!"));
+
+            // when & then
+            mockMvc.perform(patch("/api/users/{userId}/password", nonExistingUserId)
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+        }
+    }
 }

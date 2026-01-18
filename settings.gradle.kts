@@ -12,6 +12,7 @@ include(
     ":infrastructure:storage",
     ":infrastructure:cache",
     ":infrastructure:redis",
+    ":infrastructure:mail",
     // ":infrastructure:kafka",
     // ":infrastructure:external",
     ":shared:jackson",

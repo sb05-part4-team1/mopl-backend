@@ -16,6 +16,7 @@ spring:
       - storage.yaml
       - redis.yaml
       - cache.yaml
+      - mail.yaml
   threads:
     virtual:
       enabled: true

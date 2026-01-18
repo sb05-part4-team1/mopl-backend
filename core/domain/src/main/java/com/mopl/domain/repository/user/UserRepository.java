@@ -7,11 +7,11 @@ import java.util.UUID;
 
 public interface UserRepository {
 
-    UserModel save(UserModel userModel);
-
     Optional<UserModel> findById(UUID userId);
 
     Optional<UserModel> findByEmail(String email);
 
     boolean existsByEmail(String email);
+
+    UserModel save(UserModel userModel);
 }
