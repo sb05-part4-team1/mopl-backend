@@ -1,0 +1,24 @@
+server:
+  port: 8081
+
+spring:
+  main:
+    web-application-type: servlet
+  application:
+    name: mopl-websocket
+  profiles:
+    active: local
+  config:
+    import:
+      - optional:file:.env[.properties]
+      - jpa.yaml
+      - security.yaml
+      - storage.yaml
+      - redis.yaml
+      - cache.yaml
+  threads:
+    virtual:
+      enabled: true
+
+  cache:
+    type: redis
