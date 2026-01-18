@@ -42,14 +42,16 @@ public class ContentWebSocketFacade {
 
             dto = watchingSessionResponseMapper.toDto(session, watcher, content);
         } else {
-            Optional<WatchingSessionModel> sessionOpt = watchingSessionService.findByUserIdAndContentId(userId, contentId);
+            Optional<WatchingSessionModel> sessionOpt = watchingSessionService
+                .findByUserIdAndContentId(userId, contentId);
 
             if (sessionOpt.isPresent()) {
                 WatchingSessionModel session = sessionOpt.get();
 
                 watchingSessionService.delete(session);
 
-                dto = watchingSessionResponseMapper.toDto(session, session.getWatcher(), session.getContent());
+                dto = watchingSessionResponseMapper.toDto(session, session.getWatcher(), session
+                    .getContent());
             }
         }
         long watcherCount = watchingSessionService.getWatcherCount(contentId);

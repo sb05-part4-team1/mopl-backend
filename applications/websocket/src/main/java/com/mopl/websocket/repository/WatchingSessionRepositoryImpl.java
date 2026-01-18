@@ -1,8 +1,5 @@
 package com.mopl.websocket.repository;
 
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,7 +28,8 @@ public class WatchingSessionRepositoryImpl implements WatchingSessionRepository 
 
     @Override
     public void delete(WatchingSessionModel model) {
-        redisTemplate.opsForSet().remove(COUNT_KEY_PREFIX + model.getContent().getId(), model.getWatcher().getId().toString());
+        redisTemplate.opsForSet().remove(COUNT_KEY_PREFIX + model.getContent().getId(), model
+            .getWatcher().getId().toString());
     }
 
     @Override
@@ -42,7 +40,8 @@ public class WatchingSessionRepositoryImpl implements WatchingSessionRepository 
 
     @Override
     public Optional<WatchingSessionModel> findByUserIdAndContentId(UUID userId, UUID contentId) {
-        Boolean isMember = redisTemplate.opsForSet().isMember(COUNT_KEY_PREFIX + contentId, userId.toString());
+        Boolean isMember = redisTemplate.opsForSet().isMember(COUNT_KEY_PREFIX + contentId, userId
+            .toString());
 
         if (Boolean.TRUE.equals(isMember)) {
             UserModel user = UserModel.builder().id(userId).build();
