@@ -45,13 +45,6 @@ public class PlaylistCacheService {
         playlistRepository.save(playlistModel);
     }
 
-    @Caching(evict = {
-        @CacheEvict(cacheNames = CacheName.PLAYLISTS, key = "#playlistId"),
-        @CacheEvict(cacheNames = CacheName.PLAYLIST_CONTENTS, key = "#playlistId")
-    })
-    public void evictPlaylist(UUID playlistId) {
-    }
-
     @CacheEvict(cacheNames = CacheName.PLAYLIST_CONTENTS, key = "#playlistId")
     public void evictContents(UUID playlistId) {
     }
