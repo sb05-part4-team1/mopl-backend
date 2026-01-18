@@ -12,7 +12,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
     "com.mopl.jpa",
     "com.mopl.storage",
     "com.mopl.redis",
-    "com.mopl.cache"
+    "com.mopl.cache",
+    "com.mopl.mail"
 })
 public class ApiApplication {
 

@@ -1,7 +1,9 @@
 package com.mopl.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mopl.domain.repository.user.TemporaryPasswordRepository;
 import com.mopl.domain.service.user.UserService;
+import com.mopl.security.authentication.TemporaryPasswordAuthenticationProvider;
 import com.mopl.security.authentication.handler.SignInFailureHandler;
 import com.mopl.security.authentication.handler.SignInSuccessHandler;
 import com.mopl.security.authentication.handler.SignOutHandler;
@@ -20,7 +22,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class SecurityBeanConfig {
@@ -118,5 +122,18 @@ public class SecurityBeanConfig {
         UserService userService
     ) {
         return new TokenRefreshService(jwtProvider, jwtCookieProvider, jwtRegistry, userService);
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider(
+            UserDetailsService userDetailsService,
+            PasswordEncoder passwordEncoder,
+            TemporaryPasswordRepository temporaryPasswordRepository
+    ) {
+        TemporaryPasswordAuthenticationProvider provider =
+                new TemporaryPasswordAuthenticationProvider(temporaryPasswordRepository, passwordEncoder);
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return provider;
     }
 }
