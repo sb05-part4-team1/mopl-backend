@@ -69,11 +69,7 @@ public class RedisPlaylistSubscriberCountRepository implements PlaylistSubscribe
     @Override
     public void decrement(UUID playlistId) {
         String key = buildKey(playlistId);
-        Long currentValue = redisTemplate.opsForValue().decrement(key);
-
-        if (currentValue != null && currentValue < 0) {
-            redisTemplate.opsForValue().set(key, 0L);
-        }
+        redisTemplate.opsForValue().decrement(key);
     }
 
     private long parseCount(Object value) {
