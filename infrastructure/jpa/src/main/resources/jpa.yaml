@@ -46,4 +46,4 @@ spring:
 mopl:
   watching-session:
     repository:
-      type: stub  # stub | redis
+      type: redis  # stub | redis
