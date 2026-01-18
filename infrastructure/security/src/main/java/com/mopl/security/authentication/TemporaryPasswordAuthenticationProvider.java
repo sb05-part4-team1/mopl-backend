@@ -22,8 +22,8 @@ public class TemporaryPasswordAuthenticationProvider extends DaoAuthenticationPr
 
     @Override
     protected void additionalAuthenticationChecks(
-            UserDetails userDetails,
-            UsernamePasswordAuthenticationToken authentication
+        UserDetails userDetails,
+        UsernamePasswordAuthenticationToken authentication
     ) throws AuthenticationException {
         if (authentication.getCredentials() == null) {
             throw new BadCredentialsException("비밀번호가 입력되지 않았습니다.");
@@ -52,8 +52,9 @@ public class TemporaryPasswordAuthenticationProvider extends DaoAuthenticationPr
         log.debug("임시 비밀번호 존재 여부: email={}, exists={}", email, tempPassword.isPresent());
 
         boolean temporaryPasswordValid = tempPassword
-                .map(encodedTempPassword -> passwordEncoder.matches(presentedPassword, encodedTempPassword))
-                .orElse(false);
+            .map(encodedTempPassword -> passwordEncoder.matches(presentedPassword,
+                encodedTempPassword))
+            .orElse(false);
         log.debug("임시 비밀번호 검증: email={}, valid={}", email, temporaryPasswordValid);
 
         if (temporaryPasswordValid) {

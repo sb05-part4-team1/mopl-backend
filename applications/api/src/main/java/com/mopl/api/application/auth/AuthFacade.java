@@ -1,8 +1,5 @@
 package com.mopl.api.application.auth;
 
-import java.security.SecureRandom;
-import java.time.LocalDateTime;
-
 import com.mopl.domain.repository.user.TemporaryPasswordRepository;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.mail.service.EmailService;
@@ -10,13 +7,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
+
 @Component
 @RequiredArgsConstructor
 public class AuthFacade {
 
     private static final int TEMP_PASSWORD_LENGTH = 12;
-    private static final String TEMP_PASSWORD_CHARS =
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%";
+    private static final String TEMP_PASSWORD_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+        + "0123456789!@#$%";
     private static final int TEMP_PASSWORD_EXPIRY_MINUTES = 3;
 
     private final UserService userService;

@@ -1,8 +1,11 @@
 package com.mopl.api.interfaces.api.auth;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mopl.api.application.auth.AuthFacade;
 import com.mopl.api.interfaces.api.ApiControllerAdvice;
 import com.mopl.domain.exception.auth.AccountLockedException;
 import com.mopl.domain.exception.auth.InvalidTokenException;
+import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.security.jwt.dto.JwtResponse;
@@ -18,9 +21,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
@@ -37,6 +44,12 @@ class AuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockBean
+    private AuthFacade authFacade;
 
     @MockBean
     private TokenRefreshService tokenRefreshService;
@@ -117,6 +130,76 @@ class AuthControllerTest {
             mockMvc.perform(post("/api/auth/refresh")
                 .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken)))
                 .andExpect(status().isForbidden());
+        }
+    }
+
+    @Nested
+    @DisplayName("POST /api/auth/reset-password")
+    class ResetPassword {
+
+        @Test
+        @DisplayName("유효한 이메일로 비밀번호 초기화 요청 시 204 No Content 반환")
+        void withValidEmail_returns204NoContent() throws Exception {
+            // given
+            String email = "test@example.com";
+            PasswordResetRequest request = new PasswordResetRequest(email);
+
+            willDoNothing().given(authFacade).resetPassword(email);
+
+            // when & then
+            mockMvc.perform(post("/api/auth/reset-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNoContent());
+
+            then(authFacade).should().resetPassword(email);
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 이메일로 요청 시 404 Not Found 반환")
+        void withNonExistentEmail_returns404NotFound() throws Exception {
+            // given
+            String email = "nonexistent@example.com";
+            PasswordResetRequest request = new PasswordResetRequest(email);
+
+            willThrow(UserNotFoundException.withEmail(email)).given(authFacade).resetPassword(
+                email);
+
+            // when & then
+            mockMvc.perform(post("/api/auth/reset-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("이메일이 빈 문자열이면 400 Bad Request 반환")
+        void withBlankEmail_returns400BadRequest() throws Exception {
+            // given
+            PasswordResetRequest request = new PasswordResetRequest("");
+
+            // when & then
+            mockMvc.perform(post("/api/auth/reset-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+            then(authFacade).shouldHaveNoInteractions();
+        }
+
+        @Test
+        @DisplayName("이메일이 null이면 400 Bad Request 반환")
+        void withNullEmail_returns400BadRequest() throws Exception {
+            // given
+            String requestBody = "{}";
+
+            // when & then
+            mockMvc.perform(post("/api/auth/reset-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isBadRequest());
+
+            then(authFacade).shouldHaveNoInteractions();
         }
     }
 }

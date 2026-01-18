@@ -126,12 +126,12 @@ public class SecurityBeanConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider(
-            UserDetailsService userDetailsService,
-            PasswordEncoder passwordEncoder,
-            TemporaryPasswordRepository temporaryPasswordRepository
+        UserDetailsService userDetailsService,
+        PasswordEncoder passwordEncoder,
+        TemporaryPasswordRepository temporaryPasswordRepository
     ) {
-        TemporaryPasswordAuthenticationProvider provider =
-                new TemporaryPasswordAuthenticationProvider(temporaryPasswordRepository, passwordEncoder);
+        TemporaryPasswordAuthenticationProvider provider = new TemporaryPasswordAuthenticationProvider(
+            temporaryPasswordRepository, passwordEncoder);
         provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder);
         return provider;
