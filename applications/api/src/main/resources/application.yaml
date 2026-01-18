@@ -6,8 +6,10 @@ spring:
     web-application-type: servlet
   application:
     name: mopl-api
+
   profiles:
     active: local
+
   config:
     import:
       - optional:file:.env[.properties]
@@ -16,9 +18,11 @@ spring:
       - storage.yaml
       - redis.yaml
       - cache.yaml
+
   threads:
     virtual:
       enabled: true
+
   servlet:
     multipart:
       max-file-size: 10MB
