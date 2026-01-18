@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/conversations")
 @RequiredArgsConstructor
-public class ConversationController {
+public class ConversationController implements ConversationApiSpec {
 
     private final UserFacade userFacade;
     private final UserSummaryMapper userSummaryMapper;
