@@ -30,25 +30,17 @@ public class ContentWebSocketFacade {
     private final UserSummaryMapper userSummaryMapper;
 
     public WatchingSessionChange updateSession(UUID contentId, UUID userId, ChangeType type) {
-        WatchingSessionDto dto = null;
+        UserModel watcher = userService.getById(userId);
+        ContentModel content = contentService.getById(contentId);
+        WatchingSessionModel session = WatchingSessionModel.create(watcher, content);
 
         if (type == ChangeType.JOIN) {
-            UserModel watcher = userService.getById(userId);
-            ContentModel content = contentService.getById(contentId);
-
-            WatchingSessionModel session = WatchingSessionModel.create(watcher, content);
             watchingSessionService.create(session);
-
-            dto = watchingSessionResponseMapper.toDto(session, watcher, content);
         } else {
-            UserModel watcher = UserModel.builder().id(userId).build();
-            ContentModel content = ContentModel.builder().id(contentId).build();
-            WatchingSessionModel session = WatchingSessionModel.create(watcher, content);
-
             watchingSessionService.delete(session);
-
-            dto = watchingSessionResponseMapper.toDto(session, watcher, content);
         }
+
+        WatchingSessionDto dto = watchingSessionResponseMapper.toDto(session, watcher, content);
         long watcherCount = watchingSessionService.getWatcherCount(contentId);
 
         return new WatchingSessionChange(type, dto, watcherCount);
