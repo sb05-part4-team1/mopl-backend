@@ -1,8 +1,6 @@
 package com.mopl.api.interfaces.api.conversation;
 
 import com.mopl.api.application.conversation.ConversationFacade;
-import com.mopl.api.application.user.UserFacade;
-import com.mopl.api.interfaces.api.user.UserSummaryMapper;
 import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.repository.conversation.ConversationQueryRequest;
 import com.mopl.domain.repository.conversation.DirectMessageQueryRequest;
@@ -26,12 +24,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ConversationController implements ConversationApiSpec {
 
-    private final UserFacade userFacade;
-    private final UserSummaryMapper userSummaryMapper;
     private final ConversationFacade conversationFacade;
     private final ConversationResponseMapper conversationResponseMapper;
 
-    @GetMapping("{conversationId}/direct-messages")
+    @GetMapping("/{conversationId}/direct-messages")
     public CursorResponse<DirectMessageResponse> getDirectMessages(
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable("conversationId") UUID conversationId,
@@ -43,7 +39,7 @@ public class ConversationController implements ConversationApiSpec {
 
     @GetMapping
     public CursorResponse<ConversationResponse> getConversations(
-        @AuthenticationPrincipal MoplUserDetails userDetails, //userId, role이 들어있음.
+        @AuthenticationPrincipal MoplUserDetails userDetails,
         @ModelAttribute ConversationQueryRequest request
     ) {
 
@@ -52,7 +48,7 @@ public class ConversationController implements ConversationApiSpec {
 
     @GetMapping("/with")
     public ConversationResponse findByWith(
-        @AuthenticationPrincipal MoplUserDetails userDetails, //userId, role이 들어있음.
+        @AuthenticationPrincipal MoplUserDetails userDetails,
         @RequestParam UUID userId
     ) {
         ConversationModel conversationModel = conversationFacade.getConversationByWith(userDetails
@@ -63,7 +59,7 @@ public class ConversationController implements ConversationApiSpec {
     }
 
     @PostMapping("/{conversationId}/direct-messages/{directMessageId}/read")
-    public void directMessageRead(
+    public void readDirectMessage(
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable("conversationId") UUID conversationId,
         @PathVariable("directMessageId") UUID directMessageId
@@ -75,7 +71,7 @@ public class ConversationController implements ConversationApiSpec {
 
     @GetMapping("/{conversationId}")
     public ConversationResponse findConversationById(
-        @AuthenticationPrincipal MoplUserDetails userDetails, //userId, role이 들어있음.
+        @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable("conversationId") UUID conversationId
     ) {
         ConversationModel conversationModel = conversationFacade.getConversation(conversationId,
@@ -86,7 +82,7 @@ public class ConversationController implements ConversationApiSpec {
 
     @PostMapping
     public ConversationResponse createConversation(
-        @AuthenticationPrincipal MoplUserDetails userDetails, //userId, role이 들어있음.
+        @AuthenticationPrincipal MoplUserDetails userDetails,
         @Valid @RequestBody ConversationCreateRequest request
     ) {
 

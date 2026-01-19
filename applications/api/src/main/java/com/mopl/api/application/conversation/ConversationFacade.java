@@ -22,8 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @RequiredArgsConstructor
 public class ConversationFacade {
-    //controller에서 받은 데이터를 service로 전달만 시키는 곳, 비즈니스 로직은 작성하지 않는다.
-
     private final ConversationService conversationService;
     private final UserService userService;
     private final ConversationResponseMapper conversationResponseMapper;
@@ -41,14 +39,14 @@ public class ConversationFacade {
         conversationService.directMessageRead(directMessageModel, readStatusModels);
     }
 
-    @Transactional
+
     public ConversationModel getConversationByWith(UUID userId, UUID withId) {
 
         return conversationService.getConversationByWith(userId, withId);
 
     }
 
-    @Transactional
+
     public CursorResponse<DirectMessageResponse> getAllDirectMessage(
         UUID conversationId,
         DirectMessageQueryRequest request,
@@ -59,7 +57,7 @@ public class ConversationFacade {
 
     }
 
-    @Transactional
+
     public CursorResponse<ConversationResponse> getAllConversation(
         ConversationQueryRequest request,
         UUID userId
@@ -72,14 +70,14 @@ public class ConversationFacade {
     @Transactional
     public ConversationModel createConversation(ConversationCreateRequest request, UUID userId) {
 
-        UserModel withUserModel = userService.getById(request.withUserId()); //나중에 더 이상 사용되지 않으면 변수는 없애기
+        UserModel withUserModel = userService.getById(request.withUserId());
         UserModel requesterUserModel = userService.getById(userId);
         ConversationModel conversationModel = ConversationModel.create();
 
         return conversationService.create(conversationModel, requesterUserModel, withUserModel);
     }
 
-    @Transactional
+
     public ConversationModel getConversation(UUID conversationId, UUID userId) {
 
         return conversationService.getConversation(conversationId, userId);

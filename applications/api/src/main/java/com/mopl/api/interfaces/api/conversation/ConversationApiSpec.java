@@ -84,7 +84,7 @@ public interface ConversationApiSpec {
         summary = "메시지 읽음 처리",
         description = "특정 메시지를 읽음 처리합니다."
     )
-    void directMessageRead(
+    void readDirectMessage(
         @Parameter(hidden = true) MoplUserDetails userDetails,
 
         @Parameter(description = "대화 ID", required = true) @PathVariable UUID conversationId,

@@ -7,6 +7,7 @@ dependencies {
     implementation(project(":infrastructure:redis"))
     implementation(project(":infrastructure:cache"))
     implementation(project(":shared:jackson"))
+    implementation(project(":shared:logging"))
     implementation(project(":applications:sse"))
 
     // web
