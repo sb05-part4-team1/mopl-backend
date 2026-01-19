@@ -74,11 +74,6 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
             }
         }
 
-        else if (accessor.getUser() != null) {
-            Authentication authentication = (Authentication) accessor.getUser();
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        }
-
         return message;
     }
 }
