@@ -43,16 +43,15 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         response.addCookie(cookieProvider.createRefreshTokenCookie(jwtInformation.refreshToken()));
 
-        String redirectUrl = buildRedirectUrl(jwtInformation.accessToken());
-        log.info("OAuth2 로그인 성공: userId={}, redirectUrl={}", userDetails.userId(), redirectUrl);
+        String redirectUrl = buildRedirectUrl();
+        log.info("OAuth2 로그인 성공: userId={}", userDetails.userId());
 
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 
-    private String buildRedirectUrl(String accessToken) {
+    private String buildRedirectUrl() {
         return UriComponentsBuilder.fromUriString(oAuth2Properties.frontendRedirectUri())
-            .path("/#/")
-            .queryParam("token", accessToken)
+            .path("/#/contents")
             .build()
             .toUriString();
     }
