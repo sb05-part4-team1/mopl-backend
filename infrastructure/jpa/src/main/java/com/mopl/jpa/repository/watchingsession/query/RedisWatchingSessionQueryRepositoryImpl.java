@@ -5,6 +5,7 @@ import com.mopl.domain.repository.watchingsession.WatchingSessionQueryRepository
 import com.mopl.domain.repository.watchingsession.WatchingSessionQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
+import com.mopl.domain.support.redis.WatchingSessionRedisKeys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
@@ -25,16 +26,12 @@ public class RedisWatchingSessionQueryRepositoryImpl implements WatchingSessionQ
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    private static final String SESSION_KEY_PREFIX = "ws:session:";                 // ws:session:{sessionId}
-    private static final String CONTENT_SESSIONS_ZSET_PREFIX = "ws:content:";       // ws:content:{contentId}:sessions
-    private static final String CONTENT_SESSIONS_ZSET_SUFFIX = ":sessions";
-
     @Override
     public CursorResponse<WatchingSessionModel> findByContentId(
-        UUID contentId,
-        WatchingSessionQueryRequest request
+            UUID contentId,
+            WatchingSessionQueryRequest request
     ) {
-        String zsetKey = contentSessionsZsetKey(contentId);
+        String zsetKey = WatchingSessionRedisKeys.contentSessionsZsetKey(contentId);
 
         // 1) totalCount 계산
         long totalCount = countTotal(zsetKey, request.watcherNameLike());
@@ -50,8 +47,8 @@ public class RedisWatchingSessionQueryRepositoryImpl implements WatchingSessionQ
 
         // 4) limit+1로 hasNext 판단
         List<WatchingSessionModel> pagePlusOne = afterCursor.stream()
-            .limit((long) limit + 1)
-            .toList();
+                .limit((long) limit + 1)
+                .toList();
 
         boolean hasNext = pagePlusOne.size() > limit;
         List<WatchingSessionModel> result = hasNext ? pagePlusOne.subList(0, limit) : pagePlusOne;
@@ -62,13 +59,13 @@ public class RedisWatchingSessionQueryRepositoryImpl implements WatchingSessionQ
 
         if (!hasNext) {
             return CursorResponse.of(
-                result,
-                null,
-                null,
-                false,
-                totalCount,
-                "createdAt",
-                request.sortDirection()
+                    result,
+                    null,
+                    null,
+                    false,
+                    totalCount,
+                    "createdAt",
+                    request.sortDirection()
             );
         }
 
@@ -77,20 +74,20 @@ public class RedisWatchingSessionQueryRepositoryImpl implements WatchingSessionQ
         UUID nextIdAfter = last.getId();
 
         return CursorResponse.of(
-            result,
-            nextCursor,
-            nextIdAfter,
-            true,
-            totalCount,
-            "createdAt",
-            request.sortDirection()
+                result,
+                nextCursor,
+                nextIdAfter,
+                true,
+                totalCount,
+                "createdAt",
+                request.sortDirection()
         );
     }
 
     private List<WatchingSessionModel> fetchCandidates(
-        String zsetKey,
-        WatchingSessionQueryRequest request,
-        int fetchSize
+            String zsetKey,
+            WatchingSessionQueryRequest request,
+            int fetchSize
     ) {
         SortDirection direction = request.sortDirection();
 
@@ -122,7 +119,7 @@ public class RedisWatchingSessionQueryRepositoryImpl implements WatchingSessionQ
                 continue;
             }
 
-            Object stored = redisTemplate.opsForValue().get(sessionKey(sessionId));
+            Object stored = redisTemplate.opsForValue().get(WatchingSessionRedisKeys.sessionKey(sessionId));
             if (stored instanceof WatchingSessionModel model) {
                 // watcherNameLike 필터는 Redis에서 못하니 여기서 처리
                 if (watcherNameLike(model, request.watcherNameLike())) {
@@ -133,14 +130,14 @@ public class RedisWatchingSessionQueryRepositoryImpl implements WatchingSessionQ
 
         // 혹시 Redis 정렬/조회 특성상 순서가 흔들릴 여지가 있어 createdAt + id로 한번 더 정렬해줌
         return models.stream()
-            .sorted((a, b) -> compareByCreatedAtThenId(a, b, direction))
-            .toList();
+                .sorted((a, b) -> compareByCreatedAtThenId(a, b, direction))
+                .toList();
     }
 
     private Set<ZSetOperations.TypedTuple<Object>> fetchFromStart(
-        String zsetKey,
-        SortDirection direction,
-        int fetchSize
+            String zsetKey,
+            SortDirection direction,
+            int fetchSize
     ) {
         if (direction.isAscending()) {
             return redisTemplate.opsForZSet().rangeWithScores(zsetKey, 0, fetchSize - 1);
@@ -149,27 +146,37 @@ public class RedisWatchingSessionQueryRepositoryImpl implements WatchingSessionQ
     }
 
     private Set<ZSetOperations.TypedTuple<Object>> fetchFromCursorScore(
-        String zsetKey,
-        SortDirection direction,
-        Instant cursorInstant,
-        int fetchSize
+            String zsetKey,
+            SortDirection direction,
+            Instant cursorInstant,
+            int fetchSize
     ) {
         double cursorScore = cursorInstant.toEpochMilli();
 
         if (direction.isAscending()) {
             // cursorScore 이상을 가져와서 idAfter tie-break는 applyCursor에서 처리
-            return redisTemplate.opsForZSet().rangeByScoreWithScores(zsetKey, cursorScore,
-                Double.POSITIVE_INFINITY, 0, fetchSize);
+            return redisTemplate.opsForZSet().rangeByScoreWithScores(
+                    zsetKey,
+                    cursorScore,
+                    Double.POSITIVE_INFINITY,
+                    0,
+                    fetchSize
+            );
         }
 
         // DESC: cursorScore 이하를 역순으로 가져옴
-        return redisTemplate.opsForZSet().reverseRangeByScoreWithScores(zsetKey, cursorScore,
-            Double.NEGATIVE_INFINITY, 0, fetchSize);
+        return redisTemplate.opsForZSet().reverseRangeByScoreWithScores(
+                zsetKey,
+                cursorScore,
+                Double.NEGATIVE_INFINITY,
+                0,
+                fetchSize
+        );
     }
 
     private List<WatchingSessionModel> applyCursor(
-        List<WatchingSessionModel> sorted,
-        WatchingSessionQueryRequest request
+            List<WatchingSessionModel> sorted,
+            WatchingSessionQueryRequest request
     ) {
         // 프로젝트 표준: cursor + idAfter 둘 다 있어야 커서 조건 적용
         if (request.idAfter() == null || !hasText(request.cursor())) {
@@ -185,19 +192,19 @@ public class RedisWatchingSessionQueryRepositoryImpl implements WatchingSessionQ
         boolean isAscending = request.sortDirection().isAscending();
 
         return sorted.stream()
-            .filter(session -> {
-                if (session == null || session.getId() == null || session.getCreatedAt() == null) {
-                    return false;
-                }
+                .filter(session -> {
+                    if (session == null || session.getId() == null || session.getCreatedAt() == null) {
+                        return false;
+                    }
 
-                int cmp = session.getCreatedAt().compareTo(cursorInstant);
+                    int cmp = session.getCreatedAt().compareTo(cursorInstant);
 
-                if (isAscending) {
-                    return (cmp > 0) || (cmp == 0 && session.getId().compareTo(idAfter) > 0);
-                }
-                return (cmp < 0) || (cmp == 0 && session.getId().compareTo(idAfter) < 0);
-            })
-            .toList();
+                    if (isAscending) {
+                        return (cmp > 0) || (cmp == 0 && session.getId().compareTo(idAfter) > 0);
+                    }
+                    return (cmp < 0) || (cmp == 0 && session.getId().compareTo(idAfter) < 0);
+                })
+                .toList();
     }
 
     private long countTotal(String zsetKey, String watcherNameLike) {
@@ -215,14 +222,16 @@ public class RedisWatchingSessionQueryRepositoryImpl implements WatchingSessionQ
 
         long count = 0;
         for (Object obj : allSessionIds) {
-            if (obj == null)
+            if (obj == null) {
                 continue;
+            }
 
             UUID sessionId = parseUuid(obj.toString());
-            if (sessionId == null)
+            if (sessionId == null) {
                 continue;
+            }
 
-            Object stored = redisTemplate.opsForValue().get(sessionKey(sessionId));
+            Object stored = redisTemplate.opsForValue().get(WatchingSessionRedisKeys.sessionKey(sessionId));
             if (stored instanceof WatchingSessionModel model) {
                 if (watcherNameLike(model, watcherNameLike)) {
                     count++;
@@ -250,47 +259,41 @@ public class RedisWatchingSessionQueryRepositoryImpl implements WatchingSessionQ
     }
 
     private int compareByCreatedAtThenId(
-        WatchingSessionModel a,
-        WatchingSessionModel b,
-        SortDirection direction
+            WatchingSessionModel a,
+            WatchingSessionModel b,
+            SortDirection direction
     ) {
         Instant aCreated = a != null ? a.getCreatedAt() : null;
         Instant bCreated = b != null ? b.getCreatedAt() : null;
 
         int cmpCreated;
-        if (aCreated == null && bCreated == null)
+        if (aCreated == null && bCreated == null) {
             cmpCreated = 0;
-        else if (aCreated == null)
+        } else if (aCreated == null) {
             cmpCreated = 1;
-        else if (bCreated == null)
+        } else if (bCreated == null) {
             cmpCreated = -1;
-        else
+        } else {
             cmpCreated = aCreated.compareTo(bCreated);
+        }
 
         UUID aId = a != null ? a.getId() : null;
         UUID bId = b != null ? b.getId() : null;
 
         int cmpId;
-        if (aId == null && bId == null)
+        if (aId == null && bId == null) {
             cmpId = 0;
-        else if (aId == null)
+        } else if (aId == null) {
             cmpId = 1;
-        else if (bId == null)
+        } else if (bId == null) {
             cmpId = -1;
-        else
+        } else {
             cmpId = aId.compareTo(bId);
+        }
 
         int result = (cmpCreated != 0) ? cmpCreated : cmpId;
 
         return direction.isAscending() ? result : -result;
-    }
-
-    private String sessionKey(UUID sessionId) {
-        return SESSION_KEY_PREFIX + sessionId;
-    }
-
-    private String contentSessionsZsetKey(UUID contentId) {
-        return CONTENT_SESSIONS_ZSET_PREFIX + contentId + CONTENT_SESSIONS_ZSET_SUFFIX;
     }
 
     private UUID parseUuid(String value) {

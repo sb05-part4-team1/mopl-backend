@@ -1,6 +1,6 @@
 package com.mopl.jpa.config;
 
-import com.mopl.jpa.repository.watchingsession.RedisWatchingSessionRepository;
+import com.mopl.jpa.repository.watchingsession.RedisWatchingSessionRepositoryImpl;
 import com.mopl.jpa.repository.watchingsession.query.RedisWatchingSessionQueryRepositoryImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Import;
     havingValue = "redis"
 )
 @Import({
-    RedisWatchingSessionRepository.class,
+    RedisWatchingSessionRepositoryImpl.class,
     RedisWatchingSessionQueryRepositoryImpl.class
 })
 @RequiredArgsConstructor
