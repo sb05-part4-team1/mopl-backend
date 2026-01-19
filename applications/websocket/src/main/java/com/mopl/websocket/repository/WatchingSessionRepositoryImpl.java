@@ -126,34 +126,22 @@ public class WatchingSessionRepositoryImpl implements WatchingSessionRepository 
     }
 
     @Override
-    public Optional<WatchingSessionModel> findByUserIdAndContentId(UUID userId, UUID contentId) {
-        // 1) 우선: watcher current -> session -> model 방식(정확)
-        String sessionIdStr = getStringValue(watcherCurrentKey(userId));
+    public Optional<WatchingSessionModel> findCurrentByWatcherId(UUID watcherId) {
+        String sessionIdStr = getStringValue(watcherCurrentKey(watcherId));
         UUID sessionId = parseUuid(sessionIdStr);
 
-        if (sessionId != null) {
-            Object stored = redisTemplate.opsForValue().get(sessionKey(sessionId));
-            if (stored instanceof WatchingSessionModel storedModel) {
-                UUID storedContentId = storedModel.getContent() != null ? storedModel.getContent()
-                    .getId() : null;
-                if (contentId.equals(storedContentId)) {
-                    return Optional.of(storedModel);
-                }
-            }
+        if (sessionId == null) {
+            return Optional.empty();
         }
 
-        // 2) fallback: 기존 Set membership 방식(기존 코드와 호환)
-        Boolean isMember = redisTemplate.opsForSet()
-            .isMember(COUNT_KEY_PREFIX + contentId, userId.toString());
-
-        if (Boolean.TRUE.equals(isMember)) {
-            UserModel user = UserModel.builder().id(userId).build();
-            ContentModel content = ContentModel.builder().id(contentId).build();
-            return Optional.of(WatchingSessionModel.create(user, content));
+        Object stored = redisTemplate.opsForValue().get(sessionKey(sessionId));
+        if (stored instanceof WatchingSessionModel model) {
+            return Optional.of(model);
         }
 
         return Optional.empty();
     }
+
 
     // ====== helpers ======
 

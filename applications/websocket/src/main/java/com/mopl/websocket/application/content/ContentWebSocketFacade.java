@@ -1,6 +1,5 @@
 package com.mopl.websocket.application.content;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
@@ -31,29 +30,22 @@ public class ContentWebSocketFacade {
     private final UserSummaryMapper userSummaryMapper;
 
     public WatchingSessionChange updateSession(UUID contentId, UUID userId, ChangeType type) {
-        WatchingSessionDto dto = null;
+        UserModel watcher = userService.getById(userId);
+        ContentModel content = contentService.getById(contentId);
+        WatchingSessionModel session = WatchingSessionModel.create(watcher, content);
+        WatchingSessionModel dtoTarget = null;
 
         if (type == ChangeType.JOIN) {
-            UserModel watcher = userService.getById(userId);
-            ContentModel content = contentService.getById(contentId);
-
-            WatchingSessionModel session = WatchingSessionModel.create(watcher, content);
-            WatchingSessionModel saved = webSocketWatchingSessionService.create(session); // 반환값 사용
-
-            dto = watchingSessionResponseMapper.toDto(saved, watcher, content);
+            WatchingSessionModel saved = webSocketWatchingSessionService.create(session);
+            dtoTarget = saved;
         } else {
-            Optional<WatchingSessionModel> sessionOpt = webSocketWatchingSessionService
-                .findByUserIdAndContentId(userId, contentId);
+            dtoTarget = webSocketWatchingSessionService.findCurrentByWatcherId(userId)
+                    .orElse(session); // 혹시 없으면 fallback(없으면 id/createdAt null일 수 있음)
 
-            if (sessionOpt.isPresent()) {
-                WatchingSessionModel session = sessionOpt.get();
-
-                webSocketWatchingSessionService.delete(session);
-
-                dto = watchingSessionResponseMapper.toDto(session, session.getWatcher(), session
-                    .getContent());
-            }
+            webSocketWatchingSessionService.delete(session);
         }
+
+        WatchingSessionDto dto = watchingSessionResponseMapper.toDto(dtoTarget, watcher, content);
         long watcherCount = webSocketWatchingSessionService.getWatcherCount(contentId);
 
         return new WatchingSessionChange(type, dto, watcherCount);

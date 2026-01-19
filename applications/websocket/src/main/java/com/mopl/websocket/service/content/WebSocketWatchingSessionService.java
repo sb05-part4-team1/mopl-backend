@@ -20,16 +20,16 @@ public class WebSocketWatchingSessionService {
 
     private final WatchingSessionRepository watchingSessionRepository;
 
-    @Caching(put = {
-        @CachePut(cacheNames = "watching_sessions",
-            key = "#model.content.id + ':' + #model.watcher.id")
-    })
+//    @Caching(put = {
+//        @CachePut(cacheNames = "watching_sessions",
+//            key = "#model.content.id + ':' + #model.watcher.id")
+//    })
     public WatchingSessionModel create(WatchingSessionModel model) {
         return watchingSessionRepository.save(model);
     }
 
-    @CacheEvict(cacheNames = "watching_sessions",
-        key = "#model.content.id + ':' + #model.watcher.id")
+//    @CacheEvict(cacheNames = "watching_sessions",
+//        key = "#model.content.id + ':' + #model.watcher.id")
     public void delete(WatchingSessionModel model) {
         watchingSessionRepository.delete(model);
     }
@@ -38,8 +38,8 @@ public class WebSocketWatchingSessionService {
         return watchingSessionRepository.countByContentId(contentId);
     }
 
-    @Cacheable(cacheNames = "watching_sessions", key = "#contentId + ':' + #userId")
-    public Optional<WatchingSessionModel> findByUserIdAndContentId(UUID userId, UUID contentId) {
-        return watchingSessionRepository.findByUserIdAndContentId(userId, contentId);
+    public Optional<WatchingSessionModel> findCurrentByWatcherId(UUID watcherId) {
+        return watchingSessionRepository.findCurrentByWatcherId(watcherId);
     }
+
 }

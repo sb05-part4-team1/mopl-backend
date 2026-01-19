@@ -11,7 +11,8 @@ public interface WatchingSessionRepository {
 
     void delete(WatchingSessionModel model);
 
-    Optional<WatchingSessionModel> findByUserIdAndContentId(UUID userId, UUID contentId);
-
     long countByContentId(UUID contentId);
+
+    // [추가] watcher 현재 세션 조회 (LEAVE에서 DTO 만들기 용)
+    Optional<WatchingSessionModel> findCurrentByWatcherId(UUID watcherId);
 }

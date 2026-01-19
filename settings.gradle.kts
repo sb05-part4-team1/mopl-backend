@@ -17,5 +17,5 @@ include(
     // ":infrastructure:external",
     ":shared:jackson",
     // ":shared:logging",
-    // ":shared:monitoring",
+    ":shared:monitoring"
 )

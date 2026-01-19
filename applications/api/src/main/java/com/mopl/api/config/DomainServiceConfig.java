@@ -9,6 +9,7 @@ import com.mopl.domain.repository.notification.NotificationRepository;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.domain.repository.playlist.PlaylistRepository;
 import com.mopl.domain.repository.playlist.PlaylistSubscriberRepository;
+import com.mopl.domain.repository.review.ReviewQueryRepository;
 import com.mopl.domain.repository.review.ReviewRepository;
 import com.mopl.domain.repository.tag.TagRepository;
 import com.mopl.domain.repository.user.UserQueryRepository;
@@ -66,11 +67,12 @@ public class DomainServiceConfig {
     @Bean
     public ReviewService reviewService(
         ReviewRepository reviewRepository,
+        ReviewQueryRepository reviewQueryRepository,
         ContentRepository contentRepository
-
     ) {
         return new ReviewService(
             reviewRepository,
+            reviewQueryRepository,
             contentRepository
         );
     }
