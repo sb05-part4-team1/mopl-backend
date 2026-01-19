@@ -3,10 +3,6 @@ package com.mopl.websocket.service.content;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import com.mopl.domain.model.watchingsession.WatchingSessionModel;
@@ -20,16 +16,10 @@ public class WebSocketWatchingSessionService {
 
     private final WatchingSessionRepository watchingSessionRepository;
 
-//    @Caching(put = {
-//        @CachePut(cacheNames = "watching_sessions",
-//            key = "#model.content.id + ':' + #model.watcher.id")
-//    })
     public WatchingSessionModel create(WatchingSessionModel model) {
         return watchingSessionRepository.save(model);
     }
 
-//    @CacheEvict(cacheNames = "watching_sessions",
-//        key = "#model.content.id + ':' + #model.watcher.id")
     public void delete(WatchingSessionModel model) {
         watchingSessionRepository.delete(model);
     }

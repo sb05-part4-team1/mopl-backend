@@ -8,8 +8,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
-import com.mopl.domain.model.content.ContentModel;
-import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.model.watchingsession.WatchingSessionModel;
 
 import lombok.RequiredArgsConstructor;

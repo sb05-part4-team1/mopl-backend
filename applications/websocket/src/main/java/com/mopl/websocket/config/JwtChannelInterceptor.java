@@ -64,7 +64,6 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
             String destination = accessor.getDestination();
             if (StringUtils.hasText(destination) && destination.startsWith("/sub/contents/")
                 && destination.endsWith("/watch")) {
-                // 경로 파싱: /sub/contents/{contentId}/watch
                 String contentIdStr = destination.split("/")[3];
                 UUID contentId = UUID.fromString(contentIdStr);
 
