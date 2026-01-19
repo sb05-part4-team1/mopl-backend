@@ -30,7 +30,7 @@ public class ReviewController implements ReviewApiSpec {
 
     @GetMapping
     public CursorResponse<ReviewResponse> getReviews(
-        @ModelAttribute @Valid ReviewQueryRequest request
+        @ModelAttribute ReviewQueryRequest request
     ) {
         return reviewFacade.getReviews(request);
     }
