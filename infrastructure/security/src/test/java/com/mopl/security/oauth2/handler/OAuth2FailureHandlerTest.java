@@ -11,13 +11,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.web.RedirectStrategy;
-
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -53,13 +51,12 @@ class OAuth2FailureHandlerTest {
     class OnAuthenticationFailureTest {
 
         @Test
-        @DisplayName("OAuth2 인증 실패 시 에러 메시지와 함께 /sign-in으로 리다이렉트")
-        void withAuthenticationException_redirectsToSignInWithError() throws Exception {
+        @DisplayName("OAuth2 인증 실패 시 /sign-in으로 리다이렉트")
+        void withAuthenticationException_redirectsToSignIn() throws Exception {
             // given
-            String errorMessage = "인증에 실패했습니다.";
             AuthenticationException exception = new OAuth2AuthenticationException(
                 new OAuth2Error("authentication_failed"),
-                errorMessage
+                "인증에 실패했습니다."
             );
 
             // when
@@ -67,26 +64,19 @@ class OAuth2FailureHandlerTest {
 
             // then
             ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
-            then(redirectStrategy).should().sendRedirect(eq(request), eq(response), urlCaptor
-                .capture());
+            then(redirectStrategy).should().sendRedirect(eq(request), eq(response), urlCaptor.capture());
 
             String redirectUrl = urlCaptor.getValue();
-            assertThat(redirectUrl).startsWith(FRONTEND_REDIRECT_URI + "/#/sign-in");
-            assertThat(redirectUrl).contains("error=");
-
-            String encodedError = redirectUrl.substring(redirectUrl.indexOf("error=") + 6);
-            String decodedError = URLDecoder.decode(encodedError, StandardCharsets.UTF_8);
-            assertThat(decodedError).isEqualTo(errorMessage);
+            assertThat(redirectUrl).isEqualTo(FRONTEND_REDIRECT_URI + "/#/sign-in");
         }
 
         @Test
-        @DisplayName("provider_mismatch 에러 시 해당 메시지로 리다이렉트")
-        void withProviderMismatch_redirectsWithErrorMessage() throws Exception {
+        @DisplayName("provider_mismatch 에러 시에도 /sign-in으로 리다이렉트")
+        void withProviderMismatch_redirectsToSignIn() throws Exception {
             // given
-            String errorMessage = "이미 EMAIL(으)로 가입된 계정입니다.";
             AuthenticationException exception = new OAuth2AuthenticationException(
                 new OAuth2Error("provider_mismatch"),
-                errorMessage
+                "이미 EMAIL(으)로 가입된 계정입니다."
             );
 
             // when
@@ -96,23 +86,14 @@ class OAuth2FailureHandlerTest {
             ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
             then(redirectStrategy).should().sendRedirect(any(), any(), urlCaptor.capture());
 
-            String redirectUrl = urlCaptor.getValue();
-            assertThat(redirectUrl).contains("/#/sign-in");
-
-            String encodedError = redirectUrl.substring(redirectUrl.indexOf("error=") + 6);
-            String decodedError = URLDecoder.decode(encodedError, StandardCharsets.UTF_8);
-            assertThat(decodedError).isEqualTo(errorMessage);
+            assertThat(urlCaptor.getValue()).isEqualTo(FRONTEND_REDIRECT_URI + "/#/sign-in");
         }
 
         @Test
-        @DisplayName("특수문자가 포함된 에러 메시지도 URL 인코딩됨")
-        void withSpecialCharacters_encodesErrorMessage() throws Exception {
+        @DisplayName("계정 잠금 에러 시에도 /sign-in으로 리다이렉트")
+        void withLockedException_redirectsToSignIn() throws Exception {
             // given
-            String errorMessage = "Error: 인증 실패 & 재시도 필요!";
-            AuthenticationException exception = new OAuth2AuthenticationException(
-                new OAuth2Error("error"),
-                errorMessage
-            );
+            AuthenticationException exception = new LockedException("계정이 잠겨 있습니다.");
 
             // when
             failureHandler.onAuthenticationFailure(request, response, exception);
@@ -121,20 +102,12 @@ class OAuth2FailureHandlerTest {
             ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
             then(redirectStrategy).should().sendRedirect(any(), any(), urlCaptor.capture());
 
-            String redirectUrl = urlCaptor.getValue();
-            // URL에 인코딩되지 않은 특수문자가 없어야 함
-            assertThat(redirectUrl).doesNotContain("&재시도");
-            assertThat(redirectUrl).doesNotContain(" ");
-
-            // 디코딩하면 원본 메시지가 나와야 함
-            String encodedError = redirectUrl.substring(redirectUrl.indexOf("error=") + 6);
-            String decodedError = URLDecoder.decode(encodedError, StandardCharsets.UTF_8);
-            assertThat(decodedError).isEqualTo(errorMessage);
+            assertThat(urlCaptor.getValue()).isEqualTo(FRONTEND_REDIRECT_URI + "/#/sign-in");
         }
 
         @Test
-        @DisplayName("리다이렉트 URL 형식이 올바름")
-        void redirectUrl_hasCorrectFormat() throws Exception {
+        @DisplayName("리다이렉트 URL에 에러 파라미터가 포함되지 않음")
+        void redirectUrl_doesNotContainErrorParameter() throws Exception {
             // given
             AuthenticationException exception = new OAuth2AuthenticationException(
                 new OAuth2Error("test"),
@@ -149,10 +122,8 @@ class OAuth2FailureHandlerTest {
             then(redirectStrategy).should().sendRedirect(any(), any(), urlCaptor.capture());
 
             String redirectUrl = urlCaptor.getValue();
-            assertThat(redirectUrl)
-                .startsWith(FRONTEND_REDIRECT_URI)
-                .contains("/#/sign-in")
-                .contains("?error=");
+            assertThat(redirectUrl).doesNotContain("error");
+            assertThat(redirectUrl).doesNotContain("?");
         }
     }
 }

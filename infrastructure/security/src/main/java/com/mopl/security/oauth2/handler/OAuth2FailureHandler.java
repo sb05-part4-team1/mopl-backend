@@ -10,8 +10,6 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,12 +25,9 @@ public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler 
     ) throws IOException {
         log.error("OAuth2 로그인 실패: {}", exception.getMessage());
 
-        String errorMessage = URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8);
-
-        String redirectUrl = UriComponentsBuilder.fromUriString(oAuth2Properties
-            .frontendRedirectUri())
+        String redirectUrl = UriComponentsBuilder
+            .fromUriString(oAuth2Properties.frontendRedirectUri())
             .path("/#/sign-in")
-            .queryParam("error", errorMessage)
             .build()
             .toUriString();
 
