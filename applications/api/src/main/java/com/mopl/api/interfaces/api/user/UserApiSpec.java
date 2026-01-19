@@ -234,7 +234,7 @@ public interface UserApiSpec {
     @RequestBody(
         required = true,
         content = @Content(
-            schema = @Schema(implementation = PasswordUpdateRequest.class)
+            schema = @Schema(implementation = ChangePasswordRequest.class)
         )
     )
     @ApiResponse(responseCode = "204", description = "비밀번호 변경 성공")
@@ -270,5 +270,5 @@ public interface UserApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    void updatePassword(UUID userId, PasswordUpdateRequest request);
+    void updatePassword(UUID userId, ChangePasswordRequest request);
 }

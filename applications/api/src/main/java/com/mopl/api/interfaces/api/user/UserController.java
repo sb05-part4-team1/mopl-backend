@@ -88,7 +88,7 @@ public class UserController implements UserApiSpec {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updatePassword(
         @PathVariable UUID userId,
-        @RequestBody @Valid PasswordUpdateRequest request
+        @RequestBody @Valid ChangePasswordRequest request
     ) {
         userFacade.updatePassword(userId, request.password());
     }

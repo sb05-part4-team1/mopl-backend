@@ -766,7 +766,7 @@ class UserControllerTest {
         void withValidRequest_returns204NoContent() throws Exception {
             // given
             UUID userId = UUID.randomUUID();
-            PasswordUpdateRequest request = new PasswordUpdateRequest("newP@ssw0rd!");
+            ChangePasswordRequest request = new ChangePasswordRequest("newP@ssw0rd!");
 
             willDoNothing().given(userFacade).updatePassword(eq(userId), eq("newP@ssw0rd!"));
 
@@ -820,11 +820,11 @@ class UserControllerTest {
         }
 
         @Test
-        @DisplayName("비밀번호가 8자 미만이면 400 Bad Request 응답")
-        void withPasswordLessThan8Chars_returns400BadRequest() throws Exception {
+        @DisplayName("비밀번호가 50자 초과이면 400 Bad Request 응답")
+        void withPasswordExceeding50Chars_returns400BadRequest() throws Exception {
             // given
             UUID userId = UUID.randomUUID();
-            PasswordUpdateRequest request = new PasswordUpdateRequest("short");
+            ChangePasswordRequest request = new ChangePasswordRequest("a".repeat(51));
 
             // when & then
             mockMvc.perform(patch("/api/users/{userId}/password", userId)
@@ -842,7 +842,7 @@ class UserControllerTest {
         void withNonExistingUserId_returns404NotFound() throws Exception {
             // given
             UUID nonExistingUserId = UUID.randomUUID();
-            PasswordUpdateRequest request = new PasswordUpdateRequest("newP@ssw0rd!");
+            ChangePasswordRequest request = new ChangePasswordRequest("newP@ssw0rd!");
 
             willThrow(UserNotFoundException.withId(nonExistingUserId))
                 .given(userFacade)

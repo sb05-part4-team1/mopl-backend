@@ -142,7 +142,7 @@ class AuthControllerTest {
         void withValidEmail_returns204NoContent() throws Exception {
             // given
             String email = "test@example.com";
-            PasswordResetRequest request = new PasswordResetRequest(email);
+            ResetPasswordRequest request = new ResetPasswordRequest(email);
 
             willDoNothing().given(authFacade).resetPassword(email);
 
@@ -160,7 +160,7 @@ class AuthControllerTest {
         void withNonExistentEmail_returns404NotFound() throws Exception {
             // given
             String email = "nonexistent@example.com";
-            PasswordResetRequest request = new PasswordResetRequest(email);
+            ResetPasswordRequest request = new ResetPasswordRequest(email);
 
             willThrow(UserNotFoundException.withEmail(email)).given(authFacade).resetPassword(
                 email);
@@ -176,7 +176,7 @@ class AuthControllerTest {
         @DisplayName("이메일이 빈 문자열이면 400 Bad Request 반환")
         void withBlankEmail_returns400BadRequest() throws Exception {
             // given
-            PasswordResetRequest request = new PasswordResetRequest("");
+            ResetPasswordRequest request = new ResetPasswordRequest("");
 
             // when & then
             mockMvc.perform(post("/api/auth/reset-password")

@@ -42,7 +42,7 @@ public class AuthController implements AuthApiSpec {
 
     @PostMapping("/reset-password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void resetPassword(@Valid @RequestBody PasswordResetRequest request) {
+    public void resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         authFacade.resetPassword(request.email());
     }
 }

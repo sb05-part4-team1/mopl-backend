@@ -43,5 +43,5 @@ public interface AuthApiSpec {
         @ApiResponse(responseCode = "400", description = "잘못된 요청"),
         @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음")
     })
-    void resetPassword(PasswordResetRequest request);
+    void resetPassword(ResetPasswordRequest request);
 }
