@@ -14,6 +14,7 @@ import com.mopl.domain.repository.user.TemporaryPasswordRepository;
 import com.mopl.domain.repository.user.UserQueryRequest;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.security.jwt.registry.JwtRegistry;
 import com.mopl.storage.provider.FileStorageProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,6 +35,7 @@ public class UserFacade {
     private final FileStorageProvider fileStorageProvider;
     private final PasswordEncoder passwordEncoder;
     private final TemporaryPasswordRepository temporaryPasswordRepository;
+    private final JwtRegistry jwtRegistry;
 
     public UserModel signUp(UserCreateRequest userCreateRequest) {
         String email = userCreateRequest.email().strip().toLowerCase(Locale.ROOT);
@@ -72,7 +74,9 @@ public class UserFacade {
     public UserModel updateRoleInternal(UUID userId, UserModel.Role role) {
         UserModel userModel = userService.getById(userId);
         userModel.updateRole(role);
-        return userService.update(userModel);
+        UserModel updatedUser = userService.update(userModel);
+        jwtRegistry.revokeAllByUserId(userId);
+        return updatedUser;
     }
 
     public void updateLocked(
@@ -90,6 +94,7 @@ public class UserFacade {
             userModel.unlock();
         }
         userService.update(userModel);
+        jwtRegistry.revokeAllByUserId(targetUserId);
     }
 
     public UserModel updateProfile(UUID userId, UserUpdateRequest request, MultipartFile image) {

@@ -16,6 +16,7 @@ import com.mopl.domain.repository.user.UserSortField;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
+import com.mopl.security.jwt.registry.JwtRegistry;
 import com.mopl.storage.provider.FileStorageProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -62,6 +63,9 @@ class UserFacadeTest {
 
     @Mock
     private TemporaryPasswordRepository temporaryPasswordRepository;
+
+    @Mock
+    private JwtRegistry jwtRegistry;
 
     @InjectMocks
     private UserFacade userFacade;
@@ -164,7 +168,7 @@ class UserFacadeTest {
     class UpdateRoleTest {
 
         @Test
-        @DisplayName("유효한 요청 시 역할 업데이트 성공")
+        @DisplayName("유효한 요청 시 역할 업데이트 성공 및 토큰 무효화")
         void withValidRequest_updateRoleSuccess() {
             // given
             UUID requesterId = UUID.randomUUID();
@@ -189,6 +193,7 @@ class UserFacadeTest {
 
             then(userService).should().getById(targetUser.getId());
             then(userService).should().update(any(UserModel.class));
+            then(jwtRegistry).should().revokeAllByUserId(targetUser.getId());
         }
 
         @Test
@@ -227,7 +232,7 @@ class UserFacadeTest {
     class UpdateLockedTest {
 
         @Test
-        @DisplayName("유효한 요청으로 사용자 잠금 시 성공")
+        @DisplayName("유효한 요청으로 사용자 잠금 시 성공 및 토큰 무효화")
         void withValidRequest_lockUserSuccess() {
             // given
             UUID requesterId = UUID.randomUUID();
@@ -244,10 +249,11 @@ class UserFacadeTest {
 
             then(userService).should().getById(targetUser.getId());
             then(userService).should().update(any(UserModel.class));
+            then(jwtRegistry).should().revokeAllByUserId(targetUser.getId());
         }
 
         @Test
-        @DisplayName("유효한 요청으로 사용자 잠금 해제 시 성공")
+        @DisplayName("유효한 요청으로 사용자 잠금 해제 시 성공 및 토큰 무효화")
         void withValidRequest_unlockUserSuccess() {
             // given
             UUID requesterId = UUID.randomUUID();
@@ -266,6 +272,7 @@ class UserFacadeTest {
 
             then(userService).should().getById(targetUser.getId());
             then(userService).should().update(any(UserModel.class));
+            then(jwtRegistry).should().revokeAllByUserId(targetUser.getId());
         }
 
         @Test
