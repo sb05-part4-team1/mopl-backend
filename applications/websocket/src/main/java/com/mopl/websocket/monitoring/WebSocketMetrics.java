@@ -17,8 +17,8 @@ public class WebSocketMetrics {
     public WebSocketMetrics(MeterRegistry meterRegistry) {
         // Gauge: AtomicInteger의 현재 값을 Prometheus가 읽어감
         this.activeConnections = meterRegistry.gauge(
-                "mopl.websocket.connections.active",
-                new AtomicInteger(0)
+            "mopl.websocket.connections.active",
+            new AtomicInteger(0)
         );
 
         // Counter: 누적 카운트

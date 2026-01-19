@@ -26,7 +26,8 @@ public class RedisWatchingSessionRepositoryImpl implements WatchingSessionReposi
             return Optional.empty();
         }
 
-        Object stored = redisTemplate.opsForValue().get(WatchingSessionRedisKeys.sessionKey(sessionId));
+        Object stored = redisTemplate.opsForValue().get(WatchingSessionRedisKeys.sessionKey(
+            sessionId));
         if (stored instanceof WatchingSessionModel model) {
             return Optional.of(model);
         }

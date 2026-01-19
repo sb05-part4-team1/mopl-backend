@@ -29,28 +29,28 @@ public class WatchingSessionRepositoryImpl implements WatchingSessionRepository 
 
         // 2) content별 watcherId Set에 저장 (watcherCount 용)
         redisTemplate.opsForSet().add(
-                WatchingSessionRedisKeys.watchingCountKey(contentId),
-                watcherId.toString()
+            WatchingSessionRedisKeys.watchingCountKey(contentId),
+            watcherId.toString()
         );
 
         // 3) watcher -> current sessionId
         redisTemplate.opsForValue().set(
-                WatchingSessionRedisKeys.watcherCurrentKey(watcherId),
-                savedModel.getId().toString()
+            WatchingSessionRedisKeys.watcherCurrentKey(watcherId),
+            savedModel.getId().toString()
         );
 
         // 4) sessionId -> WatchingSessionModel(상세)
         redisTemplate.opsForValue().set(
-                WatchingSessionRedisKeys.sessionKey(savedModel.getId()),
-                savedModel
+            WatchingSessionRedisKeys.sessionKey(savedModel.getId()),
+            savedModel
         );
 
         // 5) content별 sessions ZSET(createdAt 정렬 + 커서용)
         long score = savedModel.getCreatedAt().toEpochMilli();
         redisTemplate.opsForZSet().add(
-                WatchingSessionRedisKeys.contentSessionsZsetKey(contentId),
-                savedModel.getId().toString(),
-                score
+            WatchingSessionRedisKeys.contentSessionsZsetKey(contentId),
+            savedModel.getId().toString(),
+            score
         );
 
         return savedModel;
@@ -76,7 +76,8 @@ public class WatchingSessionRepositoryImpl implements WatchingSessionRepository 
 
         // 2) sessionId가 있으면 sessionKey에서 모델을 꺼내 contentId 복원 가능
         if (sessionId != null) {
-            Object stored = redisTemplate.opsForValue().get(WatchingSessionRedisKeys.sessionKey(sessionId));
+            Object stored = redisTemplate.opsForValue().get(WatchingSessionRedisKeys.sessionKey(
+                sessionId));
             if (stored instanceof WatchingSessionModel storedModel) {
                 if (contentId == null && storedModel.getContent() != null) {
                     contentId = storedModel.getContent().getId();
@@ -87,8 +88,8 @@ public class WatchingSessionRepositoryImpl implements WatchingSessionRepository 
         // 3) watcherCount Set에서 제거
         if (contentId != null) {
             redisTemplate.opsForSet().remove(
-                    WatchingSessionRedisKeys.watchingCountKey(contentId),
-                    watcherId.toString()
+                WatchingSessionRedisKeys.watchingCountKey(contentId),
+                watcherId.toString()
             );
         }
 
@@ -101,8 +102,8 @@ public class WatchingSessionRepositoryImpl implements WatchingSessionRepository 
 
             if (contentId != null) {
                 redisTemplate.opsForZSet().remove(
-                        WatchingSessionRedisKeys.contentSessionsZsetKey(contentId),
-                        sessionId.toString()
+                    WatchingSessionRedisKeys.contentSessionsZsetKey(contentId),
+                    sessionId.toString()
                 );
             }
         }
@@ -110,7 +111,8 @@ public class WatchingSessionRepositoryImpl implements WatchingSessionRepository 
 
     @Override
     public long countByContentId(UUID contentId) {
-        Long count = redisTemplate.opsForSet().size(WatchingSessionRedisKeys.watchingCountKey(contentId));
+        Long count = redisTemplate.opsForSet().size(WatchingSessionRedisKeys.watchingCountKey(
+            contentId));
         return count != null ? count : 0L;
     }
 
@@ -123,7 +125,8 @@ public class WatchingSessionRepositoryImpl implements WatchingSessionRepository 
             return Optional.empty();
         }
 
-        Object stored = redisTemplate.opsForValue().get(WatchingSessionRedisKeys.sessionKey(sessionId));
+        Object stored = redisTemplate.opsForValue().get(WatchingSessionRedisKeys.sessionKey(
+            sessionId));
         if (stored instanceof WatchingSessionModel model) {
             return Optional.of(model);
         }
@@ -138,12 +141,12 @@ public class WatchingSessionRepositoryImpl implements WatchingSessionRepository 
         Instant createdAt = model.getCreatedAt() != null ? model.getCreatedAt() : Instant.now();
 
         return WatchingSessionModel.builder()
-                .id(id)
-                .createdAt(createdAt)
-                .deletedAt(model.getDeletedAt())
-                .watcher(model.getWatcher())
-                .content(model.getContent())
-                .build();
+            .id(id)
+            .createdAt(createdAt)
+            .deletedAt(model.getDeletedAt())
+            .watcher(model.getWatcher())
+            .content(model.getContent())
+            .build();
     }
 
     private UUID parseUuid(String value) {

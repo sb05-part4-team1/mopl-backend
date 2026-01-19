@@ -31,8 +31,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws") // 웹소켓 엔드포인트
-                .setAllowedOriginPatterns("*") // CORS 허용(현재는 전체)
-                .withSockJS(); // SockJS 지원
+            .setAllowedOriginPatterns("*") // CORS 허용(현재는 전체)
+            .withSockJS(); // SockJS 지원
     }
 
     @Override
@@ -42,6 +42,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
         // 클라이언트 -> 서버로 들어오는 모든 메시지를 카운팅
         registration.interceptors(new ChannelInterceptor() {
+
             @Override
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
                 webSocketMetrics.onInboundMessage(); // inbound 메시지 +1
@@ -54,6 +55,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureClientOutboundChannel(ChannelRegistration registration) {
         // 서버 -> 클라이언트로 나가는 모든 메시지를 카운팅
         registration.interceptors(new ChannelInterceptor() {
+
             @Override
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
                 webSocketMetrics.onOutboundMessage(); // outbound 메시지 +1

@@ -40,7 +40,7 @@ public class ContentWebSocketFacade {
             dtoTarget = saved;
         } else {
             dtoTarget = webSocketWatchingSessionService.findCurrentByWatcherId(userId)
-                    .orElse(session); // 혹시 없으면 fallback(없으면 id/createdAt null일 수 있음)
+                .orElse(session); // 혹시 없으면 fallback(없으면 id/createdAt null일 수 있음)
 
             webSocketWatchingSessionService.delete(session);
         }

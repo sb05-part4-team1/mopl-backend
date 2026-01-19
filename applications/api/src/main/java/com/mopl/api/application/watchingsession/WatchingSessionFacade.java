@@ -9,7 +9,6 @@ import com.mopl.domain.service.watchingsession.WatchingSessionService;
 import com.mopl.domain.support.cursor.CursorResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
