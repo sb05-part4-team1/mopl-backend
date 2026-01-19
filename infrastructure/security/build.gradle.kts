@@ -15,4 +15,5 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind")
     // servlet
     compileOnly("jakarta.servlet:jakarta.servlet-api")
+    testImplementation("jakarta.servlet:jakarta.servlet-api")
 }
