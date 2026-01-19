@@ -1,6 +1,5 @@
 package com.mopl.websocket.application.content;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
@@ -42,17 +41,13 @@ public class ContentWebSocketFacade {
 
             dto = watchingSessionResponseMapper.toDto(session, watcher, content);
         } else {
-            Optional<WatchingSessionModel> sessionOpt = watchingSessionService
-                .findByUserIdAndContentId(userId, contentId);
+            UserModel watcher = UserModel.builder().id(userId).build();
+            ContentModel content = ContentModel.builder().id(contentId).build();
+            WatchingSessionModel session = WatchingSessionModel.create(watcher, content);
 
-            if (sessionOpt.isPresent()) {
-                WatchingSessionModel session = sessionOpt.get();
+            watchingSessionService.delete(session);
 
-                watchingSessionService.delete(session);
-
-                dto = watchingSessionResponseMapper.toDto(session, session.getWatcher(), session
-                    .getContent());
-            }
+            dto = watchingSessionResponseMapper.toDto(session, watcher, content);
         }
         long watcherCount = watchingSessionService.getWatcherCount(contentId);
 

@@ -1,13 +1,10 @@
 package com.mopl.websocket.repository;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.mopl.domain.model.content.ContentModel;
-import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.model.watchingsession.WatchingSessionModel;
 
 import lombok.RequiredArgsConstructor;
@@ -38,16 +35,4 @@ public class WatchingSessionRepositoryImpl implements WatchingSessionRepository 
         return count != null ? count : 0L;
     }
 
-    @Override
-    public Optional<WatchingSessionModel> findByUserIdAndContentId(UUID userId, UUID contentId) {
-        Boolean isMember = redisTemplate.opsForSet().isMember(COUNT_KEY_PREFIX + contentId, userId
-            .toString());
-
-        if (Boolean.TRUE.equals(isMember)) {
-            UserModel user = UserModel.builder().id(userId).build();
-            ContentModel content = ContentModel.builder().id(contentId).build();
-            return Optional.of(WatchingSessionModel.create(user, content));
-        }
-        return Optional.empty();
-    }
 }
