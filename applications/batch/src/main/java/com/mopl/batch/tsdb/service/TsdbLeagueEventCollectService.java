@@ -33,7 +33,7 @@ public class TsdbLeagueEventCollectService {
 
         response.events().forEach(item -> {
             if (!isValid(item)) {
-                log.info(
+                log.debug(
                     "Invalid TSDB past event skipped: leagueId={}, eventId={}, title={}, poster={}",
                     leagueId,
                     item.idEvent(),
@@ -67,7 +67,7 @@ public class TsdbLeagueEventCollectService {
 
         response.events().forEach(item -> {
             if (!isValid(item)) {
-                log.info(
+                log.debug(
                     "Invalid TSDB next event skipped: leagueId={}, eventId={}, title={}, poster={}",
                     leagueId,
                     item.idEvent(),

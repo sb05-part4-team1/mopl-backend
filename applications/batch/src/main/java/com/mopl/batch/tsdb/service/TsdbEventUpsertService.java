@@ -6,6 +6,7 @@ import com.mopl.domain.model.content.ContentModel.ContentType;
 import com.mopl.domain.repository.content.ContentExternalMappingRepository;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.external.tsdb.client.TsdbClient;
+import com.mopl.external.tsdb.exception.TsdbImageDownloadException;
 import com.mopl.external.tsdb.model.EventItem;
 import com.mopl.storage.provider.FileStorageProvider;
 import java.io.InputStream;
@@ -68,16 +69,25 @@ public class TsdbEventUpsertService {
             }
 
             String extension = item.strThumb().substring(item.strThumb().lastIndexOf("."));
-            String filePath = "contents/tsdb/" + item.strSport() + '/' + item.idEvent() + extension;
+            String filePath =
+                "contents/tsdb/" + item.strSport() + "/" + item.idEvent() + extension;
 
             String storedPath = fileStorageProvider.upload(imageStream, filePath);
             return fileStorageProvider.getUrl(storedPath);
 
-        } catch (Exception e) {
-            log.debug(
-                "Failed to upload TSDB poster: eventId={}, url={}",
+        } catch (TsdbImageDownloadException e) {
+            log.warn(
+                "TSDB poster download failed: eventId={}, url={}",
                 item.idEvent(),
-                item.strThumb()
+                e.getImageUrl()
+            );
+            return null;
+
+        } catch (Exception e) {
+            log.error(
+                "Unexpected error while processing TSDB poster: eventId={}",
+                item.idEvent(),
+                e
             );
             return null;
         }
@@ -85,10 +95,10 @@ public class TsdbEventUpsertService {
 
     private List<String> buildTags(EventItem item) {
         return Stream.of(
-            item.strSport(),
-            item.strHomeTeam(),
-            item.strAwayTeam()
-        )
+                item.strSport(),
+                item.strHomeTeam(),
+                item.strAwayTeam()
+            )
             .filter(Objects::nonNull)
             .map(String::strip)
             .filter(s -> !s.isBlank())

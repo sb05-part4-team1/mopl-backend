@@ -1,5 +1,6 @@
 package com.mopl.external.tsdb.client;
 
+import com.mopl.external.tsdb.exception.TsdbImageDownloadException;
 import com.mopl.external.tsdb.model.EventResponse;
 import com.mopl.external.tsdb.model.LeagueResponse;
 import com.mopl.external.tsdb.properties.TsdbProperties;
@@ -54,17 +55,17 @@ public class TsdbClient {
             return null;
         }
 
-        Resource resource = WebClient.create()
-            .get()
-            .uri(fullImageUrl + '/' + props.getImage().getDefaultSize())
-            .retrieve()
-            .bodyToMono(Resource.class)
-            .block();
-
         try {
+            Resource resource = tsdbWebClient.get()
+                .uri(fullImageUrl + "/" + props.getImage().getDefaultSize())
+                .retrieve()
+                .bodyToMono(Resource.class)
+                .block();
+
             return resource != null ? resource.getInputStream() : null;
-        } catch (IOException e) {
-            throw new RuntimeException("TSDB 이미지 다운로드 실패", e);
+
+        } catch (IOException | RuntimeException e) {
+            throw new TsdbImageDownloadException(fullImageUrl, e);
         }
     }
 }

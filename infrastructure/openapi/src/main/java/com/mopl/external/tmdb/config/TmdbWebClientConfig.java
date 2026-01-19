@@ -1,6 +1,6 @@
 package com.mopl.external.tmdb.config;
 
-import com.mopl.external.tmdb.properteis.TmdbProperties;
+import com.mopl.external.tmdb.properties.TmdbProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
