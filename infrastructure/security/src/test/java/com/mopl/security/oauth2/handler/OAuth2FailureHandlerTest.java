@@ -64,7 +64,11 @@ class OAuth2FailureHandlerTest {
 
             // then
             ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
-            then(redirectStrategy).should().sendRedirect(eq(request), eq(response), urlCaptor.capture());
+            then(redirectStrategy).should().sendRedirect(
+                eq(request),
+                eq(response),
+                urlCaptor.capture()
+            );
 
             String redirectUrl = urlCaptor.getValue();
             assertThat(redirectUrl).isEqualTo(FRONTEND_REDIRECT_URI + "/#/sign-in");
