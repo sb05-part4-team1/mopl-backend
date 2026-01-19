@@ -1,7 +1,13 @@
 plugins {
-    id("java")
+    `java-library`
 }
 
 dependencies {
-    implementation("org.springframework.kafka:spring-kafka")
+    // project modules
+    implementation(project(":core:domain"))
+    implementation(project(":shared:jackson"))
+    // kafka
+    api("org.springframework.kafka:spring-kafka")
+    // test
+    testImplementation("org.springframework.kafka:spring-kafka-test")
 }
