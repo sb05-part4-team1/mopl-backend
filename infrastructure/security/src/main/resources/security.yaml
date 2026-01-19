@@ -12,7 +12,7 @@ mopl:
     registry-type: in-memory # Options: in-memory, redis
     refresh-token-cookie-name: REFRESH_TOKEN
   oauth2:
-    frontend-redirect-uri: ${OAUTH2_FRONTEND_REDIRECT_URI:http://localhost:5173}
+    frontend-redirect-uri: ${OAUTH2_FRONTEND_REDIRECT_URI:http://localhost:8080}
 
 spring:
   security:
