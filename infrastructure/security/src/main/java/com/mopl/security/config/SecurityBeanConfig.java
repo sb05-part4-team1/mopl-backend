@@ -2,6 +2,7 @@ package com.mopl.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.domain.repository.user.TemporaryPasswordRepository;
+import com.mopl.domain.repository.user.UserRepository;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.security.authentication.TemporaryPasswordAuthenticationProvider;
 import com.mopl.security.authentication.handler.SignInFailureHandler;
@@ -17,6 +18,9 @@ import com.mopl.security.jwt.provider.JwtProvider;
 import com.mopl.security.jwt.registry.InMemoryJwtRegistry;
 import com.mopl.security.jwt.registry.JwtRegistry;
 import com.mopl.security.jwt.service.TokenRefreshService;
+import com.mopl.security.oauth2.CustomOAuth2UserService;
+import com.mopl.security.oauth2.handler.OAuth2FailureHandler;
+import com.mopl.security.oauth2.handler.OAuth2SuccessHandler;
 import com.mopl.security.userdetails.MoplUserDetailsService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -135,5 +139,33 @@ public class SecurityBeanConfig {
         provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder);
         return provider;
+    }
+
+    @Bean
+    public CustomOAuth2UserService customOAuth2UserService(
+        UserRepository userRepository,
+        UserService userService
+    ) {
+        return new CustomOAuth2UserService(userRepository, userService);
+    }
+
+    @Bean
+    public OAuth2SuccessHandler oAuth2SuccessHandler(
+        OAuth2Properties oAuth2Properties,
+        JwtProvider jwtProvider,
+        JwtCookieProvider jwtCookieProvider,
+        JwtRegistry jwtRegistry
+    ) {
+        return new OAuth2SuccessHandler(
+            oAuth2Properties,
+            jwtProvider,
+            jwtCookieProvider,
+            jwtRegistry
+        );
+    }
+
+    @Bean
+    public OAuth2FailureHandler oAuth2FailureHandler(OAuth2Properties oAuth2Properties) {
+        return new OAuth2FailureHandler(oAuth2Properties);
     }
 }
