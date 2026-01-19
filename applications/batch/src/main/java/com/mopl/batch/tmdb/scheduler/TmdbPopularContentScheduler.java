@@ -11,7 +11,7 @@ public class TmdbPopularContentScheduler {
 
     private final TmdbPopularContentJob job;
 
-    @Scheduled(cron = " 0 10 2 * * *")
+    @Scheduled(cron = "0 10 2 * * *")
     public void run() {
         job.run();
     }

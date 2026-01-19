@@ -2,6 +2,7 @@ package com.mopl.batch.tmdb.service;
 
 import com.mopl.external.tmdb.client.TmdbClient;
 import com.mopl.external.tmdb.model.TmdbMovieItem;
+import com.mopl.external.tmdb.model.TmdbMovieResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -19,11 +20,11 @@ public class TmdbPopularMovieService {
 
     public void collectPopularMovies() {
         for (int page = 1; page <= MAX_PAGE; page++) {
-            var response = tmdbClient.fetchPopularMovies(page);
+            TmdbMovieResponse response = tmdbClient.fetchPopularMovies(page);
 
             response.results().forEach(item -> {
                 if (!isValid(item)) {
-                    log.info(
+                    log.debug(
                         "Invalid TMDB movie data: title={}, poster={}, overviewLength={}",
                         item.title(),
                         item.poster_path(),

@@ -3,6 +3,7 @@ rootProject.name = "mopl-backend"
 include(
     ":applications:api",
     ":applications:sse",
+    ":applications:websocket",
     // ":applications:chat",
     ":applications:batch",
     // ":applications:streamer",

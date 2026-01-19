@@ -4,10 +4,12 @@ import com.mopl.domain.repository.content.ContentQueryRepository;
 import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
 import com.mopl.domain.repository.follow.FollowRepository;
+import com.mopl.domain.repository.notification.NotificationQueryRepository;
 import com.mopl.domain.repository.notification.NotificationRepository;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.domain.repository.playlist.PlaylistRepository;
 import com.mopl.domain.repository.playlist.PlaylistSubscriberRepository;
+import com.mopl.domain.repository.review.ReviewQueryRepository;
 import com.mopl.domain.repository.review.ReviewRepository;
 import com.mopl.domain.repository.tag.TagRepository;
 import com.mopl.domain.repository.user.UserQueryRepository;
@@ -62,11 +64,12 @@ public class DomainServiceConfig {
     @Bean
     public ReviewService reviewService(
         ReviewRepository reviewRepository,
+        ReviewQueryRepository reviewQueryRepository,
         ContentRepository contentRepository
-
     ) {
         return new ReviewService(
             reviewRepository,
+            reviewQueryRepository,
             contentRepository
         );
     }
@@ -89,13 +92,14 @@ public class DomainServiceConfig {
         return new PlaylistSubscriptionService(playlistSubscriberRepository);
     }
 
-
     @Bean
     public NotificationService notificationService(
-        NotificationRepository notificationRepository
+        NotificationRepository notificationRepository,
+        NotificationQueryRepository notificationQueryRepository
     ) {
         return new NotificationService(
-            notificationRepository
+            notificationRepository,
+            notificationQueryRepository
         );
     }
 }
