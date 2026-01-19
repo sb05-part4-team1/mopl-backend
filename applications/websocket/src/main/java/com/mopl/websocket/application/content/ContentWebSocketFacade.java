@@ -38,10 +38,8 @@ public class ContentWebSocketFacade {
             ContentModel content = contentService.getById(contentId);
 
             WatchingSessionModel session = WatchingSessionModel.create(watcher, content);
-            // webSocketWatchingSessionService.create(session);
             WatchingSessionModel saved = webSocketWatchingSessionService.create(session); // 반환값 사용
 
-            //dto = watchingSessionResponseMapper.toDto(session, watcher, content);
             dto = watchingSessionResponseMapper.toDto(saved, watcher, content);
         } else {
             Optional<WatchingSessionModel> sessionOpt = webSocketWatchingSessionService

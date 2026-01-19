@@ -36,14 +36,13 @@ public class WatchingSessionController {
             .orElseGet(() -> ResponseEntity.noContent().build()); // 시청 안 하면 204
     }
 
-    @GetMapping("contents/{contentId}/watching-sessions")
+    @GetMapping("/contents/{contentId}/watching-sessions")
     @ResponseStatus(HttpStatus.OK)
     public CursorResponse<WatchingSessionDto> getWatchingSessions(
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable UUID contentId,
         WatchingSessionQueryRequest request
     ) {
-        UUID requesterId = userDetails.userId(); // 요청자(로그인 사용자) ID 추출
 
         return watchingSessionFacade.getWatchingSessions( // Facade로 위임하여 목록 조회 수행
             contentId,

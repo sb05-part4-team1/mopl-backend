@@ -22,7 +22,6 @@ public class WatchingSessionFacade {
     private final WatchingSessionResponseMapper watchingSessionResponseMapper;
     private final WatchingSessionService watchingSessionService;
 
-    @Transactional
     public Optional<WatchingSessionDto> getWatchingSession(
         UUID requesterId,
         UUID watcherId
@@ -41,7 +40,6 @@ public class WatchingSessionFacade {
         ));
     }
 
-    @Transactional(readOnly = true)
     public CursorResponse<WatchingSessionDto> getWatchingSessions(
         UUID contentId,
         WatchingSessionQueryRequest request
