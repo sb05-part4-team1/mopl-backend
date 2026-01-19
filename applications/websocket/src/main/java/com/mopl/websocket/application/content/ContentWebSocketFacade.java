@@ -1,6 +1,5 @@
 package com.mopl.websocket.application.content;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
@@ -31,29 +30,17 @@ public class ContentWebSocketFacade {
     private final UserSummaryMapper userSummaryMapper;
 
     public WatchingSessionChange updateSession(UUID contentId, UUID userId, ChangeType type) {
-        WatchingSessionDto dto = null;
+        UserModel watcher = userService.getById(userId);
+        ContentModel content = contentService.getById(contentId);
+        WatchingSessionModel session = WatchingSessionModel.create(watcher, content);
 
         if (type == ChangeType.JOIN) {
-            UserModel watcher = userService.getById(userId);
-            ContentModel content = contentService.getById(contentId);
-
-            WatchingSessionModel session = WatchingSessionModel.create(watcher, content);
             watchingSessionService.create(session);
-
-            dto = watchingSessionResponseMapper.toDto(session, watcher, content);
         } else {
-            Optional<WatchingSessionModel> sessionOpt = watchingSessionService
-                .findByUserIdAndContentId(userId, contentId);
-
-            if (sessionOpt.isPresent()) {
-                WatchingSessionModel session = sessionOpt.get();
-
-                watchingSessionService.delete(session);
-
-                dto = watchingSessionResponseMapper.toDto(session, session.getWatcher(), session
-                    .getContent());
-            }
+            watchingSessionService.delete(session);
         }
+
+        WatchingSessionDto dto = watchingSessionResponseMapper.toDto(session, watcher, content);
         long watcherCount = watchingSessionService.getWatcherCount(contentId);
 
         return new WatchingSessionChange(type, dto, watcherCount);

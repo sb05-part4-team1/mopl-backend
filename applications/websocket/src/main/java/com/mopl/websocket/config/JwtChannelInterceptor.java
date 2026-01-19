@@ -10,8 +10,6 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -72,11 +70,6 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
                     accessor.getSessionAttributes().put("watchingContentId", contentId);
                 }
             }
-        }
-
-        else if (accessor.getUser() != null) {
-            Authentication authentication = (Authentication) accessor.getUser();
-            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
         return message;
