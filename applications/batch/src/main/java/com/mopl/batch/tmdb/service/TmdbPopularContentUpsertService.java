@@ -102,7 +102,7 @@ public class TmdbPopularContentUpsertService {
             return fileStorageProvider.getUrl(storedPath);
 
         } catch (Exception e) {
-            log.debug(
+            log.warn(
                 "Failed to download poster: type={}, externalId={}, path={}",
                 type, externalId, posterPath
             );

@@ -2,6 +2,7 @@ package com.mopl.batch.tmdb.service;
 
 import com.mopl.external.tmdb.client.TmdbClient;
 import com.mopl.external.tmdb.model.TmdbTvItem;
+import com.mopl.external.tmdb.model.TmdbTvResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -19,11 +20,11 @@ public class TmdbPopularTvService {
 
     public void collectPopularTvSeries() {
         for (int page = 1; page <= MAX_PAGE; page++) {
-            var response = tmdbClient.fetchPopularTvSeries(page);
+            TmdbTvResponse response = tmdbClient.fetchPopularTvSeries(page);
 
             response.results().forEach(item -> {
                 if (!isValid(item)) {
-                    log.info(
+                    log.debug(
                         "Invalid TMDB tv data: name={}, poster={}, overviewLength={}",
                         item.name(),
                         item.poster_path(),
