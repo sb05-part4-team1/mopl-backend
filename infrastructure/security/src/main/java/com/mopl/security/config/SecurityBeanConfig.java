@@ -3,6 +3,7 @@ package com.mopl.security.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.domain.repository.user.TemporaryPasswordRepository;
 import com.mopl.domain.repository.user.UserRepository;
+import com.mopl.domain.repository.user.TemporaryPasswordRepository;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.security.authentication.TemporaryPasswordAuthenticationProvider;
 import com.mopl.security.authentication.handler.SignInFailureHandler;
@@ -167,5 +168,18 @@ public class SecurityBeanConfig {
     @Bean
     public OAuth2FailureHandler oAuth2FailureHandler(OAuth2Properties oAuth2Properties) {
         return new OAuth2FailureHandler(oAuth2Properties);
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider(
+        UserDetailsService userDetailsService,
+        PasswordEncoder passwordEncoder,
+        TemporaryPasswordRepository temporaryPasswordRepository
+    ) {
+        TemporaryPasswordAuthenticationProvider provider = new TemporaryPasswordAuthenticationProvider(
+            temporaryPasswordRepository, passwordEncoder);
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return provider;
     }
 }
