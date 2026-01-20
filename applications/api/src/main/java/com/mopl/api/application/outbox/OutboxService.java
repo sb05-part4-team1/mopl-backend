@@ -1,4 +1,4 @@
-package com.mopl.api.outbox;
+package com.mopl.api.application.outbox;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,7 +8,6 @@ import com.mopl.jpa.entity.outbox.OutboxEventStatus;
 import com.mopl.jpa.repository.outbox.JpaOutboxEventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,7 +16,6 @@ public class OutboxService {
     private final JpaOutboxEventRepository outboxEventRepository;
     private final ObjectMapper objectMapper;
 
-    @Transactional
     public void saveEvent(DomainEvent event) {
         OutboxEventEntity outboxEvent = OutboxEventEntity.builder()
             .aggregateType(event.getAggregateType())
