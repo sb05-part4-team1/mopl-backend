@@ -1,9 +1,10 @@
 package com.mopl.external.tmdb.client;
 
+import com.mopl.external.tmdb.exception.TmdbImageDownloadException;
 import com.mopl.external.tmdb.model.TmdbGenreResponse;
 import com.mopl.external.tmdb.model.TmdbMovieResponse;
 import com.mopl.external.tmdb.model.TmdbTvResponse;
-import com.mopl.external.tmdb.properteis.TmdbProperties;
+import com.mopl.external.tmdb.properties.TmdbProperties;
 import java.io.IOException;
 import java.io.InputStream;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -83,19 +84,20 @@ public class TmdbClient {
             return null;
         }
 
-        Resource resource = tmdbImageClient.get()
-            .uri(uriBuilder -> uriBuilder
-                .path("/" + props.getImage().getDefaultSize() + posterPath)
-                .build()
-            )
-            .retrieve()
-            .bodyToMono(Resource.class)
-            .block();
-
         try {
+            Resource resource = tmdbImageClient.get()
+                .uri(uriBuilder -> uriBuilder
+                    .path("/" + props.getImage().getDefaultSize() + posterPath)
+                    .build()
+                )
+                .retrieve()
+                .bodyToMono(Resource.class)
+                .block();
+
             return resource != null ? resource.getInputStream() : null;
-        } catch (IOException e) {
-            throw new RuntimeException("TMDB 이미지 다운로드 실패", e);
+
+        } catch (IOException | RuntimeException e) {
+            throw new TmdbImageDownloadException(posterPath, e);
         }
     }
 }

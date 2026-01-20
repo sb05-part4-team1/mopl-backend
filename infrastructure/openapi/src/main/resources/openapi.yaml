@@ -8,6 +8,14 @@ tmdb:
     base-url: ${TMDB_IMAGE_BASE_URL}
     default-size: w500
 
+tsdb:
+  api:
+    base-url: ${TSDB_API_BASE_URL}
+    api-key: ${TSDB_API_KEY}
+
+  image:
+    default-size: medium
+
 spring:
   webclient:
     max-in-memory-size: 10MB

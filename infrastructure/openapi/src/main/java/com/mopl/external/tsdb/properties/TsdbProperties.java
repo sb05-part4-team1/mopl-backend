@@ -1,4 +1,4 @@
-package com.mopl.external.tmdb.properteis;
+package com.mopl.external.tsdb.properties;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,8 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "tmdb")
-public class TmdbProperties {
+@ConfigurationProperties(prefix = "tsdb")
+public class TsdbProperties {
 
     private Api api;
     private Image image;
@@ -17,7 +17,6 @@ public class TmdbProperties {
     public static class Api {
 
         private String baseUrl;
-        private String accessToken;
         private String apiKey;
     }
 
@@ -25,7 +24,6 @@ public class TmdbProperties {
     @Setter
     public static class Image {
 
-        private String baseUrl;
         private String defaultSize;
     }
 }
