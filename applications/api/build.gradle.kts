@@ -6,6 +6,7 @@ dependencies {
     implementation(project(":infrastructure:storage"))
     implementation(project(":infrastructure:redis"))
     implementation(project(":infrastructure:cache"))
+    implementation(project(":infrastructure:mail"))
     implementation(project(":shared:jackson"))
     implementation(project(":shared:logging"))
     implementation(project(":applications:sse"))

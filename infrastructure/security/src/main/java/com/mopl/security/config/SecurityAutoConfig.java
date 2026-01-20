@@ -8,6 +8,9 @@ import com.mopl.security.csrf.SpaCsrfTokenRequestHandler;
 import com.mopl.security.exception.AccessDeniedExceptionHandler;
 import com.mopl.security.exception.UnauthorizedEntryPoint;
 import com.mopl.security.jwt.filter.JwtAuthenticationFilter;
+import com.mopl.security.oauth2.CustomOAuth2UserService;
+import com.mopl.security.oauth2.handler.OAuth2FailureHandler;
+import com.mopl.security.oauth2.handler.OAuth2SuccessHandler;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -15,11 +18,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -38,7 +41,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 @EnableMethodSecurity
 @EnableScheduling
-@EnableConfigurationProperties(JwtProperties.class)
+@EnableConfigurationProperties({JwtProperties.class, OAuth2Properties.class})
 @Import(SecurityBeanConfig.class)
 public class SecurityAutoConfig {
 
@@ -62,7 +65,10 @@ public class SecurityAutoConfig {
         SignInSuccessHandler signInSuccessHandler,
         SignInFailureHandler signInFailureHandler,
         SignOutHandler signOutHandler,
-        JwtAuthenticationFilter jwtAuthenticationFilter
+        JwtAuthenticationFilter jwtAuthenticationFilter,
+        CustomOAuth2UserService customOAuth2UserService,
+        OAuth2SuccessHandler oAuth2SuccessHandler,
+        OAuth2FailureHandler oAuth2FailureHandler
     ) throws Exception {
         http
             .csrf(csrf -> csrf
@@ -85,6 +91,19 @@ public class SecurityAutoConfig {
                 .loginProcessingUrl("/api/auth/sign-in")
                 .successHandler(signInSuccessHandler)
                 .failureHandler(signInFailureHandler)
+            )
+            .oauth2Login(oauth2 -> oauth2
+                .authorizationEndpoint(authorization -> authorization
+                    .baseUri("/oauth2/authorization")
+                )
+                .redirectionEndpoint(redirection -> redirection
+                    .baseUri("/oauth2/callback/*")
+                )
+                .userInfoEndpoint(userInfo -> userInfo
+                    .userService(customOAuth2UserService)
+                )
+                .successHandler(oAuth2SuccessHandler)
+                .failureHandler(oAuth2FailureHandler)
             )
             .logout(logout -> logout
                 .logoutUrl("/api/auth/sign-out")
