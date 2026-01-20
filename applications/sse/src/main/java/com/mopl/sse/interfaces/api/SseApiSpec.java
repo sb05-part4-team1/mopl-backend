@@ -27,6 +27,6 @@ public interface SseApiSpec {
     )
     SseEmitter subscribe(
         @Parameter(hidden = true) MoplUserDetails userDetails,
-        @Parameter(name = "LastEventId", required = false) UUID lastEventId
+        @Parameter(name = "LastEventId", required = false) String lastEventId
     );
 }

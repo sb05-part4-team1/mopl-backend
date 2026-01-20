@@ -14,7 +14,7 @@ public class SseFacade {
 
     private final SseService sseService;
 
-    public SseEmitter subscribe(UUID userId, UUID lastEventId) {
+    public SseEmitter subscribe(UUID userId, String lastEventId) {
         // Emitter 생성 및 저장
         SseEmitter emitter = sseService.createEmitter(userId);
 
@@ -23,7 +23,7 @@ public class SseFacade {
         sseService.send(emitter, eventId, "sse", "EventStream Created.");
 
         // 미수신 데이터 재전송
-        if (lastEventId != null) {
+        if (lastEventId != null && !lastEventId.isEmpty()) {
             sseService.sendLostData(lastEventId, userId, emitter);
         }
 
