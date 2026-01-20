@@ -4,6 +4,7 @@ import com.mopl.security.jwt.provider.JwtPayload;
 import com.mopl.security.jwt.provider.JwtProvider;
 import com.mopl.security.jwt.provider.TokenType;
 import com.mopl.security.userdetails.MoplUserDetails;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -13,6 +14,8 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -26,7 +29,7 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
     private final JwtProvider jwtProvider;
 
     @Override
-    public Message<?> preSend(Message<?> message, MessageChannel channel) {
+    public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message,
             StompHeaderAccessor.class);
 
@@ -59,7 +62,6 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
             String destination = accessor.getDestination();
             if (StringUtils.hasText(destination) && destination.startsWith("/sub/contents/")
                 && destination.endsWith("/watch")) {
-                // 경로 파싱: /sub/contents/{contentId}/watch
                 String contentIdStr = destination.split("/")[3];
                 UUID contentId = UUID.fromString(contentIdStr);
 
@@ -67,6 +69,9 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
                     accessor.getSessionAttributes().put("watchingContentId", contentId);
                 }
             }
+        } else if (accessor.getUser() != null) {
+            Authentication authentication = (Authentication) accessor.getUser();
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
         return message;

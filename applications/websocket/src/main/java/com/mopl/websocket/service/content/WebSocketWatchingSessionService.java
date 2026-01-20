@@ -1,5 +1,6 @@
 package com.mopl.websocket.service.content;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -11,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class WatchingSessionService {
+public class WebSocketWatchingSessionService {
 
     private final WatchingSessionRepository watchingSessionRepository;
 
@@ -26,4 +27,9 @@ public class WatchingSessionService {
     public long getWatcherCount(UUID contentId) {
         return watchingSessionRepository.countByContentId(contentId);
     }
+
+    public Optional<WatchingSessionModel> findCurrentByWatcherId(UUID watcherId) {
+        return watchingSessionRepository.findCurrentByWatcherId(watcherId);
+    }
+
 }
