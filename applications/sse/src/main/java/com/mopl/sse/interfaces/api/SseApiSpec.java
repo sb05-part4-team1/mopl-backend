@@ -1,7 +1,5 @@
 package com.mopl.sse.interfaces.api;
 
-import java.util.UUID;
-
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.mopl.security.userdetails.MoplUserDetails;
