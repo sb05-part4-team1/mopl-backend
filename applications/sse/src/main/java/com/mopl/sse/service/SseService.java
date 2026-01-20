@@ -61,13 +61,12 @@ public class SseService {
         });
     }
 
-    public void sendLostData(UUID lastEventId, UUID userId, SseEmitter emitter) {
+    public void sendLostData(String lastEventId, UUID userId, SseEmitter emitter) {
         Map<String, Object> eventCaches = emitterRepository.findAllEventCacheStartWithByUserId(
             userId);
-        String lastEventIdStr = lastEventId.toString();
 
         eventCaches.entrySet().stream()
-            .filter(entry -> lastEventIdStr.compareTo(entry.getKey()) < 0)
+            .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
             .forEach(entry -> send(emitter, entry.getKey(), "sse", entry.getValue()));
     }
 
