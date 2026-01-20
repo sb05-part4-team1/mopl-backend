@@ -19,7 +19,7 @@ import java.time.Instant;
     @Index(name = "idx_outbox_status_created", columnList = "status, created_at")
 })
 @Getter
-@SuperBuilder(toBuilder = true)
+@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OutboxEventEntity extends BaseEntity {
 

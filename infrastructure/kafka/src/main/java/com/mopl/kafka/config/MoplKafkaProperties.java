@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record MoplKafkaProperties(
     Topics topics
 ) {
+
     public record Topics(
         String notification,
         String user,
