@@ -5,7 +5,7 @@ include(
     ":applications:sse",
     ":applications:websocket",
     // ":applications:chat",
-    // ":applications:batch",
+    ":applications:batch",
     // ":applications:streamer",
     ":core:domain",
     ":infrastructure:jpa",
@@ -14,7 +14,7 @@ include(
     ":infrastructure:cache",
     ":infrastructure:redis",
     // ":infrastructure:kafka",
-    // ":infrastructure:external",
+    ":infrastructure:openapi",
     ":shared:jackson",
     // ":shared:logging",
     ":shared:monitoring"

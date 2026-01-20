@@ -1,0 +1,13 @@
+tmdb:
+  api:
+    base-url: ${TMDB_API_BASE_URL}
+    access-token: ${TMDB_API_ACCESS_TOKEN}
+    api-key: ${TMDB_API_KEY}
+
+  image:
+    base-url: ${TMDB_IMAGE_BASE_URL}
+    default-size: w500
+
+spring:
+  webclient:
+    max-in-memory-size: 10MB
