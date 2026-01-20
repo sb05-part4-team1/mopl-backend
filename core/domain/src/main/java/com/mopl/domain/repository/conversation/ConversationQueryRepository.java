@@ -9,4 +9,5 @@ public interface ConversationQueryRepository {
     CursorResponse<ConversationModel> findAllConversation(ConversationQueryRequest request,
         UUID userId);
 
+    boolean existsParticipant(UUID conversationId, UUID userId);
 }

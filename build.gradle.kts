@@ -62,7 +62,12 @@ subprojects {
     tasks.withType(Jar::class) { enabled = true }
     tasks.withType(BootJar::class) { enabled = false }
 
-    configure(allprojects.filter { it.parent?.name.equals("applications") }) {
+//    configure(allprojects.filter { it.parent?.name.equals("applications") }) {
+//        tasks.withType(Jar::class) { enabled = false }
+//        tasks.withType(BootJar::class) { enabled = true }
+//    }
+    // "applications 폴더 안에 있지만, 이름이 api가 아닌 것들만" 적용한다.
+    configure(allprojects.filter { it.parent?.name.equals("applications") && it.name != "api" }) {
         tasks.withType(Jar::class) { enabled = false }
         tasks.withType(BootJar::class) { enabled = true }
     }

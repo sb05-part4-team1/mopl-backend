@@ -39,14 +39,14 @@ public class ConversationFacade {
         conversationService.directMessageRead(directMessageModel, readStatusModels);
     }
 
-
+    @Transactional
     public ConversationModel getConversationByWith(UUID userId, UUID withId) {
 
         return conversationService.getConversationByWith(userId, withId);
 
     }
 
-
+    @Transactional
     public CursorResponse<DirectMessageResponse> getAllDirectMessage(
         UUID conversationId,
         DirectMessageQueryRequest request,
@@ -57,7 +57,7 @@ public class ConversationFacade {
 
     }
 
-
+    @Transactional
     public CursorResponse<ConversationResponse> getAllConversation(
         ConversationQueryRequest request,
         UUID userId
@@ -77,7 +77,7 @@ public class ConversationFacade {
         return conversationService.create(conversationModel, requesterUserModel, withUserModel);
     }
 
-
+    @Transactional
     public ConversationModel getConversation(UUID conversationId, UUID userId) {
 
         return conversationService.getConversation(conversationId, userId);

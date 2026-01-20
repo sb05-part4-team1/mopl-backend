@@ -82,7 +82,13 @@ public interface ConversationApiSpec {
      * ========================= */
     @Operation(
         summary = "메시지 읽음 처리",
-        description = "특정 메시지를 읽음 처리합니다."
+        description = "특정 메시지를 읽음 처리합니다.",
+        responses = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "성공"
+                )
+        }
     )
     void readDirectMessage(
         @Parameter(hidden = true) MoplUserDetails userDetails,

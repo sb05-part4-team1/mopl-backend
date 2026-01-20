@@ -30,18 +30,27 @@ public enum UserSortFieldJpa implements SortField<Comparable<?>> {
         Object::toString, cursor -> cursor
     ),
 
-    CREATED_AT(UserSortField.createdAt, cast(userEntity.createdAt),
-        UserEntity::getCreatedAt, value -> ((Instant) value).toString(), Instant::parse),
+    CREATED_AT(
+        UserSortField.createdAt,
+        cast(userEntity.createdAt),
+        UserEntity::getCreatedAt,
+        Object::toString,
+        Instant::parse
+    ),
 
     IS_LOCKED(
         UserSortField.isLocked,
         cast(userEntity.locked),
         UserEntity::isLocked,
-        Object::toString, Boolean::parseBoolean
+        Object::toString,
+        Boolean::parseBoolean
     ),
 
-    ROLE(UserSortField.role, cast(userEntity.role.stringValue()),
-        entity -> entity.getRole().name(), Object::toString, cursor -> cursor);
+    ROLE(
+        UserSortField.role,
+        cast(userEntity.role.stringValue()), entity -> entity.getRole().name(),
+        Object::toString, cursor -> cursor
+    );
 
     private final UserSortField domainField;
     private final ComparableExpression<Comparable<?>> expression;

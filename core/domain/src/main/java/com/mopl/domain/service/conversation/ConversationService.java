@@ -1,5 +1,6 @@
 package com.mopl.domain.service.conversation;
 
+import com.mopl.domain.exception.conversation.ConversationAccessDeniedException;
 import com.mopl.domain.exception.conversation.ConversationNotFoundException;
 import com.mopl.domain.exception.conversation.DirectMessageNotFoundException;
 import com.mopl.domain.exception.conversation.ReadStatusNotFoundException;
@@ -60,7 +61,11 @@ public class ConversationService {
                 conversationId, request, userId
             );
 
-        //메시지 모두에 receiver를 해줘야 됨.
+        if (!conversationQueryRepository.existsParticipant(conversationId, userId)) {
+            throw new ConversationAccessDeniedException(conversationId, userId);
+        }
+
+
         ReadStatusModel otherReadStatusModel = readStatusRepository
             .findOtherReadStatus(conversationId, userId);
         UserModel userModel = userRepository.findById(userId)
@@ -214,15 +219,14 @@ public class ConversationService {
         return conversationModel;
     }
 
-    // conversation 찾고 거기에 readStatus 조회해서 조회한 userId가 포함되는지 확인하고 반환
     public ConversationModel getConversation(UUID conversationId, UUID userId) {
+        if (!conversationQueryRepository.existsParticipant(conversationId, userId)) {
+            throw new ConversationAccessDeniedException(conversationId, userId);
+        }
         //lastmessage랑 같이 옴
         ConversationModel conversationModel = conversationRepository.find(conversationId)
             .orElseThrow(() -> new ConversationNotFoundException(conversationId));
         DirectMessageModel lastMessage = conversationModel.getLastMessage();
-
-        //conversation message의 sender에 따라 다시 생각해봐야 될 것 같음.
-        //unread는 내 기준으로 lastMessage sender가 상대방이면 계산
 
         // 상대방 ReadStatus
         ReadStatusModel otherReadStatus = readStatusRepository.findOtherReadStatus(conversationId,

@@ -99,4 +99,20 @@ public class ConversationQueryRepositoryImpl implements ConversationQueryReposit
         );
     }
 
+    @Override
+    public boolean existsParticipant(UUID conversationId, UUID userId) {
+        QReadStatusEntity readStatus = QReadStatusEntity.readStatusEntity;
+
+        Integer fetchOne = queryFactory
+                .selectOne()
+                .from(readStatus)
+                .where(
+                        readStatus.conversation.id.eq(conversationId),
+                        readStatus.participant.id.eq(userId)
+                )
+                .fetchFirst();
+
+        return fetchOne != null;
+    }
+
 }
