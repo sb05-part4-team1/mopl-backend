@@ -10,6 +10,7 @@ import com.mopl.domain.exception.user.SelfLockChangeException;
 import com.mopl.domain.exception.user.SelfRoleChangeException;
 import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.user.UserModel;
+import com.mopl.domain.repository.user.TemporaryPasswordRepository;
 import com.mopl.domain.repository.user.UserQueryRequest;
 import com.mopl.domain.repository.user.UserSortField;
 import com.mopl.domain.service.user.UserService;
@@ -58,6 +59,9 @@ class UserFacadeTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private TemporaryPasswordRepository temporaryPasswordRepository;
 
     @InjectMocks
     private UserFacade userFacade;
@@ -583,6 +587,54 @@ class UserFacadeTest {
             assertThat(result.hasNext()).isFalse();
 
             then(userService).should().getAll(request);
+        }
+    }
+
+    @Nested
+    @DisplayName("updatePassword()")
+    class UpdatePasswordTest {
+
+        @Test
+        @DisplayName("유효한 요청 시 비밀번호 변경 및 임시 비밀번호 삭제 성공")
+        void withValidRequest_updatesPasswordAndDeletesTemporaryPassword() {
+            // given
+            UserModel userModel = UserModelFixture.create();
+            String newPassword = "newP@ssw0rd!";
+            String encodedPassword = "encodedNewPassword";
+
+            given(userService.getById(userModel.getId())).willReturn(userModel);
+            given(passwordEncoder.encode(newPassword)).willReturn(encodedPassword);
+            given(userService.update(any(UserModel.class))).willReturn(userModel);
+
+            // when
+            userFacade.updatePassword(userModel.getId(), newPassword);
+
+            // then
+            then(userService).should().getById(userModel.getId());
+            then(passwordEncoder).should().encode(newPassword);
+            then(userService).should().update(any(UserModel.class));
+            then(temporaryPasswordRepository).should().deleteByEmail(userModel.getEmail());
+        }
+
+        @Test
+        @DisplayName("비밀번호 변경 후 임시 비밀번호가 삭제된다")
+        void afterPasswordChange_temporaryPasswordIsDeleted() {
+            // given
+            String email = "test@example.com";
+            UserModel userModel = UserModelFixture.builder()
+                .set("email", email)
+                .sample();
+            String newPassword = "newP@ssw0rd!";
+
+            given(userService.getById(userModel.getId())).willReturn(userModel);
+            given(passwordEncoder.encode(newPassword)).willReturn("encoded");
+            given(userService.update(any(UserModel.class))).willReturn(userModel);
+
+            // when
+            userFacade.updatePassword(userModel.getId(), newPassword);
+
+            // then
+            then(temporaryPasswordRepository).should().deleteByEmail(email);
         }
     }
 }

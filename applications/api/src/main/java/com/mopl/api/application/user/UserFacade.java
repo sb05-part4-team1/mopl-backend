@@ -10,6 +10,7 @@ import com.mopl.domain.exception.user.SelfLockChangeException;
 import com.mopl.domain.exception.user.SelfRoleChangeException;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.model.user.UserModel.AuthProvider;
+import com.mopl.domain.repository.user.TemporaryPasswordRepository;
 import com.mopl.domain.repository.user.UserQueryRequest;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.support.cursor.CursorResponse;
@@ -32,6 +33,7 @@ public class UserFacade {
     private final UserResponseMapper userResponseMapper;
     private final FileStorageProvider fileStorageProvider;
     private final PasswordEncoder passwordEncoder;
+    private final TemporaryPasswordRepository temporaryPasswordRepository;
 
     public UserModel signUp(UserCreateRequest userCreateRequest) {
         String email = userCreateRequest.email().strip().toLowerCase(Locale.ROOT);
@@ -117,5 +119,14 @@ public class UserFacade {
         }
 
         return userService.update(userModel);
+    }
+
+    public void updatePassword(UUID userId, String newPassword) {
+        UserModel userModel = userService.getById(userId);
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        userModel.updatePassword(encodedPassword);
+        userService.update(userModel);
+
+        temporaryPasswordRepository.deleteByEmail(userModel.getEmail());
     }
 }
