@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @RequiredArgsConstructor
 public class ConversationFacade {
+
     private final ConversationService conversationService;
     private final UserService userService;
     private final ConversationResponseMapper conversationResponseMapper;

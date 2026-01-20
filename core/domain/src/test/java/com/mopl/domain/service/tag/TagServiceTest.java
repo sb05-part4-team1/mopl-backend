@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,7 +41,7 @@ class TagServiceTest {
             // given
             String existingName = "SF";
             String newName = "액션";
-            java.time.Instant now = java.time.Instant.now();
+            Instant now = Instant.now();
 
             TagModel existingTag = TagModel.builder()
                 .id(UUID.randomUUID()).name(existingName).createdAt(now).build();
@@ -71,8 +72,8 @@ class TagServiceTest {
             // given
             String tagName = "SF";
             TagModel deletedTag = TagModel.builder()
-                .id(UUID.randomUUID()).name(tagName).createdAt(java.time.Instant.now())
-                .deletedAt(java.time.Instant.now()).build();
+                .id(UUID.randomUUID()).name(tagName).createdAt(Instant.now())
+                .deletedAt(Instant.now()).build();
 
             given(tagRepository.findByName(tagName)).willReturn(Optional.of(deletedTag));
             given(tagRepository.saveAll(anyList())).willAnswer(inv -> inv.getArgument(0));
@@ -92,7 +93,7 @@ class TagServiceTest {
             // given
             List<String> input = List.of(" SF ", "SF", "  SF  ");
             TagModel sfTag = TagModel.builder()
-                .id(UUID.randomUUID()).name("SF").createdAt(java.time.Instant.now()).build();
+                .id(UUID.randomUUID()).name("SF").createdAt(Instant.now()).build();
 
             given(tagRepository.findByName("SF")).willReturn(Optional.empty());
             given(tagRepository.saveAll(anyList())).willReturn(List.of(sfTag));

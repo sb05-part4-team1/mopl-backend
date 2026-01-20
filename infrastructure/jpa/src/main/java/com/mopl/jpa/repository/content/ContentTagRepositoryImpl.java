@@ -24,21 +24,6 @@ public class ContentTagRepositoryImpl implements ContentTagRepository {
     private final TagEntityMapper tagEntityMapper;
 
     @Override
-    public void saveAll(UUID contentId, List<TagModel> tags) {
-        ContentEntity contentRef = jpaContentRepository.getReferenceById(contentId);
-
-        List<ContentTagEntity> entities = tags.stream()
-            .map(tag -> ContentTagEntity.builder()
-                .content(contentRef)
-                .tag(jpaTagRepository.getReferenceById(tag.getId()))
-                .build()
-            )
-            .collect(Collectors.toList());
-
-        jpaContentTagRepository.saveAll(entities);
-    }
-
-    @Override
     public List<TagModel> findTagsByContentId(UUID contentId) {
         List<ContentTagEntity> contentTagEntities = jpaContentTagRepository.findAllByContentId(
             contentId);
@@ -65,6 +50,21 @@ public class ContentTagRepositoryImpl implements ContentTagRepository {
                     Collectors.toList()
                 )
             ));
+    }
+
+    @Override
+    public void saveAll(UUID contentId, List<TagModel> tags) {
+        ContentEntity contentRef = jpaContentRepository.getReferenceById(contentId);
+
+        List<ContentTagEntity> entities = tags.stream()
+            .map(tag -> ContentTagEntity.builder()
+                .content(contentRef)
+                .tag(jpaTagRepository.getReferenceById(tag.getId()))
+                .build()
+            )
+            .collect(Collectors.toList());
+
+        jpaContentTagRepository.saveAll(entities);
     }
 
     @Override

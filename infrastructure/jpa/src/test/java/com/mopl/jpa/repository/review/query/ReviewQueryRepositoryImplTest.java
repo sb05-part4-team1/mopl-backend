@@ -1,5 +1,6 @@
 package com.mopl.jpa.repository.review.query;
 
+import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.review.ReviewModel;
 import com.mopl.domain.repository.review.ReviewQueryRepository;
 import com.mopl.domain.repository.review.ReviewQueryRequest;
@@ -97,7 +98,7 @@ class ReviewQueryRepositoryImplTest {
         ContentEntity entity = ContentEntity.builder()
             .createdAt(createdAt)
             .updatedAt(createdAt)
-            .type(com.mopl.domain.model.content.ContentModel.ContentType.movie)
+            .type(ContentModel.ContentType.movie)
             .title(title)
             .description("Description")
             .averageRating(0.0)

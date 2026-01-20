@@ -9,6 +9,7 @@ dependencies {
     implementation(project(":shared:jackson"))
     implementation(project(":shared:logging"))
     implementation(project(":applications:sse"))
+    implementation (project(":shared:monitoring"))
 
     // web
     implementation("org.springframework.boot:spring-boot-starter-web")

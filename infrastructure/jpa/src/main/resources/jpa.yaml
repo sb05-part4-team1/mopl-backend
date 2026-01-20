@@ -62,3 +62,9 @@ spring:
     hibernate:
       ddl-auto: none
     show-sql: false
+---
+# 추후 삭제 예정입니다.
+mopl:
+  watching-session:
+    repository:
+      type: redis  # stub | redis

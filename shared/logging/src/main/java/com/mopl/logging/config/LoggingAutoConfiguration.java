@@ -16,8 +16,7 @@ public class LoggingAutoConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(mdcLoggingInterceptor())
-                .order(0);
+        registry.addInterceptor(mdcLoggingInterceptor()).order(0);
     }
 
 }

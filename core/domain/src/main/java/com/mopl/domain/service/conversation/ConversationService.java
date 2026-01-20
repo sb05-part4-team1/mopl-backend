@@ -60,12 +60,9 @@ public class ConversationService {
             .findAllByConversationId(
                 conversationId, request, userId
             );
-
         if (!conversationQueryRepository.existsParticipant(conversationId, userId)) {
             throw new ConversationAccessDeniedException(conversationId, userId);
         }
-
-
         ReadStatusModel otherReadStatusModel = readStatusRepository
             .findOtherReadStatus(conversationId, userId);
         UserModel userModel = userRepository.findById(userId)

@@ -14,9 +14,9 @@ public class MDCLoggingInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Object handler
+        HttpServletRequest request,
+        HttpServletResponse response,
+        Object handler
     ) {
         // 1. requestId 생성
         String requestId = UUID.randomUUID().toString();
@@ -34,10 +34,10 @@ public class MDCLoggingInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Object handler,
-            Exception ex
+        HttpServletRequest request,
+        HttpServletResponse response,
+        Object handler,
+        Exception ex
     ) {
         // 반드시 호출
         MDC.clear();

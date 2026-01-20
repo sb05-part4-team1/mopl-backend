@@ -36,7 +36,7 @@ public class ReviewEntityMapper {
 
         return buildReviewModel(
             reviewEntity,
-            toContentModel(reviewEntity.getContent()),
+            contentEntityMapper.toModel(reviewEntity.getContent()),
             toAuthorIdOnly(reviewEntity.getAuthor())
         );
     }
@@ -49,7 +49,7 @@ public class ReviewEntityMapper {
         return buildReviewModel(
             reviewEntity,
             toContentIdOnly(reviewEntity.getContent()),
-            toAuthorModel(reviewEntity.getAuthor())
+            userEntityMapper.toModel(reviewEntity.getAuthor())
         );
     }
 
@@ -60,8 +60,8 @@ public class ReviewEntityMapper {
 
         return buildReviewModel(
             reviewEntity,
-            toContentModel(reviewEntity.getContent()),
-            toAuthorModel(reviewEntity.getAuthor())
+            contentEntityMapper.toModel(reviewEntity.getContent()),
+            userEntityMapper.toModel(reviewEntity.getAuthor())
         );
     }
 
@@ -105,21 +105,9 @@ public class ReviewEntityMapper {
             : null;
     }
 
-    private ContentModel toContentModel(ContentEntity contentEntity) {
-        return contentEntity != null
-            ? contentEntityMapper.toModel(contentEntity)
-            : null;
-    }
-
     private UserModel toAuthorIdOnly(UserEntity authorEntity) {
         return authorEntity != null
             ? UserModel.builder().id(authorEntity.getId()).build()
-            : null;
-    }
-
-    private UserModel toAuthorModel(UserEntity authorEntity) {
-        return authorEntity != null
-            ? userEntityMapper.toModel(authorEntity)
             : null;
     }
 }
