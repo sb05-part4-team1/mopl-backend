@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 /**
  * WatchingSession 전용 "정렬 필드 + 커서 직렬화/역직렬화" 도구.
- *
+ * <p>
  * - 다른 도메인(UserSortFieldJpa)처럼 "SortFieldJpa" 패턴을 따라가되,
  * WatchingSession은 Entity/Querydsl이 없으므로 ComparableExpression 없이 구현한다.
  * - Fake(인메모리) / Redis 구현체 모두에서 재사용 가능하다.
@@ -21,8 +21,7 @@ public enum WatchingSessionSortFieldSupport {
 
     CREATED_AT(
         WatchingSessionSortField.createdAt,
-        WatchingSessionModel::getCreatedAt,
-        value -> ((Instant) value).toString(),
+        WatchingSessionModel::getCreatedAt, value -> ((Instant) value).toString(),
         Instant::parse
     );
 
