@@ -69,8 +69,7 @@ public class TsdbEventUpsertService {
             }
 
             String extension = item.strThumb().substring(item.strThumb().lastIndexOf("."));
-            String filePath =
-                "contents/tsdb/" + item.strSport() + "/" + item.idEvent() + extension;
+            String filePath = "contents/tsdb/" + item.strSport() + "/" + item.idEvent() + extension;
 
             String storedPath = fileStorageProvider.upload(imageStream, filePath);
             return fileStorageProvider.getUrl(storedPath);
@@ -95,10 +94,10 @@ public class TsdbEventUpsertService {
 
     private List<String> buildTags(EventItem item) {
         return Stream.of(
-                item.strSport(),
-                item.strHomeTeam(),
-                item.strAwayTeam()
-            )
+            item.strSport(),
+            item.strHomeTeam(),
+            item.strAwayTeam()
+        )
             .filter(Objects::nonNull)
             .map(String::strip)
             .filter(s -> !s.isBlank())
