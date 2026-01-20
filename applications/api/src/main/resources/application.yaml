@@ -8,7 +8,7 @@ spring:
     name: mopl-api
 
   profiles:
-    active:
+    active: local
 
   config:
     import:
