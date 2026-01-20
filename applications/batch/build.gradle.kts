@@ -14,6 +14,11 @@ dependencies {
     // actuator
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 
+    // redis (오류해결땜에)
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
     // test
     testImplementation(testFixtures(project(":core:domain")))
+
+
 }

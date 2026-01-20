@@ -11,12 +11,20 @@ spring:
   profiles:
     active: local
 
+  # [1] 여기에 Redis 설정을 추가하세요!
+  data:
+    redis:
+      host: localhost  # 로컬이 아니면 IP 입력
+      port: 6379
+
   config:
     import:
       - optional:file:.env[.properties]
       - jpa.yaml
       - storage.yaml
       - openapi.yaml
+      # [2] 만약 api 모듈에서 redis.yaml을 따로 쓰고 있다면 여기에 추가해도 됩니다.
+      # - redis.yaml
 
   threads:
     virtual:

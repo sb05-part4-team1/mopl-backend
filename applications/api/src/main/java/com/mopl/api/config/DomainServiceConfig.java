@@ -7,7 +7,9 @@ import com.mopl.domain.repository.follow.FollowRepository;
 import com.mopl.domain.repository.notification.NotificationQueryRepository;
 import com.mopl.domain.repository.notification.NotificationRepository;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
+import com.mopl.domain.repository.playlist.PlaylistQueryRepository;
 import com.mopl.domain.repository.playlist.PlaylistRepository;
+import com.mopl.domain.repository.playlist.PlaylistSubscriberCountRepository;
 import com.mopl.domain.repository.playlist.PlaylistSubscriberRepository;
 import com.mopl.domain.repository.review.ReviewQueryRepository;
 import com.mopl.domain.repository.review.ReviewRepository;
@@ -19,6 +21,7 @@ import com.mopl.domain.repository.watchingsession.WatchingSessionRepository;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.follow.FollowService;
 import com.mopl.domain.service.notification.NotificationService;
+import com.mopl.domain.service.playlist.PlaylistCacheService;
 import com.mopl.domain.service.playlist.PlaylistService;
 import com.mopl.domain.service.playlist.PlaylistSubscriptionService;
 import com.mopl.domain.service.review.ReviewService;
@@ -78,21 +81,38 @@ public class DomainServiceConfig {
     }
 
     @Bean
-    public PlaylistService playlistService(
+    public PlaylistCacheService playlistCacheService(
         PlaylistRepository playlistRepository,
         PlaylistContentRepository playlistContentRepository
     ) {
-        return new PlaylistService(
+        return new PlaylistCacheService(
             playlistRepository,
             playlistContentRepository
         );
     }
 
     @Bean
-    public PlaylistSubscriptionService playlistSubscriptionService(
-        PlaylistSubscriberRepository playlistSubscriberRepository
+    public PlaylistService playlistService(
+        PlaylistCacheService playlistCacheService,
+        PlaylistQueryRepository playlistQueryRepository,
+        PlaylistContentRepository playlistContentRepository
     ) {
-        return new PlaylistSubscriptionService(playlistSubscriberRepository);
+        return new PlaylistService(
+            playlistCacheService,
+            playlistQueryRepository,
+            playlistContentRepository
+        );
+    }
+
+    @Bean
+    public PlaylistSubscriptionService playlistSubscriptionService(
+        PlaylistSubscriberRepository playlistSubscriberRepository,
+        PlaylistSubscriberCountRepository playlistSubscriberCountRepository
+    ) {
+        return new PlaylistSubscriptionService(
+            playlistSubscriberRepository,
+            playlistSubscriberCountRepository
+        );
     }
 
     @Bean

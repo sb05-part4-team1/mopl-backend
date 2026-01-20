@@ -1,7 +1,10 @@
 package com.mopl.websocket.config;
 
-import java.util.UUID;
-
+import com.mopl.security.jwt.provider.JwtPayload;
+import com.mopl.security.jwt.provider.JwtProvider;
+import com.mopl.security.jwt.provider.TokenType;
+import com.mopl.security.userdetails.MoplUserDetails;
+import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageDeliveryException;
@@ -15,12 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.mopl.security.jwt.provider.JwtPayload;
-import com.mopl.security.jwt.provider.JwtProvider;
-import com.mopl.security.jwt.provider.TokenType;
-import com.mopl.security.userdetails.MoplUserDetails;
-
-import lombok.RequiredArgsConstructor;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -34,8 +32,9 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message,
             StompHeaderAccessor.class);
 
-        if (accessor == null)
+        if (accessor == null) {
             return message;
+        }
 
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             String authHeader = accessor.getFirstNativeHeader("Authorization");
@@ -58,9 +57,7 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
                     throw new MessageDeliveryException("인증에 실패했습니다.");
                 }
             }
-        }
-
-        else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
+        } else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
             String destination = accessor.getDestination();
             if (StringUtils.hasText(destination) && destination.startsWith("/sub/contents/")
                 && destination.endsWith("/watch")) {

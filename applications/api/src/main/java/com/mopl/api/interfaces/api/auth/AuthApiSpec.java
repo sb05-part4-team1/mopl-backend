@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.web.csrf.CsrfToken;
 
@@ -32,4 +33,15 @@ public interface AuthApiSpec {
         ) String refreshToken,
         @Parameter(hidden = true) HttpServletResponse response
     );
+
+    @Operation(
+        summary = "비밀번호 초기화",
+        description = "임시 비밀번호를 생성하여 이메일로 발송합니다. 임시 비밀번호는 3분간 유효합니다."
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "임시 비밀번호 발송 성공"),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+        @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음")
+    })
+    void resetPassword(ResetPasswordRequest request);
 }

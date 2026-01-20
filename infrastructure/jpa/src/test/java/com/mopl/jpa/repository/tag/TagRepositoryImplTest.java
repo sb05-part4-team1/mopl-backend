@@ -30,6 +30,36 @@ class TagRepositoryImplTest {
     private TagRepository tagRepository;
 
     @Nested
+    @DisplayName("findByName()")
+    class FindByNameTest {
+
+        @Test
+        @DisplayName("존재하는 이름으로 조회 시 TagModel 반환")
+        void withExistingName_returnsOptionalTag() {
+            // given
+            String tagName = "액션";
+            tagRepository.save(TagModel.create(tagName));
+
+            // when
+            Optional<TagModel> result = tagRepository.findByName(tagName);
+
+            // then
+            assertThat(result).isPresent();
+            assertThat(result.get().getName()).isEqualTo(tagName);
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 이름으로 조회 시 빈 Optional 반환")
+        void withNonExistingName_returnsEmpty() {
+            // when
+            Optional<TagModel> result = tagRepository.findByName("NonExistent");
+
+            // then
+            assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
     @DisplayName("save()")
     class SaveTest {
 
@@ -72,36 +102,6 @@ class TagRepositoryImplTest {
             assertThat(savedTags)
                 .extracting(TagModel::getName)
                 .containsExactlyInAnyOrder("SF", "액션");
-        }
-    }
-
-    @Nested
-    @DisplayName("findByName()")
-    class FindByNameTest {
-
-        @Test
-        @DisplayName("존재하는 이름으로 조회 시 TagModel 반환")
-        void withExistingName_returnsOptionalTag() {
-            // given
-            String tagName = "액션";
-            tagRepository.save(TagModel.create(tagName));
-
-            // when
-            Optional<TagModel> result = tagRepository.findByName(tagName);
-
-            // then
-            assertThat(result).isPresent();
-            assertThat(result.get().getName()).isEqualTo(tagName);
-        }
-
-        @Test
-        @DisplayName("존재하지 않는 이름으로 조회 시 빈 Optional 반환")
-        void withNonExistingName_returnsEmpty() {
-            // when
-            Optional<TagModel> result = tagRepository.findByName("NonExistent");
-
-            // then
-            assertThat(result).isEmpty();
         }
     }
 }
