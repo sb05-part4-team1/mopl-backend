@@ -6,7 +6,7 @@ spring:
   main:
     web-application-type: none
   application:
-    name: mopl-consumer
+    name: mopl-worker
   profiles:
     active: local
   config:

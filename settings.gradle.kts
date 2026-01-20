@@ -4,7 +4,7 @@ include(
     ":applications:api",
     ":applications:sse",
     ":applications:websocket",
-    ":applications:consumer",
+    ":applications:worker",
     ":applications:batch",
     ":core:domain",
     ":infrastructure:jpa",
