@@ -1,0 +1,19 @@
+server:
+  port: 8082
+  shutdown: graceful
+
+spring:
+  main:
+    web-application-type: none
+  application:
+    name: mopl-consumer
+  profiles:
+    active: local
+  config:
+    import:
+      - optional:file:.env[.properties]
+      - jpa.yaml
+      - kafka.yaml
+  threads:
+    virtual:
+      enabled: true
