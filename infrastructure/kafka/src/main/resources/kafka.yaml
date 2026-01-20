@@ -25,8 +25,6 @@ spring:
 
 mopl:
   kafka:
-    topics:
-      notification: mopl.notification.events
-      user: mopl.user.events
-      content: mopl.content.events
-      analytics: mopl.analytics.events
+    topic:
+      partitions: 3
+      replicas: 1

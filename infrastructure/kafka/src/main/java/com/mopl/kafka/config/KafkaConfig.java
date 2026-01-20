@@ -1,13 +1,14 @@
 package com.mopl.kafka.config;
 
+import com.mopl.domain.event.EventTopic;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -16,6 +17,7 @@ import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaAdmin.NewTopics;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
@@ -27,13 +29,16 @@ import java.util.Map;
 
 @EnableKafka
 @Configuration
-@EnableConfigurationProperties(MoplKafkaProperties.class)
 @RequiredArgsConstructor
 public class KafkaConfig {
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     private final KafkaProperties kafkaProperties;
-    private final MoplKafkaProperties moplKafkaProperties;
+
+    @Value("${mopl.kafka.topic.partitions:3}")
+    private int partitions;
+
+    @Value("${mopl.kafka.topic.replicas:1}")
+    private int replicas;
 
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
@@ -66,34 +71,14 @@ public class KafkaConfig {
     }
 
     @Bean
-    public NewTopic notificationTopic() {
-        return TopicBuilder.name(moplKafkaProperties.topics().notification())
-            .partitions(3)
-            .replicas(1)
-            .build();
-    }
-
-    @Bean
-    public NewTopic userTopic() {
-        return TopicBuilder.name(moplKafkaProperties.topics().user())
-            .partitions(3)
-            .replicas(1)
-            .build();
-    }
-
-    @Bean
-    public NewTopic contentTopic() {
-        return TopicBuilder.name(moplKafkaProperties.topics().content())
-            .partitions(3)
-            .replicas(1)
-            .build();
-    }
-
-    @Bean
-    public NewTopic analyticsTopic() {
-        return TopicBuilder.name(moplKafkaProperties.topics().analytics())
-            .partitions(3)
-            .replicas(1)
-            .build();
+    public NewTopics createAllTopics() {
+        return new NewTopics(
+            EventTopic.all().stream()
+                .map(topic -> TopicBuilder.name(topic)
+                    .partitions(partitions)
+                    .replicas(replicas)
+                    .build())
+                .toArray(NewTopic[]::new)
+        );
     }
 }

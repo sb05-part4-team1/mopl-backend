@@ -1,6 +1,8 @@
 package com.mopl.domain.event.playlist;
 
 import com.mopl.domain.event.AbstractDomainEvent;
+import com.mopl.domain.event.EventTopic;
+import com.mopl.domain.model.playlist.PlaylistModel;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -21,11 +23,16 @@ public class PlaylistContentAddedEvent extends AbstractDomainEvent {
 
     @Override
     public String getAggregateType() {
-        return "PLAYLIST";
+        return PlaylistModel.class.getSimpleName();
     }
 
     @Override
     public String getAggregateId() {
         return playlistId.toString();
+    }
+
+    @Override
+    public String getTopic() {
+        return EventTopic.PLAYLIST_CONTENT_ADDED;
     }
 }

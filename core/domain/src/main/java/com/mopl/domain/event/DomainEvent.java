@@ -13,6 +13,8 @@ public interface DomainEvent {
 
     String getAggregateId();
 
+    String getTopic();
+
     default String getEventType() {
         return this.getClass().getSimpleName();
     }

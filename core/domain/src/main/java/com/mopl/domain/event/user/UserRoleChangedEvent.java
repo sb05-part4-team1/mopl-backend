@@ -1,6 +1,8 @@
 package com.mopl.domain.event.user;
 
 import com.mopl.domain.event.AbstractDomainEvent;
+import com.mopl.domain.event.EventTopic;
+import com.mopl.domain.model.user.UserModel;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -16,11 +18,16 @@ public class UserRoleChangedEvent extends AbstractDomainEvent {
 
     @Override
     public String getAggregateType() {
-        return "USER";
+        return UserModel.class.getSimpleName();
     }
 
     @Override
     public String getAggregateId() {
         return userId.toString();
+    }
+
+    @Override
+    public String getTopic() {
+        return EventTopic.USER_ROLE_CHANGED;
     }
 }

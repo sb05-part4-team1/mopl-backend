@@ -1,6 +1,7 @@
 package com.mopl.domain.event.message;
 
 import com.mopl.domain.event.AbstractDomainEvent;
+import com.mopl.domain.event.EventTopic;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -15,7 +16,7 @@ public class DirectMessageReceivedEvent extends AbstractDomainEvent {
     private final UUID senderId;
     private final String senderName;
     private final UUID receiverId;
-    private final String messagePreview;
+    private final String messageContent;
 
     @Override
     public String getAggregateType() {
@@ -25,5 +26,10 @@ public class DirectMessageReceivedEvent extends AbstractDomainEvent {
     @Override
     public String getAggregateId() {
         return messageId.toString();
+    }
+
+    @Override
+    public String getTopic() {
+        return EventTopic.MESSAGE_RECEIVED;
     }
 }
