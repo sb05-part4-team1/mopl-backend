@@ -1,9 +1,7 @@
 dependencies {
     // project modules
-    implementation(project(":core:domain"))
     implementation(project(":infrastructure:security"))
-    implementation(project(":infrastructure:jpa"))
-    implementation(project(":infrastructure:kafka"))
+    implementation(project(":infrastructure:redis"))
     implementation(project(":shared:monitoring"))
     // web
     implementation("org.springframework.boot:spring-boot-starter-web")
