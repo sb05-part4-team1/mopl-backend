@@ -1,5 +1,6 @@
 package com.mopl.domain.service.follow;
 
+import java.util.List;
 import java.util.UUID;
 
 import com.mopl.domain.exception.follow.FollowNotFoundException;
@@ -40,5 +41,9 @@ public class FollowService {
 
     public boolean isFollow(UUID followerId, UUID followeeId) {
         return followRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
+    }
+
+    public List<UUID> getFollowerIds(UUID followeeId) {
+        return followRepository.findFollowerIdsByFolloweeId(followeeId);
     }
 }

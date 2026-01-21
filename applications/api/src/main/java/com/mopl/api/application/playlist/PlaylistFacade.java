@@ -6,6 +6,7 @@ import com.mopl.api.interfaces.api.playlist.PlaylistResponse;
 import com.mopl.api.interfaces.api.playlist.PlaylistResponseMapper;
 import com.mopl.api.interfaces.api.playlist.PlaylistUpdateRequest;
 import com.mopl.domain.event.playlist.PlaylistContentAddedEvent;
+import com.mopl.domain.event.playlist.PlaylistCreatedEvent;
 import com.mopl.domain.event.playlist.PlaylistSubscribedEvent;
 import com.mopl.domain.event.playlist.PlaylistUnsubscribedEvent;
 import com.mopl.domain.exception.content.ContentNotFoundException;
@@ -99,11 +100,23 @@ public class PlaylistFacade {
     ) {
         UserModel owner = userService.getById(requesterId);
 
-        PlaylistModel playlistModel = playlistService.create(
-            owner,
-            request.title(),
-            request.description()
-        );
+        PlaylistModel playlistModel = transactionTemplate.execute(status -> {
+            PlaylistModel created = playlistService.create(
+                owner,
+                request.title(),
+                request.description()
+            );
+
+            PlaylistCreatedEvent event = PlaylistCreatedEvent.builder()
+                .playlistId(created.getId())
+                .playlistTitle(created.getTitle())
+                .ownerId(owner.getId())
+                .ownerName(owner.getName())
+                .build();
+            outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
+
+            return created;
+        });
 
         return playlistResponseMapper.toResponse(playlistModel);
     }

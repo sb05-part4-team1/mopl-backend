@@ -3,9 +3,11 @@ package com.mopl.worker.notification;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.domain.event.EventTopic;
 import com.mopl.domain.event.playlist.PlaylistContentAddedEvent;
+import com.mopl.domain.event.playlist.PlaylistCreatedEvent;
 import com.mopl.domain.event.playlist.PlaylistSubscribedEvent;
 import com.mopl.domain.event.user.UserFollowedEvent;
 import com.mopl.domain.model.notification.NotificationModel;
+import com.mopl.domain.service.follow.FollowService;
 import com.mopl.domain.service.notification.NotificationService;
 import com.mopl.redis.pubsub.NotificationPublisher;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -23,6 +26,7 @@ public class NotificationEventProcessor {
 
     private final NotificationService notificationService;
     private final NotificationPublisher notificationPublisher;
+    private final FollowService followService;
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
@@ -45,6 +49,32 @@ public class NotificationEventProcessor {
             log.debug("Processed UserFollowedEvent for user: {}", event.getFolloweeId());
         } catch (Exception e) {
             log.error("Failed to process UserFollowedEvent: {}", payload, e);
+        } finally {
+            ack.acknowledge();
+        }
+    }
+
+    @KafkaListener(
+        topics = EventTopic.PLAYLIST_CREATED,
+        groupId = "worker-notification-group",
+        containerFactory = "kafkaListenerContainerFactory"
+    )
+    public void handlePlaylistCreated(String payload, Acknowledgment ack) {
+        try {
+            PlaylistCreatedEvent event = objectMapper.readValue(payload, PlaylistCreatedEvent.class);
+
+            String title = "새로운 플레이리스트";
+            String content = event.getOwnerName() + "님이 새로운 플레이리스트 \"" + event.getPlaylistTitle() + "\"을(를) 만들었습니다.";
+
+            List<UUID> followerIds = followService.getFollowerIds(event.getOwnerId());
+            for (UUID followerId : followerIds) {
+                NotificationModel saved = createNotification(title, content, followerId);
+                publishToSse(saved);
+            }
+
+            log.debug("Processed PlaylistCreatedEvent for playlist: {}", event.getPlaylistId());
+        } catch (Exception e) {
+            log.error("Failed to process PlaylistCreatedEvent: {}", payload, e);
         } finally {
             ack.acknowledge();
         }

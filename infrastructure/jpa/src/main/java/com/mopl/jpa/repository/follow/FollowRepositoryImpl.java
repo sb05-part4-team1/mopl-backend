@@ -1,5 +1,6 @@
 package com.mopl.jpa.repository.follow;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,6 +30,11 @@ public class FollowRepositoryImpl implements FollowRepository {
     public Optional<FollowModel> findByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId) {
         return jpaFollowRepository.findByFollowerIdAndFolloweeId(followerId, followeeId)
             .map(followEntityMapper::toModel);
+    }
+
+    @Override
+    public List<UUID> findFollowerIdsByFolloweeId(UUID followeeId) {
+        return jpaFollowRepository.findFollowerIdsByFolloweeId(followeeId);
     }
 
     @Override
