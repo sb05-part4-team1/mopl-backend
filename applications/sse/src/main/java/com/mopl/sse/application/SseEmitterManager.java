@@ -3,13 +3,19 @@ package com.mopl.sse.application;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedEpochGenerator;
 import com.mopl.sse.repository.RedisEmitterRepository;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -21,6 +27,30 @@ public class SseEmitterManager {
     private static final TimeBasedEpochGenerator UUID_V7_GENERATOR = Generators.timeBasedEpochGenerator();
 
     private final RedisEmitterRepository emitterRepository;
+    private final MeterRegistry meterRegistry;
+
+    private Counter eventSentCounter;
+    private Counter eventFailedCounter;
+    private Counter resendCounter;
+
+    @PostConstruct
+    public void initMetrics() {
+        Gauge.builder("sse.connections", emitterRepository.getLocalEmitters(), Map::size)
+            .description("Current SSE connections")
+            .register(meterRegistry);
+
+        eventSentCounter = Counter.builder("sse.events.sent")
+            .description("SSE events sent successfully")
+            .register(meterRegistry);
+
+        eventFailedCounter = Counter.builder("sse.events.failed")
+            .description("SSE events failed to send")
+            .register(meterRegistry);
+
+        resendCounter = Counter.builder("sse.events.resent")
+            .description("SSE events resent")
+            .register(meterRegistry);
+    }
 
     public SseEmitter createEmitter(UUID userId) {
         emitterRepository.findByUserId(userId).ifPresent(existing -> {
@@ -58,8 +88,10 @@ public class SseEmitterManager {
                     .id(eventId.toString())
                     .name(eventName)
                     .data(data));
+                eventSentCounter.increment();
                 log.debug("Sent {} event to user: {}", eventName, userId);
             } catch (IOException e) {
+                eventFailedCounter.increment();
                 log.error("Failed to send event to user: {}", userId, e);
                 emitterRepository.deleteByUserId(userId);
             }
@@ -83,11 +115,26 @@ public class SseEmitterManager {
                     .id(cachedEvent.eventId().toString())
                     .name("notifications")
                     .data(cachedEvent.data()));
+                resendCounter.increment();
                 log.debug("Resent event {} to user: {}", cachedEvent.eventId(), userId);
             } catch (IOException e) {
+                eventFailedCounter.increment();
                 log.error("Failed to resend event to user: {}", userId, e);
                 break;
             }
         }
+    }
+
+    @Scheduled(fixedRate = 30000)
+    public void sendHeartbeat() {
+        Map<UUID, SseEmitter> emitters = emitterRepository.getLocalEmitters();
+        emitters.entrySet().parallelStream().forEach(entry -> {
+            try {
+                entry.getValue().send(SseEmitter.event().comment("heartbeat"));
+            } catch (IOException e) {
+                log.debug("Heartbeat failed for user: {}, removing emitter", entry.getKey());
+                emitterRepository.deleteByUserId(entry.getKey());
+            }
+        });
     }
 }

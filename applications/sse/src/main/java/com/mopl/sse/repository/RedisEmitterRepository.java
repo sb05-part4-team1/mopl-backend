@@ -1,5 +1,6 @@
 package com.mopl.sse.repository;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -25,6 +26,7 @@ public class RedisEmitterRepository {
     private static final Duration EVENT_CACHE_TTL = Duration.ofMinutes(5);
     private static final int MAX_CACHED_EVENTS = 100;
 
+    @Getter
     private final Map<UUID, SseEmitter> localEmitters = new ConcurrentHashMap<>();
     private final RedisTemplate<String, Object> redisTemplate;
 
