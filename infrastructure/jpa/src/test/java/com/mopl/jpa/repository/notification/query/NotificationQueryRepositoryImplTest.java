@@ -1,6 +1,5 @@
 package com.mopl.jpa.repository.notification.query;
 
-import com.mopl.domain.model.notification.NotificationLevel;
 import com.mopl.domain.model.notification.NotificationModel;
 import com.mopl.domain.model.user.UserModel.AuthProvider;
 import com.mopl.domain.model.user.UserModel.Role;
@@ -14,6 +13,7 @@ import com.mopl.jpa.config.QuerydslConfig;
 import com.mopl.jpa.entity.notification.NotificationEntity;
 import com.mopl.jpa.entity.notification.NotificationEntityMapper;
 import com.mopl.jpa.entity.user.UserEntity;
+import com.mopl.jpa.entity.user.UserEntityMapper;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -29,12 +29,13 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @Import({
     JpaConfig.class,
     QuerydslConfig.class,
     NotificationQueryRepositoryImpl.class,
-    NotificationEntityMapper.class
+    NotificationEntityMapper.class,
+    UserEntityMapper.class
 })
 @DisplayName("NotificationQueryRepositoryImpl 슬라이스 테스트")
 class NotificationQueryRepositoryImplTest {
@@ -57,20 +58,20 @@ class NotificationQueryRepositoryImplTest {
         Instant baseTime = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
         // user1의 알림 5개 생성
-        createAndPersistNotification("알림1", "내용1", NotificationLevel.INFO, user1, baseTime);
-        createAndPersistNotification("알림2", "내용2", NotificationLevel.WARNING, user1, baseTime
+        createAndPersistNotification("알림1", "내용1", NotificationModel.NotificationLevel.INFO, user1, baseTime);
+        createAndPersistNotification("알림2", "내용2", NotificationModel.NotificationLevel.WARNING, user1, baseTime
             .plusSeconds(1));
-        createAndPersistNotification("알림3", "내용3", NotificationLevel.ERROR, user1, baseTime
+        createAndPersistNotification("알림3", "내용3", NotificationModel.NotificationLevel.ERROR, user1, baseTime
             .plusSeconds(2));
-        createAndPersistNotification("알림4", "내용4", NotificationLevel.INFO, user1, baseTime
+        createAndPersistNotification("알림4", "내용4", NotificationModel.NotificationLevel.INFO, user1, baseTime
             .plusSeconds(3));
-        createAndPersistNotification("알림5", "내용5", NotificationLevel.WARNING, user1, baseTime
+        createAndPersistNotification("알림5", "내용5", NotificationModel.NotificationLevel.WARNING, user1, baseTime
             .plusSeconds(4));
 
         // user2의 알림 2개 생성
-        createAndPersistNotification("다른알림1", "다른내용1", NotificationLevel.INFO, user2, baseTime
+        createAndPersistNotification("다른알림1", "다른내용1", NotificationModel.NotificationLevel.INFO, user2, baseTime
             .plusSeconds(5));
-        createAndPersistNotification("다른알림2", "다른내용2", NotificationLevel.ERROR, user2, baseTime
+        createAndPersistNotification("다른알림2", "다른내용2", NotificationModel.NotificationLevel.ERROR, user2, baseTime
             .plusSeconds(6));
 
         entityManager.flush();
@@ -93,7 +94,7 @@ class NotificationQueryRepositoryImplTest {
     private void createAndPersistNotification(
         String title,
         String content,
-        NotificationLevel level,
+        NotificationModel.NotificationLevel level,
         UserEntity receiver,
         Instant createdAt
     ) {
@@ -180,7 +181,7 @@ class NotificationQueryRepositoryImplTest {
                 .createdAt(now)
                 .title("삭제된 알림")
                 .content("삭제된 내용")
-                .level(NotificationLevel.INFO)
+                .level(NotificationModel.NotificationLevel.INFO)
                 .receiver(user1)
                 .deletedAt(now)
                 .build();

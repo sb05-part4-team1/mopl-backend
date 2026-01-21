@@ -1,6 +1,6 @@
 package com.mopl.jpa.repository.notification.query;
 
-import com.mopl.domain.model.notification.NotificationLevel;
+import com.mopl.domain.model.notification.NotificationModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.notification.NotificationSortField;
 import com.mopl.jpa.entity.notification.NotificationEntity;
@@ -92,7 +92,7 @@ class NotificationSortFieldJpaTest {
                 .createdAt(Instant.parse("2024-01-15T10:30:00Z"))
                 .title("테스트 알림")
                 .content("테스트 내용")
-                .level(NotificationLevel.INFO)
+                .level(NotificationModel.NotificationLevel.INFO)
                 .receiver(receiver)
                 .build();
         }

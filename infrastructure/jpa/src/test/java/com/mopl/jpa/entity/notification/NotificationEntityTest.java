@@ -1,6 +1,5 @@
 package com.mopl.jpa.entity.notification;
 
-import com.mopl.domain.model.notification.NotificationLevel;
 import com.mopl.domain.model.notification.NotificationModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.notification.NotificationRepository;
@@ -24,7 +23,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @Import({
     JpaConfig.class,
     NotificationRepositoryImpl.class,
@@ -104,7 +103,7 @@ class NotificationEntityTest {
             NotificationEntity entity = NotificationEntity.builder()
                 .title("삭제된 알림")
                 .content("삭제된 내용")
-                .level(NotificationLevel.INFO)
+                .level(NotificationModel.NotificationLevel.INFO)
                 .receiver(userEntity)
                 .deletedAt(Instant.now())
                 .build();
@@ -160,7 +159,7 @@ class NotificationEntityTest {
         return NotificationEntity.builder()
             .title("테스트 알림")
             .content("테스트 내용")
-            .level(NotificationLevel.INFO)
+            .level(NotificationModel.NotificationLevel.INFO)
             .receiver(userEntity)
             .build();
     }

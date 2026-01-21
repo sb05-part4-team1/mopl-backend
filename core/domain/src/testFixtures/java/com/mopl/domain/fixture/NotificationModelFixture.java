@@ -1,7 +1,6 @@
 package com.mopl.domain.fixture;
 
 import com.mopl.domain.model.notification.NotificationModel;
-import com.mopl.domain.model.notification.NotificationModel.NotificationLevel;
 import com.navercorp.fixturemonkey.ArbitraryBuilder;
 
 import static com.mopl.domain.fixture.FixtureMonkeyConfig.fixtureMonkey;
@@ -14,7 +13,7 @@ public final class NotificationModelFixture {
     public static ArbitraryBuilder<NotificationModel> builder() {
         return fixtureMonkey().giveMeBuilder(NotificationModel.class)
             .setNull("deletedAt")
-            .set("level", NotificationLevel.INFO)
+            .set("level", NotificationModel.NotificationLevel.INFO)
             .set("receiver", UserModelFixture.create());
     }
 
@@ -22,7 +21,9 @@ public final class NotificationModelFixture {
         return builder().sample();
     }
 
-    public static NotificationModel createWithLevel(NotificationLevel level) {
+    public static NotificationModel createWithLevel(
+        NotificationModel.NotificationLevel level
+    ) {
         return builder()
             .set("level", level)
             .sample();
