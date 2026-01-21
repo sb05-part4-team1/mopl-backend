@@ -104,6 +104,7 @@ public class NotificationEventProcessor {
         }
     }
 
+    // TODO: 존재하지 않는 receiver인 알림 삭제 스케줄러 구현
     private NotificationModel createNotification(
         String title,
         String content,
