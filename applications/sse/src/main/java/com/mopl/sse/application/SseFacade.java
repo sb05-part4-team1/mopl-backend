@@ -16,16 +16,21 @@ public class SseFacade {
 
     private final SseEmitterManager sseEmitterManager;
 
-    public SseEmitter subscribe(UUID userId) {
+    public SseEmitter subscribe(UUID userId, String lastEventId) {
         SseEmitter emitter = sseEmitterManager.createEmitter(userId);
 
         try {
             emitter.send(SseEmitter.event()
-                .id(UUID.randomUUID().toString())
+                .id(sseEmitterManager.generateEventId())
                 .name("connect")
                 .data("Connected"));
         } catch (IOException e) {
             log.error("Failed to send connect event to user: {}", userId, e);
+        }
+
+        // 미수신 이벤트 재전송
+        if (lastEventId != null && !lastEventId.isEmpty()) {
+            sseEmitterManager.resendEventsAfter(userId, lastEventId, emitter);
         }
 
         return emitter;

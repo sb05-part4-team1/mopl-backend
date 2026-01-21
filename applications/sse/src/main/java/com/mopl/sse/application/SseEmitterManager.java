@@ -6,6 +6,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import com.fasterxml.uuid.Generators;
+import com.fasterxml.uuid.impl.TimeBasedEpochGenerator;
 import com.mopl.sse.repository.RedisEmitterRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 public class SseEmitterManager {
 
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
+    private static final TimeBasedEpochGenerator UUID_V7_GENERATOR = Generators.timeBasedEpochGenerator();
+
     private final RedisEmitterRepository emitterRepository;
 
     public SseEmitter createEmitter(UUID userId) {
@@ -40,10 +44,15 @@ public class SseEmitterManager {
     }
 
     public void sendToUser(UUID userId, String eventName, Object data) {
+        String eventId = generateEventId();
+
+        // 이벤트 캐시에 저장 (재전송용)
+        emitterRepository.cacheEvent(userId, eventId, data);
+
         emitterRepository.findByUserId(userId).ifPresent(emitter -> {
             try {
                 emitter.send(SseEmitter.event()
-                    .id(UUID.randomUUID().toString())
+                    .id(eventId)
                     .name(eventName)
                     .data(data));
                 log.debug("Sent {} event to user: {}", eventName, userId);
@@ -56,5 +65,26 @@ public class SseEmitterManager {
 
     public boolean hasLocalEmitter(UUID userId) {
         return emitterRepository.existsLocally(userId);
+    }
+
+    public String generateEventId() {
+        return UUID_V7_GENERATOR.generate().toString();
+    }
+
+    public void resendEventsAfter(UUID userId, String lastEventId, SseEmitter emitter) {
+        var cachedEvents = emitterRepository.getEventsAfter(userId, lastEventId);
+
+        for (var cachedEvent : cachedEvents) {
+            try {
+                emitter.send(SseEmitter.event()
+                    .id(cachedEvent.eventId())
+                    .name("notification")
+                    .data(cachedEvent.data()));
+                log.debug("Resent event {} to user: {}", cachedEvent.eventId(), userId);
+            } catch (IOException e) {
+                log.error("Failed to resend event to user: {}", userId, e);
+                break;
+            }
+        }
     }
 }

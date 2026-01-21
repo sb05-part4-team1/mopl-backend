@@ -4,12 +4,16 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.Duration;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,7 +22,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RedisEmitterRepository {
 
     private static final String CONNECTION_KEY_PREFIX = "sse:conn:";
+    private static final String EVENT_CACHE_KEY_PREFIX = "sse:events:";
     private static final Duration CONNECTION_TTL = Duration.ofHours(1);
+    private static final Duration EVENT_CACHE_TTL = Duration.ofMinutes(5);
+    private static final int MAX_CACHED_EVENTS = 100;
 
     private final Map<UUID, SseEmitter> localEmitters = new ConcurrentHashMap<>();
     private final RedisTemplate<String, Object> redisTemplate;
@@ -73,4 +80,48 @@ public class RedisEmitterRepository {
         String key = CONNECTION_KEY_PREFIX + userId;
         redisTemplate.expire(key, CONNECTION_TTL);
     }
+
+    public void cacheEvent(UUID userId, String eventId, Object eventData) {
+        String key = EVENT_CACHE_KEY_PREFIX + userId;
+        long score = extractTimestampFromUuidV7(eventId);
+
+        redisTemplate.opsForZSet().add(key, new CachedEvent(eventId, eventData), score);
+        redisTemplate.expire(key, EVENT_CACHE_TTL);
+
+        // 오래된 이벤트 정리 (최대 개수 유지)
+        Long size = redisTemplate.opsForZSet().size(key);
+        if (size != null && size > MAX_CACHED_EVENTS) {
+            redisTemplate.opsForZSet().removeRange(key, 0, size - MAX_CACHED_EVENTS - 1);
+        }
+    }
+
+    public List<CachedEvent> getEventsAfter(UUID userId, String lastEventId) {
+        String key = EVENT_CACHE_KEY_PREFIX + userId;
+        long lastScore = extractTimestampFromUuidV7(lastEventId);
+
+        Set<TypedTuple<Object>> results = redisTemplate.opsForZSet()
+            .rangeByScoreWithScores(key, lastScore + 1, Double.MAX_VALUE);
+
+        if (results == null || results.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return results.stream()
+            .map(TypedTuple::getValue)
+            .filter(CachedEvent.class::isInstance)
+            .map(CachedEvent.class::cast)
+            .toList();
+    }
+
+    private long extractTimestampFromUuidV7(String uuidString) {
+        try {
+            UUID uuid = UUID.fromString(uuidString);
+            return (uuid.getMostSignificantBits() >> 16) & 0xFFFFFFFFFFFFL;
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid UUID format: {}", uuidString);
+            return 0;
+        }
+    }
+
+    public record CachedEvent(String eventId, Object data) {}
 }
