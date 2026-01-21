@@ -21,6 +21,10 @@ public class ReviewService {
     private final ReviewQueryRepository reviewQueryRepository;
     private final ContentRepository contentRepository;
 
+    public CursorResponse<ReviewModel> getAll(ReviewQueryRequest request) {
+        return reviewQueryRepository.findAll(request);
+    }
+
     public ReviewModel create(
         ContentModel content,
         UserModel author,
@@ -72,10 +76,6 @@ public class ReviewService {
 
         ContentModel content = review.getContent();
         contentRepository.save(content.removeReview(rating));
-    }
-
-    public CursorResponse<ReviewModel> getAll(ReviewQueryRequest request) {
-        return reviewQueryRepository.findAll(request);
     }
 
     private ReviewModel getById(UUID reviewId) {
