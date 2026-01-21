@@ -1,5 +1,7 @@
 dependencies {
     // project modules
+    implementation(project(":core:domain"))
+    implementation(project(":infrastructure:jpa"))
     implementation(project(":infrastructure:security"))
     implementation(project(":infrastructure:redis"))
     implementation(project(":shared:monitoring"))
