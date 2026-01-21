@@ -11,7 +11,7 @@ import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.domain.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.UUID;
 
@@ -23,27 +23,26 @@ public class FollowFacade {
     private final UserService userService;
     private final OutboxService outboxService;
     private final DomainEventOutboxMapper domainEventOutboxMapper;
+    private final TransactionTemplate transactionTemplate;
 
-    @Transactional
     public FollowModel follow(UUID followerId, UUID followeeId) {
         UserModel follower = userService.getById(followerId);
         UserModel followee = userService.getById(followeeId);
 
         FollowModel followModel = FollowModel.create(followeeId, followerId);
-        FollowModel savedFollow = followService.create(followModel);
-
         UserFollowedEvent event = UserFollowedEvent.builder()
             .followerId(follower.getId())
             .followerName(follower.getName())
             .followeeId(followee.getId())
             .build();
 
-        outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
-
-        return savedFollow;
+        return transactionTemplate.execute(status -> {
+            FollowModel savedFollow = followService.create(followModel);
+            outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
+            return savedFollow;
+        });
     }
 
-    @Transactional
     public void unFollow(UUID userId, UUID followId) {
         userService.getById(userId);
 
@@ -53,23 +52,22 @@ public class FollowFacade {
             throw new FollowNotAllowedException(userId, followId);
         }
 
-        followService.delete(follow);
-
         UserUnfollowedEvent event = UserUnfollowedEvent.builder()
             .followerId(follow.getFollowerId())
             .followeeId(follow.getFolloweeId())
             .build();
 
-        outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
+        transactionTemplate.executeWithoutResult(status -> {
+            followService.delete(follow);
+            outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
+        });
     }
 
-    @Transactional
     public long getFollowerCount(UUID followeeId) {
         userService.getById(followeeId);
         return followService.getFollowerCount(followeeId);
     }
 
-    @Transactional(readOnly = true)
     public boolean isFollow(UUID followerId, UUID followeeId) {
         userService.getById(followerId);
         userService.getById(followeeId);
