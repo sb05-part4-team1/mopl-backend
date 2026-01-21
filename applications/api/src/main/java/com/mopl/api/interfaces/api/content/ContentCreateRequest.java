@@ -25,10 +25,10 @@ public record ContentCreateRequest(
 
     @NotNull @Schema(description = "콘텐츠 타입 (movie, tvSeries, sport)") ContentType type,
 
-    @NotBlank @Size(max = TITLE_MAX_LENGTH) String title,
+    @Schema(description = "콘텐츠 제목") @NotBlank @Size(max = TITLE_MAX_LENGTH) String title,
 
-    @NotBlank String description,
+    @Schema(description = "콘텐츠 설명") @NotBlank String description,
 
-    List<@NotBlank String> tags
+    @Schema(description = "콘텐츠 태그 목록") List<@NotBlank String> tags
 ) {
 }

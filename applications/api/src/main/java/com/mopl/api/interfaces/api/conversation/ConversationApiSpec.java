@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface ConversationApiSpec {
 
     /* =========================
-     * 대화 목록 조회
+     * 대화 목록 조회Re
      * ========================= */
     @Operation(
         summary = "대화 목록 조회(커서 페이지네이션)",
@@ -134,7 +134,7 @@ public interface ConversationApiSpec {
             content = @Content(
                 mediaType = "*/*",
                 schema = @Schema(
-                    implementation = ConversationCursorResponse.class
+                    implementation = DirectMessageCursorResponse.class
                 )
             )
         ),
@@ -234,7 +234,7 @@ public interface ConversationApiSpec {
             content = @Content(
                 mediaType = "*/*",
                 schema = @Schema(
-                    implementation = ConversationCursorResponse.class
+                    implementation = ConversationResponse.class
                 )
             )
         ),

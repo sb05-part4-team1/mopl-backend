@@ -40,7 +40,7 @@ public class ConversationService {
         UserModel withUserModel
     ) {
         ConversationModel model = conversationRepository.save(conversationModel);
-        model.withUser(userModel);  // message/hasUnread에 null/false 넣어둠.
+        model.withUser(withUserModel);  // message/hasUnread에 null/false 넣어둠.
 
         // ReadStatus 생성 후 저장 , 위는 상대/아래는 본인
         ReadStatusModel withReadStatusModel = readStatusRepository.save(ReadStatusModel.create(

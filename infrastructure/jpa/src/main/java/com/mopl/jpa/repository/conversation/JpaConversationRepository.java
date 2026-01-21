@@ -14,7 +14,7 @@ public interface JpaConversationRepository extends JpaRepository<ConversationEnt
             SELECT rs.conversation
             FROM ReadStatusEntity rs
             WHERE rs.participant.id in (:userId, :withId)
-            GROUP By rs.conversation.id
+            GROUP BY rs.conversation.id
             HAVING COUNT(DISTINCT rs.participant.id) = 2
         """)
     Optional<ConversationEntity> findConversationIdByParticipants(

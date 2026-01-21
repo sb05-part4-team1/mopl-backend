@@ -12,6 +12,6 @@ import jakarta.validation.constraints.NotNull;
         """
 )
 public record UserRoleUpdateRequest(
-    @NotNull UserModel.Role role
+    @Schema(description = "권한") @NotNull UserModel.Role role
 ) {
 }

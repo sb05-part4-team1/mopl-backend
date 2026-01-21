@@ -13,6 +13,7 @@ import java.util.UUID;
         """
 )
 public record FollowRequest(
-    @NotNull UUID followeeId
+
+    @Schema(description = "팔로우 대상 사용자 ID", format = "uuid") @NotNull UUID followeeId
 ) {
 }

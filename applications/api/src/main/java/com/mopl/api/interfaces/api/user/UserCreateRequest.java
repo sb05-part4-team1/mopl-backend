@@ -18,8 +18,11 @@ import static com.mopl.domain.model.user.UserModel.RAW_PASSWORD_MAX_LENGTH;
         """
 )
 public record UserCreateRequest(
-    @NotBlank @Size(max = EMAIL_MAX_LENGTH) String email,
-    @NotBlank @Size(max = NAME_MAX_LENGTH) String name,
-    @NotBlank @Size(max = RAW_PASSWORD_MAX_LENGTH) String password
+
+    @Schema(description = "이메일") @NotBlank @Size(max = EMAIL_MAX_LENGTH) String email,
+
+    @Schema(description = "이름") @NotBlank @Size(max = NAME_MAX_LENGTH) String name,
+
+    @Schema(description = "비밀번호") @NotBlank @Size(max = RAW_PASSWORD_MAX_LENGTH) String password
 ) {
 }
