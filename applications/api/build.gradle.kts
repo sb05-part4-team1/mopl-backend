@@ -9,8 +9,6 @@ dependencies {
     implementation(project(":infrastructure:kafka"))
     implementation(project(":infrastructure:mail"))
     implementation(project(":shared:jackson"))
-    // TODO: 배포 전 ALB 설계 후 제거
-    implementation(project(":applications:sse"))
     implementation (project(":shared:monitoring"))
 
     // web
