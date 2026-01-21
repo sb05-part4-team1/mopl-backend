@@ -7,7 +7,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @SpringBootApplication(scanBasePackages = {
     "com.mopl.worker",
-    "com.mopl.domain",
     "com.mopl.jpa",
     "com.mopl.kafka",
     "com.mopl.redis",
