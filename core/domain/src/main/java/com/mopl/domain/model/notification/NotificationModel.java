@@ -12,6 +12,10 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class NotificationModel extends BaseModel {
 
+    public static final int TITLE_MAX_LENGTH = 500;
+    public static final int CONTENT_MAX_LENGTH = 9999;
+    public static final int LEVEL_MAX_LENGTH = 20;
+
     private String title;
     private String content;
     private NotificationLevel level;

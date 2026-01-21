@@ -1,6 +1,6 @@
 package com.mopl.jpa.entity.notification;
 
-import com.mopl.domain.model.notification.NotificationLevel;
+import com.mopl.domain.model.notification.NotificationModel;
 import com.mopl.jpa.entity.base.BaseEntity;
 import com.mopl.jpa.entity.user.UserEntity;
 import jakarta.persistence.Column;
@@ -19,6 +19,10 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLRestriction;
 
+import static com.mopl.domain.model.notification.NotificationModel.CONTENT_MAX_LENGTH;
+import static com.mopl.domain.model.notification.NotificationModel.LEVEL_MAX_LENGTH;
+import static com.mopl.domain.model.notification.NotificationModel.TITLE_MAX_LENGTH;
+
 @Entity
 @Table(name = "notifications")
 @Getter
@@ -27,15 +31,15 @@ import org.hibernate.annotations.SQLRestriction;
 @SQLRestriction("deleted_at IS NULL")
 public class NotificationEntity extends BaseEntity {
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = TITLE_MAX_LENGTH)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", length = CONTENT_MAX_LENGTH)
     private String content;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private NotificationLevel level;
+    @Column(nullable = false, length = LEVEL_MAX_LENGTH)
+    private NotificationModel.NotificationLevel level;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "receiver_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
