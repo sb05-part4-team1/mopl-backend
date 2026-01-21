@@ -1,21 +1,18 @@
-package com.mopl.worker;
+package com.mopl.sse;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
-@EnableScheduling
 @SpringBootApplication(scanBasePackages = {
-    "com.mopl.worker",
+    "com.mopl.sse",
     "com.mopl.domain",
     "com.mopl.jpa",
-    "com.mopl.kafka",
     "com.mopl.redis",
-    "com.mopl.jackson"
+    "com.mopl.security"
 })
-public class WorkerApplication {
+public class SseApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(WorkerApplication.class, args);
+        SpringApplication.run(SseApplication.class, args);
     }
 }

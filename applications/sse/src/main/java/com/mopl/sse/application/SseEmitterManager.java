@@ -1,74 +1,60 @@
 package com.mopl.sse.application;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import com.mopl.sse.repository.EmitterRepository;
+import com.mopl.sse.repository.RedisEmitterRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class SseEmitterManager {
 
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
-    private final EmitterRepository emitterRepository;
+    private final RedisEmitterRepository emitterRepository;
 
     public SseEmitter createEmitter(UUID userId) {
-        String emitterId = makeTimeIncludeId(userId);
-        SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
+        SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
+        emitterRepository.save(userId, emitter);
 
-        emitter.onCompletion(() -> emitterRepository.deleteById(emitterId));
-        emitter.onTimeout(() -> emitterRepository.deleteById(emitterId));
-        emitter.onError((e) -> emitterRepository.deleteById(emitterId));
+        emitter.onCompletion(() -> {
+            log.debug("Emitter completed for user: {}", userId);
+            emitterRepository.deleteByUserId(userId);
+        });
+        emitter.onTimeout(() -> {
+            log.debug("Emitter timed out for user: {}", userId);
+            emitterRepository.deleteByUserId(userId);
+        });
+        emitter.onError((e) -> {
+            log.debug("Emitter error for user: {}", userId, e);
+            emitterRepository.deleteByUserId(userId);
+        });
 
         return emitter;
     }
 
-    public void send(SseEmitter emitter, String eventId, String name, Object data) {
-        try {
-            emitter.send(SseEmitter.event()
-                .id(eventId)
-                .name(name)
-                .data(data));
-        } catch (IOException e) {
-            emitter.completeWithError(e);
-        }
-    }
-
-    public void sendToUser(UUID receiverId, String eventName, Object data) {
-        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(
-            receiverId);
-        String eventId = makeTimeIncludeId(receiverId);
-
-        emitterRepository.saveEventCache(eventId, data);
-
-        emitters.forEach((id, emitter) -> {
+    public void sendToUser(UUID userId, String eventName, Object data) {
+        emitterRepository.findByUserId(userId).ifPresent(emitter -> {
             try {
                 emitter.send(SseEmitter.event()
-                    .id(eventId)
+                    .id(UUID.randomUUID().toString())
                     .name(eventName)
                     .data(data));
+                log.debug("Sent {} event to user: {}", eventName, userId);
             } catch (IOException e) {
-                emitterRepository.deleteById(id);
+                log.error("Failed to send event to user: {}", userId, e);
+                emitterRepository.deleteByUserId(userId);
             }
         });
     }
 
-    public void sendLostData(String lastEventId, UUID userId, SseEmitter emitter) {
-        Map<String, Object> eventCaches = emitterRepository.findAllEventCacheStartWithByUserId(
-            userId);
-
-        eventCaches.entrySet().stream()
-            .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
-            .forEach(entry -> send(emitter, entry.getKey(), "sse", entry.getValue()));
-    }
-
-    public String makeTimeIncludeId(UUID userId) {
-        return userId.toString() + "_" + System.currentTimeMillis();
+    public boolean hasLocalEmitter(UUID userId) {
+        return emitterRepository.existsLocally(userId);
     }
 }

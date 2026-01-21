@@ -21,7 +21,7 @@ import java.time.Instant;
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class OutboxEventEntity extends BaseEntity {
+public class OutboxEntity extends BaseEntity {
 
     @Column(nullable = false, length = 50)
     private String aggregateType;

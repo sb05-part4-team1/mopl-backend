@@ -1,31 +1,41 @@
 package com.mopl.sse.application;
 
-import lombok.RequiredArgsConstructor;
+import java.io.IOException;
+import java.util.UUID;
+
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class SseFacade {
 
     private final SseEmitterManager sseEmitterManager;
 
-    public SseEmitter subscribe(UUID userId, String lastEventId) {
+    public SseEmitter subscribe(UUID userId) {
         SseEmitter emitter = sseEmitterManager.createEmitter(userId);
 
-        String eventId = sseEmitterManager.makeTimeIncludeId(userId);
-        sseEmitterManager.send(emitter, eventId, "sse", "EventStream Created.");
-
-        if (lastEventId != null && !lastEventId.isEmpty()) {
-            sseEmitterManager.sendLostData(lastEventId, userId, emitter);
+        try {
+            emitter.send(SseEmitter.event()
+                .id(UUID.randomUUID().toString())
+                .name("connect")
+                .data("Connected"));
+        } catch (IOException e) {
+            log.error("Failed to send connect event to user: {}", userId, e);
         }
 
         return emitter;
     }
 
-    public void sendToUser(UUID userId, String eventName, Object data) {
-        sseEmitterManager.sendToUser(userId, eventName, data);
+    public void sendNotification(UUID userId, Object data) {
+        sseEmitterManager.sendToUser(userId, "notification", data);
+    }
+
+    public boolean hasConnection(UUID userId) {
+        return sseEmitterManager.hasLocalEmitter(userId);
     }
 }

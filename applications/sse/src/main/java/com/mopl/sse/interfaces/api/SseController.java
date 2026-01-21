@@ -25,6 +25,7 @@ public class SseController implements SseApiSpec {
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @RequestParam(required = false) String lastEventId
     ) {
-        return sseFacade.subscribe(userDetails.userId(), lastEventId);
+        // TODO: lastEventId 기반 미수신 이벤트 재전송 (Redis 이벤트 캐시 구현 시)
+        return sseFacade.subscribe(userDetails.userId());
     }
 }
