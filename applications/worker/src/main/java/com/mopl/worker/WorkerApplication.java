@@ -10,7 +10,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
     "com.mopl.jpa",
     "com.mopl.kafka",
     "com.mopl.redis",
-    "com.mopl.jackson"
 })
 public class WorkerApplication {
 

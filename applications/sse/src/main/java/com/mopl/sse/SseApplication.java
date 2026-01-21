@@ -5,10 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(scanBasePackages = {
     "com.mopl.sse",
-    "com.mopl.domain",
     "com.mopl.jpa",
-    "com.mopl.redis",
-    "com.mopl.security"
+    "com.mopl.redis"
 })
 public class SseApplication {
 

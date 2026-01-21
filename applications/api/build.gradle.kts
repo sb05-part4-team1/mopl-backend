@@ -10,8 +10,7 @@ dependencies {
     implementation(project(":infrastructure:mail"))
     implementation(project(":shared:jackson"))
     implementation(project(":shared:logging"))
-    implementation (project(":shared:monitoring"))
-
+    implementation(project(":shared:monitoring"))
     // web
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")

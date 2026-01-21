@@ -12,8 +12,4 @@ dependencies {
 
     // Servlet API (컴파일 시에만 필요)
     compileOnly("jakarta.servlet:jakarta.servlet-api")
-
-    // Lombok
-    compileOnly("org.projectlombok:lombok")
-    annotationProcessor("org.projectlombok:lombok")
 }
