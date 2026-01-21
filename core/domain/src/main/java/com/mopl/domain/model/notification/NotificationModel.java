@@ -17,6 +17,10 @@ public class NotificationModel extends BaseModel {
     private NotificationLevel level;
     private UserModel receiver;
 
+    public enum NotificationLevel {
+        INFO, WARNING, ERROR
+    }
+
     public static NotificationModel create(
         String title,
         String content,
