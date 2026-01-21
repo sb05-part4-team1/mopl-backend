@@ -7,7 +7,6 @@ import com.mopl.domain.event.playlist.PlaylistSubscribedEvent;
 import com.mopl.domain.event.user.UserFollowedEvent;
 import com.mopl.domain.model.notification.NotificationModel;
 import com.mopl.domain.service.notification.NotificationService;
-import com.mopl.redis.pubsub.NotificationMessage;
 import com.mopl.redis.pubsub.NotificationPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -116,14 +115,6 @@ public class NotificationEventProcessor {
     }
 
     private void publishToSse(NotificationModel notification) {
-        NotificationMessage message = new NotificationMessage(
-            notification.getId(),
-            notification.getReceiverId(),
-            notification.getTitle(),
-            notification.getContent(),
-            notification.getLevel().name(),
-            notification.getCreatedAt()
-        );
-        notificationPublisher.publish(message);
+        notificationPublisher.publish(notification);
     }
 }

@@ -81,7 +81,7 @@ public class RedisEmitterRepository {
         redisTemplate.expire(key, CONNECTION_TTL);
     }
 
-    public void cacheEvent(UUID userId, String eventId, Object eventData) {
+    public void cacheEvent(UUID userId, UUID eventId, Object eventData) {
         String key = EVENT_CACHE_KEY_PREFIX + userId;
         long score = extractTimestampFromUuidV7(eventId);
 
@@ -95,7 +95,7 @@ public class RedisEmitterRepository {
         }
     }
 
-    public List<CachedEvent> getEventsAfter(UUID userId, String lastEventId) {
+    public List<CachedEvent> getEventsAfter(UUID userId, UUID lastEventId) {
         String key = EVENT_CACHE_KEY_PREFIX + userId;
         long lastScore = extractTimestampFromUuidV7(lastEventId);
 
@@ -113,15 +113,9 @@ public class RedisEmitterRepository {
             .toList();
     }
 
-    private long extractTimestampFromUuidV7(String uuidString) {
-        try {
-            UUID uuid = UUID.fromString(uuidString);
-            return (uuid.getMostSignificantBits() >> 16) & 0xFFFFFFFFFFFFL;
-        } catch (IllegalArgumentException e) {
-            log.warn("Invalid UUID format: {}", uuidString);
-            return 0;
-        }
+    private long extractTimestampFromUuidV7(UUID uuid) {
+        return (uuid.getMostSignificantBits() >> 16) & 0xFFFFFFFFFFFFL;
     }
 
-    public record CachedEvent(String eventId, Object data) {}
+    public record CachedEvent(UUID eventId, Object data) {}
 }

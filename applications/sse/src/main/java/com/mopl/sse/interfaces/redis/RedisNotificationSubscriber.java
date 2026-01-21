@@ -1,7 +1,8 @@
 package com.mopl.sse.interfaces.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mopl.redis.pubsub.NotificationMessage;
+import com.mopl.domain.model.notification.NotificationModel;
+import com.mopl.redis.pubsub.NotificationPublisher;
 import com.mopl.sse.application.SseEmitterManager;
 import jakarta.annotation.PostConstruct;
 import lombok.NonNull;
@@ -26,25 +27,25 @@ public class RedisNotificationSubscriber implements MessageListener {
     public void subscribe() {
         redisMessageListenerContainer.addMessageListener(
             this,
-            new ChannelTopic(NotificationMessage.CHANNEL)
+            new ChannelTopic(NotificationPublisher.CHANNEL)
         );
-        log.info("Subscribed to Redis channel: {}", NotificationMessage.CHANNEL);
+        log.info("Subscribed to Redis channel: {}", NotificationPublisher.CHANNEL);
     }
 
     @Override
     public void onMessage(@NonNull Message message, byte[] pattern) {
         try {
-            NotificationMessage notification = objectMapper.readValue(
-                message.getBody(), NotificationMessage.class
+            NotificationModel notification = objectMapper.readValue(
+                message.getBody(), NotificationModel.class
             );
 
-            if (sseEmitterManager.hasLocalEmitter(notification.receiverId())) {
+            if (sseEmitterManager.hasLocalEmitter(notification.getReceiverId())) {
                 sseEmitterManager.sendToUser(
-                    notification.receiverId(),
+                    notification.getReceiverId(),
                     "notification",
                     notification
                 );
-                log.debug("Sent SSE notification to user: {}", notification.receiverId());
+                log.debug("Sent SSE notification to user: {}", notification.getReceiverId());
             }
         } catch (Exception e) {
             log.error("Failed to process Redis notification message", e);

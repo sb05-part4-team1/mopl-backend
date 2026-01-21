@@ -20,7 +20,7 @@ public class SseFacade {
 
         try {
             emitter.send(SseEmitter.event()
-                .id(sseEmitterManager.generateEventId())
+                .id(sseEmitterManager.generateEventId().toString())
                 .name("connect")
                 .data("Connected"));
         } catch (IOException e) {

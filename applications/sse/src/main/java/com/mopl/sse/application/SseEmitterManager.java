@@ -44,7 +44,7 @@ public class SseEmitterManager {
     }
 
     public void sendToUser(UUID userId, String eventName, Object data) {
-        String eventId = generateEventId();
+        UUID eventId = generateEventId();
 
         // 이벤트 캐시에 저장 (재전송용)
         emitterRepository.cacheEvent(userId, eventId, data);
@@ -52,7 +52,7 @@ public class SseEmitterManager {
         emitterRepository.findByUserId(userId).ifPresent(emitter -> {
             try {
                 emitter.send(SseEmitter.event()
-                    .id(eventId)
+                    .id(eventId.toString())
                     .name(eventName)
                     .data(data));
                 log.debug("Sent {} event to user: {}", eventName, userId);
@@ -67,17 +67,17 @@ public class SseEmitterManager {
         return emitterRepository.existsLocally(userId);
     }
 
-    public String generateEventId() {
-        return UUID_V7_GENERATOR.generate().toString();
+    public UUID generateEventId() {
+        return UUID_V7_GENERATOR.generate();
     }
 
-    public void resendEventsAfter(UUID userId, String lastEventId, SseEmitter emitter) {
+    public void resendEventsAfter(UUID userId, UUID lastEventId, SseEmitter emitter) {
         var cachedEvents = emitterRepository.getEventsAfter(userId, lastEventId);
 
         for (var cachedEvent : cachedEvents) {
             try {
                 emitter.send(SseEmitter.event()
-                    .id(cachedEvent.eventId())
+                    .id(cachedEvent.eventId().toString())
                     .name("notification")
                     .data(cachedEvent.data()));
                 log.debug("Resent event {} to user: {}", cachedEvent.eventId(), userId);
