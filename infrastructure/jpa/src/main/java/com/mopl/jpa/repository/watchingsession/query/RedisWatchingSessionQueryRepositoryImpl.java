@@ -7,6 +7,7 @@ import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
 import com.mopl.domain.support.redis.WatchingSessionRedisKeys;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Repository;
@@ -20,6 +21,7 @@ import java.util.UUID;
 
 import static org.springframework.util.StringUtils.hasText;
 
+@Profile("!batch")
 @Repository
 @RequiredArgsConstructor
 public class RedisWatchingSessionQueryRepositoryImpl implements WatchingSessionQueryRepository {
