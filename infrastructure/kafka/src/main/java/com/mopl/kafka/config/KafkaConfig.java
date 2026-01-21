@@ -22,10 +22,6 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Kafka 설정.
- * 토픽 생성은 Confluent Cloud 콘솔에서 관리합니다.
- */
 @EnableKafka
 @Configuration
 @RequiredArgsConstructor
