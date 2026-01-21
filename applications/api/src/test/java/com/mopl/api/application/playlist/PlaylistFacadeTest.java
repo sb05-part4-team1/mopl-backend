@@ -1,5 +1,6 @@
 package com.mopl.api.application.playlist;
 
+import com.mopl.api.application.outbox.OutboxService;
 import com.mopl.api.interfaces.api.playlist.PlaylistCreateRequest;
 import com.mopl.api.interfaces.api.playlist.PlaylistResponse;
 import com.mopl.api.interfaces.api.playlist.PlaylistResponseMapper;
@@ -66,6 +67,9 @@ class PlaylistFacadeTest {
 
     @Mock
     private TransactionTemplate transactionTemplate;
+
+    @Mock
+    private OutboxService outboxService;
 
     @InjectMocks
     private PlaylistFacade playlistFacade;
@@ -386,11 +390,15 @@ class PlaylistFacadeTest {
         void withValidRequest_addsContentSuccess() {
             // given
             UserModel owner = UserModelFixture.create();
-            UUID playlistId = UUID.randomUUID();
-            UUID contentId = UUID.randomUUID();
+            PlaylistModel playlistModel = PlaylistModelFixture.builder(owner).sample();
+            UUID playlistId = playlistModel.getId();
+            ContentModel contentModel = ContentModelFixture.create();
+            UUID contentId = contentModel.getId();
 
             given(userService.getById(owner.getId())).willReturn(owner);
             given(contentService.exists(contentId)).willReturn(true);
+            given(playlistService.getById(playlistId)).willReturn(playlistModel);
+            given(contentService.getById(contentId)).willReturn(contentModel);
             willDoNothing().given(playlistService).addContent(playlistId, owner.getId(), contentId);
 
             // when & then

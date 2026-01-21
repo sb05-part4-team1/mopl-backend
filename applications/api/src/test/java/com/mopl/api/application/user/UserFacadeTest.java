@@ -1,5 +1,6 @@
 package com.mopl.api.application.user;
 
+import com.mopl.api.application.outbox.OutboxService;
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
 import com.mopl.api.interfaces.api.user.UserLockUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserResponse;
@@ -66,6 +67,9 @@ class UserFacadeTest {
 
     @Mock
     private JwtRegistry jwtRegistry;
+
+    @Mock
+    private OutboxService outboxService;
 
     @InjectMocks
     private UserFacade userFacade;
