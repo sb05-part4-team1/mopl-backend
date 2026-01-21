@@ -14,9 +14,9 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class RedisNotificationSubscriber implements MessageListener {
 
     private final RedisMessageListenerContainer redisMessageListenerContainer;
