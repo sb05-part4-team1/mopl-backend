@@ -44,6 +44,5 @@ public class DirectMessageFacade {
         DirectMessageModel savedMessage = directMessageRepository.save(directMessageModel);
 
         return directMessageMapper.toResponse(savedMessage);
-
     }
 }
