@@ -1,6 +1,5 @@
 package com.mopl.sse.application;
 
-import com.mopl.domain.model.notification.NotificationModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -24,11 +23,6 @@ public class SseFacade {
         }
 
         return emitter;
-    }
-
-    public void sendNotification(NotificationModel model) {
-        SseNotificationData data = SseNotificationData.from(model);
-        sseEmitterManager.sendToUser(model.getReceiver().getId(), "notification", data);
     }
 
     public void sendToUser(UUID userId, String eventName, Object data) {
