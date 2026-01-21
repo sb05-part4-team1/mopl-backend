@@ -6,7 +6,6 @@ import com.mopl.domain.model.playlist.PlaylistModel;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -19,7 +18,6 @@ public class PlaylistContentAddedEvent implements DomainEvent {
     private final String ownerName;
     private final UUID contentId;
     private final String contentTitle;
-    private final List<UUID> subscriberIds;
 
     @Override
     public String getAggregateType() {

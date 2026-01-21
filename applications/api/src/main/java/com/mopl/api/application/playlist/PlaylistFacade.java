@@ -180,7 +180,6 @@ public class PlaylistFacade {
             .ownerName(owner.getName())
             .contentId(content.getId())
             .contentTitle(content.getTitle())
-            .subscriberIds(List.of())
             .build();
 
         transactionTemplate.executeWithoutResult(status -> {

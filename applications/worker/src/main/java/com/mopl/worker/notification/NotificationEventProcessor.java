@@ -144,12 +144,11 @@ public class NotificationEventProcessor {
             PlaylistContentAddedEvent event = objectMapper.readValue(payload, PlaylistContentAddedEvent.class);
 
             String title = "플레이리스트 업데이트";
-            String content = "\"" + event.getPlaylistTitle() + "\"에 새로운 콘텐츠가 추가되었습니다.";
+            String content = "\"" + event.getPlaylistTitle() + "\"에 새로운 콘텐츠 \"" + event.getContentTitle() + "\"이(가) 추가되었습니다.";
 
-            for (UUID subscriberId : event.getSubscriberIds()) {
-                NotificationModel saved = createNotification(
-                    title, content, subscriberId
-                );
+            List<UUID> subscriberIds = playlistSubscriptionService.getSubscriberIds(event.getPlaylistId());
+            for (UUID subscriberId : subscriberIds) {
+                NotificationModel saved = createNotification(title, content, subscriberId);
                 publishToSse(saved);
             }
 
