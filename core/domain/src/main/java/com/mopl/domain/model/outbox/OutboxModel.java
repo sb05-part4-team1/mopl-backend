@@ -18,6 +18,7 @@ public class OutboxModel extends BaseModel {
     public static final int AGGREGATE_ID_MAX_LENGTH = 36;
     public static final int EVENT_TYPE_MAX_LENGTH = 100;
     public static final int TOPIC_MAX_LENGTH = 100;
+    public static final int STATUS_MAX_LENGTH = 20;
 
     public enum OutboxStatus {
         PENDING,

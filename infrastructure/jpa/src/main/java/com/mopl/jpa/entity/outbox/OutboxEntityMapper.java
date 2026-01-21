@@ -20,7 +20,7 @@ public class OutboxEntityMapper {
             .eventType(entity.getEventType())
             .topic(entity.getTopic())
             .payload(entity.getPayload())
-            .status(toModelStatus(entity.getStatus()))
+            .status(entity.getStatus())
             .publishedAt(entity.getPublishedAt())
             .retryCount(entity.getRetryCount())
             .build();
@@ -40,31 +40,9 @@ public class OutboxEntityMapper {
             .eventType(model.getEventType())
             .topic(model.getTopic())
             .payload(model.getPayload())
-            .status(toEntityStatus(model.getStatus()))
+            .status(model.getStatus())
             .publishedAt(model.getPublishedAt())
             .retryCount(model.getRetryCount())
             .build();
-    }
-
-    private OutboxModel.OutboxStatus toModelStatus(OutboxEventStatus status) {
-        if (status == null) {
-            return null;
-        }
-        return switch (status) {
-            case PENDING -> OutboxModel.OutboxStatus.PENDING;
-            case PUBLISHED -> OutboxModel.OutboxStatus.PUBLISHED;
-            case FAILED -> OutboxModel.OutboxStatus.FAILED;
-        };
-    }
-
-    private OutboxEventStatus toEntityStatus(OutboxModel.OutboxStatus status) {
-        if (status == null) {
-            return null;
-        }
-        return switch (status) {
-            case PENDING -> OutboxEventStatus.PENDING;
-            case PUBLISHED -> OutboxEventStatus.PUBLISHED;
-            case FAILED -> OutboxEventStatus.FAILED;
-        };
     }
 }
