@@ -61,14 +61,32 @@ public class SseService {
         });
     }
 
-    public void sendLostData(UUID lastEventId, UUID userId, SseEmitter emitter) {
+    public void sendLostData(String lastEventId, UUID userId, SseEmitter emitter) {
         Map<String, Object> eventCaches = emitterRepository.findAllEventCacheStartWithByUserId(
             userId);
-        String lastEventIdStr = lastEventId.toString();
+
+        long lastTime = extractTimestamp(lastEventId);
 
         eventCaches.entrySet().stream()
-            .filter(entry -> lastEventIdStr.compareTo(entry.getKey()) < 0)
+            .filter(entry -> {
+                long entryTime = extractTimestamp(entry.getKey());
+                return entryTime > lastTime;
+            })
+            .sorted((e1, e2) -> {
+                long t1 = extractTimestamp(e1.getKey());
+                long t2 = extractTimestamp(e2.getKey());
+                return Long.compare(t1, t2);
+            })
             .forEach(entry -> send(emitter, entry.getKey(), "sse", entry.getValue()));
+    }
+
+    private long extractTimestamp(String eventId) {
+        try {
+            String[] parts = eventId.split("_");
+            return Long.parseLong(parts[1]);
+        } catch (Exception e) {
+            return 0L;
+        }
     }
 
     public String makeTimeIncludeId(UUID userId) {
