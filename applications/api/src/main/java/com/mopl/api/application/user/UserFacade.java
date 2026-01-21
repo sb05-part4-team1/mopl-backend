@@ -22,7 +22,7 @@ import com.mopl.storage.provider.FileStorageProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -42,6 +42,7 @@ public class UserFacade {
     private final JwtRegistry jwtRegistry;
     private final DomainEventOutboxMapper domainEventOutboxMapper;
     private final OutboxService outboxService;
+    private final TransactionTemplate transactionTemplate;
 
     public UserModel signUp(UserCreateRequest userCreateRequest) {
         String email = userCreateRequest.email().strip().toLowerCase(Locale.ROOT);
@@ -66,7 +67,6 @@ public class UserFacade {
         return userService.getById(userId);
     }
 
-    @Transactional
     public UserModel updateRole(
         UUID requesterId,
         UserRoleUpdateRequest request,
@@ -78,19 +78,22 @@ public class UserFacade {
         return updateRoleInternal(targetUserId, request.role());
     }
 
-    @Transactional
     public UserModel updateRoleInternal(UUID userId, UserModel.Role role) {
         UserModel userModel = userService.getById(userId);
         String oldRole = userModel.getRole().name();
         userModel.updateRole(role);
-        UserModel updatedUser = userService.update(userModel);
 
         UserRoleChangedEvent event = UserRoleChangedEvent.builder()
             .userId(userId)
             .oldRole(oldRole)
             .newRole(role.name())
             .build();
-        outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
+
+        UserModel updatedUser = transactionTemplate.execute(status -> {
+            UserModel saved = userService.update(userModel);
+            outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
+            return saved;
+        });
 
         jwtRegistry.revokeAllByUserId(userId);
 
