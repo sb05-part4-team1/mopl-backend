@@ -19,6 +19,7 @@ public class UserModel extends BaseUpdatableModel {
     public static final int RAW_PASSWORD_MAX_LENGTH = 50;
     public static final int PROFILE_IMAGE_URL_MAX_LENGTH = 1024;
     public static final int ROLE_MAX_LENGTH = 20;
+    public static final String OAUTH_PASSWORD_PLACEHOLDER = "{oauth2}";
 
     public enum AuthProvider {
         EMAIL, GOOGLE, KAKAO
@@ -64,6 +65,35 @@ public class UserModel extends BaseUpdatableModel {
             .email(email)
             .name(name)
             .password(password)
+            .role(Role.USER)
+            .locked(false)
+            .build();
+    }
+
+    public static UserModel createOAuthUser(
+        AuthProvider authProvider,
+        String email,
+        String name
+    ) {
+        if (authProvider == null || authProvider == AuthProvider.EMAIL) {
+            throw new InvalidUserDataException("OAuth 회원가입에는 유효한 OAuth 제공자가 필요합니다.");
+        }
+        if (email == null || email.isBlank()) {
+            throw new InvalidUserDataException("이메일은 비어있을 수 없습니다.");
+        }
+        if (name == null || name.isBlank()) {
+            throw new InvalidUserDataException("이름은 비어있을 수 없습니다.");
+        }
+
+        validateEmail(email);
+        validateName(name);
+
+        return UserModel.builder()
+            .authProvider(authProvider)
+            .email(email)
+            .name(name)
+            .password(OAUTH_PASSWORD_PLACEHOLDER)
+            .profileImageUrl(null)
             .role(Role.USER)
             .locked(false)
             .build();

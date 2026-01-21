@@ -8,6 +8,7 @@ import com.mopl.domain.repository.content.ContentExternalMappingRepository;
 import com.mopl.domain.repository.tag.GenreRepository;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.external.tmdb.client.TmdbClient;
+import com.mopl.external.tmdb.exception.TmdbImageDownloadException;
 import com.mopl.external.tmdb.model.TmdbMovieItem;
 import com.mopl.external.tmdb.model.TmdbTvItem;
 import com.mopl.storage.provider.FileStorageProvider;
@@ -101,10 +102,17 @@ public class TmdbPopularContentUpsertService {
 
             return fileStorageProvider.getUrl(storedPath);
 
-        } catch (Exception e) {
+        } catch (TmdbImageDownloadException e) {
             log.warn(
-                "Failed to download poster: type={}, externalId={}, path={}",
-                type, externalId, posterPath
+                "TMDB poster download failed: type={}, externalId={}, path={}",
+                type, externalId, e.getPosterPath()
+            );
+            return null;
+        } catch (Exception e) {
+            log.error(
+                "Unexpected error while processing TMDB poster: type={}, externalId={}",
+                type, externalId,
+                e
             );
             return null;
         }

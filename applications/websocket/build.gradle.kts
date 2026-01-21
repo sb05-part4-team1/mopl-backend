@@ -4,6 +4,8 @@ dependencies {
     implementation(project(":infrastructure:security"))
     implementation(project(":infrastructure:redis"))
     implementation(project(":infrastructure:cache"))
+    implementation (project(":shared:monitoring"))
+
 
     implementation("org.springframework.boot:spring-boot-starter-websocket")
 }

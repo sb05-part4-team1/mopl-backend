@@ -24,6 +24,7 @@ public class SecurityRegistryImpl implements SecurityRegistry {
                 "/api/auth/reset-password",
                 "/api/auth/refresh"
             ).permitAll()
+            .requestMatchers("/oauth2/**").permitAll()
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
             .requestMatchers(

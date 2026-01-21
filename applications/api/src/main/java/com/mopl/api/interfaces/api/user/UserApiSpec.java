@@ -173,7 +173,11 @@ public interface UserApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    void updateRole(MoplUserDetails userDetails, UUID userId, UserRoleUpdateRequest request);
+    void updateRole(
+        @Parameter(hidden = true) MoplUserDetails userDetails,
+        UUID userId,
+        UserRoleUpdateRequest request
+    );
 
     @Operation(summary = "사용자 잠금 상태 수정", description = "관리자 권한이 필요합니다.")
     @Parameter(name = "userId", description = "수정할 사용자 ID", required = true)
@@ -219,5 +223,52 @@ public interface UserApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    void updateLocked(MoplUserDetails userDetails, UUID userId, UserLockUpdateRequest request);
+    void updateLocked(
+        @Parameter(hidden = true) MoplUserDetails userDetails,
+        UUID userId,
+        UserLockUpdateRequest request
+    );
+
+    @Operation(summary = "비밀번호 변경", description = "사용자의 비밀번호를 변경합니다.")
+    @Parameter(name = "userId", description = "사용자 ID", required = true)
+    @RequestBody(
+        required = true,
+        content = @Content(
+            schema = @Schema(implementation = ChangePasswordRequest.class)
+        )
+    )
+    @ApiResponse(responseCode = "204", description = "비밀번호 변경 성공")
+    @ApiResponse(
+        responseCode = "400",
+        description = "잘못된 요청 데이터",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "401",
+        description = "인증 실패",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "403",
+        description = "권한 없음",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "404",
+        description = "사용자를 찾을 수 없음",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
+    void updatePassword(UUID userId, ChangePasswordRequest request);
 }

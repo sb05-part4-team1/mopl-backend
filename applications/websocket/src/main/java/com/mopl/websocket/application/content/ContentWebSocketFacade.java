@@ -15,7 +15,7 @@ import com.mopl.domain.service.user.UserService;
 import com.mopl.websocket.interfaces.api.content.ChangeType;
 import com.mopl.websocket.interfaces.api.content.ContentChatDto;
 import com.mopl.websocket.interfaces.api.content.WatchingSessionChange;
-import com.mopl.websocket.service.content.WatchingSessionService;
+import com.mopl.websocket.service.content.WebSocketWatchingSessionService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ContentWebSocketFacade {
 
-    private final WatchingSessionService watchingSessionService;
+    private final WebSocketWatchingSessionService webSocketWatchingSessionService;
     private final UserService userService;
     private final ContentService contentService;
     private final WatchingSessionResponseMapper watchingSessionResponseMapper;
@@ -33,15 +33,20 @@ public class ContentWebSocketFacade {
         UserModel watcher = userService.getById(userId);
         ContentModel content = contentService.getById(contentId);
         WatchingSessionModel session = WatchingSessionModel.create(watcher, content);
+        WatchingSessionModel dtoTarget = null;
 
         if (type == ChangeType.JOIN) {
-            watchingSessionService.create(session);
+            WatchingSessionModel saved = webSocketWatchingSessionService.create(session);
+            dtoTarget = saved;
         } else {
-            watchingSessionService.delete(session);
+            dtoTarget = webSocketWatchingSessionService.findCurrentByWatcherId(userId)
+                .orElse(session); // 혹시 없으면 fallback(없으면 id/createdAt null일 수 있음)
+
+            webSocketWatchingSessionService.delete(session);
         }
 
-        WatchingSessionDto dto = watchingSessionResponseMapper.toDto(session, watcher, content);
-        long watcherCount = watchingSessionService.getWatcherCount(contentId);
+        WatchingSessionDto dto = watchingSessionResponseMapper.toDto(dtoTarget, watcher, content);
+        long watcherCount = webSocketWatchingSessionService.getWatcherCount(contentId);
 
         return new WatchingSessionChange(type, dto, watcherCount);
     }

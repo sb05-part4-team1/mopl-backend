@@ -6,8 +6,10 @@ dependencies {
     implementation(project(":infrastructure:storage"))
     implementation(project(":infrastructure:redis"))
     implementation(project(":infrastructure:cache"))
+    implementation(project(":infrastructure:mail"))
     implementation(project(":shared:jackson"))
     implementation(project(":applications:sse"))
+    implementation (project(":shared:monitoring"))
 
     // web
     implementation("org.springframework.boot:spring-boot-starter-web")

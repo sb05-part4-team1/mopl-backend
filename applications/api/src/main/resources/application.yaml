@@ -6,10 +6,8 @@ spring:
     web-application-type: servlet
   application:
     name: mopl-api
-
   profiles:
     active: local
-
   config:
     import:
       - optional:file:.env[.properties]
@@ -18,11 +16,10 @@ spring:
       - storage.yaml
       - redis.yaml
       - cache.yaml
-
+      - mail.yaml
   threads:
     virtual:
       enabled: true
-
   servlet:
     multipart:
       max-file-size: 10MB
@@ -38,3 +35,18 @@ mopl:
     email: ${ADMIN_EMAIL:}
     name: 관리자
     password: ${ADMIN_PASSWORD:}
+
+#===============================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      environment: ${SPRING_PROFILES_ACTIVE:local}

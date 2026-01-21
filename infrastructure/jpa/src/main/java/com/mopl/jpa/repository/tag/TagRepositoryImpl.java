@@ -18,6 +18,11 @@ public class TagRepositoryImpl implements TagRepository {
     private final TagEntityMapper tagEntityMapper;
 
     @Override
+    public Optional<TagModel> findByName(String tagName) {
+        return jpaTagRepository.findByName(tagName).map(tagEntityMapper::toModel);
+    }
+
+    @Override
     public TagModel save(TagModel tagModel) {
         TagEntity tagEntity = tagEntityMapper.toEntity(tagModel);
         TagEntity savedTagEntity = jpaTagRepository.save(tagEntity);
@@ -35,10 +40,5 @@ public class TagRepositoryImpl implements TagRepository {
         return savedEntities.stream()
             .map(tagEntityMapper::toModel)
             .toList();
-    }
-
-    @Override
-    public Optional<TagModel> findByName(String tagName) {
-        return jpaTagRepository.findByName(tagName).map(tagEntityMapper::toModel);
     }
 }

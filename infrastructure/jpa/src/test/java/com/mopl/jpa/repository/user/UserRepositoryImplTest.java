@@ -30,53 +30,6 @@ class UserRepositoryImplTest {
     private UserRepository userRepository;
 
     @Nested
-    @DisplayName("save()")
-    class SaveTest {
-
-        @Test
-        @DisplayName("새 사용자 저장")
-        void withNewUser_savesAndReturnsUser() {
-            // given
-            UserModel userModel = UserModel.create(
-                AuthProvider.EMAIL,
-                "test@example.com",
-                "홍길동",
-                "encodedPassword"
-            );
-
-            // when
-            UserModel savedUser = userRepository.save(userModel);
-
-            // then
-            assertThat(savedUser.getId()).isNotNull();
-            assertThat(savedUser.getEmail()).isEqualTo("test@example.com");
-            assertThat(savedUser.getName()).isEqualTo("홍길동");
-            assertThat(savedUser.getCreatedAt()).isNotNull();
-        }
-
-        @Test
-        @DisplayName("기존 사용자 업데이트")
-        void withExistingUser_updatesAndReturnsUser() {
-            // given
-            UserModel userModel = UserModel.create(
-                AuthProvider.EMAIL,
-                "test@example.com",
-                "홍길동",
-                "encodedPassword"
-            );
-            UserModel savedUser = userRepository.save(userModel);
-
-            // when
-            savedUser.updateRole(UserModel.Role.ADMIN);
-            UserModel updatedUser = userRepository.save(savedUser);
-
-            // then
-            assertThat(updatedUser.getId()).isEqualTo(savedUser.getId());
-            assertThat(updatedUser.getRole()).isEqualTo(UserModel.Role.ADMIN);
-        }
-    }
-
-    @Nested
     @DisplayName("findById()")
     class FindByIdTest {
 
@@ -189,6 +142,53 @@ class UserRepositoryImplTest {
 
             // then
             assertThat(exists).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("save()")
+    class SaveTest {
+
+        @Test
+        @DisplayName("새 사용자 저장")
+        void withNewUser_savesAndReturnsUser() {
+            // given
+            UserModel userModel = UserModel.create(
+                AuthProvider.EMAIL,
+                "test@example.com",
+                "홍길동",
+                "encodedPassword"
+            );
+
+            // when
+            UserModel savedUser = userRepository.save(userModel);
+
+            // then
+            assertThat(savedUser.getId()).isNotNull();
+            assertThat(savedUser.getEmail()).isEqualTo("test@example.com");
+            assertThat(savedUser.getName()).isEqualTo("홍길동");
+            assertThat(savedUser.getCreatedAt()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("기존 사용자 업데이트")
+        void withExistingUser_updatesAndReturnsUser() {
+            // given
+            UserModel userModel = UserModel.create(
+                AuthProvider.EMAIL,
+                "test@example.com",
+                "홍길동",
+                "encodedPassword"
+            );
+            UserModel savedUser = userRepository.save(userModel);
+
+            // when
+            savedUser.updateRole(UserModel.Role.ADMIN);
+            UserModel updatedUser = userRepository.save(savedUser);
+
+            // then
+            assertThat(updatedUser.getId()).isEqualTo(savedUser.getId());
+            assertThat(updatedUser.getRole()).isEqualTo(UserModel.Role.ADMIN);
         }
     }
 }
