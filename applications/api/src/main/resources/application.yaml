@@ -28,6 +28,7 @@ spring:
 
 logging:
   level:
+    root: INFO
     com.mopl.cache: DEBUG
 
 mopl:

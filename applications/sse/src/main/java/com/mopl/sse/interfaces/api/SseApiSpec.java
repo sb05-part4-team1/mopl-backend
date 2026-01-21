@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.UUID;
+
 @Tag(name = "SSE API", description = "SSE API")
 public interface SseApiSpec {
 
@@ -23,6 +25,6 @@ public interface SseApiSpec {
     )
     SseEmitter subscribe(
         @Parameter(hidden = true) MoplUserDetails userDetails,
-        @Parameter String lastEventId
+        @Parameter UUID lastEventId
     );
 }

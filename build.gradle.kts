@@ -120,6 +120,7 @@ project("core") { tasks.configureEach { enabled = false } }
 project("infrastructure") { tasks.configureEach { enabled = false } }
 project("shared") { tasks.configureEach { enabled = false } }
 
+
 tasks.named<JacocoReport>("jacocoTestReport") {
     description = "Generates an aggregate JaCoCo report from all subprojects"
 

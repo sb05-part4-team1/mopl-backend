@@ -16,6 +16,6 @@ include(
     ":infrastructure:security",
     ":infrastructure:storage",
     ":shared:jackson",
-    // ":shared:logging",
+    ":shared:logging",
     ":shared:monitoring"
 )

@@ -19,7 +19,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-public class WatchingSessionController {
+public class WatchingSessionController implements WatchingSessionApiSpec {
 
     private final WatchingSessionFacade watchingSessionFacade;
 

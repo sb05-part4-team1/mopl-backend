@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/files")
-public class FileController {
+public class FileController implements FileApiSpec {
 
     private final LocalStorageProperties properties;
     private final FileStorageProvider fileStorageProvider;

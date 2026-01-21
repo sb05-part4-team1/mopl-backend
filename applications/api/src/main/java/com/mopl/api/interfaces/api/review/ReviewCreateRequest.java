@@ -21,8 +21,12 @@ import static com.mopl.domain.model.review.ReviewModel.TEXT_MAX_LENGTH;
         """
 )
 public record ReviewCreateRequest(
-    @NotNull UUID contentId,
-    @NotBlank @Size(max = TEXT_MAX_LENGTH) String text,
-    @NotNull @DecimalMin("0.0") @DecimalMax("5.0") Double rating
+
+    @Schema(description = "콘텐츠 ID", format = "uuid") @NotNull UUID contentId,
+
+    @Schema(description = "리뷰 내용") @NotBlank @Size(max = TEXT_MAX_LENGTH) String text,
+
+    @Schema(description = "평점(0.0~5.0)",
+        format = "double") @NotNull @DecimalMin("0.0") @DecimalMax("5.0") Double rating
 ) {
 }

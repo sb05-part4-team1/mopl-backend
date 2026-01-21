@@ -9,6 +9,7 @@ dependencies {
     implementation(project(":infrastructure:kafka"))
     implementation(project(":infrastructure:mail"))
     implementation(project(":shared:jackson"))
+    implementation(project(":shared:logging"))
     implementation (project(":shared:monitoring"))
 
     // web
