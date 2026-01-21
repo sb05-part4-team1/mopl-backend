@@ -25,6 +25,8 @@ public class SseFacade {
                 .data("Connected"));
         } catch (IOException e) {
             log.error("Failed to send connect event to user: {}", userId, e);
+            emitter.completeWithError(e);
+            return emitter;
         }
 
         if (lastEventId != null) {
@@ -32,13 +34,5 @@ public class SseFacade {
         }
 
         return emitter;
-    }
-
-    public void sendNotification(UUID userId, Object data) {
-        sseEmitterManager.sendToUser(userId, "notification", data);
-    }
-
-    public boolean hasConnection(UUID userId) {
-        return sseEmitterManager.hasLocalEmitter(userId);
     }
 }

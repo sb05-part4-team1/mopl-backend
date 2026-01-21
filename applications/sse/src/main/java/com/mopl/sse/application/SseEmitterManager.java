@@ -1,29 +1,33 @@
 package com.mopl.sse.application;
 
-import java.io.IOException;
-import java.util.UUID;
-
-import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedEpochGenerator;
 import com.mopl.sse.repository.RedisEmitterRepository;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class SseEmitterManager {
 
-    private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
+    private static final long DEFAULT_TIMEOUT = 60L * 1000 * 60;
     private static final TimeBasedEpochGenerator UUID_V7_GENERATOR = Generators.timeBasedEpochGenerator();
 
     private final RedisEmitterRepository emitterRepository;
 
     public SseEmitter createEmitter(UUID userId) {
+        emitterRepository.findByUserId(userId).ifPresent(existing -> {
+            log.debug("Closing existing emitter for user: {}", userId);
+            existing.complete();
+        });
+
         SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
         emitterRepository.save(userId, emitter);
 
@@ -46,7 +50,6 @@ public class SseEmitterManager {
     public void sendToUser(UUID userId, String eventName, Object data) {
         UUID eventId = generateEventId();
 
-        // 이벤트 캐시에 저장 (재전송용)
         emitterRepository.cacheEvent(userId, eventId, data);
 
         emitterRepository.findByUserId(userId).ifPresent(emitter -> {
@@ -72,9 +75,9 @@ public class SseEmitterManager {
     }
 
     public void resendEventsAfter(UUID userId, UUID lastEventId, SseEmitter emitter) {
-        var cachedEvents = emitterRepository.getEventsAfter(userId, lastEventId);
+        List<RedisEmitterRepository.CachedEvent> cachedEvents = emitterRepository.getEventsAfter(userId, lastEventId);
 
-        for (var cachedEvent : cachedEvents) {
+        for (RedisEmitterRepository.CachedEvent cachedEvent : cachedEvents) {
             try {
                 emitter.send(SseEmitter.event()
                     .id(cachedEvent.eventId().toString())
