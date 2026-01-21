@@ -1,16 +1,25 @@
 package com.mopl.domain.model.notification;
 
+import com.mopl.domain.exception.notification.InvalidNotificationDataException;
 import com.mopl.domain.fixture.NotificationModelFixture;
 import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.user.UserModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.Instant;
 import java.util.UUID;
+import java.util.stream.Stream;
 
+import static com.mopl.domain.model.notification.NotificationModel.CONTENT_MAX_LENGTH;
+import static com.mopl.domain.model.notification.NotificationModel.TITLE_MAX_LENGTH;
+import static com.mopl.domain.model.notification.NotificationModel.NotificationLevel;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("NotificationModel 단위 테스트")
 class NotificationModelTest {
@@ -34,7 +43,7 @@ class NotificationModelTest {
                 .deletedAt(null)
                 .title("알림 제목")
                 .content("알림 내용")
-                .level(NotificationModel.NotificationLevel.INFO)
+                .level(NotificationLevel.INFO)
                 .receiver(receiver)
                 .build();
 
@@ -44,7 +53,7 @@ class NotificationModelTest {
             assertThat(notification.getDeletedAt()).isNull();
             assertThat(notification.getTitle()).isEqualTo("알림 제목");
             assertThat(notification.getContent()).isEqualTo("알림 내용");
-            assertThat(notification.getLevel()).isEqualTo(NotificationModel.NotificationLevel.INFO);
+            assertThat(notification.getLevel()).isEqualTo(NotificationLevel.INFO);
             assertThat(notification.getReceiver()).isEqualTo(receiver);
         }
     }
@@ -63,51 +72,15 @@ class NotificationModelTest {
             NotificationModel notification = NotificationModel.create(
                 "알림 제목",
                 "알림 내용",
-                NotificationModel.NotificationLevel.INFO,
+                NotificationLevel.INFO,
                 receiver
             );
 
             // then
             assertThat(notification.getTitle()).isEqualTo("알림 제목");
             assertThat(notification.getContent()).isEqualTo("알림 내용");
-            assertThat(notification.getLevel()).isEqualTo(NotificationModel.NotificationLevel.INFO);
+            assertThat(notification.getLevel()).isEqualTo(NotificationLevel.INFO);
             assertThat(notification.getReceiver()).isEqualTo(receiver);
-        }
-
-        @Test
-        @DisplayName("WARNING 레벨로 NotificationModel 생성")
-        void withWarningLevel_createsNotificationModel() {
-            // given
-            UserModel receiver = UserModelFixture.create();
-
-            // when
-            NotificationModel notification = NotificationModel.create(
-                "경고 알림",
-                "경고 내용",
-                NotificationModel.NotificationLevel.WARNING,
-                receiver
-            );
-
-            // then
-            assertThat(notification.getLevel()).isEqualTo(NotificationModel.NotificationLevel.WARNING);
-        }
-
-        @Test
-        @DisplayName("ERROR 레벨로 NotificationModel 생성")
-        void withErrorLevel_createsNotificationModel() {
-            // given
-            UserModel receiver = UserModelFixture.create();
-
-            // when
-            NotificationModel notification = NotificationModel.create(
-                "에러 알림",
-                "에러 내용",
-                NotificationModel.NotificationLevel.ERROR,
-                receiver
-            );
-
-            // then
-            assertThat(notification.getLevel()).isEqualTo(NotificationModel.NotificationLevel.ERROR);
         }
 
         @Test
@@ -120,13 +93,87 @@ class NotificationModelTest {
             NotificationModel notification = NotificationModel.create(
                 "알림 제목",
                 null,
-                NotificationModel.NotificationLevel.INFO,
+                NotificationLevel.INFO,
                 receiver
             );
 
             // then
             assertThat(notification.getTitle()).isEqualTo("알림 제목");
             assertThat(notification.getContent()).isNull();
+        }
+
+        static Stream<Arguments> invalidTitleProvider() {
+            return Stream.of(
+                Arguments.of("null", null),
+                Arguments.of("빈 문자열", ""),
+                Arguments.of("공백만", "   ")
+            );
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("invalidTitleProvider")
+        @DisplayName("title이 비어있으면 예외 발생")
+        void withEmptyTitle_throwsException(String description, String title) {
+            UserModel receiver = UserModelFixture.create();
+
+            assertThatThrownBy(() -> NotificationModel.create(
+                title, "내용", NotificationLevel.INFO, receiver
+            ))
+                .isInstanceOf(InvalidNotificationDataException.class)
+                .satisfies(e -> assertThat(((InvalidNotificationDataException) e).getDetails().get("detailMessage"))
+                    .isEqualTo("제목은 비어있을 수 없습니다."));
+        }
+
+        @Test
+        @DisplayName("title이 500자 초과하면 예외 발생")
+        void withTitleExceedingMaxLength_throwsException() {
+            UserModel receiver = UserModelFixture.create();
+            String longTitle = "가".repeat(TITLE_MAX_LENGTH + 1);
+
+            assertThatThrownBy(() -> NotificationModel.create(
+                longTitle, "내용", NotificationLevel.INFO, receiver
+            ))
+                .isInstanceOf(InvalidNotificationDataException.class)
+                .satisfies(e -> assertThat(((InvalidNotificationDataException) e).getDetails().get("detailMessage"))
+                    .isEqualTo("제목은 " + TITLE_MAX_LENGTH + "자를 초과할 수 없습니다."));
+        }
+
+        @Test
+        @DisplayName("content가 9999자 초과하면 예외 발생")
+        void withContentExceedingMaxLength_throwsException() {
+            UserModel receiver = UserModelFixture.create();
+            String longContent = "가".repeat(CONTENT_MAX_LENGTH + 1);
+
+            assertThatThrownBy(() -> NotificationModel.create(
+                "제목", longContent, NotificationLevel.INFO, receiver
+            ))
+                .isInstanceOf(InvalidNotificationDataException.class)
+                .satisfies(e -> assertThat(((InvalidNotificationDataException) e).getDetails().get("detailMessage"))
+                    .isEqualTo("내용은 " + CONTENT_MAX_LENGTH + "자를 초과할 수 없습니다."));
+        }
+
+        @Test
+        @DisplayName("level이 null이면 예외 발생")
+        void withNullLevel_throwsException() {
+            UserModel receiver = UserModelFixture.create();
+
+            assertThatThrownBy(() -> NotificationModel.create(
+                "제목", "내용", null, receiver
+            ))
+                .isInstanceOf(InvalidNotificationDataException.class)
+                .satisfies(e -> assertThat(((InvalidNotificationDataException) e).getDetails().get("detailMessage"))
+                    .isEqualTo("알림 레벨은 null일 수 없습니다."));
+        }
+
+        @Test
+        @DisplayName("receiver가 null이면 예외 발생")
+        void withNullReceiver_throwsException() {
+            assertThatThrownBy(() -> NotificationModel.create(
+                "제목", "내용", NotificationLevel.INFO, null
+            ))
+                .isInstanceOf(InvalidNotificationDataException.class)
+                .satisfies(e -> assertThat(((InvalidNotificationDataException) e).getDetails().get("detailMessage"))
+                    .isEqualTo("수신자는 null일 수 없습니다."));
         }
     }
 
@@ -139,7 +186,6 @@ class NotificationModelTest {
         void withValidNotification_setsDeletedAt() {
             // given
             NotificationModel notification = NotificationModelFixture.create();
-
             assertThat(notification.getDeletedAt()).isNull();
             assertThat(notification.isDeleted()).isFalse();
 
@@ -152,8 +198,8 @@ class NotificationModelTest {
         }
 
         @Test
-        @DisplayName("이미 삭제된 알림을 다시 삭제해도 에러 없이 멱등성이 보장된다")
-        void deleteAlreadyDeletedNotification_isIdempotent() {
+        @DisplayName("이미 삭제된 알림을 다시 삭제해도 멱등성 보장")
+        void deleteAlreadyDeleted_isIdempotent() {
             // given
             NotificationModel notification = NotificationModelFixture.create();
             notification.delete();
@@ -162,7 +208,6 @@ class NotificationModelTest {
             notification.delete();
 
             // then
-            assertThat(notification).isNotNull();
             assertThat(notification.getDeletedAt()).isNotNull();
         }
     }
@@ -177,7 +222,6 @@ class NotificationModelTest {
             // given
             NotificationModel notification = NotificationModelFixture.create();
             notification.delete();
-
             assertThat(notification.isDeleted()).isTrue();
 
             // when
@@ -196,11 +240,11 @@ class NotificationModelTest {
         @Test
         @DisplayName("모든 레벨 값이 존재함")
         void allLevelsExist() {
-            assertThat(NotificationModel.NotificationLevel.values())
+            assertThat(NotificationLevel.values())
                 .containsExactlyInAnyOrder(
-                    NotificationModel.NotificationLevel.INFO,
-                    NotificationModel.NotificationLevel.WARNING,
-                    NotificationModel.NotificationLevel.ERROR
+                    NotificationLevel.INFO,
+                    NotificationLevel.WARNING,
+                    NotificationLevel.ERROR
                 );
         }
     }
