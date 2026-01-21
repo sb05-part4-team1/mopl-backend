@@ -9,6 +9,7 @@ import com.mopl.domain.event.playlist.PlaylistContentAddedEvent;
 import com.mopl.domain.event.playlist.PlaylistCreatedEvent;
 import com.mopl.domain.event.playlist.PlaylistSubscribedEvent;
 import com.mopl.domain.event.playlist.PlaylistUnsubscribedEvent;
+import com.mopl.domain.event.playlist.PlaylistUpdatedEvent;
 import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.playlist.PlaylistModel;
@@ -126,13 +127,27 @@ public class PlaylistFacade {
         UUID playlistId,
         PlaylistUpdateRequest request
     ) {
-        userService.getById(requesterId);
-        PlaylistModel playlistModel = playlistService.update(
-            playlistId,
-            requesterId,
-            request.title(),
-            request.description()
-        );
+        UserModel owner = userService.getById(requesterId);
+
+        PlaylistModel playlistModel = transactionTemplate.execute(status -> {
+            PlaylistModel updated = playlistService.update(
+                playlistId,
+                requesterId,
+                request.title(),
+                request.description()
+            );
+
+            PlaylistUpdatedEvent event = PlaylistUpdatedEvent.builder()
+                .playlistId(updated.getId())
+                .playlistTitle(updated.getTitle())
+                .ownerId(owner.getId())
+                .ownerName(owner.getName())
+                .build();
+            outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
+
+            return updated;
+        });
+
         return playlistResponseMapper.toResponse(playlistModel);
     }
 

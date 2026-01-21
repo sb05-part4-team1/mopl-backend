@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -39,4 +40,7 @@ public interface JpaPlaylistSubscriberRepository extends
         @Param("subscriberId") UUID subscriberId,
         @Param("playlistIds") Collection<UUID> playlistIds
     );
+
+    @Query("SELECT ps.subscriber.id FROM PlaylistSubscriberEntity ps WHERE ps.playlist.id = :playlistId")
+    List<UUID> findSubscriberIdsByPlaylistId(@Param("playlistId") UUID playlistId);
 }

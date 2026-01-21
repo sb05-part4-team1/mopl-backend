@@ -5,10 +5,12 @@ import com.mopl.domain.event.EventTopic;
 import com.mopl.domain.event.playlist.PlaylistContentAddedEvent;
 import com.mopl.domain.event.playlist.PlaylistCreatedEvent;
 import com.mopl.domain.event.playlist.PlaylistSubscribedEvent;
+import com.mopl.domain.event.playlist.PlaylistUpdatedEvent;
 import com.mopl.domain.event.user.UserFollowedEvent;
 import com.mopl.domain.model.notification.NotificationModel;
 import com.mopl.domain.service.follow.FollowService;
 import com.mopl.domain.service.notification.NotificationService;
+import com.mopl.domain.service.playlist.PlaylistSubscriptionService;
 import com.mopl.redis.pubsub.NotificationPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +29,7 @@ public class NotificationEventProcessor {
     private final NotificationService notificationService;
     private final NotificationPublisher notificationPublisher;
     private final FollowService followService;
+    private final PlaylistSubscriptionService playlistSubscriptionService;
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
@@ -75,6 +78,32 @@ public class NotificationEventProcessor {
             log.debug("Processed PlaylistCreatedEvent for playlist: {}", event.getPlaylistId());
         } catch (Exception e) {
             log.error("Failed to process PlaylistCreatedEvent: {}", payload, e);
+        } finally {
+            ack.acknowledge();
+        }
+    }
+
+    @KafkaListener(
+        topics = EventTopic.PLAYLIST_UPDATED,
+        groupId = "worker-notification-group",
+        containerFactory = "kafkaListenerContainerFactory"
+    )
+    public void handlePlaylistUpdated(String payload, Acknowledgment ack) {
+        try {
+            PlaylistUpdatedEvent event = objectMapper.readValue(payload, PlaylistUpdatedEvent.class);
+
+            String title = "플레이리스트 업데이트";
+            String content = "\"" + event.getPlaylistTitle() + "\" 플레이리스트가 업데이트되었습니다.";
+
+            List<UUID> subscriberIds = playlistSubscriptionService.getSubscriberIds(event.getPlaylistId());
+            for (UUID subscriberId : subscriberIds) {
+                NotificationModel saved = createNotification(title, content, subscriberId);
+                publishToSse(saved);
+            }
+
+            log.debug("Processed PlaylistUpdatedEvent for playlist: {}", event.getPlaylistId());
+        } catch (Exception e) {
+            log.error("Failed to process PlaylistUpdatedEvent: {}", payload, e);
         } finally {
             ack.acknowledge();
         }
