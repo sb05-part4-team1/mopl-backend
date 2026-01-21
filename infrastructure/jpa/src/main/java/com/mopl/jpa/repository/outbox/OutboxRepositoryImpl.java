@@ -5,6 +5,7 @@ import com.mopl.domain.repository.outbox.OutboxRepository;
 import com.mopl.jpa.entity.outbox.OutboxEntity;
 import com.mopl.jpa.entity.outbox.OutboxEntityMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
@@ -14,20 +15,22 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OutboxRepositoryImpl implements OutboxRepository {
 
-    private final JpaOutboxEventRepository jpaOutboxEventRepository;
+    private final JpaOutboxRepository jpaOutboxRepository;
     private final OutboxEntityMapper outboxEntityMapper;
 
     @Override
     public OutboxModel save(OutboxModel outboxModel) {
         OutboxEntity entity = outboxEntityMapper.toEntity(outboxModel);
-        OutboxEntity savedEntity = jpaOutboxEventRepository.save(entity);
+        OutboxEntity savedEntity = jpaOutboxRepository.save(entity);
         return outboxEntityMapper.toModel(savedEntity);
     }
 
     @Override
     public List<OutboxModel> findPendingEvents(int maxRetry, int limit) {
-        return jpaOutboxEventRepository
-            .findPendingEvents(OutboxModel.OutboxStatus.PENDING, maxRetry, limit)
+        return jpaOutboxRepository
+            .findByStatusAndRetryCountLessThanOrderByCreatedAtAsc(
+                OutboxModel.OutboxStatus.PENDING, maxRetry, PageRequest.ofSize(limit)
+            )
             .stream()
             .map(outboxEntityMapper::toModel)
             .toList();
@@ -35,7 +38,7 @@ public class OutboxRepositoryImpl implements OutboxRepository {
 
     @Override
     public int deletePublishedEventsBefore(Instant before) {
-        return jpaOutboxEventRepository.deletePublishedEventsBefore(
+        return jpaOutboxRepository.deleteByStatusAndPublishedAtBefore(
             OutboxModel.OutboxStatus.PUBLISHED, before
         );
     }
