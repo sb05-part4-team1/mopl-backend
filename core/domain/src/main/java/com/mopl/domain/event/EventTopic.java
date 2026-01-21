@@ -19,7 +19,7 @@ public final class EventTopic {
     public static final String PLAYLIST_CONTENT_ADDED = "mopl.playlist.content-added";
 
     // Message
-    public static final String MESSAGE_RECEIVED = "mopl.message.received";
+    public static final String MESSAGE_RECEIVED = "mopl.conversation.direct-message.received";
 
     public static List<String> all() {
         return List.of(

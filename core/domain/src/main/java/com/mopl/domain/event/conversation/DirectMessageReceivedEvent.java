@@ -1,4 +1,4 @@
-package com.mopl.domain.event.message;
+package com.mopl.domain.event.conversation;
 
 import com.mopl.domain.event.DomainEvent;
 import com.mopl.domain.event.EventTopic;
