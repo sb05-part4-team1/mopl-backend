@@ -83,6 +83,8 @@ public interface NotificationApiSpec {
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
-    void readNotification(@Parameter(hidden = true) MoplUserDetails userDetails,
-        @Parameter(name = "notificationId", required = true) UUID notificationId);
+    void readNotification(
+        @Parameter(hidden = true) MoplUserDetails userDetails,
+        UUID notificationId
+    );
 }
