@@ -38,9 +38,9 @@ public class PlaylistFacade {
     private final UserService userService;
     private final ContentService contentService;
     private final PlaylistResponseMapper playlistResponseMapper;
-    private final TransactionTemplate transactionTemplate;
     private final DomainEventOutboxMapper domainEventOutboxMapper;
     private final OutboxService outboxService;
+    private final TransactionTemplate transactionTemplate;
 
     public CursorResponse<PlaylistResponse> getPlaylists(
         UUID requesterId,
@@ -145,8 +145,6 @@ public class PlaylistFacade {
         PlaylistModel playlist = playlistService.getById(playlistId);
         ContentModel content = contentService.getById(contentId);
 
-        playlistService.addContent(playlistId, requesterId, contentId);
-
         PlaylistContentAddedEvent event = PlaylistContentAddedEvent.builder()
             .playlistId(playlist.getId())
             .playlistTitle(playlist.getTitle())
@@ -156,7 +154,11 @@ public class PlaylistFacade {
             .contentTitle(content.getTitle())
             .subscriberIds(List.of())
             .build();
-        outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
+
+        transactionTemplate.executeWithoutResult(status -> {
+            playlistService.addContent(playlistId, requesterId, contentId);
+            outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
+        });
     }
 
     public void deleteContentFromPlaylist(
@@ -174,9 +176,6 @@ public class PlaylistFacade {
     ) {
         UserModel subscriber = userService.getById(requesterId);
         PlaylistModel playlist = playlistService.getById(playlistId);
-        transactionTemplate.executeWithoutResult(status -> playlistSubscriptionService.subscribe(
-            playlistId, requesterId)
-        );
 
         PlaylistSubscribedEvent event = PlaylistSubscribedEvent.builder()
             .playlistId(playlist.getId())
@@ -185,7 +184,11 @@ public class PlaylistFacade {
             .subscriberName(subscriber.getName())
             .ownerId(playlist.getOwner().getId())
             .build();
-        outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
+
+        transactionTemplate.executeWithoutResult(status -> {
+            playlistSubscriptionService.subscribe(playlistId, requesterId);
+            outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
+        });
     }
 
     public void unsubscribePlaylist(
@@ -194,14 +197,15 @@ public class PlaylistFacade {
     ) {
         userService.getById(requesterId);
         playlistService.getById(playlistId);
-        transactionTemplate.executeWithoutResult(status -> playlistSubscriptionService.unsubscribe(
-            playlistId, requesterId)
-        );
 
         PlaylistUnsubscribedEvent event = PlaylistUnsubscribedEvent.builder()
             .playlistId(playlistId)
             .subscriberId(requesterId)
             .build();
-        outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
+
+        transactionTemplate.executeWithoutResult(status -> {
+            playlistSubscriptionService.unsubscribe(playlistId, requesterId);
+            outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
+        });
     }
 }
