@@ -1,15 +1,20 @@
 package com.mopl.api.application.playlist;
 
+import com.mopl.api.application.outbox.DomainEventOutboxMapper;
 import com.mopl.api.interfaces.api.playlist.PlaylistCreateRequest;
 import com.mopl.api.interfaces.api.playlist.PlaylistResponse;
 import com.mopl.api.interfaces.api.playlist.PlaylistResponseMapper;
 import com.mopl.api.interfaces.api.playlist.PlaylistUpdateRequest;
+import com.mopl.domain.event.playlist.PlaylistContentAddedEvent;
+import com.mopl.domain.event.playlist.PlaylistSubscribedEvent;
+import com.mopl.domain.event.playlist.PlaylistUnsubscribedEvent;
 import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.playlist.PlaylistQueryRequest;
 import com.mopl.domain.service.content.ContentService;
+import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.domain.service.playlist.PlaylistService;
 import com.mopl.domain.service.playlist.PlaylistSubscriptionService;
 import com.mopl.domain.service.user.UserService;
@@ -34,6 +39,8 @@ public class PlaylistFacade {
     private final ContentService contentService;
     private final PlaylistResponseMapper playlistResponseMapper;
     private final TransactionTemplate transactionTemplate;
+    private final DomainEventOutboxMapper domainEventOutboxMapper;
+    private final OutboxService outboxService;
 
     public CursorResponse<PlaylistResponse> getPlaylists(
         UUID requesterId,
@@ -129,13 +136,27 @@ public class PlaylistFacade {
         UUID playlistId,
         UUID contentId
     ) {
-        userService.getById(requesterId);
+        UserModel owner = userService.getById(requesterId);
 
         if (!contentService.exists(contentId)) {
             throw ContentNotFoundException.withId(contentId);
         }
 
+        PlaylistModel playlist = playlistService.getById(playlistId);
+        ContentModel content = contentService.getById(contentId);
+
         playlistService.addContent(playlistId, requesterId, contentId);
+
+        PlaylistContentAddedEvent event = PlaylistContentAddedEvent.builder()
+            .playlistId(playlist.getId())
+            .playlistTitle(playlist.getTitle())
+            .ownerId(owner.getId())
+            .ownerName(owner.getName())
+            .contentId(content.getId())
+            .contentTitle(content.getTitle())
+            .subscriberIds(List.of())
+            .build();
+        outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
     }
 
     public void deleteContentFromPlaylist(
@@ -151,12 +172,20 @@ public class PlaylistFacade {
         UUID requesterId,
         UUID playlistId
     ) {
-        userService.getById(requesterId);
-        playlistService.getById(playlistId);
+        UserModel subscriber = userService.getById(requesterId);
+        PlaylistModel playlist = playlistService.getById(playlistId);
         transactionTemplate.executeWithoutResult(status -> playlistSubscriptionService.subscribe(
             playlistId, requesterId)
         );
-        // TODO: 구독 알림 이벤트 발행
+
+        PlaylistSubscribedEvent event = PlaylistSubscribedEvent.builder()
+            .playlistId(playlist.getId())
+            .playlistTitle(playlist.getTitle())
+            .subscriberId(subscriber.getId())
+            .subscriberName(subscriber.getName())
+            .ownerId(playlist.getOwner().getId())
+            .build();
+        outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
     }
 
     public void unsubscribePlaylist(
@@ -168,5 +197,11 @@ public class PlaylistFacade {
         transactionTemplate.executeWithoutResult(status -> playlistSubscriptionService.unsubscribe(
             playlistId, requesterId)
         );
+
+        PlaylistUnsubscribedEvent event = PlaylistUnsubscribedEvent.builder()
+            .playlistId(playlistId)
+            .subscriberId(requesterId)
+            .build();
+        outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
     }
 }

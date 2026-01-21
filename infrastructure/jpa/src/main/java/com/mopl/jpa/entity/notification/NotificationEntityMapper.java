@@ -62,7 +62,7 @@ public class NotificationEntityMapper {
             .title(notificationEntity.getTitle())
             .content(notificationEntity.getContent())
             .level(notificationEntity.getLevel())
-            .receiver(toReceiverIdOnly(notificationEntity.getReceiver()))
+            .receiver(receiverModel)
             .build();
     }
 

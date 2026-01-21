@@ -1,13 +1,14 @@
 package com.mopl.api.application.follow;
 
+import com.mopl.api.application.outbox.DomainEventOutboxMapper;
+import com.mopl.domain.event.user.UserFollowedEvent;
+import com.mopl.domain.event.user.UserUnfollowedEvent;
 import com.mopl.domain.exception.follow.FollowNotAllowedException;
 import com.mopl.domain.model.follow.FollowModel;
-import com.mopl.domain.model.notification.NotificationLevel;
-import com.mopl.domain.model.notification.NotificationModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.follow.FollowService;
+import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.domain.service.user.UserService;
-import com.mopl.sse.application.SseFacade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +21,8 @@ public class FollowFacade {
 
     private final FollowService followService;
     private final UserService userService;
-    private final SseFacade sseFacade;
+    private final OutboxService outboxService;
+    private final DomainEventOutboxMapper domainEventOutboxMapper;
 
     @Transactional
     public FollowModel follow(UUID followerId, UUID followeeId) {
@@ -30,14 +32,13 @@ public class FollowFacade {
         FollowModel followModel = FollowModel.create(followeeId, followerId);
         FollowModel savedFollow = followService.create(followModel);
 
-        NotificationModel notification = NotificationModel.create(
-            "새로운 팔로우",
-            follower.getName() + "님이 팔로우했습니다.",
-            NotificationLevel.INFO,
-            followee
-        );
+        UserFollowedEvent event = UserFollowedEvent.builder()
+            .followerId(follower.getId())
+            .followerName(follower.getName())
+            .followeeId(followee.getId())
+            .build();
 
-        sseFacade.sendNotification(notification);
+        outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
 
         return savedFollow;
     }
@@ -53,6 +54,13 @@ public class FollowFacade {
         }
 
         followService.delete(follow);
+
+        UserUnfollowedEvent event = UserUnfollowedEvent.builder()
+            .followerId(follow.getFollowerId())
+            .followeeId(follow.getFolloweeId())
+            .build();
+
+        outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
     }
 
     @Transactional

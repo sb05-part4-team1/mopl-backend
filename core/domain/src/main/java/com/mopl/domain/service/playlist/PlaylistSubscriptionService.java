@@ -17,6 +17,7 @@ public class PlaylistSubscriptionService {
     private final PlaylistSubscriberRepository playlistSubscriberRepository;
     private final PlaylistSubscriberCountRepository playlistSubscriberCountRepository;
 
+    // TODO: redis 장애 시 fallback
     public long getSubscriberCount(UUID playlistId) {
         return playlistSubscriberCountRepository.getCount(playlistId);
     }

@@ -16,6 +16,10 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationQueryRepository notificationQueryRepository;
 
+    public NotificationModel create(NotificationModel notification) {
+        return notificationRepository.save(notification);
+    }
+
     public void deleteById(UUID notificationId) {
         NotificationModel notification = getById(notificationId);
         notification.delete();

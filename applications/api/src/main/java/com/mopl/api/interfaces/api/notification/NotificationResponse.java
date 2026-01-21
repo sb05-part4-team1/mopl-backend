@@ -1,9 +1,9 @@
 package com.mopl.api.interfaces.api.notification;
 
+import com.mopl.domain.model.notification.NotificationModel;
+
 import java.time.Instant;
 import java.util.UUID;
-
-import com.mopl.domain.model.notification.NotificationLevel;
 
 public record NotificationResponse(
     UUID id,
@@ -11,6 +11,6 @@ public record NotificationResponse(
     UUID receiverId,
     String title,
     String content,
-    NotificationLevel level
+    NotificationModel.NotificationLevel level
 ) {
 }

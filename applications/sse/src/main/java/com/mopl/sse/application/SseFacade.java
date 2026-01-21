@@ -1,7 +1,6 @@
 package com.mopl.sse.application;
 
 import com.mopl.domain.model.notification.NotificationModel;
-import com.mopl.sse.service.SseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -12,27 +11,27 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SseFacade {
 
-    private final SseService sseService;
+    private final SseEmitterManager sseEmitterManager;
 
     public SseEmitter subscribe(UUID userId, String lastEventId) {
-        // Emitter 생성 및 저장
-        SseEmitter emitter = sseService.createEmitter(userId);
+        SseEmitter emitter = sseEmitterManager.createEmitter(userId);
 
-        // 연결 직후 더미 데이터 전송
-        String eventId = sseService.makeTimeIncludeId(userId);
-        sseService.send(emitter, eventId, "sse", "EventStream Created.");
+        String eventId = sseEmitterManager.makeTimeIncludeId(userId);
+        sseEmitterManager.send(emitter, eventId, "sse", "EventStream Created.");
 
-        // 미수신 데이터 재전송
         if (lastEventId != null && !lastEventId.isEmpty()) {
-            sseService.sendLostData(lastEventId, userId, emitter);
+            sseEmitterManager.sendLostData(lastEventId, userId, emitter);
         }
 
         return emitter;
     }
 
     public void sendNotification(NotificationModel model) {
-        sseService.sendToUser(model.getReceiver().getId(), "notification", model);
+        SseNotificationData data = SseNotificationData.from(model);
+        sseEmitterManager.sendToUser(model.getReceiver().getId(), "notification", data);
     }
 
-    // TODO: DM 알림 메서드 추가 구현 필요
+    public void sendToUser(UUID userId, String eventName, Object data) {
+        sseEmitterManager.sendToUser(userId, eventName, data);
+    }
 }

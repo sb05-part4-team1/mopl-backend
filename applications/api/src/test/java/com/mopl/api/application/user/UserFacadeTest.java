@@ -1,6 +1,5 @@
 package com.mopl.api.application.user;
 
-import com.mopl.api.application.outbox.OutboxService;
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
 import com.mopl.api.interfaces.api.user.UserLockUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserResponse;
@@ -14,6 +13,7 @@ import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.user.TemporaryPasswordRepository;
 import com.mopl.domain.repository.user.UserQueryRequest;
 import com.mopl.domain.repository.user.UserSortField;
+import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;

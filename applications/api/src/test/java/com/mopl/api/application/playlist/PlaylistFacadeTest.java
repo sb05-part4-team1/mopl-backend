@@ -1,6 +1,5 @@
 package com.mopl.api.application.playlist;
 
-import com.mopl.api.application.outbox.OutboxService;
 import com.mopl.api.interfaces.api.playlist.PlaylistCreateRequest;
 import com.mopl.api.interfaces.api.playlist.PlaylistResponse;
 import com.mopl.api.interfaces.api.playlist.PlaylistResponseMapper;
@@ -14,6 +13,7 @@ import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.playlist.PlaylistQueryRequest;
 import com.mopl.domain.service.content.ContentService;
+import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.domain.service.playlist.PlaylistService;
 import com.mopl.domain.service.playlist.PlaylistSubscriptionService;
 import com.mopl.domain.service.user.UserService;

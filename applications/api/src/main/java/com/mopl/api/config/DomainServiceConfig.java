@@ -6,6 +6,7 @@ import com.mopl.domain.repository.content.ContentTagRepository;
 import com.mopl.domain.repository.follow.FollowRepository;
 import com.mopl.domain.repository.notification.NotificationQueryRepository;
 import com.mopl.domain.repository.notification.NotificationRepository;
+import com.mopl.domain.repository.outbox.OutboxRepository;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.domain.repository.playlist.PlaylistQueryRepository;
 import com.mopl.domain.repository.playlist.PlaylistRepository;
@@ -21,6 +22,7 @@ import com.mopl.domain.repository.watchingsession.WatchingSessionRepository;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.follow.FollowService;
 import com.mopl.domain.service.notification.NotificationService;
+import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.domain.service.playlist.PlaylistCacheService;
 import com.mopl.domain.service.playlist.PlaylistService;
 import com.mopl.domain.service.playlist.PlaylistSubscriptionService;
@@ -135,5 +137,12 @@ public class DomainServiceConfig {
             watchingSessionRepository,
             watchingSessionQueryRepository
         );
+    }
+
+    @Bean
+    public OutboxService outboxService(
+        OutboxRepository outboxRepository
+    ) {
+        return new OutboxService(outboxRepository);
     }
 }
