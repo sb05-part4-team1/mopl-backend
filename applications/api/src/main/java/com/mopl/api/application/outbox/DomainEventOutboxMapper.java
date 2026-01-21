@@ -3,6 +3,7 @@ package com.mopl.api.application.outbox;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.domain.event.DomainEvent;
+import com.mopl.domain.exception.outbox.EventSerializationException;
 import com.mopl.domain.model.outbox.OutboxModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -27,8 +28,7 @@ public class DomainEventOutboxMapper {
         try {
             return objectMapper.writeValueAsString(event);
         } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException(
-                "Failed to serialize event: " + event.getEventType(), e);
+            throw new EventSerializationException(event.getEventType(), e);
         }
     }
 }
