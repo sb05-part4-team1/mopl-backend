@@ -1,17 +1,17 @@
 package com.mopl.domain.event.playlist;
 
-import com.mopl.domain.event.AbstractDomainEvent;
+import com.mopl.domain.event.DomainEvent;
 import com.mopl.domain.event.EventTopic;
 import com.mopl.domain.model.playlist.PlaylistModel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 import java.util.UUID;
 
 @Getter
-@SuperBuilder
-public class PlaylistContentAddedEvent extends AbstractDomainEvent {
+@Builder
+public class PlaylistContentAddedEvent implements DomainEvent {
 
     private final UUID playlistId;
     private final String playlistTitle;

@@ -1,15 +1,15 @@
 package com.mopl.domain.event.message;
 
-import com.mopl.domain.event.AbstractDomainEvent;
+import com.mopl.domain.event.DomainEvent;
 import com.mopl.domain.event.EventTopic;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
 
 @Getter
-@SuperBuilder
-public class DirectMessageReceivedEvent extends AbstractDomainEvent {
+@Builder
+public class DirectMessageReceivedEvent implements DomainEvent {
 
     private final UUID messageId;
     private final UUID conversationId;

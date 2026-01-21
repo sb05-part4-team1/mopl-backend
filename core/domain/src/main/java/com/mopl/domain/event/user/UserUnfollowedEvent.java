@@ -1,16 +1,16 @@
 package com.mopl.domain.event.user;
 
-import com.mopl.domain.event.AbstractDomainEvent;
+import com.mopl.domain.event.DomainEvent;
 import com.mopl.domain.event.EventTopic;
 import com.mopl.domain.model.user.UserModel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
 
 @Getter
-@SuperBuilder
-public class UserUnfollowedEvent extends AbstractDomainEvent {
+@Builder
+public class UserUnfollowedEvent implements DomainEvent {
 
     private final UUID followerId;
     private final UUID followeeId;
