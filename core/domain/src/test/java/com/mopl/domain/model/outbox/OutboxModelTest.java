@@ -1,4 +1,4 @@
-package com.mopl.domain.model.Outbox;
+package com.mopl.domain.model.outbox;
 
 import com.mopl.domain.exception.outbox.InvalidOutboxDataException;
 import org.junit.jupiter.api.DisplayName;
@@ -12,11 +12,11 @@ import java.time.Instant;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static com.mopl.domain.model.Outbox.OutboxModel.AGGREGATE_ID_MAX_LENGTH;
-import static com.mopl.domain.model.Outbox.OutboxModel.AGGREGATE_TYPE_MAX_LENGTH;
-import static com.mopl.domain.model.Outbox.OutboxModel.EVENT_TYPE_MAX_LENGTH;
-import static com.mopl.domain.model.Outbox.OutboxModel.TOPIC_MAX_LENGTH;
-import static com.mopl.domain.model.Outbox.OutboxModel.OutboxStatus;
+import static com.mopl.domain.model.outbox.OutboxModel.AGGREGATE_ID_MAX_LENGTH;
+import static com.mopl.domain.model.outbox.OutboxModel.AGGREGATE_TYPE_MAX_LENGTH;
+import static com.mopl.domain.model.outbox.OutboxModel.EVENT_TYPE_MAX_LENGTH;
+import static com.mopl.domain.model.outbox.OutboxModel.TOPIC_MAX_LENGTH;
+import static com.mopl.domain.model.outbox.OutboxModel.OutboxStatus;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

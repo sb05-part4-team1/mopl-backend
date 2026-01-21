@@ -1,4 +1,4 @@
-package com.mopl.domain.model.Outbox;
+package com.mopl.domain.model.outbox;
 
 import com.mopl.domain.exception.outbox.InvalidOutboxDataException;
 import com.mopl.domain.model.base.BaseModel;
