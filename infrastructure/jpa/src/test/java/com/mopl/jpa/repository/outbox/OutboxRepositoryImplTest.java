@@ -153,6 +153,24 @@ class OutboxRepositoryImplTest {
             assertThat(pendingEvents).hasSize(1);
             assertThat(pendingEvents.get(0).getEventType()).isEqualTo("Pending");
         }
+
+        @Test
+        @DisplayName("FAILED 상태의 이벤트는 조회되지 않는다")
+        void withFailedEvents_excludesFailedEvents() {
+            // given
+            OutboxModel pendingOutbox = outboxRepository.save(createOutbox("Pending"));
+
+            OutboxModel failedOutbox = createOutbox("Failed");
+            failedOutbox.markAsFailed();
+            outboxRepository.save(failedOutbox);
+
+            // when
+            List<OutboxModel> pendingEvents = outboxRepository.findPendingEvents(3, 10);
+
+            // then
+            assertThat(pendingEvents).hasSize(1);
+            assertThat(pendingEvents.get(0).getEventType()).isEqualTo("Pending");
+        }
     }
 
     @Nested
