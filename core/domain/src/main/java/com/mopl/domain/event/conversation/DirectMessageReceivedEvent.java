@@ -20,7 +20,7 @@ public class DirectMessageReceivedEvent implements DomainEvent {
 
     @Override
     public String getAggregateType() {
-        return "MESSAGE";
+        return "DIRECT_MESSAGE";
     }
 
     @Override
