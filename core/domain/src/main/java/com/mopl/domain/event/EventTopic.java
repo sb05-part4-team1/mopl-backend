@@ -10,6 +10,7 @@ public final class EventTopic {
     public static final String USER_UNFOLLOWED = "mopl.user.unfollowed";
     public static final String USER_ROLE_CHANGED = "mopl.user.role-changed";
 
+    public static final String PLAYLIST_CREATED = "mopl.playlist.created";
     public static final String PLAYLIST_SUBSCRIBED = "mopl.playlist.subscribed";
     public static final String PLAYLIST_UNSUBSCRIBED = "mopl.playlist.unsubscribed";
     public static final String PLAYLIST_CONTENT_ADDED = "mopl.playlist.content-added";
