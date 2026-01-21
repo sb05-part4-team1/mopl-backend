@@ -69,8 +69,8 @@ class OutboxRepositoryImplTest {
         @DisplayName("PENDING 상태의 이벤트를 조회한다")
         void withPendingEvents_returnsPendingEvents() {
             // given
-            OutboxModel outbox1 = outboxRepository.save(createOutbox("Event1"));
-            OutboxModel outbox2 = outboxRepository.save(createOutbox("Event2"));
+            outboxRepository.save(createOutbox("Event1"));
+            outboxRepository.save(createOutbox("Event2"));
 
             // when
             List<OutboxModel> pendingEvents = outboxRepository.findPendingEvents(3, 10);
@@ -85,11 +85,11 @@ class OutboxRepositoryImplTest {
         @DisplayName("createdAt 오름차순으로 정렬된다")
         void withMultipleEvents_orderedByCreatedAtAsc() throws InterruptedException {
             // given
-            OutboxModel first = outboxRepository.save(createOutbox("First"));
+            outboxRepository.save(createOutbox("First"));
             Thread.sleep(10);
-            OutboxModel second = outboxRepository.save(createOutbox("Second"));
+            outboxRepository.save(createOutbox("Second"));
             Thread.sleep(10);
-            OutboxModel third = outboxRepository.save(createOutbox("Third"));
+            outboxRepository.save(createOutbox("Third"));
 
             // when
             List<OutboxModel> pendingEvents = outboxRepository.findPendingEvents(3, 10);
@@ -120,7 +120,7 @@ class OutboxRepositoryImplTest {
         @DisplayName("retryCount가 maxRetry 이상인 이벤트는 조회되지 않는다")
         void withHighRetryCount_excludesEvents() {
             // given
-            OutboxModel normalOutbox = outboxRepository.save(createOutbox("Normal"));
+            outboxRepository.save(createOutbox("Normal"));
 
             OutboxModel retriedOutbox = createOutbox("Retried");
             retriedOutbox.incrementRetryCount();
@@ -140,7 +140,7 @@ class OutboxRepositoryImplTest {
         @DisplayName("PUBLISHED 상태의 이벤트는 조회되지 않는다")
         void withPublishedEvents_excludesPublishedEvents() {
             // given
-            OutboxModel pendingOutbox = outboxRepository.save(createOutbox("Pending"));
+            outboxRepository.save(createOutbox("Pending"));
 
             OutboxModel publishedOutbox = createOutbox("Published");
             publishedOutbox.markAsPublished();
@@ -158,7 +158,7 @@ class OutboxRepositoryImplTest {
         @DisplayName("FAILED 상태의 이벤트는 조회되지 않는다")
         void withFailedEvents_excludesFailedEvents() {
             // given
-            OutboxModel pendingOutbox = outboxRepository.save(createOutbox("Pending"));
+            outboxRepository.save(createOutbox("Pending"));
 
             OutboxModel failedOutbox = createOutbox("Failed");
             failedOutbox.markAsFailed();
