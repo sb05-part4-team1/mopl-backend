@@ -1,7 +1,5 @@
 package com.mopl.sse.interfaces.api;
 
-import java.util.UUID;
-
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,8 +23,11 @@ public class SseController implements SseApiSpec {
     @GetMapping(produces = "text/event-stream")
     public SseEmitter subscribe(
         @AuthenticationPrincipal MoplUserDetails userDetails,
-        @RequestParam(required = false) UUID lastEventId
+        @RequestParam(required = false) String lastEventId
     ) {
+        if (lastEventId != null && lastEventId.isBlank()) {
+            lastEventId = null;
+        }
         return sseFacade.subscribe(userDetails.userId(), lastEventId);
     }
 }
