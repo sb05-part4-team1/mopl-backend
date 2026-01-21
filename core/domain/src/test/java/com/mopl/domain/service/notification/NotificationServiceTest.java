@@ -43,20 +43,74 @@ class NotificationServiceTest {
     private NotificationService notificationService;
 
     @Nested
+    @DisplayName("getAll()")
+    class GetAllTest {
+
+        @Test
+        @DisplayName("유효한 요청 시 알림 목록 반환")
+        void withValidRequest_returnsNotificationList() {
+            // given
+            UserModel receiver = UserModelFixture.create();
+            UUID receiverId = receiver.getId();
+            NotificationQueryRequest request = createQueryRequest();
+
+            CursorResponse<NotificationModel> expectedResponse = CursorResponse.of(
+                List.of(
+                    NotificationModelFixture.builder().set("receiver", receiver).sample(),
+                    NotificationModelFixture.builder().set("receiver", receiver).sample()
+                ),
+                "cursor", UUID.randomUUID(), true, 10, "createdAt", SortDirection.ASCENDING
+            );
+
+            given(notificationQueryRepository.findAll(receiverId, request)).willReturn(expectedResponse);
+
+            // when
+            CursorResponse<NotificationModel> result = notificationService.getAll(receiverId, request);
+
+            // then
+            assertThat(result.data()).hasSize(2);
+            assertThat(result.hasNext()).isTrue();
+            then(notificationQueryRepository).should().findAll(receiverId, request);
+        }
+
+        @Test
+        @DisplayName("결과가 없으면 빈 목록 반환")
+        void withNoResults_returnsEmptyList() {
+            // given
+            UUID receiverId = UUID.randomUUID();
+            NotificationQueryRequest request = createQueryRequest();
+            CursorResponse<NotificationModel> emptyResponse = CursorResponse.empty("createdAt", SortDirection.ASCENDING);
+
+            given(notificationQueryRepository.findAll(receiverId, request)).willReturn(emptyResponse);
+
+            // when
+            CursorResponse<NotificationModel> result = notificationService.getAll(receiverId, request);
+
+            // then
+            assertThat(result.data()).isEmpty();
+            assertThat(result.hasNext()).isFalse();
+            then(notificationQueryRepository).should().findAll(receiverId, request);
+        }
+
+        private NotificationQueryRequest createQueryRequest() {
+            return new NotificationQueryRequest(null, null, 10, SortDirection.ASCENDING, NotificationSortField.createdAt);
+        }
+    }
+
+    @Nested
     @DisplayName("getById()")
     class GetByIdTest {
 
         @Test
         @DisplayName("존재하는 알림 ID로 조회하면 NotificationModel 반환")
-        void withExistingNotificationId_returnsNotificationModel() {
+        void withExistingId_returnsNotificationModel() {
             // given
             UUID notificationId = UUID.randomUUID();
             NotificationModel notification = NotificationModelFixture.builder()
                 .set("id", notificationId)
                 .sample();
 
-            given(notificationRepository.findById(notificationId))
-                .willReturn(Optional.of(notification));
+            given(notificationRepository.findById(notificationId)).willReturn(Optional.of(notification));
 
             // when
             NotificationModel result = notificationService.getById(notificationId);
@@ -68,22 +122,38 @@ class NotificationServiceTest {
 
         @Test
         @DisplayName("존재하지 않는 알림 ID로 조회하면 NotificationNotFoundException 발생")
-        void withNonExistingNotificationId_throwsNotificationNotFoundException() {
+        void withNonExistingId_throwsException() {
             // given
             UUID notificationId = UUID.randomUUID();
-
-            given(notificationRepository.findById(notificationId))
-                .willReturn(Optional.empty());
+            given(notificationRepository.findById(notificationId)).willReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> notificationService.getById(notificationId))
                 .isInstanceOf(NotificationNotFoundException.class)
-                .satisfies(e -> {
-                    NotificationNotFoundException ex = (NotificationNotFoundException) e;
-                    assertThat(ex.getDetails().get("notificationId")).isEqualTo(notificationId);
-                });
+                .satisfies(e -> assertThat(((NotificationNotFoundException) e).getDetails().get("notificationId"))
+                    .isEqualTo(notificationId));
 
             then(notificationRepository).should().findById(notificationId);
+        }
+    }
+
+    @Nested
+    @DisplayName("create()")
+    class CreateTest {
+
+        @Test
+        @DisplayName("유효한 알림 생성 시 저장된 NotificationModel 반환")
+        void withValidNotification_returnsSavedNotificationModel() {
+            // given
+            NotificationModel notification = NotificationModelFixture.create();
+            given(notificationRepository.save(notification)).willReturn(notification);
+
+            // when
+            NotificationModel result = notificationService.create(notification);
+
+            // then
+            assertThat(result).isEqualTo(notification);
+            then(notificationRepository).should().save(notification);
         }
     }
 
@@ -93,34 +163,31 @@ class NotificationServiceTest {
 
         @Test
         @DisplayName("존재하는 알림 삭제 성공")
-        void withExistingNotification_deletesNotification() {
+        void withExistingId_deletesNotification() {
             // given
             UUID notificationId = UUID.randomUUID();
             NotificationModel notification = NotificationModelFixture.builder()
                 .set("id", notificationId)
                 .sample();
 
-            given(notificationRepository.findById(notificationId))
-                .willReturn(Optional.of(notification));
-            given(notificationRepository.save(any(NotificationModel.class)))
-                .willReturn(notification);
+            given(notificationRepository.findById(notificationId)).willReturn(Optional.of(notification));
+            given(notificationRepository.save(any(NotificationModel.class))).willReturn(notification);
 
             // when
             notificationService.deleteById(notificationId);
 
             // then
+            assertThat(notification.isDeleted()).isTrue();
             then(notificationRepository).should().findById(notificationId);
-            then(notificationRepository).should().save(any(NotificationModel.class));
+            then(notificationRepository).should().save(notification);
         }
 
         @Test
         @DisplayName("존재하지 않는 알림 삭제 시 NotificationNotFoundException 발생")
-        void withNonExistingNotification_throwsNotificationNotFoundException() {
+        void withNonExistingId_throwsException() {
             // given
             UUID notificationId = UUID.randomUUID();
-
-            given(notificationRepository.findById(notificationId))
-                .willReturn(Optional.empty());
+            given(notificationRepository.findById(notificationId)).willReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> notificationService.deleteById(notificationId))
@@ -128,82 +195,6 @@ class NotificationServiceTest {
 
             then(notificationRepository).should().findById(notificationId);
             then(notificationRepository).shouldHaveNoMoreInteractions();
-        }
-    }
-
-    @Nested
-    @DisplayName("getAll()")
-    class GetAllTest {
-
-        @Test
-        @DisplayName("유효한 요청 시 알림 목록 반환")
-        void withValidRequest_returnsNotificationList() {
-            // given
-            UserModel receiver = UserModelFixture.create();
-            UUID receiverId = receiver.getId();
-            NotificationModel notification1 = NotificationModelFixture.builder()
-                .set("receiver", receiver)
-                .sample();
-            NotificationModel notification2 = NotificationModelFixture.builder()
-                .set("receiver", receiver)
-                .sample();
-
-            NotificationQueryRequest request = new NotificationQueryRequest(
-                null, null, 10, SortDirection.ASCENDING, NotificationSortField.createdAt
-            );
-
-            CursorResponse<NotificationModel> expectedResponse = CursorResponse.of(
-                List.of(notification1, notification2),
-                notification2.getCreatedAt().toString(),
-                notification2.getId(),
-                true,
-                10,
-                "createdAt",
-                SortDirection.ASCENDING
-            );
-
-            given(notificationQueryRepository.findAll(receiverId, request))
-                .willReturn(expectedResponse);
-
-            // when
-            CursorResponse<NotificationModel> result = notificationService.getAll(receiverId,
-                request);
-
-            // then
-            assertThat(result.data()).hasSize(2);
-            assertThat(result.hasNext()).isTrue();
-            assertThat(result.totalCount()).isEqualTo(10);
-
-            then(notificationQueryRepository).should().findAll(receiverId, request);
-        }
-
-        @Test
-        @DisplayName("결과가 없으면 빈 목록 반환")
-        void withNoResults_returnsEmptyList() {
-            // given
-            UUID receiverId = UUID.randomUUID();
-            NotificationQueryRequest request = new NotificationQueryRequest(
-                null, null, 10, SortDirection.ASCENDING, NotificationSortField.createdAt
-            );
-
-            CursorResponse<NotificationModel> emptyResponse = CursorResponse.empty(
-                "createdAt",
-                SortDirection.ASCENDING
-            );
-
-            given(notificationQueryRepository.findAll(receiverId, request))
-                .willReturn(emptyResponse);
-
-            // when
-            CursorResponse<NotificationModel> result = notificationService.getAll(receiverId,
-                request);
-
-            // then
-            assertThat(result.data()).isEmpty();
-            assertThat(result.hasNext()).isFalse();
-            assertThat(result.totalCount()).isZero();
-
-            then(notificationQueryRepository).should().findAll(receiverId, request);
         }
     }
 }

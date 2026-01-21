@@ -16,6 +16,18 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationQueryRepository notificationQueryRepository;
 
+    public CursorResponse<NotificationModel> getAll(
+        UUID receiverId,
+        NotificationQueryRequest request
+    ) {
+        return notificationQueryRepository.findAll(receiverId, request);
+    }
+
+    public NotificationModel getById(UUID notificationId) {
+        return notificationRepository.findById(notificationId)
+            .orElseThrow(() -> new NotificationNotFoundException(notificationId));
+    }
+
     public NotificationModel create(NotificationModel notification) {
         return notificationRepository.save(notification);
     }
@@ -24,17 +36,5 @@ public class NotificationService {
         NotificationModel notification = getById(notificationId);
         notification.delete();
         notificationRepository.save(notification);
-    }
-
-    public NotificationModel getById(UUID notificationId) {
-        return notificationRepository.findById(notificationId)
-            .orElseThrow(() -> new NotificationNotFoundException(notificationId));
-    }
-
-    public CursorResponse<NotificationModel> getAll(
-        UUID receiverId,
-        NotificationQueryRequest request
-    ) {
-        return notificationQueryRepository.findAll(receiverId, request);
     }
 }
