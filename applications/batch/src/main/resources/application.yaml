@@ -9,7 +9,7 @@ spring:
     name: mopl-batch
 
   profiles:
-    active: local
+    active: batch, local, cleanup-b
 
   config:
     import:
@@ -27,3 +27,15 @@ spring:
       enabled: false
     jdbc:
       initialize-schema: always
+
+mopl:
+  batch:
+    cleanup:
+      defaults:
+        chunk-size: 500
+        retention-days: 0
+
+      storage:
+        chunk-size: 200
+
+
