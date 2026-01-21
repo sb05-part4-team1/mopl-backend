@@ -42,7 +42,7 @@ public class RedisNotificationSubscriber implements MessageListener {
             if (sseEmitterManager.hasLocalEmitter(notification.getReceiverId())) {
                 sseEmitterManager.sendToUser(
                     notification.getReceiverId(),
-                    "notification",
+                    "notifications",
                     notification
                 );
                 log.debug("Sent SSE notification to user: {}", notification.getReceiverId());

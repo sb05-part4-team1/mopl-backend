@@ -81,7 +81,7 @@ public class SseEmitterManager {
             try {
                 emitter.send(SseEmitter.event()
                     .id(cachedEvent.eventId().toString())
-                    .name("notification")
+                    .name("notifications")
                     .data(cachedEvent.data()));
                 log.debug("Resent event {} to user: {}", cachedEvent.eventId(), userId);
             } catch (IOException e) {
