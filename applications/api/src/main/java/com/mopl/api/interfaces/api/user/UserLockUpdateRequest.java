@@ -11,6 +11,6 @@ import jakarta.validation.constraints.NotNull;
         """
 )
 public record UserLockUpdateRequest(
-    @NotNull Boolean locked
+    @Schema(description = "변경할 잠금 상태") @NotNull Boolean locked
 ) {
 }

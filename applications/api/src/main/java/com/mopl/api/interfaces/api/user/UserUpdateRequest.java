@@ -13,6 +13,6 @@ import static com.mopl.domain.model.user.UserModel.NAME_MAX_LENGTH;
         """
 )
 public record UserUpdateRequest(
-    @Size(max = NAME_MAX_LENGTH) String name
+    @Schema(description = "이름") @Size(max = NAME_MAX_LENGTH) String name
 ) {
 }

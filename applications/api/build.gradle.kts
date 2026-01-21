@@ -8,6 +8,7 @@ dependencies {
     implementation(project(":infrastructure:cache"))
     implementation(project(":infrastructure:mail"))
     implementation(project(":shared:jackson"))
+    implementation(project(":shared:logging"))
     implementation(project(":applications:sse"))
     implementation (project(":shared:monitoring"))
 

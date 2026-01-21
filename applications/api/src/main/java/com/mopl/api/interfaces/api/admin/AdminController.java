@@ -17,7 +17,7 @@ import java.util.UUID;
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
-public class AdminController {
+public class AdminController implements AdminApiSpec {
 
     private final PlaylistSubscriberCountSyncScheduler playlistSubscriberCountSyncScheduler;
 

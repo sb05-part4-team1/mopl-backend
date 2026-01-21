@@ -3,6 +3,11 @@ package com.mopl.api.config;
 import com.mopl.domain.repository.content.ContentQueryRepository;
 import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
+import com.mopl.domain.repository.conversation.ConversationQueryRepository;
+import com.mopl.domain.repository.conversation.ConversationRepository;
+import com.mopl.domain.repository.conversation.DirectMessageQueryRepository;
+import com.mopl.domain.repository.conversation.DirectMessageRepository;
+import com.mopl.domain.repository.conversation.ReadStatusRepository;
 import com.mopl.domain.repository.follow.FollowRepository;
 import com.mopl.domain.repository.notification.NotificationQueryRepository;
 import com.mopl.domain.repository.notification.NotificationRepository;
@@ -19,6 +24,7 @@ import com.mopl.domain.repository.user.UserRepository;
 import com.mopl.domain.repository.watchingsession.WatchingSessionQueryRepository;
 import com.mopl.domain.repository.watchingsession.WatchingSessionRepository;
 import com.mopl.domain.service.content.ContentService;
+import com.mopl.domain.service.conversation.ConversationService;
 import com.mopl.domain.service.follow.FollowService;
 import com.mopl.domain.service.notification.NotificationService;
 import com.mopl.domain.service.playlist.PlaylistCacheService;
@@ -89,6 +95,7 @@ public class DomainServiceConfig {
             playlistRepository,
             playlistContentRepository
         );
+
     }
 
     @Bean
@@ -108,6 +115,7 @@ public class DomainServiceConfig {
     public PlaylistSubscriptionService playlistSubscriptionService(
         PlaylistSubscriberRepository playlistSubscriberRepository,
         PlaylistSubscriberCountRepository playlistSubscriberCountRepository
+
     ) {
         return new PlaylistSubscriptionService(
             playlistSubscriberRepository,
@@ -134,6 +142,25 @@ public class DomainServiceConfig {
         return new WatchingSessionService(
             watchingSessionRepository,
             watchingSessionQueryRepository
+        );
+    }
+
+    @Bean
+    public ConversationService conversationService(
+        ConversationRepository conversationRepository,
+        ReadStatusRepository readStatusRepository,
+        DirectMessageRepository directMessageRepository,
+        UserRepository userRepository,
+        ConversationQueryRepository conversationQueryRepository,
+        DirectMessageQueryRepository directMessageQueryRepository
+    ) {
+        return new ConversationService(
+            conversationRepository,
+            readStatusRepository,
+            directMessageRepository,
+            userRepository,
+            conversationQueryRepository,
+            directMessageQueryRepository
         );
     }
 }

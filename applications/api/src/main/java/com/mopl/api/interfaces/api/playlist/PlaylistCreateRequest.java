@@ -16,7 +16,9 @@ import static com.mopl.domain.model.playlist.PlaylistModel.TITLE_MAX_LENGTH;
         """
 )
 public record PlaylistCreateRequest(
-    @NotBlank @Size(max = TITLE_MAX_LENGTH) String title,
-    @Size(max = DESCRIPTION_MAX_LENGTH) String description
+
+    @Schema(description = "플레이리스트 제목") @NotBlank @Size(max = TITLE_MAX_LENGTH) String title,
+
+    @Schema(description = "플레이리스트 설명") @Size(max = DESCRIPTION_MAX_LENGTH) String description
 ) {
 }

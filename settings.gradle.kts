@@ -17,6 +17,6 @@ include(
     // ":infrastructure:kafka",
     ":infrastructure:openapi",
     ":shared:jackson",
-    // ":shared:logging",
+    ":shared:logging",
     ":shared:monitoring"
 )
