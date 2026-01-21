@@ -16,7 +16,9 @@ import static com.mopl.domain.model.review.ReviewModel.TEXT_MAX_LENGTH;
         """
 )
 public record ReviewUpdateRequest(
-    @Size(max = TEXT_MAX_LENGTH) String text,
-    @DecimalMin("0.0") @DecimalMax("5.0") Double rating
+    @Schema(description = "리뷰 내용") @Size(max = TEXT_MAX_LENGTH) String text,
+
+    @Schema(description = "평점(0.0~5.0)",
+        format = "double") @DecimalMin("0.0") @DecimalMax("5.0") Double rating
 ) {
 }
