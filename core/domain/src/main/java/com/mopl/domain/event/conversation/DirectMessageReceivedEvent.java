@@ -30,6 +30,6 @@ public class DirectMessageReceivedEvent implements DomainEvent {
 
     @Override
     public String getTopic() {
-        return EventTopic.MESSAGE_RECEIVED;
+        return EventTopic.DIRECT_MESSAGE_RECEIVED;
     }
 }
