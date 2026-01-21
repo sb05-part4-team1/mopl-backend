@@ -19,7 +19,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLRestriction;
 
-import static com.mopl.domain.model.notification.NotificationModel.CONTENT_MAX_LENGTH;
 import static com.mopl.domain.model.notification.NotificationModel.LEVEL_MAX_LENGTH;
 import static com.mopl.domain.model.notification.NotificationModel.TITLE_MAX_LENGTH;
 
@@ -34,7 +33,7 @@ public class NotificationEntity extends BaseEntity {
     @Column(nullable = false, length = TITLE_MAX_LENGTH)
     private String title;
 
-    @Column(columnDefinition = "TEXT", length = CONTENT_MAX_LENGTH)
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @Enumerated(EnumType.STRING)
