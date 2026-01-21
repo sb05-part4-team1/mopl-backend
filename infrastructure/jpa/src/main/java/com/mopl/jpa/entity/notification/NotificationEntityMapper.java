@@ -1,38 +1,25 @@
 package com.mopl.jpa.entity.notification;
 
 import com.mopl.domain.model.notification.NotificationModel;
-import com.mopl.domain.model.user.UserModel;
-import com.mopl.jpa.entity.user.UserEntity;
-import com.mopl.jpa.entity.user.UserEntityMapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 public class NotificationEntityMapper {
 
-    private final UserEntityMapper userEntityMapper;
-
-    public NotificationModel toModel(NotificationEntity notificationEntity) {
-        if (notificationEntity == null) {
+    public NotificationModel toModel(NotificationEntity entity) {
+        if (entity == null) {
             return null;
         }
 
-        return buildNotificationModel(
-            notificationEntity,
-            toReceiverIdOnly(notificationEntity.getReceiver())
-        );
-    }
-
-    public NotificationModel toModelWithReceiver(NotificationEntity notificationEntity) {
-        if (notificationEntity == null) {
-            return null;
-        }
-
-        return buildNotificationModel(
-            notificationEntity,
-            userEntityMapper.toModel(notificationEntity.getReceiver())
-        );
+        return NotificationModel.builder()
+            .id(entity.getId())
+            .createdAt(entity.getCreatedAt())
+            .deletedAt(entity.getDeletedAt())
+            .title(entity.getTitle())
+            .content(entity.getContent())
+            .level(entity.getLevel())
+            .receiverId(entity.getReceiverId())
+            .build();
     }
 
     public NotificationEntity toEntity(NotificationModel model) {
@@ -47,28 +34,7 @@ public class NotificationEntityMapper {
             .title(model.getTitle())
             .content(model.getContent())
             .level(model.getLevel())
-            .receiver(userEntityMapper.toEntity(model.getReceiver()))
+            .receiverId(model.getReceiverId())
             .build();
-    }
-
-    private NotificationModel buildNotificationModel(
-        NotificationEntity notificationEntity,
-        UserModel receiverModel
-    ) {
-        return NotificationModel.builder()
-            .id(notificationEntity.getId())
-            .createdAt(notificationEntity.getCreatedAt())
-            .deletedAt(notificationEntity.getDeletedAt())
-            .title(notificationEntity.getTitle())
-            .content(notificationEntity.getContent())
-            .level(notificationEntity.getLevel())
-            .receiver(receiverModel)
-            .build();
-    }
-
-    private UserModel toReceiverIdOnly(UserEntity receiverEntity) {
-        return receiverEntity != null
-            ? UserModel.builder().id(receiverEntity.getId()).build()
-            : null;
     }
 }

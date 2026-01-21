@@ -2,8 +2,6 @@ package com.mopl.domain.model.notification;
 
 import com.mopl.domain.exception.notification.InvalidNotificationDataException;
 import com.mopl.domain.fixture.NotificationModelFixture;
-import com.mopl.domain.fixture.UserModelFixture;
-import com.mopl.domain.model.user.UserModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,8 +14,8 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static com.mopl.domain.model.notification.NotificationModel.CONTENT_MAX_LENGTH;
-import static com.mopl.domain.model.notification.NotificationModel.TITLE_MAX_LENGTH;
 import static com.mopl.domain.model.notification.NotificationModel.NotificationLevel;
+import static com.mopl.domain.model.notification.NotificationModel.TITLE_MAX_LENGTH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -34,7 +32,7 @@ class NotificationModelTest {
             // given
             UUID id = UUID.randomUUID();
             Instant createdAt = Instant.now();
-            UserModel receiver = UserModelFixture.create();
+            UUID receiverId = UUID.randomUUID();
 
             // when
             NotificationModel notification = NotificationModel.builder()
@@ -44,7 +42,7 @@ class NotificationModelTest {
                 .title("알림 제목")
                 .content("알림 내용")
                 .level(NotificationLevel.INFO)
-                .receiver(receiver)
+                .receiverId(receiverId)
                 .build();
 
             // then
@@ -54,7 +52,7 @@ class NotificationModelTest {
             assertThat(notification.getTitle()).isEqualTo("알림 제목");
             assertThat(notification.getContent()).isEqualTo("알림 내용");
             assertThat(notification.getLevel()).isEqualTo(NotificationLevel.INFO);
-            assertThat(notification.getReceiver()).isEqualTo(receiver);
+            assertThat(notification.getReceiverId()).isEqualTo(receiverId);
         }
     }
 
@@ -66,35 +64,35 @@ class NotificationModelTest {
         @DisplayName("유효한 데이터로 NotificationModel 생성")
         void withValidData_createsNotificationModel() {
             // given
-            UserModel receiver = UserModelFixture.create();
+            UUID receiverId = UUID.randomUUID();
 
             // when
             NotificationModel notification = NotificationModel.create(
                 "알림 제목",
                 "알림 내용",
                 NotificationLevel.INFO,
-                receiver
+                receiverId
             );
 
             // then
             assertThat(notification.getTitle()).isEqualTo("알림 제목");
             assertThat(notification.getContent()).isEqualTo("알림 내용");
             assertThat(notification.getLevel()).isEqualTo(NotificationLevel.INFO);
-            assertThat(notification.getReceiver()).isEqualTo(receiver);
+            assertThat(notification.getReceiverId()).isEqualTo(receiverId);
         }
 
         @Test
         @DisplayName("content가 null이어도 생성 가능")
         void withNullContent_createsNotificationModel() {
             // given
-            UserModel receiver = UserModelFixture.create();
+            UUID receiverId = UUID.randomUUID();
 
             // when
             NotificationModel notification = NotificationModel.create(
                 "알림 제목",
                 null,
                 NotificationLevel.INFO,
-                receiver
+                receiverId
             );
 
             // then
@@ -114,10 +112,10 @@ class NotificationModelTest {
         @MethodSource("invalidTitleProvider")
         @DisplayName("title이 비어있으면 예외 발생")
         void withEmptyTitle_throwsException(String description, String title) {
-            UserModel receiver = UserModelFixture.create();
+            UUID receiverId = UUID.randomUUID();
 
             assertThatThrownBy(() -> NotificationModel.create(
-                title, "내용", NotificationLevel.INFO, receiver
+                title, "내용", NotificationLevel.INFO, receiverId
             ))
                 .isInstanceOf(InvalidNotificationDataException.class)
                 .satisfies(e -> assertThat(((InvalidNotificationDataException) e).getDetails().get("detailMessage"))
@@ -127,11 +125,11 @@ class NotificationModelTest {
         @Test
         @DisplayName("title이 500자 초과하면 예외 발생")
         void withTitleExceedingMaxLength_throwsException() {
-            UserModel receiver = UserModelFixture.create();
+            UUID receiverId = UUID.randomUUID();
             String longTitle = "가".repeat(TITLE_MAX_LENGTH + 1);
 
             assertThatThrownBy(() -> NotificationModel.create(
-                longTitle, "내용", NotificationLevel.INFO, receiver
+                longTitle, "내용", NotificationLevel.INFO, receiverId
             ))
                 .isInstanceOf(InvalidNotificationDataException.class)
                 .satisfies(e -> assertThat(((InvalidNotificationDataException) e).getDetails().get("detailMessage"))
@@ -141,11 +139,11 @@ class NotificationModelTest {
         @Test
         @DisplayName("content가 9999자 초과하면 예외 발생")
         void withContentExceedingMaxLength_throwsException() {
-            UserModel receiver = UserModelFixture.create();
+            UUID receiverId = UUID.randomUUID();
             String longContent = "가".repeat(CONTENT_MAX_LENGTH + 1);
 
             assertThatThrownBy(() -> NotificationModel.create(
-                "제목", longContent, NotificationLevel.INFO, receiver
+                "제목", longContent, NotificationLevel.INFO, receiverId
             ))
                 .isInstanceOf(InvalidNotificationDataException.class)
                 .satisfies(e -> assertThat(((InvalidNotificationDataException) e).getDetails().get("detailMessage"))
@@ -155,10 +153,10 @@ class NotificationModelTest {
         @Test
         @DisplayName("level이 null이면 예외 발생")
         void withNullLevel_throwsException() {
-            UserModel receiver = UserModelFixture.create();
+            UUID receiverId = UUID.randomUUID();
 
             assertThatThrownBy(() -> NotificationModel.create(
-                "제목", "내용", null, receiver
+                "제목", "내용", null, receiverId
             ))
                 .isInstanceOf(InvalidNotificationDataException.class)
                 .satisfies(e -> assertThat(((InvalidNotificationDataException) e).getDetails().get("detailMessage"))
@@ -166,14 +164,14 @@ class NotificationModelTest {
         }
 
         @Test
-        @DisplayName("receiver가 null이면 예외 발생")
-        void withNullReceiver_throwsException() {
+        @DisplayName("receiverId가 null이면 예외 발생")
+        void withNullReceiverId_throwsException() {
             assertThatThrownBy(() -> NotificationModel.create(
                 "제목", "내용", NotificationLevel.INFO, null
             ))
                 .isInstanceOf(InvalidNotificationDataException.class)
                 .satisfies(e -> assertThat(((InvalidNotificationDataException) e).getDetails().get("detailMessage"))
-                    .isEqualTo("수신자는 null일 수 없습니다."));
+                    .isEqualTo("수신자 ID는 null일 수 없습니다."));
         }
     }
 

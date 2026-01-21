@@ -14,7 +14,7 @@ public class NotificationResponseMapper {
         return new NotificationResponse(
             model.getId(),
             model.getCreatedAt(),
-            model.getReceiver().getId(),
+            model.getReceiverId(),
             model.getTitle(),
             model.getContent(),
             model.getLevel()

@@ -2,9 +2,7 @@ package com.mopl.domain.service.notification;
 
 import com.mopl.domain.exception.notification.NotificationNotFoundException;
 import com.mopl.domain.fixture.NotificationModelFixture;
-import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.notification.NotificationModel;
-import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.notification.NotificationQueryRepository;
 import com.mopl.domain.repository.notification.NotificationQueryRequest;
 import com.mopl.domain.repository.notification.NotificationRepository;
@@ -50,14 +48,13 @@ class NotificationServiceTest {
         @DisplayName("유효한 요청 시 알림 목록 반환")
         void withValidRequest_returnsNotificationList() {
             // given
-            UserModel receiver = UserModelFixture.create();
-            UUID receiverId = receiver.getId();
+            UUID receiverId = UUID.randomUUID();
             NotificationQueryRequest request = createQueryRequest();
 
             CursorResponse<NotificationModel> expectedResponse = CursorResponse.of(
                 List.of(
-                    NotificationModelFixture.builder().set("receiver", receiver).sample(),
-                    NotificationModelFixture.builder().set("receiver", receiver).sample()
+                    NotificationModelFixture.builder().set("receiverId", receiverId).sample(),
+                    NotificationModelFixture.builder().set("receiverId", receiverId).sample()
                 ),
                 "cursor", UUID.randomUUID(), true, 10, "createdAt", SortDirection.ASCENDING
             );

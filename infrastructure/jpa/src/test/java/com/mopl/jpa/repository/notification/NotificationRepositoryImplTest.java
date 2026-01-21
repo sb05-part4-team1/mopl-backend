@@ -38,11 +38,11 @@ class NotificationRepositoryImplTest {
     @Autowired
     private UserRepository userRepository;
 
-    private UserModel savedReceiver;
+    private UUID savedReceiverId;
 
     @BeforeEach
     void setUp() {
-        savedReceiver = userRepository.save(
+        UserModel savedReceiver = userRepository.save(
             UserModel.create(
                 UserModel.AuthProvider.EMAIL,
                 "receiver@example.com",
@@ -50,6 +50,7 @@ class NotificationRepositoryImplTest {
                 "encodedPassword"
             )
         );
+        savedReceiverId = savedReceiver.getId();
     }
 
     @Nested
@@ -65,7 +66,7 @@ class NotificationRepositoryImplTest {
                     "새로운 알림",
                     "알림 내용입니다.",
                     NotificationModel.NotificationLevel.INFO,
-                    savedReceiver
+                    savedReceiverId
                 )
             );
 
@@ -97,15 +98,15 @@ class NotificationRepositoryImplTest {
         }
 
         @Test
-        @DisplayName("조회 결과에 수신자 정보가 포함된다")
-        void withExistingId_includesReceiver() {
+        @DisplayName("조회 결과에 수신자 ID가 포함된다")
+        void withExistingId_includesReceiverId() {
             // given
             NotificationModel savedNotification = notificationRepository.save(
                 NotificationModel.create(
                     "수신자 테스트",
                     "수신자 확인용 알림",
                     NotificationModel.NotificationLevel.WARNING,
-                    savedReceiver
+                    savedReceiverId
                 )
             );
 
@@ -115,9 +116,7 @@ class NotificationRepositoryImplTest {
 
             // then
             assertThat(foundNotification).isPresent();
-            UserModel receiver = foundNotification.get().getReceiver();
-            assertThat(receiver).isNotNull();
-            assertThat(receiver.getId()).isEqualTo(savedReceiver.getId());
+            assertThat(foundNotification.get().getReceiverId()).isEqualTo(savedReceiverId);
         }
     }
 
@@ -133,7 +132,7 @@ class NotificationRepositoryImplTest {
                 "테스트 알림",
                 "테스트 알림 내용입니다.",
                 NotificationModel.NotificationLevel.INFO,
-                savedReceiver
+                savedReceiverId
             );
 
             // when
@@ -145,8 +144,7 @@ class NotificationRepositoryImplTest {
             assertThat(savedNotification.getContent()).isEqualTo("테스트 알림 내용입니다.");
             assertThat(savedNotification.getLevel()).isEqualTo(
                 NotificationModel.NotificationLevel.INFO);
-            assertThat(savedNotification.getReceiver()).isNotNull();
-            assertThat(savedNotification.getReceiver().getId()).isEqualTo(savedReceiver.getId());
+            assertThat(savedNotification.getReceiverId()).isEqualTo(savedReceiverId);
             assertThat(savedNotification.getCreatedAt()).isNotNull();
         }
 
@@ -158,7 +156,7 @@ class NotificationRepositoryImplTest {
                 "경고 알림",
                 "경고 내용입니다.",
                 NotificationModel.NotificationLevel.WARNING,
-                savedReceiver
+                savedReceiverId
             );
 
             // when
@@ -178,7 +176,7 @@ class NotificationRepositoryImplTest {
                 "에러 알림",
                 "에러 내용입니다.",
                 NotificationModel.NotificationLevel.ERROR,
-                savedReceiver
+                savedReceiverId
             );
 
             // when
@@ -198,7 +196,7 @@ class NotificationRepositoryImplTest {
                 "내용 없는 알림",
                 null,
                 NotificationModel.NotificationLevel.INFO,
-                savedReceiver
+                savedReceiverId
             );
 
             // when
@@ -218,7 +216,7 @@ class NotificationRepositoryImplTest {
                 "삭제될 알림",
                 "삭제 테스트용",
                 NotificationModel.NotificationLevel.INFO,
-                savedReceiver
+                savedReceiverId
             );
             NotificationModel savedNotification = notificationRepository.save(notificationModel);
             savedNotification.delete();

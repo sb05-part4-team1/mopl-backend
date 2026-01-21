@@ -13,7 +13,6 @@ import com.mopl.jpa.config.QuerydslConfig;
 import com.mopl.jpa.entity.notification.NotificationEntity;
 import com.mopl.jpa.entity.notification.NotificationEntityMapper;
 import com.mopl.jpa.entity.user.UserEntity;
-import com.mopl.jpa.entity.user.UserEntityMapper;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,8 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
     JpaConfig.class,
     QuerydslConfig.class,
     NotificationQueryRepositoryImpl.class,
-    NotificationEntityMapper.class,
-    UserEntityMapper.class
+    NotificationEntityMapper.class
 })
 @DisplayName("NotificationQueryRepositoryImpl 슬라이스 테스트")
 class NotificationQueryRepositoryImplTest {
@@ -103,7 +101,7 @@ class NotificationQueryRepositoryImplTest {
             .title(title)
             .content(content)
             .level(level)
-            .receiver(receiver)
+            .receiverId(receiver.getId())
             .build();
         entityManager.persist(entity);
     }
@@ -129,7 +127,7 @@ class NotificationQueryRepositoryImplTest {
             assertThat(response.data()).hasSize(5);
             assertThat(response.totalCount()).isEqualTo(5);
             assertThat(response.data())
-                .allMatch(n -> n.getReceiver().getId().equals(user1.getId()));
+                .allMatch(n -> n.getReceiverId().equals(user1.getId()));
         }
 
         @Test
@@ -149,7 +147,7 @@ class NotificationQueryRepositoryImplTest {
             assertThat(response.data()).hasSize(2);
             assertThat(response.totalCount()).isEqualTo(2);
             assertThat(response.data())
-                .allMatch(n -> n.getReceiver().getId().equals(user2.getId()));
+                .allMatch(n -> n.getReceiverId().equals(user2.getId()));
         }
 
         @Test
@@ -182,7 +180,7 @@ class NotificationQueryRepositoryImplTest {
                 .title("삭제된 알림")
                 .content("삭제된 내용")
                 .level(NotificationModel.NotificationLevel.INFO)
-                .receiver(user1)
+                .receiverId(user1.getId())
                 .deletedAt(now)
                 .build();
             entityManager.persist(deletedNotification);

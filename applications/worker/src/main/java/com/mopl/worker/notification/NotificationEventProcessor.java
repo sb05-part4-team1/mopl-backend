@@ -6,7 +6,6 @@ import com.mopl.domain.event.playlist.PlaylistContentAddedEvent;
 import com.mopl.domain.event.playlist.PlaylistSubscribedEvent;
 import com.mopl.domain.event.user.UserFollowedEvent;
 import com.mopl.domain.model.notification.NotificationModel;
-import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.notification.NotificationService;
 import com.mopl.redis.pubsub.NotificationMessage;
 import com.mopl.redis.pubsub.NotificationPublisher;
@@ -110,9 +109,8 @@ public class NotificationEventProcessor {
         String content,
         UUID receiverId
     ) {
-        UserModel receiver = UserModel.builder().id(receiverId).build();
         NotificationModel notification = NotificationModel.create(
-            title, content, NotificationModel.NotificationLevel.INFO, receiver
+            title, content, NotificationModel.NotificationLevel.INFO, receiverId
         );
         return notificationService.create(notification);
     }
@@ -120,7 +118,7 @@ public class NotificationEventProcessor {
     private void publishToSse(NotificationModel notification) {
         NotificationMessage message = new NotificationMessage(
             notification.getId(),
-            notification.getReceiver().getId(),
+            notification.getReceiverId(),
             notification.getTitle(),
             notification.getContent(),
             notification.getLevel().name(),

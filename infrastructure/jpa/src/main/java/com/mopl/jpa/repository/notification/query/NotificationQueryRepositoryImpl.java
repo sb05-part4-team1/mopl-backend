@@ -71,6 +71,6 @@ public class NotificationQueryRepositoryImpl implements NotificationQueryReposit
     }
 
     private BooleanExpression receiverIdEqual(UUID receiverId) {
-        return receiverId != null ? notificationEntity.receiver.id.eq(receiverId) : null;
+        return receiverId != null ? notificationEntity.receiverId.eq(receiverId) : null;
     }
 }

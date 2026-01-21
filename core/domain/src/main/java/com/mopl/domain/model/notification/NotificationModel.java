@@ -2,11 +2,12 @@ package com.mopl.domain.model.notification;
 
 import com.mopl.domain.exception.notification.InvalidNotificationDataException;
 import com.mopl.domain.model.base.BaseModel;
-import com.mopl.domain.model.user.UserModel;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+
+import java.util.UUID;
 
 @Getter
 @SuperBuilder
@@ -24,24 +25,24 @@ public class NotificationModel extends BaseModel {
     private String title;
     private String content;
     private NotificationLevel level;
-    private UserModel receiver;
+    private UUID receiverId;
 
     public static NotificationModel create(
         String title,
         String content,
         NotificationLevel level,
-        UserModel receiver
+        UUID receiverId
     ) {
         validateTitle(title);
         validateContent(content);
         validateLevel(level);
-        validateReceiver(receiver);
+        validateReceiverId(receiverId);
 
         return NotificationModel.builder()
             .title(title)
             .content(content)
             .level(level)
-            .receiver(receiver)
+            .receiverId(receiverId)
             .build();
     }
 
@@ -68,9 +69,9 @@ public class NotificationModel extends BaseModel {
         }
     }
 
-    private static void validateReceiver(UserModel receiver) {
-        if (receiver == null) {
-            throw new InvalidNotificationDataException("수신자는 null일 수 없습니다.");
+    private static void validateReceiverId(UUID receiverId) {
+        if (receiverId == null) {
+            throw new InvalidNotificationDataException("수신자 ID는 null일 수 없습니다.");
         }
     }
 }

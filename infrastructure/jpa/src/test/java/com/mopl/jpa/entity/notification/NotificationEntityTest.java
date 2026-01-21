@@ -5,10 +5,8 @@ import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.notification.NotificationRepository;
 import com.mopl.jpa.config.JpaConfig;
 import com.mopl.jpa.entity.user.UserEntity;
-import com.mopl.jpa.entity.user.UserEntityMapper;
 import com.mopl.jpa.repository.notification.JpaNotificationRepository;
 import com.mopl.jpa.repository.notification.NotificationRepositoryImpl;
-import com.mopl.jpa.repository.user.JpaUserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -20,6 +18,7 @@ import org.springframework.context.annotation.Import;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,8 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import({
     JpaConfig.class,
     NotificationRepositoryImpl.class,
-    NotificationEntityMapper.class,
-    UserEntityMapper.class
+    NotificationEntityMapper.class
 })
 @DisplayName("NotificationEntity 슬라이스 테스트")
 class NotificationEntityTest {
@@ -40,16 +38,13 @@ class NotificationEntityTest {
     private NotificationRepository notificationRepository;
 
     @Autowired
-    private JpaUserRepository jpaUserRepository;
-
-    @Autowired
     private JpaNotificationRepository jpaNotificationRepository;
 
-    private UserEntity userEntity;
+    private UUID receiverId;
 
     @BeforeEach
     void setUp() {
-        userEntity = UserEntity.builder()
+        UserEntity userEntity = UserEntity.builder()
             .authProvider(UserModel.AuthProvider.EMAIL)
             .email("test@example.com")
             .name("테스트")
@@ -58,6 +53,7 @@ class NotificationEntityTest {
             .locked(false)
             .build();
         testEntityManager.persistAndFlush(userEntity);
+        receiverId = userEntity.getId();
     }
 
     @Nested
@@ -104,7 +100,7 @@ class NotificationEntityTest {
                 .title("삭제된 알림")
                 .content("삭제된 내용")
                 .level(NotificationModel.NotificationLevel.INFO)
-                .receiver(userEntity)
+                .receiverId(receiverId)
                 .deletedAt(Instant.now())
                 .build();
             testEntityManager.persistAndFlush(entity);
@@ -134,12 +130,12 @@ class NotificationEntityTest {
     }
 
     @Nested
-    @DisplayName("연관 관계")
-    class RelationshipTest {
+    @DisplayName("receiverId 저장")
+    class ReceiverIdTest {
 
         @Test
-        @DisplayName("receiver와 ManyToOne 관계가 정상 동작함")
-        void withReceiver_manyToOneRelationship() {
+        @DisplayName("receiverId가 정상적으로 저장됨")
+        void withReceiverId_savesCorrectly() {
             // given
             NotificationEntity entity = createNotificationEntity();
             testEntityManager.persistAndFlush(entity);
@@ -150,8 +146,7 @@ class NotificationEntityTest {
                 .orElseThrow();
 
             // then
-            assertThat(found.getReceiver()).isNotNull();
-            assertThat(found.getReceiver().getId()).isEqualTo(userEntity.getId());
+            assertThat(found.getReceiverId()).isEqualTo(receiverId);
         }
     }
 
@@ -160,7 +155,7 @@ class NotificationEntityTest {
             .title("테스트 알림")
             .content("테스트 내용")
             .level(NotificationModel.NotificationLevel.INFO)
-            .receiver(userEntity)
+            .receiverId(receiverId)
             .build();
     }
 }
