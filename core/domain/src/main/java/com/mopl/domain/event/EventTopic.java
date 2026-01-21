@@ -3,8 +3,6 @@ package com.mopl.domain.event;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class EventTopic {
 
@@ -17,16 +15,4 @@ public final class EventTopic {
     public static final String PLAYLIST_CONTENT_ADDED = "mopl.playlist.content-added";
 
     public static final String DIRECT_MESSAGE_RECEIVED = "mopl.conversation.direct-message.received";
-
-    public static List<String> all() {
-        return List.of(
-            USER_FOLLOWED,
-            USER_UNFOLLOWED,
-            USER_ROLE_CHANGED,
-            PLAYLIST_SUBSCRIBED,
-            PLAYLIST_UNSUBSCRIBED,
-            PLAYLIST_CONTENT_ADDED,
-            DIRECT_MESSAGE_RECEIVED
-        );
-    }
 }
