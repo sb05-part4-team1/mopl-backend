@@ -1,13 +1,12 @@
 package com.mopl.sse.application;
 
-import java.io.IOException;
-import java.util.UUID;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -16,7 +15,7 @@ public class SseFacade {
 
     private final SseEmitterManager sseEmitterManager;
 
-    public SseEmitter subscribe(UUID userId, String lastEventId) {
+    public SseEmitter subscribe(UUID userId, UUID lastEventId) {
         SseEmitter emitter = sseEmitterManager.createEmitter(userId);
 
         try {
@@ -28,8 +27,7 @@ public class SseFacade {
             log.error("Failed to send connect event to user: {}", userId, e);
         }
 
-        // 미수신 이벤트 재전송
-        if (lastEventId != null && !lastEventId.isEmpty()) {
+        if (lastEventId != null) {
             sseEmitterManager.resendEventsAfter(userId, lastEventId, emitter);
         }
 
