@@ -26,8 +26,10 @@ public class NotificationQueryRepositoryImpl implements NotificationQueryReposit
     private final NotificationEntityMapper notificationEntityMapper;
 
     @Override
-    public CursorResponse<NotificationModel> findAll(UUID receiverId,
-        NotificationQueryRequest request) {
+    public CursorResponse<NotificationModel> findAll(
+        UUID receiverId,
+        NotificationQueryRequest request
+    ) {
         NotificationSortFieldJpa sortFieldJpa = NotificationSortFieldJpa.from(request.sortBy());
 
         JPAQuery<NotificationEntity> jpaQuery = queryFactory

@@ -12,6 +12,7 @@ import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.playlist.PlaylistQueryRequest;
+import com.mopl.api.application.outbox.DomainEventOutboxMapper;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.domain.service.playlist.PlaylistService;
@@ -70,6 +71,9 @@ class PlaylistFacadeTest {
 
     @Mock
     private OutboxService outboxService;
+
+    @Mock
+    private DomainEventOutboxMapper domainEventOutboxMapper;
 
     @InjectMocks
     private PlaylistFacade playlistFacade;

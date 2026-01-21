@@ -6,6 +6,7 @@ import com.mopl.api.interfaces.api.user.UserResponse;
 import com.mopl.api.interfaces.api.user.UserResponseMapper;
 import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserUpdateRequest;
+import com.mopl.api.application.outbox.DomainEventOutboxMapper;
 import com.mopl.domain.exception.user.SelfLockChangeException;
 import com.mopl.domain.exception.user.SelfRoleChangeException;
 import com.mopl.domain.fixture.UserModelFixture;
@@ -70,6 +71,9 @@ class UserFacadeTest {
 
     @Mock
     private OutboxService outboxService;
+
+    @Mock
+    private DomainEventOutboxMapper domainEventOutboxMapper;
 
     @InjectMocks
     private UserFacade userFacade;
