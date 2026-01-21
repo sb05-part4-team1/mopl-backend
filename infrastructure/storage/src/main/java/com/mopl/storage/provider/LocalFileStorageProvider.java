@@ -80,11 +80,16 @@ public class LocalFileStorageProvider implements FileStorageProvider {
     public void delete(String relativePath) {
         try {
             Path targetPath = properties.rootPath().resolve(relativePath);
-            if (Files.deleteIfExists(targetPath)) {
+            boolean deleted = Files.deleteIfExists(targetPath);
+            if (deleted) {
                 log.info("파일 삭제 성공: {}", targetPath);
+            } else {
+                log.warn("삭제 대상 파일이 없음: {}", targetPath);
             }
         } catch (IOException e) {
             log.error("파일 삭제 실패: {}", relativePath, e);
+            throw new RuntimeException("파일 삭제 실패: " + relativePath, e);
         }
     }
+
 }
