@@ -25,6 +25,9 @@ public class SseController implements SseApiSpec {
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @RequestParam(required = false) String lastEventId
     ) {
+        if (lastEventId != null && lastEventId.isBlank()) {
+            lastEventId = null;
+        }
         return sseFacade.subscribe(userDetails.userId(), lastEventId);
     }
 }
