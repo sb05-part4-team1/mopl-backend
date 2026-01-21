@@ -8,7 +8,6 @@ import com.mopl.domain.event.user.UserFollowedEvent;
 import com.mopl.domain.model.notification.NotificationModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.notification.NotificationService;
-import com.mopl.domain.service.user.UserService;
 import com.mopl.redis.pubsub.NotificationMessage;
 import com.mopl.redis.pubsub.NotificationPublisher;
 import lombok.RequiredArgsConstructor;
@@ -17,13 +16,14 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class NotificationEventProcessor {
 
     private final NotificationService notificationService;
-    private final UserService userService;
     private final NotificationPublisher notificationPublisher;
     private final ObjectMapper objectMapper;
 
@@ -39,15 +39,16 @@ public class NotificationEventProcessor {
             String title = "새로운 팔로워";
             String content = event.getFollowerName() + "님이 회원님을 팔로우했습니다.";
 
-            NotificationModel saved = createAndSaveNotification(
+            NotificationModel savedNotificationModel = createNotification(
                 title, content, event.getFolloweeId()
             );
-            publishToSse(saved);
+            publishToSse(savedNotificationModel);
 
-            ack.acknowledge();
             log.debug("Processed UserFollowedEvent for user: {}", event.getFolloweeId());
         } catch (Exception e) {
             log.error("Failed to process UserFollowedEvent: {}", payload, e);
+        } finally {
+            ack.acknowledge();
         }
     }
 
@@ -63,15 +64,16 @@ public class NotificationEventProcessor {
             String title = "새로운 구독자";
             String content = event.getSubscriberName() + "님이 \"" + event.getPlaylistTitle() + "\" 플레이리스트를 구독했습니다.";
 
-            NotificationModel saved = createAndSaveNotification(
+            NotificationModel saved = createNotification(
                 title, content, event.getOwnerId()
             );
             publishToSse(saved);
 
-            ack.acknowledge();
             log.debug("Processed PlaylistSubscribedEvent for user: {}", event.getOwnerId());
         } catch (Exception e) {
             log.error("Failed to process PlaylistSubscribedEvent: {}", payload, e);
+        } finally {
+            ack.acknowledge();
         }
     }
 
@@ -87,26 +89,27 @@ public class NotificationEventProcessor {
             String title = "플레이리스트 업데이트";
             String content = "\"" + event.getPlaylistTitle() + "\"에 새로운 콘텐츠가 추가되었습니다.";
 
-            for (var subscriberId : event.getSubscriberIds()) {
-                NotificationModel saved = createAndSaveNotification(
+            for (UUID subscriberId : event.getSubscriberIds()) {
+                NotificationModel saved = createNotification(
                     title, content, subscriberId
                 );
                 publishToSse(saved);
             }
 
-            ack.acknowledge();
             log.debug("Processed PlaylistContentAddedEvent for playlist: {}", event.getPlaylistId());
         } catch (Exception e) {
             log.error("Failed to process PlaylistContentAddedEvent: {}", payload, e);
+        } finally {
+            ack.acknowledge();
         }
     }
 
-    private NotificationModel createAndSaveNotification(
+    private NotificationModel createNotification(
         String title,
         String content,
-        java.util.UUID receiverId
+        UUID receiverId
     ) {
-        UserModel receiver = userService.getById(receiverId);
+        UserModel receiver = UserModel.builder().id(receiverId).build();
         NotificationModel notification = NotificationModel.create(
             title, content, NotificationModel.NotificationLevel.INFO, receiver
         );
