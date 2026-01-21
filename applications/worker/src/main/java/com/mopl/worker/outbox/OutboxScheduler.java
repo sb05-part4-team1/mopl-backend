@@ -8,11 +8,11 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -28,23 +28,19 @@ public class OutboxScheduler {
 
     @Scheduled(fixedDelay = 1000)
     @SchedulerLock(name = "outbox_publish", lockAtLeastFor = "PT1S", lockAtMostFor = "PT5M")
-    @Transactional
     public void publishPendingEvents() {
         List<OutboxModel> pendingEvents = outboxRepository.findPendingEvents(MAX_RETRY, BATCH_SIZE);
 
         for (OutboxModel event : pendingEvents) {
             try {
-                kafkaTemplate.send(event.getTopic(), event.getAggregateId(), event.getPayload())
-                    .whenComplete((result, ex) -> {
-                        if (ex != null) {
-                            log.error("Failed to publish event: {}", event.getId(), ex);
-                        }
-                    });
-
+                kafkaTemplate.send(
+                    event.getTopic(),
+                    event.getAggregateId(),
+                    event.getPayload()
+                ).get(5, TimeUnit.SECONDS);
                 event.markAsPublished();
                 outboxRepository.save(event);
                 log.debug("Published event: {} to topic: {}", event.getId(), event.getTopic());
-
             } catch (Exception e) {
                 log.error("Error publishing event: {}", event.getId(), e);
                 event.incrementRetryCount();
@@ -53,14 +49,18 @@ public class OutboxScheduler {
                     event.markAsFailed();
                     log.error("Event marked as FAILED after {} retries: {}", MAX_RETRY, event.getId());
                 }
-                outboxRepository.save(event);
+
+                try {
+                    outboxRepository.save(event);
+                } catch (Exception saveEx) {
+                    log.error("Failed to save event status: {}", event.getId(), saveEx);
+                }
             }
         }
     }
 
     @Scheduled(cron = "0 0 3 * * *")
     @SchedulerLock(name = "outbox_cleanup", lockAtLeastFor = "PT1M", lockAtMostFor = "PT30M")
-    @Transactional
     public void cleanupOldEvents() {
         Instant cutoff = Instant.now().minus(RETENTION_DAYS, ChronoUnit.DAYS);
         int deleted = outboxRepository.deletePublishedEventsBefore(cutoff);
