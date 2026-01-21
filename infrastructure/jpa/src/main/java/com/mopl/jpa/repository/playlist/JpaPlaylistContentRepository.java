@@ -30,4 +30,27 @@ public interface JpaPlaylistContentRepository extends JpaRepository<PlaylistCont
         @Param("playlistId") UUID playlistId,
         @Param("contentId") UUID contentId
     );
+
+    void deleteByPlaylist_IdAndContent_Id(UUID playlistId, UUID contentId);
+
+    // cleanup batch 전용
+    @Modifying
+    @Query(
+        value = """
+                delete from playlist_contents
+                where content_id in (:contentIds)
+            """,
+        nativeQuery = true
+    )
+    int deleteAllByContentIds(@Param("contentIds") List<UUID> contentIds);
+
+    @Modifying
+    @Query(
+        value = """
+                delete from playlist_contents
+                where playlist_id in (:playlistIds)
+            """,
+        nativeQuery = true
+    )
+    int deleteAllByPlaylistIds(@Param("playlistIds") List<UUID> playlistIds);
 }

@@ -8,6 +8,7 @@ import com.mopl.jpa.repository.user.JpaUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
@@ -69,5 +70,11 @@ public class PlaylistSubscriberRepositoryImpl implements PlaylistSubscriberRepos
     @Override
     public long countByPlaylistId(UUID playlistId) {
         return jpaPlaylistSubscriberRepository.countByPlaylistId(playlistId);
+    }
+
+    // 이하 메서드들 cleanup batch 전용
+    @Override
+    public int deleteAllByPlaylistIds(List<UUID> playlistIds) {
+        return jpaPlaylistSubscriberRepository.deleteAllByPlaylistIds(playlistIds);
     }
 }
