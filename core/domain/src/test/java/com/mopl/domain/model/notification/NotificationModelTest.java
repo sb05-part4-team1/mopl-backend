@@ -1,5 +1,7 @@
 package com.mopl.domain.model.notification;
 
+import com.mopl.domain.fixture.NotificationModelFixture;
+import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.user.UserModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -13,19 +15,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("NotificationModel 단위 테스트")
 class NotificationModelTest {
 
-    private UserModel createTestUser() {
-        return UserModel.builder()
-            .id(UUID.randomUUID())
-            .createdAt(Instant.now())
-            .authProvider(UserModel.AuthProvider.EMAIL)
-            .email("test@example.com")
-            .name("테스트")
-            .password("encodedPassword")
-            .role(UserModel.Role.USER)
-            .locked(false)
-            .build();
-    }
-
     @Nested
     @DisplayName("SuperBuilder")
     class SuperBuilderTest {
@@ -36,7 +25,7 @@ class NotificationModelTest {
             // given
             UUID id = UUID.randomUUID();
             Instant createdAt = Instant.now();
-            UserModel receiver = createTestUser();
+            UserModel receiver = UserModelFixture.create();
 
             // when
             NotificationModel notification = NotificationModel.builder()
@@ -45,7 +34,7 @@ class NotificationModelTest {
                 .deletedAt(null)
                 .title("알림 제목")
                 .content("알림 내용")
-                .level(NotificationLevel.INFO)
+                .level(NotificationModel.NotificationLevel.INFO)
                 .receiver(receiver)
                 .build();
 
@@ -55,7 +44,7 @@ class NotificationModelTest {
             assertThat(notification.getDeletedAt()).isNull();
             assertThat(notification.getTitle()).isEqualTo("알림 제목");
             assertThat(notification.getContent()).isEqualTo("알림 내용");
-            assertThat(notification.getLevel()).isEqualTo(NotificationLevel.INFO);
+            assertThat(notification.getLevel()).isEqualTo(NotificationModel.NotificationLevel.INFO);
             assertThat(notification.getReceiver()).isEqualTo(receiver);
         }
     }
@@ -68,20 +57,20 @@ class NotificationModelTest {
         @DisplayName("유효한 데이터로 NotificationModel 생성")
         void withValidData_createsNotificationModel() {
             // given
-            UserModel receiver = createTestUser();
+            UserModel receiver = UserModelFixture.create();
 
             // when
             NotificationModel notification = NotificationModel.create(
                 "알림 제목",
                 "알림 내용",
-                NotificationLevel.INFO,
+                NotificationModel.NotificationLevel.INFO,
                 receiver
             );
 
             // then
             assertThat(notification.getTitle()).isEqualTo("알림 제목");
             assertThat(notification.getContent()).isEqualTo("알림 내용");
-            assertThat(notification.getLevel()).isEqualTo(NotificationLevel.INFO);
+            assertThat(notification.getLevel()).isEqualTo(NotificationModel.NotificationLevel.INFO);
             assertThat(notification.getReceiver()).isEqualTo(receiver);
         }
 
@@ -89,49 +78,49 @@ class NotificationModelTest {
         @DisplayName("WARNING 레벨로 NotificationModel 생성")
         void withWarningLevel_createsNotificationModel() {
             // given
-            UserModel receiver = createTestUser();
+            UserModel receiver = UserModelFixture.create();
 
             // when
             NotificationModel notification = NotificationModel.create(
                 "경고 알림",
                 "경고 내용",
-                NotificationLevel.WARNING,
+                NotificationModel.NotificationLevel.WARNING,
                 receiver
             );
 
             // then
-            assertThat(notification.getLevel()).isEqualTo(NotificationLevel.WARNING);
+            assertThat(notification.getLevel()).isEqualTo(NotificationModel.NotificationLevel.WARNING);
         }
 
         @Test
         @DisplayName("ERROR 레벨로 NotificationModel 생성")
         void withErrorLevel_createsNotificationModel() {
             // given
-            UserModel receiver = createTestUser();
+            UserModel receiver = UserModelFixture.create();
 
             // when
             NotificationModel notification = NotificationModel.create(
                 "에러 알림",
                 "에러 내용",
-                NotificationLevel.ERROR,
+                NotificationModel.NotificationLevel.ERROR,
                 receiver
             );
 
             // then
-            assertThat(notification.getLevel()).isEqualTo(NotificationLevel.ERROR);
+            assertThat(notification.getLevel()).isEqualTo(NotificationModel.NotificationLevel.ERROR);
         }
 
         @Test
         @DisplayName("content가 null이어도 생성 가능")
         void withNullContent_createsNotificationModel() {
             // given
-            UserModel receiver = createTestUser();
+            UserModel receiver = UserModelFixture.create();
 
             // when
             NotificationModel notification = NotificationModel.create(
                 "알림 제목",
                 null,
-                NotificationLevel.INFO,
+                NotificationModel.NotificationLevel.INFO,
                 receiver
             );
 
@@ -149,13 +138,7 @@ class NotificationModelTest {
         @DisplayName("삭제 시 deletedAt이 설정됨")
         void withValidNotification_setsDeletedAt() {
             // given
-            UserModel receiver = createTestUser();
-            NotificationModel notification = NotificationModel.create(
-                "알림 제목",
-                "알림 내용",
-                NotificationLevel.INFO,
-                receiver
-            );
+            NotificationModel notification = NotificationModelFixture.create();
 
             assertThat(notification.getDeletedAt()).isNull();
             assertThat(notification.isDeleted()).isFalse();
@@ -167,6 +150,21 @@ class NotificationModelTest {
             assertThat(notification.getDeletedAt()).isNotNull();
             assertThat(notification.isDeleted()).isTrue();
         }
+
+        @Test
+        @DisplayName("이미 삭제된 알림을 다시 삭제해도 에러 없이 멱등성이 보장된다")
+        void deleteAlreadyDeletedNotification_isIdempotent() {
+            // given
+            NotificationModel notification = NotificationModelFixture.create();
+            notification.delete();
+
+            // when
+            notification.delete();
+
+            // then
+            assertThat(notification).isNotNull();
+            assertThat(notification.getDeletedAt()).isNotNull();
+        }
     }
 
     @Nested
@@ -177,13 +175,7 @@ class NotificationModelTest {
         @DisplayName("복원 시 deletedAt이 null로 설정됨")
         void withDeletedNotification_clearsDeletedAt() {
             // given
-            UserModel receiver = createTestUser();
-            NotificationModel notification = NotificationModel.create(
-                "알림 제목",
-                "알림 내용",
-                NotificationLevel.INFO,
-                receiver
-            );
+            NotificationModel notification = NotificationModelFixture.create();
             notification.delete();
 
             assertThat(notification.isDeleted()).isTrue();
@@ -194,6 +186,22 @@ class NotificationModelTest {
             // then
             assertThat(notification.getDeletedAt()).isNull();
             assertThat(notification.isDeleted()).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("NotificationLevel")
+    class NotificationLevelTest {
+
+        @Test
+        @DisplayName("모든 레벨 값이 존재함")
+        void allLevelsExist() {
+            assertThat(NotificationModel.NotificationLevel.values())
+                .containsExactlyInAnyOrder(
+                    NotificationModel.NotificationLevel.INFO,
+                    NotificationModel.NotificationLevel.WARNING,
+                    NotificationModel.NotificationLevel.ERROR
+                );
         }
     }
 }
