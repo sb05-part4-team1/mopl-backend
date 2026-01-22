@@ -33,9 +33,16 @@ mopl:
     cleanup:
       defaults:
         chunk-size: 500
-        retention-days: 0
+        retention-days: 30 # 0으로 하면 즉시 삭제
 
       storage:
         chunk-size: 200
 
+    collect:
+      tmdb:
+        defaults:
+          max-page: 20
 
+      tsdb:
+        defaults:
+          sleep-ms: 300
