@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public class FollowNotFoundException extends FollowException {
 
-    public FollowNotFoundException(UUID followId) {
-        super(FollowErrorCode.FOLLOW_NOT_FOUND, Map.of("followId", followId));
+    public FollowNotFoundException(UUID id) {
+        super(FollowErrorCode.FOLLOW_NOT_FOUND, Map.of("id", id));
     }
 }

@@ -4,10 +4,10 @@ import java.util.Map;
 
 public class InvalidWatchingSessionDataException extends WatchingSessionException {
 
-    public InvalidWatchingSessionDataException(String message) {
+    public InvalidWatchingSessionDataException(String detailMessage) {
         super(
             WatchingSessionErrorCode.INVALID_WATCHING_SESSION_DATA,
-            Map.of("reason", message)
+            Map.of("detailMessage", detailMessage)
         );
     }
 }

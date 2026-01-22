@@ -5,9 +5,7 @@ import java.util.UUID;
 
 public class ReviewNotFoundException extends ReviewException {
 
-    public ReviewNotFoundException(UUID reviewId) {
-        super(ReviewErrorCode.REVIEW_NOT_FOUND, Map.of(
-            "reviewId", reviewId
-        ));
+    public ReviewNotFoundException(UUID id) {
+        super(ReviewErrorCode.REVIEW_NOT_FOUND, Map.of("id", id));
     }
 }
