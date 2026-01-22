@@ -54,18 +54,20 @@ public class ConversationRepositoryImpl implements ConversationRepository {
 
     @Override
     public Optional<ConversationModel> findByParticipants(UUID userId, UUID withId) {
-        //message 조회해서 같이 올려보내기
-        Optional<ConversationEntity> conversationModel = jpaConversationRepository
-            .findConversationIdByParticipants(userId, withId);
+        return jpaConversationRepository
+            .findConversationIdByParticipants(userId, withId)
+            .map(conversationEntity -> {
 
-        Optional<DirectMessageEntity> directMessageEntity = jpaDirectMessageRepository
-            .findTopByConversationIdOrderByCreatedAtDesc(conversationModel.get().getId());
+                Optional<DirectMessageEntity> directMessageEntity = jpaDirectMessageRepository
+                    .findTopByConversationIdOrderByCreatedAtDesc(
+                        conversationEntity.getId()
+                    );
 
-        return conversationModel.map(entity -> conversationEntityMapper.toModel(
-            entity,
-            directMessageEntity.map(directMessageEntityMapper::toModel))
-        );
-
+                return conversationEntityMapper.toModel(
+                    conversationEntity,
+                    directMessageEntity.map(directMessageEntityMapper::toModel)
+                );
+            });
     }
 
 }

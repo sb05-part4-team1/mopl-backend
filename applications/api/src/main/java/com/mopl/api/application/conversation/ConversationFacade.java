@@ -44,7 +44,6 @@ public class ConversationFacade {
     public ConversationModel getConversationByWith(UUID userId, UUID withId) {
 
         return conversationService.getConversationByWith(userId, withId);
-
     }
 
     @Transactional

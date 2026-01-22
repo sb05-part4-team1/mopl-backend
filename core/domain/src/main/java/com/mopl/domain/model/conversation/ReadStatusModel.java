@@ -24,6 +24,7 @@ public class ReadStatusModel extends BaseModel {
         return ReadStatusModel.builder()
             .conversation(conversation)
             .user(user)
+            .lastRead(Instant.now())
             .build();
 
     }
