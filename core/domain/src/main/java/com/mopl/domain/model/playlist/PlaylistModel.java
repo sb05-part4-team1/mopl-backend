@@ -9,27 +9,30 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Getter
-@SuperBuilder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder(toBuilder = true)
 public class PlaylistModel extends BaseUpdatableModel {
 
     public static final int TITLE_MAX_LENGTH = 255;
     public static final int DESCRIPTION_MAX_LENGTH = 10_000;
 
-    private UserModel owner;
     private String title;
     private String description;
+    private UserModel owner;
 
     public static PlaylistModel create(
         UserModel owner,
         String title,
         String description
     ) {
-        if (owner == null || owner.getId() == null) {
-            throw InvalidPlaylistDataException.withDetailMessage("소유자 정보는 null일 수 없습니다.");
+        if (owner == null) {
+            throw InvalidPlaylistDataException.withDetailMessage("소유자는 null일 수 없습니다.");
         }
-        if (title == null) {
-            throw InvalidPlaylistDataException.withDetailMessage("제목은 null일 수 없습니다.");
+        if (owner.getId() == null) {
+            throw InvalidPlaylistDataException.withDetailMessage("소유자 id는 null일 수 없습니다.");
+        }
+        if (title == null || title.isBlank()) {
+            throw InvalidPlaylistDataException.withDetailMessage("제목은 비어있을 수 없습니다.");
         }
 
         validateTitle(title);
@@ -40,40 +43,42 @@ public class PlaylistModel extends BaseUpdatableModel {
             .title(title)
             .description(description)
             .build();
-
     }
 
     public PlaylistModel update(
         String newTitle,
         String newDescription
     ) {
+        String updatedTitle = this.title;
+        String updatedDescription = this.description;
+
         if (newTitle != null) {
             validateTitle(newTitle);
-            this.title = newTitle;
+            updatedTitle = newTitle;
         }
 
         if (newDescription != null) {
             validateDescription(newDescription);
-            this.description = newDescription;
+            updatedDescription = newDescription;
         }
 
-        return this;
+        return this.toBuilder()
+            .title(updatedTitle)
+            .description(updatedDescription)
+            .build();
     }
 
     private static void validateTitle(String title) {
-        if (title.isBlank()) {
-            throw InvalidPlaylistDataException.withDetailMessage("제목은 공백일 수 없습니다.");
-        }
         if (title.length() > TITLE_MAX_LENGTH) {
-            throw InvalidPlaylistDataException.withDetailMessage("제목은 " + TITLE_MAX_LENGTH
-                + "자를 초과할 수 없습니다.");
+            throw InvalidPlaylistDataException.withDetailMessage(
+                "제목은 " + TITLE_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 
     private static void validateDescription(String description) {
         if (description != null && description.length() > DESCRIPTION_MAX_LENGTH) {
-            throw InvalidPlaylistDataException.withDetailMessage("설명은 " + DESCRIPTION_MAX_LENGTH
-                + "자를 초과할 수 없습니다.");
+            throw InvalidPlaylistDataException.withDetailMessage(
+                "설명은 " + DESCRIPTION_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 }
