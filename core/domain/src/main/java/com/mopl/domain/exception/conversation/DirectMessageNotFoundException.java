@@ -1,20 +1,19 @@
 package com.mopl.domain.exception.conversation;
 
+import com.mopl.domain.exception.ErrorCode;
+
 import java.util.Map;
 import java.util.UUID;
 
 public class DirectMessageNotFoundException extends ConversationException {
 
-    public DirectMessageNotFoundException(UUID id) {
-        super(ConversationErrorCode.DIRECT_MESSAGE_NOT_FOUND, Map.of("id", id));
+    private static final ErrorCode ERROR_CODE = ConversationErrorCode.DIRECT_MESSAGE_NOT_FOUND;
+
+    private DirectMessageNotFoundException(Map<String, Object> details) {
+        super(ERROR_CODE, details);
     }
 
-    public DirectMessageNotFoundException(UUID conversationId, UUID directMessageId, UUID userId) {
-        super(ConversationErrorCode.DIRECT_MESSAGE_NOT_FOUND, Map.of(
-            "conversationId", conversationId,
-            "directMessageId", directMessageId,
-            "userId", userId)
-        );
+    public static DirectMessageNotFoundException withId(UUID id) {
+        return new DirectMessageNotFoundException(Map.of("id", id));
     }
-
 }
