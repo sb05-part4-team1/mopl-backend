@@ -172,8 +172,7 @@ public class ConversationService {
 
         return directMessageRepository.findOtherDirectMessage(conversationId, directMessageId,
             userId)
-            .orElseThrow(() -> new DirectMessageNotFoundException(conversationId, directMessageId,
-                userId));
+            .orElse(null);
     }
 
     public ConversationModel getConversationByWith(UUID userId, UUID withId) {
@@ -183,7 +182,12 @@ public class ConversationService {
         // message 포함
         ConversationModel conversationModel = conversationRepository.findByParticipants(userId,
             withId)
-            .orElseThrow(() -> new ConversationNotFoundException(userId, withId));
+            .orElseGet(() -> {
+                UserModel userModel = userRepository.findById(userId)
+                    .orElseThrow(() -> UserNotFoundException.withId(userId));
+                ConversationModel newConversationModel = ConversationModel.create();
+                return create(newConversationModel, userModel, withModel);
+            });
 
         DirectMessageModel lastMessage = conversationModel.getLastMessage();
 

@@ -293,6 +293,10 @@ public interface ConversationApiSpec {
             description = "성공"
         ),
         @ApiResponse(
+            responseCode = "204",
+            description = "No Content"
+        ),
+        @ApiResponse(
             responseCode = "400",
             description = "잘못된 요청",
             content = @Content(

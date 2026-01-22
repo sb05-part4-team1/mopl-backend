@@ -14,6 +14,9 @@ public class DirectMessageMapper {
     public DirectMessageResponse toResponse(
         DirectMessageModel directMessageModel
     ) {
+        if (directMessageModel == null) {
+            return null;
+        }
         return new DirectMessageResponse(
             directMessageModel.getId(),
             directMessageModel.getConversation().getId(),

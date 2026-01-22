@@ -15,7 +15,6 @@ public class ConversationResponseMapper {
     public ConversationResponse toResponse(
         ConversationModel conversationModel
     ) {
-
         return new ConversationResponse(
             conversationModel.getId(),
             userSummaryMapper.toSummary(conversationModel.getWithUser()),
