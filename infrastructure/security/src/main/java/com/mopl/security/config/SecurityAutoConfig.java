@@ -11,6 +11,7 @@ import com.mopl.security.jwt.filter.JwtAuthenticationFilter;
 import com.mopl.security.oauth2.CustomOAuth2UserService;
 import com.mopl.security.oauth2.handler.OAuth2FailureHandler;
 import com.mopl.security.oauth2.handler.OAuth2SuccessHandler;
+import jakarta.servlet.DispatcherType;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -50,6 +51,7 @@ public class SecurityAutoConfig {
     @ConditionalOnMissingBean(SecurityRegistry.class)
     public SecurityRegistry defaultSecurityRegistry() {
         return auth -> auth
+            .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
             .requestMatchers(
                 new AntPathRequestMatcher("h2-console/**")
             ).permitAll()
