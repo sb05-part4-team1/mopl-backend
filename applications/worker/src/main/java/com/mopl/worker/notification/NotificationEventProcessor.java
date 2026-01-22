@@ -49,11 +49,11 @@ public class NotificationEventProcessor {
             );
             publishToSse(savedNotificationModel);
 
+            ack.acknowledge();
             log.debug("Processed UserFollowedEvent for user: {}", event.getFolloweeId());
         } catch (Exception e) {
             log.error("Failed to process UserFollowedEvent: {}", payload, e);
-        } finally {
-            ack.acknowledge();
+            throw new RuntimeException(e);
         }
     }
 
@@ -75,11 +75,11 @@ public class NotificationEventProcessor {
                 publishToSse(saved);
             }
 
+            ack.acknowledge();
             log.debug("Processed PlaylistCreatedEvent for playlist: {}", event.getPlaylistId());
         } catch (Exception e) {
             log.error("Failed to process PlaylistCreatedEvent: {}", payload, e);
-        } finally {
-            ack.acknowledge();
+            throw new RuntimeException(e);
         }
     }
 
@@ -101,11 +101,11 @@ public class NotificationEventProcessor {
                 publishToSse(saved);
             }
 
+            ack.acknowledge();
             log.debug("Processed PlaylistUpdatedEvent for playlist: {}", event.getPlaylistId());
         } catch (Exception e) {
             log.error("Failed to process PlaylistUpdatedEvent: {}", payload, e);
-        } finally {
-            ack.acknowledge();
+            throw new RuntimeException(e);
         }
     }
 
@@ -126,11 +126,11 @@ public class NotificationEventProcessor {
             );
             publishToSse(saved);
 
+            ack.acknowledge();
             log.debug("Processed PlaylistSubscribedEvent for user: {}", event.getOwnerId());
         } catch (Exception e) {
             log.error("Failed to process PlaylistSubscribedEvent: {}", payload, e);
-        } finally {
-            ack.acknowledge();
+            throw new RuntimeException(e);
         }
     }
 
@@ -152,11 +152,11 @@ public class NotificationEventProcessor {
                 publishToSse(saved);
             }
 
+            ack.acknowledge();
             log.debug("Processed PlaylistContentAddedEvent for playlist: {}", event.getPlaylistId());
         } catch (Exception e) {
             log.error("Failed to process PlaylistContentAddedEvent: {}", payload, e);
-        } finally {
-            ack.acknowledge();
+            throw new RuntimeException(e);
         }
     }
 
