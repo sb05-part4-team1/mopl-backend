@@ -174,8 +174,11 @@ public class ConversationService {
         UUID userId
     ) {
 
-        return directMessageRepository.findOtherDirectMessage(conversationId, directMessageId,
-                userId)
+        return directMessageRepository.findOtherDirectMessage(
+                conversationId,
+                directMessageId,
+                userId
+            )
             .orElse(null);
     }
 
