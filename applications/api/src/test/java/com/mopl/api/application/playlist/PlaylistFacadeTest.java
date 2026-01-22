@@ -1,5 +1,6 @@
 package com.mopl.api.application.playlist;
 
+import com.mopl.api.application.outbox.DomainEventOutboxMapper;
 import com.mopl.api.interfaces.api.playlist.PlaylistCreateRequest;
 import com.mopl.api.interfaces.api.playlist.PlaylistResponse;
 import com.mopl.api.interfaces.api.playlist.PlaylistResponseMapper;
@@ -12,7 +13,6 @@ import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.playlist.PlaylistQueryRequest;
-import com.mopl.api.application.outbox.DomainEventOutboxMapper;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.domain.service.playlist.PlaylistService;
@@ -508,7 +508,6 @@ class PlaylistFacadeTest {
 
         @Test
         @DisplayName("유효한 요청 시 구독 취소 성공")
-        @SuppressWarnings("unchecked")
         void withValidRequest_unsubscribesSuccess() {
             // given
             UserModel user = UserModelFixture.create();
@@ -517,12 +516,6 @@ class PlaylistFacadeTest {
 
             given(userService.getById(user.getId())).willReturn(user);
             given(playlistService.getById(playlistId)).willReturn(playlistModel);
-            willAnswer(invocation -> {
-                invocation.getArgument(0, Consumer.class).accept(null);
-                return null;
-            }).given(transactionTemplate).executeWithoutResult(any());
-            willDoNothing().given(playlistSubscriptionService).unsubscribe(playlistId, user
-                .getId());
 
             // when & then
             assertThatNoException()
