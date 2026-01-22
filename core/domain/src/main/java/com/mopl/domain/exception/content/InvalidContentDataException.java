@@ -8,7 +8,11 @@ public class InvalidContentDataException extends ContentException {
 
     private static final ErrorCode ERROR_CODE = ContentErrorCode.INVALID_CONTENT_DATA;
 
-    public InvalidContentDataException(String detailMessage) {
-        super(ERROR_CODE, Map.of("detailMessage", detailMessage));
+    private InvalidContentDataException(Map<String, Object> details) {
+        super(ERROR_CODE, details);
+    }
+
+    public static InvalidContentDataException withDetailMessage(String detailMessage) {
+        return new InvalidContentDataException(Map.of("detailMessage", detailMessage));
     }
 }

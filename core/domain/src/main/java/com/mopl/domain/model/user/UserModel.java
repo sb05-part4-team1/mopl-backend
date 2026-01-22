@@ -42,13 +42,13 @@ public class UserModel extends BaseUpdatableModel {
         String encodedPassword
     ) {
         if (email == null || email.isBlank()) {
-            throw new InvalidUserDataException("이메일은 비어있을 수 없습니다.");
+            throw InvalidUserDataException.withDetailMessage("이메일은 비어있을 수 없습니다.");
         }
         if (name == null || name.isBlank()) {
-            throw new InvalidUserDataException("이름은 비어있을 수 없습니다.");
+            throw InvalidUserDataException.withDetailMessage("이름은 비어있을 수 없습니다.");
         }
         if (encodedPassword == null || encodedPassword.isBlank()) {
-            throw new InvalidUserDataException("비밀번호는 비어있을 수 없습니다.");
+            throw InvalidUserDataException.withDetailMessage("비밀번호는 비어있을 수 없습니다.");
         }
 
         validateEmail(email);
@@ -71,13 +71,13 @@ public class UserModel extends BaseUpdatableModel {
         String name
     ) {
         if (authProvider == null || authProvider == AuthProvider.EMAIL) {
-            throw new InvalidUserDataException("OAuth 회원가입에는 유효한 OAuth 제공자가 필요합니다.");
+            throw InvalidUserDataException.withDetailMessage("OAuth 회원가입에는 유효한 OAuth 제공자가 필요합니다.");
         }
         if (email == null || email.isBlank()) {
-            throw new InvalidUserDataException("이메일은 비어있을 수 없습니다.");
+            throw InvalidUserDataException.withDetailMessage("이메일은 비어있을 수 없습니다.");
         }
         if (name == null || name.isBlank()) {
-            throw new InvalidUserDataException("이름은 비어있을 수 없습니다.");
+            throw InvalidUserDataException.withDetailMessage("이름은 비어있을 수 없습니다.");
         }
 
         validateEmail(email);
@@ -147,28 +147,28 @@ public class UserModel extends BaseUpdatableModel {
 
     private static void validateEmail(String email) {
         if (email.length() > EMAIL_MAX_LENGTH) {
-            throw new InvalidUserDataException(
+            throw InvalidUserDataException.withDetailMessage(
                 "이메일은 " + EMAIL_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 
     private static void validateName(String username) {
         if (username.length() > NAME_MAX_LENGTH) {
-            throw new InvalidUserDataException(
+            throw InvalidUserDataException.withDetailMessage(
                 "이름은 " + NAME_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 
     private static void validatePassword(String password) {
         if (password.length() > ENCODED_PASSWORD_MAX_LENGTH) {
-            throw new InvalidUserDataException(
+            throw InvalidUserDataException.withDetailMessage(
                 "비밀번호는 " + ENCODED_PASSWORD_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 
     private static void validateProfileImageUrl(String profileImageUrl) {
         if (profileImageUrl.length() > PROFILE_IMAGE_URL_MAX_LENGTH) {
-            throw new InvalidUserDataException(
+            throw InvalidUserDataException.withDetailMessage(
                 "프로필 이미지 URL은 " + PROFILE_IMAGE_URL_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }

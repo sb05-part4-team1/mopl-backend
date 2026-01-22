@@ -26,10 +26,10 @@ public class PlaylistModel extends BaseUpdatableModel {
         String description
     ) {
         if (owner == null || owner.getId() == null) {
-            throw new InvalidPlaylistDataException("소유자 정보는 null일 수 없습니다.");
+            throw InvalidPlaylistDataException.withDetailMessage("소유자 정보는 null일 수 없습니다.");
         }
         if (title == null) {
-            throw new InvalidPlaylistDataException("제목은 null일 수 없습니다.");
+            throw InvalidPlaylistDataException.withDetailMessage("제목은 null일 수 없습니다.");
         }
 
         validateTitle(title);
@@ -62,17 +62,17 @@ public class PlaylistModel extends BaseUpdatableModel {
 
     private static void validateTitle(String title) {
         if (title.isBlank()) {
-            throw new InvalidPlaylistDataException("제목은 공백일 수 없습니다.");
+            throw InvalidPlaylistDataException.withDetailMessage("제목은 공백일 수 없습니다.");
         }
         if (title.length() > TITLE_MAX_LENGTH) {
-            throw new InvalidPlaylistDataException("제목은 " + TITLE_MAX_LENGTH
+            throw InvalidPlaylistDataException.withDetailMessage("제목은 " + TITLE_MAX_LENGTH
                 + "자를 초과할 수 없습니다.");
         }
     }
 
     private static void validateDescription(String description) {
         if (description != null && description.length() > DESCRIPTION_MAX_LENGTH) {
-            throw new InvalidPlaylistDataException("설명은 " + DESCRIPTION_MAX_LENGTH
+            throw InvalidPlaylistDataException.withDetailMessage("설명은 " + DESCRIPTION_MAX_LENGTH
                 + "자를 초과할 수 없습니다.");
         }
     }

@@ -8,7 +8,11 @@ public class InvalidTagDataException extends TagException {
 
     private static final ErrorCode ERROR_CODE = TagErrorCode.INVALID_TAG_DATA;
 
-    public InvalidTagDataException(String detailMessage) {
-        super(ERROR_CODE, Map.of("detailMessage", detailMessage));
+    private InvalidTagDataException(Map<String, Object> details) {
+        super(ERROR_CODE, details);
+    }
+
+    public static InvalidTagDataException withDetailMessage(String detailMessage) {
+        return new InvalidTagDataException(Map.of("detailMessage", detailMessage));
     }
 }

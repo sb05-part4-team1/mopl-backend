@@ -23,6 +23,6 @@ public class AccessDeniedExceptionHandler implements AccessDeniedHandler {
         AccessDeniedException accessDeniedException
     ) throws IOException {
         log.warn("Access denied: {}", accessDeniedException.getMessage());
-        apiResponseHandler.writeError(response, new InsufficientRoleException());
+        apiResponseHandler.writeError(response, InsufficientRoleException.create());
     }
 }

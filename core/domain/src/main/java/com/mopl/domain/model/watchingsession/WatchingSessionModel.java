@@ -22,16 +22,16 @@ public class WatchingSessionModel extends BaseModel {
         ContentModel content
     ) {
         if (watcher == null) {
-            throw new InvalidWatchingSessionDataException("시청자 정보는 null일 수 없습니다.");
+            throw InvalidWatchingSessionDataException.withDetailMessage("시청자 정보는 null일 수 없습니다.");
         }
         if (watcher.getId() == null) {
-            throw new InvalidWatchingSessionDataException("시청자 ID는 null일 수 없습니다.");
+            throw InvalidWatchingSessionDataException.withDetailMessage("시청자 ID는 null일 수 없습니다.");
         }
         if (content == null) {
-            throw new InvalidWatchingSessionDataException("컨텐츠 정보는 null일 수 없습니다.");
+            throw InvalidWatchingSessionDataException.withDetailMessage("컨텐츠 정보는 null일 수 없습니다.");
         }
         if (content.getId() == null) {
-            throw new InvalidWatchingSessionDataException("컨텐츠 ID는 null일 수 없습니다.");
+            throw InvalidWatchingSessionDataException.withDetailMessage("컨텐츠 ID는 null일 수 없습니다.");
         }
 
         return WatchingSessionModel.builder()

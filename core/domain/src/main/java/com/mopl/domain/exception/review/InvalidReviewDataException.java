@@ -8,7 +8,11 @@ public class InvalidReviewDataException extends ReviewException {
 
     private static final ErrorCode ERROR_CODE = ReviewErrorCode.INVALID_REVIEW_DATA;
 
-    public InvalidReviewDataException(String detailMessage) {
-        super(ERROR_CODE, Map.of("detailMessage", detailMessage));
+    private InvalidReviewDataException(Map<String, Object> details) {
+        super(ERROR_CODE, details);
+    }
+
+    public static InvalidReviewDataException withDetailMessage(String detailMessage) {
+        return new InvalidReviewDataException(Map.of("detailMessage", detailMessage));
     }
 }

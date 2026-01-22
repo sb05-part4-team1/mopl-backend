@@ -127,28 +127,28 @@ public class ContentModel extends BaseUpdatableModel {
         String thumbnailUrl
     ) {
         if (type == null) {
-            throw new InvalidContentDataException("컨텐츠 타입은 필수입니다.");
+            throw InvalidContentDataException.withDetailMessage("컨텐츠 타입은 필수입니다.");
         }
         if (title == null || title.isBlank()) {
-            throw new InvalidContentDataException("제목은 비어있을 수 없습니다.");
+            throw InvalidContentDataException.withDetailMessage("제목은 비어있을 수 없습니다.");
         }
         if (description == null || description.isBlank()) {
-            throw new InvalidContentDataException("설명은 비어있을 수 없습니다.");
+            throw InvalidContentDataException.withDetailMessage("설명은 비어있을 수 없습니다.");
         }
         if (thumbnailUrl == null || thumbnailUrl.isBlank()) {
-            throw new InvalidContentDataException("썸네일 URL은 비어있을 수 없습니다.");
+            throw InvalidContentDataException.withDetailMessage("썸네일 URL은 비어있을 수 없습니다.");
         }
     }
 
     private static void validateTitle(String title) {
         if (title.length() > TITLE_MAX_LENGTH) {
-            throw new InvalidContentDataException("제목은 " + TITLE_MAX_LENGTH + "자를 초과할 수 없습니다.");
+            throw InvalidContentDataException.withDetailMessage("제목은 " + TITLE_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 
     private static void validateThumbnailUrl(String thumbnailUrl) {
         if (thumbnailUrl.length() > THUMBNAIL_URL_MAX_LENGTH) {
-            throw new InvalidContentDataException("썸네일 URL은 " + THUMBNAIL_URL_MAX_LENGTH
+            throw InvalidContentDataException.withDetailMessage("썸네일 URL은 " + THUMBNAIL_URL_MAX_LENGTH
                 + "자를 초과할 수 없습니다.");
         }
     }

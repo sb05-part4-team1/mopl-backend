@@ -48,30 +48,30 @@ public class NotificationModel extends BaseModel {
 
     private static void validateTitle(String title) {
         if (title == null || title.isBlank()) {
-            throw new InvalidNotificationDataException("제목은 비어있을 수 없습니다.");
+            throw InvalidNotificationDataException.withDetailMessage("제목은 비어있을 수 없습니다.");
         }
         if (title.length() > TITLE_MAX_LENGTH) {
-            throw new InvalidNotificationDataException(
+            throw InvalidNotificationDataException.withDetailMessage(
                 "제목은 " + TITLE_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 
     private static void validateContent(String content) {
         if (content != null && content.length() > CONTENT_MAX_LENGTH) {
-            throw new InvalidNotificationDataException(
+            throw InvalidNotificationDataException.withDetailMessage(
                 "내용은 " + CONTENT_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 
     private static void validateLevel(NotificationLevel level) {
         if (level == null) {
-            throw new InvalidNotificationDataException("알림 레벨은 null일 수 없습니다.");
+            throw InvalidNotificationDataException.withDetailMessage("알림 레벨은 null일 수 없습니다.");
         }
     }
 
     private static void validateReceiverId(UUID receiverId) {
         if (receiverId == null) {
-            throw new InvalidNotificationDataException("수신자 ID는 null일 수 없습니다.");
+            throw InvalidNotificationDataException.withDetailMessage("수신자 ID는 null일 수 없습니다.");
         }
     }
 }

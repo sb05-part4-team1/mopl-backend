@@ -30,7 +30,7 @@ public class TokenRefreshService {
 
         if (jwtRegistry.isRefreshTokenNotInWhitelist(payload.sub(), payload.jti())) {
             log.debug("리프레시 토큰이 화이트리스트에 없음: userId={}, jti={}", payload.sub(), payload.jti());
-            throw new InvalidTokenException();
+            throw InvalidTokenException.create();
         }
 
         UserModel user = userService.getById(payload.sub());

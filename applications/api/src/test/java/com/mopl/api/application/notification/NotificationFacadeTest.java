@@ -2,7 +2,7 @@ package com.mopl.api.application.notification;
 
 import com.mopl.api.interfaces.api.notification.NotificationResponse;
 import com.mopl.api.interfaces.api.notification.NotificationResponseMapper;
-import com.mopl.domain.exception.notification.NotificationOwnershipException;
+import com.mopl.domain.exception.notification.NotificationForbiddenException;
 import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.domain.fixture.NotificationModelFixture;
 import com.mopl.domain.fixture.UserModelFixture;
@@ -196,7 +196,7 @@ class NotificationFacadeTest {
 
             // when & then
             assertThatThrownBy(() -> notificationFacade.readNotification(userId, notificationId))
-                .isInstanceOf(NotificationOwnershipException.class);
+                .isInstanceOf(NotificationForbiddenException.class);
 
             then(notificationService).should().getById(notificationId);
             then(notificationService).shouldHaveNoMoreInteractions();

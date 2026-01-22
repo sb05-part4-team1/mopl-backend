@@ -86,7 +86,7 @@ public class ReviewService {
     private void validateAuthor(ReviewModel review, UUID requesterId) {
         UUID authorId = review.getAuthor() != null ? review.getAuthor().getId() : null;
         if (authorId == null || !authorId.equals(requesterId)) {
-            throw ReviewForbiddenException.withIds(review.getId(), requesterId, authorId);
+            throw ReviewForbiddenException.withReviewIdAndRequesterIdAndAuthorId(review.getId(), requesterId, authorId);
         }
     }
 }

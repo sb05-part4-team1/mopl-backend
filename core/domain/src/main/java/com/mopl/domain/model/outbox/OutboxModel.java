@@ -89,47 +89,47 @@ public class OutboxModel extends BaseModel {
 
     private static void validateAggregateType(String aggregateType) {
         if (aggregateType == null || aggregateType.isBlank()) {
-            throw new InvalidOutboxDataException("aggregateType은 비어있을 수 없습니다.");
+            throw InvalidOutboxDataException.withDetailMessage("aggregateType은 비어있을 수 없습니다.");
         }
         if (aggregateType.length() > AGGREGATE_TYPE_MAX_LENGTH) {
-            throw new InvalidOutboxDataException(
+            throw InvalidOutboxDataException.withDetailMessage(
                 "aggregateType은 " + AGGREGATE_TYPE_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 
     private static void validateAggregateId(String aggregateId) {
         if (aggregateId == null || aggregateId.isBlank()) {
-            throw new InvalidOutboxDataException("aggregateId는 비어있을 수 없습니다.");
+            throw InvalidOutboxDataException.withDetailMessage("aggregateId는 비어있을 수 없습니다.");
         }
         if (aggregateId.length() > AGGREGATE_ID_MAX_LENGTH) {
-            throw new InvalidOutboxDataException(
+            throw InvalidOutboxDataException.withDetailMessage(
                 "aggregateId는 " + AGGREGATE_ID_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 
     private static void validateEventType(String eventType) {
         if (eventType == null || eventType.isBlank()) {
-            throw new InvalidOutboxDataException("eventType은 비어있을 수 없습니다.");
+            throw InvalidOutboxDataException.withDetailMessage("eventType은 비어있을 수 없습니다.");
         }
         if (eventType.length() > EVENT_TYPE_MAX_LENGTH) {
-            throw new InvalidOutboxDataException(
+            throw InvalidOutboxDataException.withDetailMessage(
                 "eventType은 " + EVENT_TYPE_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 
     private static void validateTopic(String topic) {
         if (topic == null || topic.isBlank()) {
-            throw new InvalidOutboxDataException("topic은 비어있을 수 없습니다.");
+            throw InvalidOutboxDataException.withDetailMessage("topic은 비어있을 수 없습니다.");
         }
         if (topic.length() > TOPIC_MAX_LENGTH) {
-            throw new InvalidOutboxDataException(
+            throw InvalidOutboxDataException.withDetailMessage(
                 "topic은 " + TOPIC_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 
     private static void validatePayload(String payload) {
         if (payload == null || payload.isBlank()) {
-            throw new InvalidOutboxDataException("payload는 비어있을 수 없습니다.");
+            throw InvalidOutboxDataException.withDetailMessage("payload는 비어있을 수 없습니다.");
         }
     }
 }

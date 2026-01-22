@@ -50,7 +50,7 @@ public class SignInSuccessHandler implements AuthenticationSuccessHandler {
             return userDetails;
         }
         log.error("JWT 발급 실패: 예상치 못한 Principal 타입={}", authentication.getPrincipal().getClass());
-        throw new InternalServerException();
+        throw InternalServerException.create();
     }
 
     private JwtInformation issueAndRegisterToken(MoplUserDetails userDetails) {

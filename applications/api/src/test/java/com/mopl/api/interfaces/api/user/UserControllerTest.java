@@ -201,7 +201,7 @@ class UserControllerTest {
                 "P@ssw0rd!");
 
             given(userFacade.signUp(any(UserCreateRequest.class)))
-                .willThrow(new InvalidUserDataException("이메일은 비어있을 수 없습니다."));
+                .willThrow(InvalidUserDataException.withDetailMessage("이메일은 비어있을 수 없습니다."));
 
             // when & then
             mockMvc.perform(post("/api/users")

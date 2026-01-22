@@ -8,17 +8,11 @@ public class EventSerializationException extends OutboxException {
 
     private static final ErrorCode ERROR_CODE = OutboxErrorCode.EVENT_SERIALIZATION_FAILED;
 
-    private EventSerializationException(ErrorCode errorCode, Map<String, Object> context) {
-        super(errorCode, context);
+    private EventSerializationException(Map<String, Object> details) {
+        super(ERROR_CODE, details);
     }
 
-    public static EventSerializationException withEvnetTypeAndException(
-        String eventType,
-        Throwable throwable
-    ) {
-        return new EventSerializationException(ERROR_CODE, Map.of(
-            "eventType", eventType,
-            "cause", throwable.getMessage())
-        );
+    public static EventSerializationException withEventTypeAndCause(String eventType, Throwable cause) {
+        return new EventSerializationException(Map.of("eventType", eventType, "cause", cause.getMessage()));
     }
 }

@@ -28,7 +28,7 @@ public class DomainEventOutboxMapper {
         try {
             return objectMapper.writeValueAsString(event);
         } catch (JsonProcessingException e) {
-            throw EventSerializationException.withEvnetTypeAndException(event.getEventType(), e);
+            throw EventSerializationException.withEventTypeAndCause(event.getEventType(), e);
         }
     }
 }

@@ -57,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             } catch (Exception e) {
                 log.error("JWT 필터 처리 중 예기치 않은 오류 발생", e);
-                handleAuthenticationException(response, new InternalServerException());
+                handleAuthenticationException(response, InternalServerException.create());
                 return;
             }
         }
@@ -68,7 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void validateNotBlacklisted(UUID jti) {
         if (jwtRegistry.isAccessTokenInBlacklist(jti)) {
             log.warn("블랙리스트 토큰 접근 시도: jti={}", jti);
-            throw new InvalidTokenException();
+            throw InvalidTokenException.create();
         }
     }
 

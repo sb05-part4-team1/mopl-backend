@@ -51,7 +51,7 @@ public class PlaylistSubscriptionService {
     public void subscribe(UUID playlistId, UUID subscriberId) {
         if (playlistSubscriberRepository.existsByPlaylistIdAndSubscriberId(playlistId,
             subscriberId)) {
-            throw new PlaylistSubscriptionAlreadyExistsException(playlistId, subscriberId);
+            throw PlaylistSubscriptionAlreadyExistsException.withPlaylistIdAndSubscriberId(playlistId, subscriberId);
         }
 
         playlistSubscriberRepository.save(playlistId, subscriberId);
@@ -64,7 +64,7 @@ public class PlaylistSubscriptionService {
             subscriberId
         );
         if (!deleted) {
-            throw new PlaylistSubscriptionNotFoundException(playlistId, subscriberId);
+            throw PlaylistSubscriptionNotFoundException.withPlaylistIdAndSubscriberId(playlistId, subscriberId);
         }
         playlistSubscriberCountRepository.decrement(playlistId);
     }

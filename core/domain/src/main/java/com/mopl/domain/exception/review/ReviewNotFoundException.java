@@ -1,8 +1,6 @@
 package com.mopl.domain.exception.review;
 
 import com.mopl.domain.exception.ErrorCode;
-import com.mopl.domain.exception.user.UserErrorCode;
-import com.mopl.domain.exception.user.UserNotFoundException;
 
 import java.util.Map;
 import java.util.UUID;

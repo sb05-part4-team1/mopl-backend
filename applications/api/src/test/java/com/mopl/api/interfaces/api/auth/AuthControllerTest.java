@@ -109,7 +109,7 @@ class AuthControllerTest {
             String invalidToken = "invalid-refresh-token";
 
             given(tokenRefreshService.refresh(invalidToken))
-                .willThrow(new InvalidTokenException());
+                .willThrow(InvalidTokenException.create());
 
             // when & then
             mockMvc.perform(post("/api/auth/refresh")

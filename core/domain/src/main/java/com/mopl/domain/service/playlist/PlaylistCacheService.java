@@ -24,7 +24,7 @@ public class PlaylistCacheService {
     @Cacheable(cacheNames = CacheName.PLAYLISTS, key = "#playlistId")
     public PlaylistModel getById(UUID playlistId) {
         return playlistRepository.findById(playlistId)
-            .orElseThrow(() -> new PlaylistNotFoundException(playlistId));
+            .orElseThrow(() -> PlaylistNotFoundException.withId(playlistId));
     }
 
     @Cacheable(cacheNames = CacheName.PLAYLIST_CONTENTS, key = "#playlistId")

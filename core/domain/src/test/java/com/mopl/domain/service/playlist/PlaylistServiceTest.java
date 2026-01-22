@@ -160,7 +160,7 @@ class PlaylistServiceTest {
             UUID playlistId = UUID.randomUUID();
 
             given(playlistCacheService.getById(playlistId))
-                .willThrow(new PlaylistNotFoundException(playlistId));
+                .willThrow(PlaylistNotFoundException.withId(playlistId));
 
             // when & then
             assertThatThrownBy(() -> playlistService.getById(playlistId))

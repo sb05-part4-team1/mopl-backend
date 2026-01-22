@@ -8,7 +8,11 @@ public class InvalidUserDataException extends UserException {
 
     private static final ErrorCode ERROR_CODE = UserErrorCode.INVALID_USER_DATA;
 
-    public InvalidUserDataException(String detailMessage) {
-        super(ERROR_CODE, Map.of("detailMessage", detailMessage));
+    private InvalidUserDataException(Map<String, Object> details) {
+        super(ERROR_CODE, details);
+    }
+
+    public static InvalidUserDataException withDetailMessage(String detailMessage) {
+        return new InvalidUserDataException(Map.of("detailMessage", detailMessage));
     }
 }

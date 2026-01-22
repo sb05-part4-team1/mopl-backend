@@ -13,7 +13,7 @@ public class ReviewForbiddenException extends ReviewException {
         super(ERROR_CODE, details);
     }
 
-    public static ReviewForbiddenException withIds(
+    public static ReviewForbiddenException withReviewIdAndRequesterIdAndAuthorId(
         UUID reviewId,
         UUID requesterId,
         UUID authorId

@@ -18,7 +18,7 @@ public class FollowService {
     public FollowModel create(FollowModel followModel) {
 
         if (followModel.getFollowerId().equals(followModel.getFolloweeId())) {
-            throw new SelfFollowException(followModel.getFollowerId());
+            throw SelfFollowException.withUserId(followModel.getFollowerId());
         }
 
         return followRepository.findByFollowerIdAndFolloweeId(followModel.getFollowerId(),
@@ -32,7 +32,7 @@ public class FollowService {
 
     public FollowModel getById(UUID followId) {
         return followRepository.findById(followId)
-            .orElseThrow(() -> new FollowNotFoundException(followId));
+            .orElseThrow(() -> FollowNotFoundException.withId(followId));
     }
 
     public long getFollowerCount(UUID followeeId) {

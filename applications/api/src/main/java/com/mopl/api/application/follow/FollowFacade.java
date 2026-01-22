@@ -49,7 +49,7 @@ public class FollowFacade {
         FollowModel follow = followService.getById(followId);
 
         if (!follow.getFollowerId().equals(userId)) {
-            throw new FollowNotAllowedException(userId, followId);
+            throw FollowNotAllowedException.withRequesterIdAndFollowId(userId, followId);
         }
 
         UserUnfollowedEvent event = UserUnfollowedEvent.builder()

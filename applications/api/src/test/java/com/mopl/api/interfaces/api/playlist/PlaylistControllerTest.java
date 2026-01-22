@@ -199,7 +199,7 @@ class PlaylistControllerTest {
             UUID playlistId = UUID.randomUUID();
 
             given(playlistFacade.getPlaylist(userId, playlistId))
-                .willThrow(new PlaylistNotFoundException(playlistId));
+                .willThrow(PlaylistNotFoundException.withId(playlistId));
 
             // when & then
             mockMvc.perform(get("/api/playlists/{playlistId}", playlistId)
@@ -339,7 +339,7 @@ class PlaylistControllerTest {
 
             given(playlistFacade.updatePlaylist(eq(userId), eq(playlistId),
                 any(PlaylistUpdateRequest.class)))
-                .willThrow(new PlaylistForbiddenException(playlistId, userId, ownerId));
+                .willThrow(PlaylistForbiddenException.withPlaylistIdAndRequesterIdAndOwnerId(playlistId, userId, ownerId));
 
             // when & then
             mockMvc.perform(patch("/api/playlists/{playlistId}", playlistId)
@@ -359,7 +359,7 @@ class PlaylistControllerTest {
 
             given(playlistFacade.updatePlaylist(eq(userId), eq(playlistId),
                 any(PlaylistUpdateRequest.class)))
-                .willThrow(new PlaylistNotFoundException(playlistId));
+                .willThrow(PlaylistNotFoundException.withId(playlistId));
 
             // when & then
             mockMvc.perform(patch("/api/playlists/{playlistId}", playlistId)
@@ -399,7 +399,7 @@ class PlaylistControllerTest {
             UUID playlistId = UUID.randomUUID();
             UUID ownerId = UUID.randomUUID();
 
-            willThrow(new PlaylistForbiddenException(playlistId, userId, ownerId))
+            willThrow(PlaylistForbiddenException.withPlaylistIdAndRequesterIdAndOwnerId(playlistId, userId, ownerId))
                 .given(playlistFacade).deletePlaylist(userId, playlistId);
 
             // when & then
@@ -415,7 +415,7 @@ class PlaylistControllerTest {
             // given
             UUID playlistId = UUID.randomUUID();
 
-            willThrow(new PlaylistNotFoundException(playlistId))
+            willThrow(PlaylistNotFoundException.withId(playlistId))
                 .given(playlistFacade).deletePlaylist(userId, playlistId);
 
             // when & then
@@ -476,7 +476,7 @@ class PlaylistControllerTest {
             UUID contentId = UUID.randomUUID();
             UUID ownerId = UUID.randomUUID();
 
-            willThrow(new PlaylistForbiddenException(playlistId, userId, ownerId))
+            willThrow(PlaylistForbiddenException.withPlaylistIdAndRequesterIdAndOwnerId(playlistId, userId, ownerId))
                 .given(playlistFacade).addContentToPlaylist(userId, playlistId, contentId);
 
             // when & then
@@ -494,7 +494,7 @@ class PlaylistControllerTest {
             UUID playlistId = UUID.randomUUID();
             UUID contentId = UUID.randomUUID();
 
-            willThrow(new PlaylistContentAlreadyExistsException(playlistId, contentId))
+            willThrow(PlaylistContentAlreadyExistsException.withPlaylistIdAndContentId(playlistId, contentId))
                 .given(playlistFacade).addContentToPlaylist(userId, playlistId, contentId);
 
             // when & then
@@ -537,7 +537,7 @@ class PlaylistControllerTest {
             UUID playlistId = UUID.randomUUID();
             UUID contentId = UUID.randomUUID();
 
-            willThrow(new PlaylistContentNotFoundException(playlistId, contentId))
+            willThrow(PlaylistContentNotFoundException.withPlaylistIdAndContentId(playlistId, contentId))
                 .given(playlistFacade).deleteContentFromPlaylist(userId, playlistId, contentId);
 
             // when & then
@@ -556,7 +556,7 @@ class PlaylistControllerTest {
             UUID contentId = UUID.randomUUID();
             UUID ownerId = UUID.randomUUID();
 
-            willThrow(new PlaylistForbiddenException(playlistId, userId, ownerId))
+            willThrow(PlaylistForbiddenException.withPlaylistIdAndRequesterIdAndOwnerId(playlistId, userId, ownerId))
                 .given(playlistFacade).deleteContentFromPlaylist(userId, playlistId, contentId);
 
             // when & then
@@ -595,7 +595,7 @@ class PlaylistControllerTest {
             // given
             UUID playlistId = UUID.randomUUID();
 
-            willThrow(new PlaylistNotFoundException(playlistId))
+            willThrow(PlaylistNotFoundException.withId(playlistId))
                 .given(playlistFacade).subscribePlaylist(userId, playlistId);
 
             // when & then
@@ -611,7 +611,7 @@ class PlaylistControllerTest {
             // given
             UUID playlistId = UUID.randomUUID();
 
-            willThrow(new PlaylistSubscriptionAlreadyExistsException(playlistId, userId))
+            willThrow(PlaylistSubscriptionAlreadyExistsException.withPlaylistIdAndSubscriberId(playlistId, userId))
                 .given(playlistFacade).subscribePlaylist(userId, playlistId);
 
             // when & then
@@ -649,7 +649,7 @@ class PlaylistControllerTest {
             // given
             UUID playlistId = UUID.randomUUID();
 
-            willThrow(new PlaylistNotFoundException(playlistId))
+            willThrow(PlaylistNotFoundException.withId(playlistId))
                 .given(playlistFacade).unsubscribePlaylist(userId, playlistId);
 
             // when & then

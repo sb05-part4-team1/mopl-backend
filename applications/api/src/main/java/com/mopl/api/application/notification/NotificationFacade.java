@@ -2,7 +2,7 @@ package com.mopl.api.application.notification;
 
 import com.mopl.api.interfaces.api.notification.NotificationResponse;
 import com.mopl.api.interfaces.api.notification.NotificationResponseMapper;
-import com.mopl.domain.exception.notification.NotificationOwnershipException;
+import com.mopl.domain.exception.notification.NotificationForbiddenException;
 import com.mopl.domain.model.notification.NotificationModel;
 import com.mopl.domain.repository.notification.NotificationQueryRequest;
 import com.mopl.domain.service.notification.NotificationService;
@@ -36,7 +36,7 @@ public class NotificationFacade {
         NotificationModel notification = notificationService.getById(notificationId);
 
         if (!notification.getReceiverId().equals(userId)) {
-            throw new NotificationOwnershipException(notificationId, userId);
+            throw NotificationForbiddenException.withNotificationIdAndUserId(notificationId, userId);
         }
 
         notificationService.deleteById(notificationId);

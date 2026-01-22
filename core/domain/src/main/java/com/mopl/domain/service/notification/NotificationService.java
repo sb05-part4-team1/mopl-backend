@@ -26,7 +26,7 @@ public class NotificationService {
 
     public NotificationModel getById(UUID notificationId) {
         return notificationRepository.findById(notificationId)
-            .orElseThrow(() -> new NotificationNotFoundException(notificationId));
+            .orElseThrow(() -> NotificationNotFoundException.withId(notificationId));
     }
 
     public NotificationModel create(NotificationModel notification) {

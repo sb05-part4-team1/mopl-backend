@@ -54,7 +54,7 @@ public class PlaylistContentRepositoryImpl implements PlaylistContentRepository 
         try {
             jpaPlaylistContentRepository.save(entity);
         } catch (DataIntegrityViolationException exception) {
-            throw new PlaylistContentAlreadyExistsException(playlistId, contentId);
+            throw PlaylistContentAlreadyExistsException.withPlaylistIdAndContentId(playlistId, contentId);
         }
     }
 

@@ -8,7 +8,11 @@ public class InvalidOutboxDataException extends OutboxException {
 
     private static final ErrorCode ERROR_CODE = OutboxErrorCode.INVALID_OUTBOX_DATA;
 
-    public InvalidOutboxDataException(String detailMessage) {
-        super(ERROR_CODE, Map.of("detailMessage", detailMessage));
+    private InvalidOutboxDataException(Map<String, Object> details) {
+        super(ERROR_CODE, details);
+    }
+
+    public static InvalidOutboxDataException withDetailMessage(String detailMessage) {
+        return new InvalidOutboxDataException(Map.of("detailMessage", detailMessage));
     }
 }

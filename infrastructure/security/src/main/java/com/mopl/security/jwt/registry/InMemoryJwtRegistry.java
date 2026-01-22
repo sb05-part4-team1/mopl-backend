@@ -57,7 +57,7 @@ public class InMemoryJwtRegistry implements JwtRegistry {
                 log.error("유효하지 않은 리프레시 토큰으로 로테이션 시도됨. " +
                     "해당 유저의 모든 세션을 무효화합니다. userId={}, jti={}", userId, oldRefreshTokenJti);
                 revokeAllByUserId(userId);
-                throw new InvalidTokenException();
+                throw InvalidTokenException.create();
             }
 
             JwtInformation oldInfo = sessions.remove(oldRefreshTokenJti);

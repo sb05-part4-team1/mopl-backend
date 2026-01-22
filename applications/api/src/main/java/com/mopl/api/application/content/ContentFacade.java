@@ -29,7 +29,7 @@ public class ContentFacade {
     @Transactional
     public ContentModel upload(ContentCreateRequest request, MultipartFile thumbnail) {
         if (thumbnail == null || thumbnail.isEmpty()) {
-            throw new InvalidContentDataException("썸네일 파일은 필수입니다.");
+            throw InvalidContentDataException.withDetailMessage("썸네일 파일은 필수입니다.");
         }
 
         String thumbnailUrl = uploadToStorage(thumbnail);

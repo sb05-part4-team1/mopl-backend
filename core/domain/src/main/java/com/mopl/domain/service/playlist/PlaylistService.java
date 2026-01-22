@@ -93,7 +93,7 @@ public class PlaylistService {
 
         boolean deleted = playlistContentRepository.delete(playlistId, contentId);
         if (!deleted) {
-            throw new PlaylistContentNotFoundException(playlistId, contentId);
+            throw PlaylistContentNotFoundException.withPlaylistIdAndContentId(playlistId, contentId);
         }
 
         playlistCacheService.evictContents(playlistId);
@@ -104,7 +104,11 @@ public class PlaylistService {
         UUID ownerId = (playlistModel.getOwner() != null) ? playlistModel.getOwner().getId() : null;
 
         if (ownerId == null || !ownerId.equals(requesterId)) {
-            throw new PlaylistForbiddenException(playlistId, requesterId, ownerId);
+            throw PlaylistForbiddenException.withPlaylistIdAndRequesterIdAndOwnerId(
+                playlistId,
+                requesterId,
+                ownerId
+            );
         }
 
         return playlistModel;

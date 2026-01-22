@@ -1,9 +1,9 @@
 package com.mopl.domain.exception.follow;
 
-import java.util.Map;
-
 import com.mopl.domain.exception.ErrorCode;
 import com.mopl.domain.exception.MoplException;
+
+import java.util.Map;
 
 public abstract class FollowException extends MoplException {
 

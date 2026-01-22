@@ -44,8 +44,8 @@ public class SignInFailureHandler implements AuthenticationFailureHandler {
         }
         if (exception instanceof AuthenticationServiceException
             || exception instanceof ProviderNotFoundException) {
-            return new InternalServerException();
+            return InternalServerException.create();
         }
-        return new InvalidCredentialsException();
+        return InvalidCredentialsException.create();
     }
 }

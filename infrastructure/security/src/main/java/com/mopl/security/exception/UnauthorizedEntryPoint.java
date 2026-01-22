@@ -23,6 +23,6 @@ public class UnauthorizedEntryPoint implements AuthenticationEntryPoint {
         AuthenticationException authenticationException
     ) throws IOException {
         log.debug("Unauthorized access: {}", authenticationException.getMessage());
-        apiResponseHandler.writeError(response, new UnauthorizedException());
+        apiResponseHandler.writeError(response, UnauthorizedException.create());
     }
 }
