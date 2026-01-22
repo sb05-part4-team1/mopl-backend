@@ -29,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
@@ -44,6 +45,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 
@@ -74,6 +76,9 @@ class UserFacadeTest {
 
     @Mock
     private DomainEventOutboxMapper domainEventOutboxMapper;
+
+    @Mock
+    private TransactionTemplate transactionTemplate;
 
     @InjectMocks
     private UserFacade userFacade;
@@ -191,6 +196,9 @@ class UserFacadeTest {
 
             given(userService.getById(targetUser.getId())).willReturn(targetUser);
             given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
+            willAnswer(invocation -> invocation.<org.springframework.transaction.support.TransactionCallback<?>>getArgument(0)
+                .doInTransaction(null))
+                .given(transactionTemplate).execute(any());
 
             // when
             UserModel result = userFacade.updateRole(requesterId, request, targetUser.getId());
@@ -228,6 +236,9 @@ class UserFacadeTest {
 
             given(userService.getById(targetUser.getId())).willReturn(targetUser);
             given(userService.update(any(UserModel.class))).willReturn(targetUser);
+            willAnswer(invocation -> invocation.<org.springframework.transaction.support.TransactionCallback<?>>getArgument(0)
+                .doInTransaction(null))
+                .given(transactionTemplate).execute(any());
 
             // when & then
             assertThatNoException()
@@ -598,7 +609,7 @@ class UserFacadeTest {
 
             // then
             assertThat(result.data()).hasSize(1);
-            assertThat(result.data().get(0).role()).isEqualTo(UserModel.Role.ADMIN);
+            assertThat(result.data().getFirst().role()).isEqualTo(UserModel.Role.ADMIN);
             assertThat(result.hasNext()).isFalse();
 
             then(userService).should().getAll(request);

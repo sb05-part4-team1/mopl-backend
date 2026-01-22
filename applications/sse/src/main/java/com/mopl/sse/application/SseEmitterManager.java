@@ -20,6 +20,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 @Component
@@ -167,13 +169,17 @@ public class SseEmitterManager {
     @Scheduled(fixedRate = 30000)
     public void sendHeartbeat() {
         Map<UUID, SseEmitter> emitters = emitterRepository.getLocalEmitters();
-        emitters.entrySet().parallelStream().forEach(entry -> {
-            try {
-                entry.getValue().send(SseEmitter.event().comment("heartbeat"));
-            } catch (IOException e) {
-                log.debug("Heartbeat failed for user: {}, removing emitter", entry.getKey());
-                emitterRepository.deleteByUserId(entry.getKey());
-            }
-        });
+
+        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            emitters.forEach((userId, emitter) -> executor.execute(() -> {
+                try {
+                    emitter.send(SseEmitter.event().comment("heartbeat"));
+                } catch (IOException e) {
+                    log.debug("Heartbeat failed for user: {}, removing emitter", userId);
+                    emitterRepository.deleteByUserId(userId);
+                }
+            })
+            );
+        }
     }
 }

@@ -129,7 +129,7 @@ class PlaylistFacadeTest {
 
             // then
             assertThat(result.data()).hasSize(1);
-            assertThat(result.data().get(0))
+            assertThat(result.data().getFirst())
                 .usingRecursiveComparison()
                 .isEqualTo(expectedResponse);
 
@@ -213,7 +213,7 @@ class PlaylistFacadeTest {
 
             // then
             assertThat(result.data()).hasSize(1);
-            assertThat(result.data().get(0))
+            assertThat(result.data().getFirst())
                 .usingRecursiveComparison()
                 .isEqualTo(expectedResponse);
 
@@ -301,6 +301,9 @@ class PlaylistFacadeTest {
             given(playlistService.create(eq(owner), eq(title), eq(description)))
                 .willReturn(playlistModel);
             given(playlistResponseMapper.toResponse(playlistModel)).willReturn(expectedResponse);
+            willAnswer(invocation -> invocation.<org.springframework.transaction.support.TransactionCallback<?>>getArgument(0)
+                .doInTransaction(null))
+                .given(transactionTemplate).execute(any());
 
             // when
             PlaylistResponse result = playlistFacade.createPlaylist(owner.getId(), request);
@@ -344,6 +347,9 @@ class PlaylistFacadeTest {
             given(playlistService.update(playlistId, owner.getId(), newTitle, newDescription))
                 .willReturn(updatedPlaylist);
             given(playlistResponseMapper.toResponse(updatedPlaylist)).willReturn(expectedResponse);
+            willAnswer(invocation -> invocation.<org.springframework.transaction.support.TransactionCallback<?>>getArgument(0)
+                .doInTransaction(null))
+                .given(transactionTemplate).execute(any());
 
             // when
             PlaylistResponse result = playlistFacade.updatePlaylist(
@@ -404,6 +410,10 @@ class PlaylistFacadeTest {
             given(playlistService.getById(playlistId)).willReturn(playlistModel);
             given(contentService.getById(contentId)).willReturn(contentModel);
             willDoNothing().given(playlistService).addContent(playlistId, owner.getId(), contentId);
+            willAnswer(invocation -> {
+                invocation.<Consumer<Object>>getArgument(0).accept(null);
+                return null;
+            }).given(transactionTemplate).executeWithoutResult(any());
 
             // when & then
             assertThatNoException()

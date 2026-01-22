@@ -14,6 +14,8 @@ import java.time.Duration;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
@@ -72,9 +74,9 @@ class RedisTemporaryPasswordRepositoryTest {
 
             // then
             then(valueOperations).should().set(
-                org.mockito.ArgumentMatchers.startsWith(KEY_PREFIX),
-                org.mockito.ArgumentMatchers.eq(encodedPassword),
-                org.mockito.ArgumentMatchers.eq(TTL)
+                startsWith(KEY_PREFIX),
+                eq(encodedPassword),
+                eq(TTL)
             );
         }
     }

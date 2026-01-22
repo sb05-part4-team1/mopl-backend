@@ -72,7 +72,7 @@ class TwoLevelCacheTest {
             given(l1Cache.getIfPresent(fullKey)).willReturn(expectedValue);
 
             // when
-            var result = cache.get(key);
+            org.springframework.cache.Cache.ValueWrapper result = cache.get(key);
 
             // then
             assertThat(result).isNotNull();
@@ -92,7 +92,7 @@ class TwoLevelCacheTest {
             given(valueOperations.get(fullKey)).willReturn(expectedValue);
 
             // when
-            var result = cache.get(key);
+            org.springframework.cache.Cache.ValueWrapper result = cache.get(key);
 
             // then
             assertThat(result).isNotNull();
@@ -111,7 +111,7 @@ class TwoLevelCacheTest {
             given(valueOperations.get(fullKey)).willReturn(null);
 
             // when
-            var result = cache.get(key);
+            org.springframework.cache.Cache.ValueWrapper result = cache.get(key);
 
             // then
             assertThat(result).isNull();
