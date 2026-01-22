@@ -6,6 +6,8 @@ import com.mopl.jpa.entity.notification.NotificationEntity;
 import com.mopl.jpa.entity.notification.NotificationEntityMapper;
 import com.mopl.jpa.entity.user.UserEntity;
 import com.mopl.jpa.repository.user.JpaUserRepository;
+import java.time.Instant;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -35,5 +37,16 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         NotificationEntity saved = jpaNotificationRepository.save(entity);
 
         return notificationEntityMapper.toModel(saved);
+    }
+
+    // 이하 메서드들 cleanup batch 전용
+    @Override
+    public List<UUID> findCleanupTargets(Instant threshold, int limit) {
+        return jpaNotificationRepository.findCleanupTargets(threshold, limit);
+    }
+
+    @Override
+    public int deleteAllByIds(List<UUID> notificationIds) {
+        return jpaNotificationRepository.deleteAllByIds(notificationIds);
     }
 }

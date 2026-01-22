@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
@@ -39,4 +40,12 @@ public interface JpaPlaylistSubscriberRepository extends
         @Param("subscriberId") UUID subscriberId,
         @Param("playlistIds") Collection<UUID> playlistIds
     );
+
+    // 이하 메서드들 cleanup batch 전용
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            delete from PlaylistSubscriberEntity ps
+            where ps.playlist.id in :playlistIds
+        """)
+    int deleteAllByPlaylistIds(@Param("playlistIds") List<UUID> playlistIds);
 }

@@ -71,4 +71,9 @@ public class ContentTagRepositoryImpl implements ContentTagRepository {
     public void deleteAllByContentId(UUID contentId) {
         jpaContentTagRepository.deleteAllByContentId(contentId);
     }
+
+    @Override
+    public int deleteAllByContentIds(List<UUID> contentIds) {
+        return jpaContentTagRepository.deleteAllByContentIds(contentIds);
+    }
 }

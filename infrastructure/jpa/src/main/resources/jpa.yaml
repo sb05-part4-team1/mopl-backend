@@ -22,20 +22,21 @@ spring:
     defer-datasource-initialization: true
     hibernate:
       ddl-auto: create
-    show-sql: true
     properties:
-      hibernate:
-        format_sql: true
-        default_batch_fetch_size: 100
-        timezone.default_storage: NORMALIZE_UTC
-        jdbc.time_zone: UTC
+      hibernate.jdbc.batch_size: 100
+      hibernate.order_inserts: true
+      hibernate.order_updates: true
+      hibernate.format_sql: true
+      hibernate.default_batch_fetch_size: 100
+      hibernate.timezone.default_storage: NORMALIZE_UTC
+      hibernate.jdbc.time_zone: UTC
 
 ---
 spring.config.activate.on-profile: local
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/mopl
+    url: jdbc:mysql://localhost:3306/mopl?rewriteBatchedStatements=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${LOCAL_DB_USERNAME}
     password: ${LOCAL_DB_PASSWORD}
