@@ -1,6 +1,10 @@
 package com.mopl.websocket.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -62,5 +66,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 return message; // 메시지는 그대로 통과
             }
         });
+    }
+
+    @Bean
+    @Primary
+    public JavaMailSender dummyJavaMailSender() {
+        return new JavaMailSenderImpl(); // 실제 전송 안 됨
     }
 }

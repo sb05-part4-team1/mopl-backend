@@ -46,7 +46,9 @@ public class ConversationModel extends BaseUpdatableModel {
     }
 
     public ConversationModel lastMessage(DirectMessageModel lastMessage) {
-
+        if (lastMessage == null) {
+            return this;
+        }
         this.lastMessage = lastMessage;
 
         return this;

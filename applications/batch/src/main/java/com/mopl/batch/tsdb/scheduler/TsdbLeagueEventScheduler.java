@@ -11,6 +11,7 @@ public class TsdbLeagueEventScheduler {
 
     private final TsdbLeagueEventJob job;
 
+
     @Scheduled(cron = "0 30 2 * * *")
     public void run() {
         job.run();
