@@ -2,6 +2,7 @@ package com.mopl.domain.event.conversation;
 
 import com.mopl.domain.event.DomainEvent;
 import com.mopl.domain.event.EventTopic;
+import com.mopl.domain.model.conversation.DirectMessageModel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
@@ -22,7 +23,7 @@ public class DirectMessageReceivedEvent implements DomainEvent {
 
     @Override
     public String getAggregateType() {
-        return "DIRECT_MESSAGE";
+        return DirectMessageModel.class.getSimpleName();
     }
 
     @Override
