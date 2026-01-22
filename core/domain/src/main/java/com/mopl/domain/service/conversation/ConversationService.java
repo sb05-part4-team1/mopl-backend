@@ -172,8 +172,7 @@ public class ConversationService {
 
         return directMessageRepository.findOtherDirectMessage(conversationId, directMessageId,
             userId)
-            .orElseThrow(() -> new DirectMessageNotFoundException(conversationId, directMessageId,
-                userId));
+            .orElse(null);
     }
 
     public ConversationModel getConversationByWith(UUID userId, UUID withId) {

@@ -11,7 +11,6 @@ public class TsdbLeagueSyncScheduler {
 
     private final TsdbLeagueSyncJob job;
 
-
     @Scheduled(cron = "0 0 4 * * MON")
     public void runLeagueSync() {
         job.run();
