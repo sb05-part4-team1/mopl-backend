@@ -14,6 +14,7 @@
     - WebClient를 이용한 OpenAPI 연동
     - CI/CD를 이용한 자동 배포 구현
     - Docker 컨테이너 기반 멀티 모듈 구성
+    - 프로젝트와 관련된 자료 -> https://www.notion.so/2cc7e5d24050801e930adfde439f57b3
 
 ---
 
