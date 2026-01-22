@@ -44,10 +44,10 @@ public class DomainServiceConfig {
 
     @Bean
     public UserService userService(
-        UserRepository userRepository,
-        UserQueryRepository userQueryRepository
+        UserQueryRepository userQueryRepository,
+        UserRepository userRepository
     ) {
-        return new UserService(userRepository, userQueryRepository);
+        return new UserService(userQueryRepository, userRepository);
     }
 
     @Bean
