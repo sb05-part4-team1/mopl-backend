@@ -96,7 +96,7 @@ class OutboxRepositoryImplTest {
 
             // then
             assertThat(pendingEvents).hasSize(3);
-            assertThat(pendingEvents.get(0).getEventType()).isEqualTo("First");
+            assertThat(pendingEvents.getFirst().getEventType()).isEqualTo("First");
             assertThat(pendingEvents.get(1).getEventType()).isEqualTo("Second");
             assertThat(pendingEvents.get(2).getEventType()).isEqualTo("Third");
         }
@@ -133,7 +133,7 @@ class OutboxRepositoryImplTest {
 
             // then
             assertThat(pendingEvents).hasSize(1);
-            assertThat(pendingEvents.get(0).getEventType()).isEqualTo("Normal");
+            assertThat(pendingEvents.getFirst().getEventType()).isEqualTo("Normal");
         }
 
         @Test
@@ -151,7 +151,7 @@ class OutboxRepositoryImplTest {
 
             // then
             assertThat(pendingEvents).hasSize(1);
-            assertThat(pendingEvents.get(0).getEventType()).isEqualTo("Pending");
+            assertThat(pendingEvents.getFirst().getEventType()).isEqualTo("Pending");
         }
 
         @Test
@@ -169,7 +169,7 @@ class OutboxRepositoryImplTest {
 
             // then
             assertThat(pendingEvents).hasSize(1);
-            assertThat(pendingEvents.get(0).getEventType()).isEqualTo("Pending");
+            assertThat(pendingEvents.getFirst().getEventType()).isEqualTo("Pending");
         }
     }
 

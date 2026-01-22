@@ -82,7 +82,7 @@ class TagServiceTest {
             List<TagModel> result = tagService.findOrCreateTags(List.of(tagName));
 
             // then
-            assertThat(result.get(0).getDeletedAt()).isNull();
+            assertThat(result.getFirst().getDeletedAt()).isNull();
             assertBaseFields(result);
             then(tagRepository).should().saveAll(anyList());
         }
@@ -103,7 +103,7 @@ class TagServiceTest {
 
             // then
             assertThat(result).hasSize(1);
-            assertThat(result.get(0).getName()).isEqualTo("SF");
+            assertThat(result.getFirst().getName()).isEqualTo("SF");
             assertBaseFields(result);
             then(tagRepository).should(times(1)).findByName("SF");
             then(tagRepository).should().saveAll(anyList());

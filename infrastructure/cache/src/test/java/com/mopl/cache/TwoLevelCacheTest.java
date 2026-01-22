@@ -306,14 +306,14 @@ class TwoLevelCacheTest {
             given(l1Cache.asMap()).willReturn(new java.util.concurrent.ConcurrentHashMap<>());
             given(redisTemplate.scan(any(ScanOptions.class))).willReturn(cursor);
             given(cursor.hasNext()).willReturn(true, true, false);
-            given(cursor.next()).willReturn(keys.get(0), keys.get(1));
+            given(cursor.next()).willReturn(keys.getFirst(), keys.get(1));
 
             // when
             cache.clear();
 
             // then
             then(redisTemplate).should().scan(any(ScanOptions.class));
-            then(redisTemplate).should().delete(keys.get(0));
+            then(redisTemplate).should().delete(keys.getFirst());
             then(redisTemplate).should().delete(keys.get(1));
         }
     }

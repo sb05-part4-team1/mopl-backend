@@ -536,7 +536,7 @@ class UserFacadeTest {
 
             // then
             assertThat(result.data()).hasSize(2);
-            assertThat(result.data().get(0).email()).isEqualTo("user1@example.com");
+            assertThat(result.data().getFirst().email()).isEqualTo("user1@example.com");
             assertThat(result.data().get(1).email()).isEqualTo("user2@example.com");
             assertThat(result.hasNext()).isTrue();
             assertThat(result.nextCursor()).isEqualTo("User2");

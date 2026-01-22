@@ -90,7 +90,7 @@ class NotificationFacadeTest {
 
             // then
             assertThat(result.data()).hasSize(2);
-            assertThat(result.data().get(0).title()).isEqualTo("알림1");
+            assertThat(result.data().getFirst().title()).isEqualTo("알림1");
             assertThat(result.data().get(1).title()).isEqualTo("알림2");
             assertThat(result.hasNext()).isTrue();
             assertThat(result.totalCount()).isEqualTo(10);

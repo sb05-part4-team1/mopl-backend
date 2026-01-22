@@ -269,7 +269,7 @@ class NotificationRepositoryImplTest {
                 assertThat(notification.getCreatedAt()).isNotNull();
                 assertThat(notification.getReceiverId()).isEqualTo(savedReceiverId);
             });
-            assertThat(savedNotifications.get(0).getTitle()).isEqualTo("알림 1");
+            assertThat(savedNotifications.getFirst().getTitle()).isEqualTo("알림 1");
             assertThat(savedNotifications.get(1).getTitle()).isEqualTo("알림 2");
             assertThat(savedNotifications.get(2).getTitle()).isEqualTo("알림 3");
         }

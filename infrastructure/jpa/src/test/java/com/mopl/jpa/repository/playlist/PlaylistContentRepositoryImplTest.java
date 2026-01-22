@@ -156,8 +156,8 @@ class PlaylistContentRepositoryImplTest {
             // then
             List<PlaylistContentEntity> playlistContents = jpaPlaylistContentRepository.findAll();
             assertThat(playlistContents).hasSize(1);
-            assertThat(playlistContents.get(0).getPlaylist().getId()).isEqualTo(playlist.getId());
-            assertThat(playlistContents.get(0).getContent().getId()).isEqualTo(content.getId());
+            assertThat(playlistContents.getFirst().getPlaylist().getId()).isEqualTo(playlist.getId());
+            assertThat(playlistContents.getFirst().getContent().getId()).isEqualTo(content.getId());
         }
 
         @Test
@@ -254,7 +254,7 @@ class PlaylistContentRepositoryImplTest {
             assertThat(deleted).isTrue();
             List<PlaylistContentEntity> remaining = jpaPlaylistContentRepository.findAll();
             assertThat(remaining).hasSize(1);
-            assertThat(remaining.get(0).getContent().getId()).isEqualTo(anotherContent.getId());
+            assertThat(remaining.getFirst().getContent().getId()).isEqualTo(anotherContent.getId());
         }
 
         @Test
@@ -299,7 +299,7 @@ class PlaylistContentRepositoryImplTest {
             assertThat(deleted).isTrue();
             List<PlaylistContentEntity> remaining = jpaPlaylistContentRepository.findAll();
             assertThat(remaining).hasSize(1);
-            assertThat(remaining.get(0).getPlaylist().getId()).isEqualTo(anotherPlaylist.getId());
+            assertThat(remaining.getFirst().getPlaylist().getId()).isEqualTo(anotherPlaylist.getId());
         }
     }
 }

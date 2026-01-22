@@ -189,7 +189,7 @@ class PlaylistServiceTest {
 
             // then
             assertThat(result).hasSize(1);
-            assertThat(result.get(0)).isEqualTo(content);
+            assertThat(result.getFirst()).isEqualTo(content);
             then(playlistCacheService).should().getContentsByPlaylistId(playlistId);
         }
 

@@ -148,7 +148,7 @@ class ReviewFacadeTest {
 
             // then
             assertThat(result.data()).hasSize(2);
-            assertThat(result.data().get(0)).isEqualTo(response1);
+            assertThat(result.data().getFirst()).isEqualTo(response1);
             assertThat(result.data().get(1)).isEqualTo(response2);
             assertThat(result.hasNext()).isFalse();
             assertThat(result.totalCount()).isEqualTo(2);

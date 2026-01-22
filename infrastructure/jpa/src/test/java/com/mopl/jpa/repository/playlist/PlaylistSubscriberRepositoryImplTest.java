@@ -159,8 +159,8 @@ class PlaylistSubscriberRepositoryImplTest {
             List<PlaylistSubscriberEntity> subscriptions = jpaPlaylistSubscriberRepository
                 .findAll();
             assertThat(subscriptions).hasSize(1);
-            assertThat(subscriptions.get(0).getPlaylist().getId()).isEqualTo(playlist.getId());
-            assertThat(subscriptions.get(0).getSubscriber().getId()).isEqualTo(subscriber.getId());
+            assertThat(subscriptions.getFirst().getPlaylist().getId()).isEqualTo(playlist.getId());
+            assertThat(subscriptions.getFirst().getSubscriber().getId()).isEqualTo(subscriber.getId());
         }
 
         @Test
@@ -233,7 +233,7 @@ class PlaylistSubscriberRepositoryImplTest {
             assertThat(deleted).isTrue();
             List<PlaylistSubscriberEntity> remaining = jpaPlaylistSubscriberRepository.findAll();
             assertThat(remaining).hasSize(1);
-            assertThat(remaining.get(0).getSubscriber().getId()).isEqualTo(anotherSubscriber
+            assertThat(remaining.getFirst().getSubscriber().getId()).isEqualTo(anotherSubscriber
                 .getId());
         }
 
