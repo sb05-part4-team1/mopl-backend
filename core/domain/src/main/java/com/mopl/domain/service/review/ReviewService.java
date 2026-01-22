@@ -80,13 +80,13 @@ public class ReviewService {
 
     private ReviewModel getById(UUID reviewId) {
         return reviewRepository.findById(reviewId)
-            .orElseThrow(() -> new ReviewNotFoundException(reviewId));
+            .orElseThrow(() -> ReviewNotFoundException.withId(reviewId));
     }
 
     private void validateAuthor(ReviewModel review, UUID requesterId) {
         UUID authorId = review.getAuthor() != null ? review.getAuthor().getId() : null;
         if (authorId == null || !authorId.equals(requesterId)) {
-            throw new ReviewForbiddenException(review.getId(), requesterId, authorId);
+            throw ReviewForbiddenException.withIds(review.getId(), requesterId, authorId);
         }
     }
 }

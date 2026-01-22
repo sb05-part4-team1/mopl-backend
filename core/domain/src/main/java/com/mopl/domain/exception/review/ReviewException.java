@@ -7,10 +7,6 @@ import java.util.Map;
 
 public abstract class ReviewException extends MoplException {
 
-    protected ReviewException(ErrorCode errorCode) {
-        super(errorCode);
-    }
-
     protected ReviewException(ErrorCode errorCode, Map<String, Object> details) {
         super(errorCode, details);
     }
