@@ -11,7 +11,7 @@ public class CleanupPolicyResolver {
 
     public int chunkSize(CleanupPolicyProperties policy) {
         Integer value = policy.getChunkSize();
-        if (value != null && value >= 0) {
+        if (value != null && value > 0) {
             return value;
         }
         return cleanupProperties.getDefaults().getChunkSize();

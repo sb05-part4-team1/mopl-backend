@@ -24,7 +24,7 @@ public class CleanupProperties {
         Integer chunkSize = defaults.getChunkSize();
         Long retentionDays = defaults.getRetentionDays();
 
-        if (chunkSize == null || chunkSize < 0) {
+        if (chunkSize == null || chunkSize <= 0) {
             throw new IllegalStateException("mopl.batch.cleanup.defaults.chunk-size is required");
         }
         if (retentionDays == null || retentionDays < 0) {
