@@ -18,7 +18,7 @@ public class TmdbCollectScheduler {
     private final Job tmdbCollectJob;
     private final Job tmdbGenreSyncJob;
 
-    @Scheduled(cron = "0 10 2 * * *")
+    @Scheduled(cron = "0 20 2 * * *")
 //    @Scheduled(fixedDelay = 300000) // 5분 테스트용
     public void runTmdbCollect() {
         try {
