@@ -177,8 +177,7 @@ class UserRepositoryImplTest {
             UserModel savedUser = userRepository.save(userModel);
 
             // when
-            savedUser.updateRole(UserModel.Role.ADMIN);
-            UserModel updatedUser = userRepository.save(savedUser);
+            UserModel updatedUser = userRepository.save(savedUser.updateRole(UserModel.Role.ADMIN));
 
             // then
             assertThat(updatedUser.getId()).isEqualTo(savedUser.getId());
