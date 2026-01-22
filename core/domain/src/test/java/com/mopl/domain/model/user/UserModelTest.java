@@ -217,6 +217,7 @@ class UserModelTest {
 
         @DisplayName("null provider로 생성 시 예외 발생")
         @Test
+        @SuppressWarnings("DataFlowIssue")
         void withNullProvider_throwsException() {
             assertThatThrownBy(() -> UserModel.createOAuthUser(
                 null,
