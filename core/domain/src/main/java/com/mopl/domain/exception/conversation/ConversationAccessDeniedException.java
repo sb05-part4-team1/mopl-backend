@@ -6,7 +6,7 @@ import java.util.UUID;
 public class ConversationAccessDeniedException extends ConversationException {
 
     public ConversationAccessDeniedException(UUID conversationId, UUID userId) {
-        super(ConversationErrorCode.CONVERSATION_NOT_PARTICIPANT,
+        super(ConversationErrorCode.CONVERSATION_ACCESS_DENIED,
             Map.of("conversationId", conversationId, "userId", userId));
     }
 }

@@ -10,9 +10,6 @@ public class ContentNotFoundException extends ContentException {
     }
 
     public static ContentNotFoundException withId(UUID id) {
-        return new ContentNotFoundException(Map.of(
-            "contentId", id,
-            "detailMessage", "해당 ID의 콘텐츠를 찾을 수 없습니다."
-        ));
+        return new ContentNotFoundException(Map.of("id", id));
     }
 }

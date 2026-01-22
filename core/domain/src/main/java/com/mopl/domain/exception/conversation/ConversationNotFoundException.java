@@ -1,16 +1,19 @@
 package com.mopl.domain.exception.conversation;
 
+import com.mopl.domain.exception.ErrorCode;
+
 import java.util.Map;
 import java.util.UUID;
 
 public class ConversationNotFoundException extends ConversationException {
 
-    public ConversationNotFoundException(UUID id) {
-        super(ConversationErrorCode.CONVERSATION_NOT_FOUND, Map.of("id", id));
+    private static final ErrorCode ERROR_CODE = ConversationErrorCode.CONVERSATION_NOT_FOUND;
+
+    private ConversationNotFoundException(Map<String, Object> details) {
+        super(ERROR_CODE, details);
     }
 
-    public ConversationNotFoundException(UUID userId, UUID withId) {
-        super(ConversationErrorCode.CONVERSATION_NOT_FOUND, Map.of("userId", userId, "withId",
-            withId));
+    public static ConversationNotFoundException withId(UUID id) {
+        return new ConversationNotFoundException(Map.of("id", id));
     }
 }

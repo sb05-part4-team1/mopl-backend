@@ -226,7 +226,7 @@ public class ConversationService {
         }
         //lastmessage랑 같이 옴
         ConversationModel conversationModel = conversationRepository.find(conversationId)
-            .orElseThrow(() -> new ConversationNotFoundException(conversationId));
+            .orElseThrow(() -> ConversationNotFoundException.withId(conversationId));
         DirectMessageModel lastMessage = conversationModel.getLastMessage();
 
         // 상대방 ReadStatus
