@@ -70,9 +70,9 @@ class PlaylistSubscriberRepositoryImplTest {
 
         playlist = playlistRepository.save(
             PlaylistModel.create(
-                owner,
                 "테스트 플레이리스트",
-                "설명"
+                "설명",
+                owner
             )
         );
     }

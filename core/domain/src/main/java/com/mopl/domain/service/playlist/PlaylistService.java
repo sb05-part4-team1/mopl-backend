@@ -45,9 +45,9 @@ public class PlaylistService {
         String description
     ) {
         PlaylistModel playlistModel = PlaylistModel.create(
-            owner,
             title,
-            description
+            description,
+            owner
         );
         return playlistCacheService.save(playlistModel);
     }

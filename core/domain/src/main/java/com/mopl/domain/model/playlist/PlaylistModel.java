@@ -21,18 +21,18 @@ public class PlaylistModel extends BaseUpdatableModel {
     private UserModel owner;
 
     public static PlaylistModel create(
-        UserModel owner,
         String title,
-        String description
+        String description,
+        UserModel owner
     ) {
+        if (title == null || title.isBlank()) {
+            throw InvalidPlaylistDataException.withDetailMessage("제목은 비어있을 수 없습니다.");
+        }
         if (owner == null) {
             throw InvalidPlaylistDataException.withDetailMessage("소유자는 null일 수 없습니다.");
         }
         if (owner.getId() == null) {
             throw InvalidPlaylistDataException.withDetailMessage("소유자 id는 null일 수 없습니다.");
-        }
-        if (title == null || title.isBlank()) {
-            throw InvalidPlaylistDataException.withDetailMessage("제목은 비어있을 수 없습니다.");
         }
 
         validateTitle(title);

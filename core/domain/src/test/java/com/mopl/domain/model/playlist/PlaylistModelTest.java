@@ -7,9 +7,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -18,6 +20,21 @@ import static org.mockito.Mockito.mock;
 
 @DisplayName("PlaylistModel 단위 테스트")
 class PlaylistModelTest {
+
+    private static final String DEFAULT_TITLE = "내 플레이리스트";
+    private static final String DEFAULT_DESCRIPTION = "플레이리스트 설명";
+
+    static Stream<Arguments> blankStringProvider() {
+        return Stream.of(
+            Arguments.of("null", null),
+            Arguments.of("빈 문자열", ""),
+            Arguments.of("공백만", "   ")
+        );
+    }
+
+    private static PlaylistModel createDefaultPlaylist() {
+        return PlaylistModel.create(DEFAULT_TITLE, DEFAULT_DESCRIPTION, null);
+    }
 
     @Nested
     @DisplayName("create()")
@@ -34,7 +51,7 @@ class PlaylistModelTest {
             String description = "플레이리스트 설명";
 
             // when
-            PlaylistModel playlist = PlaylistModel.create(owner, title, description);
+            PlaylistModel playlist = PlaylistModel.create(title, description, owner);
 
             // then
             assertThat(playlist.getOwner()).isEqualTo(owner);
@@ -52,7 +69,7 @@ class PlaylistModelTest {
             String title = "내 플레이리스트";
 
             // when
-            PlaylistModel playlist = PlaylistModel.create(owner, title, null);
+            PlaylistModel playlist = PlaylistModel.create(title, null, owner);
 
             // then
             assertThat(playlist.getTitle()).isEqualTo(title);
@@ -63,7 +80,7 @@ class PlaylistModelTest {
         @DisplayName("소유자가 null이면 예외가 발생한다")
         void withNullOwner_throwsException() {
             // when & then
-            assertThatThrownBy(() -> PlaylistModel.create(null, "제목", "설명"))
+            assertThatThrownBy(() -> PlaylistModel.create("제목", "설명", null))
                 .isInstanceOf(InvalidPlaylistDataException.class)
                 .satisfies(e -> assertThat(((InvalidPlaylistDataException) e).getDetails())
                     .containsEntry("reason", "소유자 정보는 null일 수 없습니다."));
@@ -77,7 +94,7 @@ class PlaylistModelTest {
             given(owner.getId()).willReturn(null);
 
             // when & then
-            assertThatThrownBy(() -> PlaylistModel.create(owner, "제목", "설명"))
+            assertThatThrownBy(() -> PlaylistModel.create("제목", "설명", owner))
                 .isInstanceOf(InvalidPlaylistDataException.class)
                 .satisfies(e -> assertThat(((InvalidPlaylistDataException) e).getDetails())
                     .containsEntry("reason", "소유자 정보는 null일 수 없습니다."));
@@ -91,7 +108,7 @@ class PlaylistModelTest {
             given(owner.getId()).willReturn(UUID.randomUUID());
 
             // when & then
-            assertThatThrownBy(() -> PlaylistModel.create(owner, null, "설명"))
+            assertThatThrownBy(() -> PlaylistModel.create(null, "설명", owner))
                 .isInstanceOf(InvalidPlaylistDataException.class)
                 .satisfies(e -> assertThat(((InvalidPlaylistDataException) e).getDetails())
                     .containsEntry("reason", "제목은 null일 수 없습니다."));
@@ -106,7 +123,7 @@ class PlaylistModelTest {
             given(owner.getId()).willReturn(UUID.randomUUID());
 
             // when & then
-            assertThatThrownBy(() -> PlaylistModel.create(owner, blankTitle, "설명"))
+            assertThatThrownBy(() -> PlaylistModel.create(blankTitle, "설명", owner))
                 .isInstanceOf(InvalidPlaylistDataException.class)
                 .satisfies(e -> assertThat(((InvalidPlaylistDataException) e).getDetails())
                     .containsEntry("reason", "제목은 공백일 수 없습니다."));
@@ -121,7 +138,7 @@ class PlaylistModelTest {
             String tooLongTitle = "a".repeat(PlaylistModel.TITLE_MAX_LENGTH + 1);
 
             // when & then
-            assertThatThrownBy(() -> PlaylistModel.create(owner, tooLongTitle, "설명"))
+            assertThatThrownBy(() -> PlaylistModel.create(tooLongTitle, "설명", owner))
                 .isInstanceOf(InvalidPlaylistDataException.class)
                 .satisfies(e -> assertThat(((InvalidPlaylistDataException) e).getDetails())
                     .containsEntry("reason",
@@ -137,7 +154,7 @@ class PlaylistModelTest {
             String tooLongDescription = "a".repeat(PlaylistModel.DESCRIPTION_MAX_LENGTH + 1);
 
             // when & then
-            assertThatThrownBy(() -> PlaylistModel.create(owner, "제목", tooLongDescription))
+            assertThatThrownBy(() -> PlaylistModel.create("제목", tooLongDescription, owner))
                 .isInstanceOf(InvalidPlaylistDataException.class)
                 .satisfies(e -> assertThat(((InvalidPlaylistDataException) e).getDetails())
                     .containsEntry("reason",
