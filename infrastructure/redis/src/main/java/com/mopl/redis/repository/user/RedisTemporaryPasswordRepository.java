@@ -18,12 +18,6 @@ public class RedisTemporaryPasswordRepository implements TemporaryPasswordReposi
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    public void save(String email, String encodedPassword) {
-        String key = buildKey(email);
-        redisTemplate.opsForValue().set(key, encodedPassword, TTL);
-    }
-
-    @Override
     public Optional<String> findByEmail(String email) {
         String key = buildKey(email);
         Object value = redisTemplate.opsForValue().get(key);
@@ -31,6 +25,12 @@ public class RedisTemporaryPasswordRepository implements TemporaryPasswordReposi
             return Optional.empty();
         }
         return Optional.of(value.toString());
+    }
+
+    @Override
+    public void save(String email, String encodedPassword) {
+        String key = buildKey(email);
+        redisTemplate.opsForValue().set(key, encodedPassword, TTL);
     }
 
     @Override
