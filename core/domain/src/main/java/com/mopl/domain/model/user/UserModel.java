@@ -95,44 +95,54 @@ public class UserModel extends BaseUpdatableModel {
     }
 
     public UserModel updateName(String newName) {
-        if (newName != null && !newName.isBlank()) {
-            validateName(newName);
-            this.name = newName;
+        if (newName == null || newName.isBlank()) {
+            return this;
         }
-        return this;
+        validateName(newName);
+        return this.toBuilder()
+            .name(newName)
+            .build();
     }
 
     public UserModel updatePassword(String newEncodedPassword) {
-        if (newEncodedPassword != null && !newEncodedPassword.isBlank()) {
-            validatePassword(newEncodedPassword);
-            this.password = newEncodedPassword;
+        if (newEncodedPassword == null || newEncodedPassword.isBlank()) {
+            return this;
         }
-        return this;
+        validatePassword(newEncodedPassword);
+        return this.toBuilder()
+            .password(newEncodedPassword)
+            .build();
     }
 
     public UserModel updateProfileImageUrl(String newProfileImageUrl) {
-        if (newProfileImageUrl != null) {
-            validateProfileImageUrl(newProfileImageUrl);
-            this.profileImageUrl = newProfileImageUrl;
+        if (newProfileImageUrl == null) {
+            return this;
         }
-        return this;
+        validateProfileImageUrl(newProfileImageUrl);
+        return this.toBuilder()
+            .profileImageUrl(newProfileImageUrl)
+            .build();
     }
 
     public UserModel updateRole(Role newRole) {
-        if (newRole != null) {
-            this.role = newRole;
+        if (newRole == null) {
+            return this;
         }
-        return this;
+        return this.toBuilder()
+            .role(newRole)
+            .build();
     }
 
     public UserModel lock() {
-        this.locked = true;
-        return this;
+        return this.toBuilder()
+            .locked(true)
+            .build();
     }
 
     public UserModel unlock() {
-        this.locked = false;
-        return this;
+        return this.toBuilder()
+            .locked(false)
+            .build();
     }
 
     private static void validateEmail(String email) {

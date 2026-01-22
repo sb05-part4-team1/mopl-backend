@@ -235,10 +235,10 @@ class UserModelTest {
             );
 
             // when
-            user.updatePassword("newEncodedPassword");
+            UserModel result = user.updatePassword("newEncodedPassword");
 
             // then
-            assertThat(user.getPassword()).isEqualTo("newEncodedPassword");
+            assertThat(result.getPassword()).isEqualTo("newEncodedPassword");
         }
 
         @ParameterizedTest
@@ -282,8 +282,8 @@ class UserModelTest {
         }
 
         @Test
-        @DisplayName("자기 자신을 반환")
-        void withValidPassword_returnsThis() {
+        @DisplayName("새 객체를 반환")
+        void withValidPassword_returnsNewInstance() {
             // given
             UserModel user = UserModel.create(
                 "test@example.com",
@@ -295,7 +295,7 @@ class UserModelTest {
             UserModel result = user.updatePassword("newPassword");
 
             // then
-            assertThat(result).isSameAs(user);
+            assertThat(result).isNotSameAs(user);
         }
     }
 
@@ -314,10 +314,10 @@ class UserModelTest {
             );
 
             // when
-            user.updateProfileImageUrl("https://example.com/new-profile.jpg");
+            UserModel result = user.updateProfileImageUrl("https://example.com/new-profile.jpg");
 
             // then
-            assertThat(user.getProfileImageUrl()).isEqualTo("https://example.com/new-profile.jpg");
+            assertThat(result.getProfileImageUrl()).isEqualTo("https://example.com/new-profile.jpg");
         }
 
         @Test
@@ -368,8 +368,8 @@ class UserModelTest {
         }
 
         @Test
-        @DisplayName("자기 자신을 반환")
-        void withValidUrl_returnsThis() {
+        @DisplayName("새 객체를 반환")
+        void withValidUrl_returnsNewInstance() {
             // given
             UserModel user = UserModel.create(
                 "test@example.com",
@@ -381,7 +381,7 @@ class UserModelTest {
             UserModel result = user.updateProfileImageUrl("https://example.com/profile.jpg");
 
             // then
-            assertThat(result).isSameAs(user);
+            assertThat(result).isNotSameAs(user);
         }
     }
 
@@ -400,10 +400,10 @@ class UserModelTest {
             );
 
             // when
-            user.updateName("김철수");
+            UserModel result = user.updateName("김철수");
 
             // then
-            assertThat(user.getName()).isEqualTo("김철수");
+            assertThat(result.getName()).isEqualTo("김철수");
         }
 
         @ParameterizedTest
@@ -447,8 +447,8 @@ class UserModelTest {
         }
 
         @Test
-        @DisplayName("자기 자신을 반환")
-        void withValidName_returnsThis() {
+        @DisplayName("새 객체를 반환")
+        void withValidName_returnsNewInstance() {
             // given
             UserModel user = UserModel.create(
                 "test@example.com",
@@ -460,7 +460,7 @@ class UserModelTest {
             UserModel result = user.updateName("김철수");
 
             // then
-            assertThat(result).isSameAs(user);
+            assertThat(result).isNotSameAs(user);
         }
     }
 
@@ -480,10 +480,10 @@ class UserModelTest {
             assertThat(user.getRole()).isEqualTo(UserModel.Role.USER);
 
             // when
-            user.updateRole(UserModel.Role.ADMIN);
+            UserModel result = user.updateRole(UserModel.Role.ADMIN);
 
             // then
-            assertThat(user.getRole()).isEqualTo(UserModel.Role.ADMIN);
+            assertThat(result.getRole()).isEqualTo(UserModel.Role.ADMIN);
         }
 
         @Test
@@ -504,8 +504,8 @@ class UserModelTest {
         }
 
         @Test
-        @DisplayName("자기 자신을 반환")
-        void withValidRole_returnsThis() {
+        @DisplayName("새 객체를 반환")
+        void withValidRole_returnsNewInstance() {
             // given
             UserModel user = UserModel.create(
                 "test@example.com",
@@ -517,7 +517,7 @@ class UserModelTest {
             UserModel result = user.updateRole(UserModel.Role.ADMIN);
 
             // then
-            assertThat(result).isSameAs(user);
+            assertThat(result).isNotSameAs(user);
         }
     }
 
@@ -537,15 +537,15 @@ class UserModelTest {
             assertThat(user.isLocked()).isFalse();
 
             // when
-            user.lock();
+            UserModel result = user.lock();
 
             // then
-            assertThat(user.isLocked()).isTrue();
+            assertThat(result.isLocked()).isTrue();
         }
 
         @Test
-        @DisplayName("자기 자신을 반환")
-        void withUnlockedAccount_returnsThis() {
+        @DisplayName("새 객체를 반환")
+        void withUnlockedAccount_returnsNewInstance() {
             // given
             UserModel user = UserModel.create(
                 "test@example.com",
@@ -557,7 +557,7 @@ class UserModelTest {
             UserModel result = user.lock();
 
             // then
-            assertThat(result).isSameAs(user);
+            assertThat(result).isNotSameAs(user);
         }
     }
 
@@ -586,15 +586,15 @@ class UserModelTest {
             assertThat(user.isLocked()).isTrue();
 
             // when
-            user.unlock();
+            UserModel result = user.unlock();
 
             // then
-            assertThat(user.isLocked()).isFalse();
+            assertThat(result.isLocked()).isFalse();
         }
 
         @Test
-        @DisplayName("자기 자신을 반환")
-        void withLockedAccount_returnsThis() {
+        @DisplayName("새 객체를 반환")
+        void withLockedAccount_returnsNewInstance() {
             // given
             UserModel user = UserModel.create(
                 "test@example.com",
@@ -606,7 +606,7 @@ class UserModelTest {
             UserModel result = user.unlock();
 
             // then
-            assertThat(result).isSameAs(user);
+            assertThat(result).isNotSameAs(user);
         }
     }
 }
