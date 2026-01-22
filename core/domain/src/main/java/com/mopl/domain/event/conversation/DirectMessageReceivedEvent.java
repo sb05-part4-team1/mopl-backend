@@ -4,11 +4,13 @@ import com.mopl.domain.event.DomainEvent;
 import com.mopl.domain.event.EventTopic;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.extern.jackson.Jacksonized;
 
 import java.util.UUID;
 
 @Getter
 @Builder
+@Jacksonized
 public class DirectMessageReceivedEvent implements DomainEvent {
 
     private final UUID messageId;

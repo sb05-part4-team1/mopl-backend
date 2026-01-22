@@ -5,11 +5,13 @@ import com.mopl.domain.event.EventTopic;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.extern.jackson.Jacksonized;
 
 import java.util.UUID;
 
 @Getter
 @Builder
+@Jacksonized
 public class PlaylistUpdatedEvent implements DomainEvent {
 
     private final UUID playlistId;

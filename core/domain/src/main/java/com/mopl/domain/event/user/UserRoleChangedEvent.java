@@ -5,11 +5,13 @@ import com.mopl.domain.event.EventTopic;
 import com.mopl.domain.model.user.UserModel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.extern.jackson.Jacksonized;
 
 import java.util.UUID;
 
 @Getter
 @Builder
+@Jacksonized
 public class UserRoleChangedEvent implements DomainEvent {
 
     private final UUID userId;
