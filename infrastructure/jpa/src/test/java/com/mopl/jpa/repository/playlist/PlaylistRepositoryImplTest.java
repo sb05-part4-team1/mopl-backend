@@ -156,8 +156,8 @@ class PlaylistRepositoryImplTest {
             PlaylistModel savedPlaylist = playlistRepository.save(playlistModel);
 
             // when
-            savedPlaylist.update("수정된 제목", "수정된 설명");
-            PlaylistModel updatedPlaylist = playlistRepository.save(savedPlaylist);
+            PlaylistModel toUpdate = savedPlaylist.update("수정된 제목", "수정된 설명");
+            PlaylistModel updatedPlaylist = playlistRepository.save(toUpdate);
 
             // then
             assertThat(updatedPlaylist.getId()).isEqualTo(savedPlaylist.getId());
