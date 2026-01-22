@@ -94,6 +94,14 @@ public class UserModel extends BaseUpdatableModel {
             .build();
     }
 
+    public UserModel updateName(String newName) {
+        if (newName != null && !newName.isBlank()) {
+            validateName(newName);
+            this.name = newName;
+        }
+        return this;
+    }
+
     public UserModel updatePassword(String newEncodedPassword) {
         if (newEncodedPassword != null && !newEncodedPassword.isBlank()) {
             validatePassword(newEncodedPassword);
@@ -106,14 +114,6 @@ public class UserModel extends BaseUpdatableModel {
         if (newProfileImageUrl != null) {
             validateProfileImageUrl(newProfileImageUrl);
             this.profileImageUrl = newProfileImageUrl;
-        }
-        return this;
-    }
-
-    public UserModel updateName(String newName) {
-        if (newName != null && !newName.isBlank()) {
-            validateName(newName);
-            this.name = newName;
         }
         return this;
     }
