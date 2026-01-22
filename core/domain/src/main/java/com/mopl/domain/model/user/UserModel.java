@@ -39,7 +39,7 @@ public class UserModel extends BaseUpdatableModel {
     public static UserModel create(
         String email,
         String name,
-        String password
+        String encodedPassword
     ) {
         if (email == null || email.isBlank()) {
             throw new InvalidUserDataException("이메일은 비어있을 수 없습니다.");
@@ -47,19 +47,19 @@ public class UserModel extends BaseUpdatableModel {
         if (name == null || name.isBlank()) {
             throw new InvalidUserDataException("이름은 비어있을 수 없습니다.");
         }
-        if (password == null || password.isBlank()) {
+        if (encodedPassword == null || encodedPassword.isBlank()) {
             throw new InvalidUserDataException("비밀번호는 비어있을 수 없습니다.");
         }
 
         validateEmail(email);
         validateName(name);
-        validatePassword(password);
+        validatePassword(encodedPassword);
 
         return UserModel.builder()
             .authProvider(AuthProvider.EMAIL)
             .email(email)
             .name(name)
-            .password(password)
+            .password(encodedPassword)
             .role(Role.USER)
             .locked(false)
             .build();
