@@ -155,6 +155,45 @@ class NotificationServiceTest {
     }
 
     @Nested
+    @DisplayName("createAll()")
+    class CreateAllTest {
+
+        @Test
+        @DisplayName("여러 알림 생성 시 저장된 NotificationModel 목록 반환")
+        void withMultipleNotifications_returnsSavedNotificationModels() {
+            // given
+            List<NotificationModel> notifications = List.of(
+                NotificationModelFixture.create(),
+                NotificationModelFixture.create(),
+                NotificationModelFixture.create()
+            );
+            given(notificationRepository.saveAll(notifications)).willReturn(notifications);
+
+            // when
+            List<NotificationModel> result = notificationService.createAll(notifications);
+
+            // then
+            assertThat(result).hasSize(3);
+            then(notificationRepository).should().saveAll(notifications);
+        }
+
+        @Test
+        @DisplayName("빈 목록 생성 시 빈 목록 반환")
+        void withEmptyList_returnsEmptyList() {
+            // given
+            List<NotificationModel> emptyList = List.of();
+            given(notificationRepository.saveAll(emptyList)).willReturn(emptyList);
+
+            // when
+            List<NotificationModel> result = notificationService.createAll(emptyList);
+
+            // then
+            assertThat(result).isEmpty();
+            then(notificationRepository).should().saveAll(emptyList);
+        }
+    }
+
+    @Nested
     @DisplayName("deleteById()")
     class DeleteByIdTest {
 

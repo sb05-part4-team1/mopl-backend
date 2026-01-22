@@ -70,10 +70,7 @@ public class NotificationEventProcessor {
             String content = event.getOwnerName() + "님이 새로운 플레이리스트 \"" + event.getPlaylistTitle() + "\"을(를) 만들었습니다.";
 
             List<UUID> followerIds = followService.getFollowerIds(event.getOwnerId());
-            for (UUID followerId : followerIds) {
-                NotificationModel saved = createNotification(title, content, followerId);
-                publishToSse(saved);
-            }
+            createAndPublishNotifications(title, content, followerIds);
 
             ack.acknowledge();
             log.debug("Processed PlaylistCreatedEvent for playlist: {}", event.getPlaylistId());
@@ -96,10 +93,7 @@ public class NotificationEventProcessor {
             String content = "\"" + event.getPlaylistTitle() + "\" 플레이리스트가 업데이트되었습니다.";
 
             List<UUID> subscriberIds = playlistSubscriptionService.getSubscriberIds(event.getPlaylistId());
-            for (UUID subscriberId : subscriberIds) {
-                NotificationModel saved = createNotification(title, content, subscriberId);
-                publishToSse(saved);
-            }
+            createAndPublishNotifications(title, content, subscriberIds);
 
             ack.acknowledge();
             log.debug("Processed PlaylistUpdatedEvent for playlist: {}", event.getPlaylistId());
@@ -147,10 +141,7 @@ public class NotificationEventProcessor {
             String content = "\"" + event.getPlaylistTitle() + "\"에 새로운 콘텐츠 \"" + event.getContentTitle() + "\"이(가) 추가되었습니다.";
 
             List<UUID> subscriberIds = playlistSubscriptionService.getSubscriberIds(event.getPlaylistId());
-            for (UUID subscriberId : subscriberIds) {
-                NotificationModel saved = createNotification(title, content, subscriberId);
-                publishToSse(saved);
-            }
+            createAndPublishNotifications(title, content, subscriberIds);
 
             ack.acknowledge();
             log.debug("Processed PlaylistContentAddedEvent for playlist: {}", event.getPlaylistId());
@@ -170,6 +161,21 @@ public class NotificationEventProcessor {
             title, content, NotificationModel.NotificationLevel.INFO, receiverId
         );
         return notificationService.create(notification);
+    }
+
+    private void createAndPublishNotifications(String title, String content, List<UUID> receiverIds) {
+        if (receiverIds.isEmpty()) {
+            return;
+        }
+
+        List<NotificationModel> notifications = receiverIds.stream()
+            .map(receiverId -> NotificationModel.create(
+                title, content, NotificationModel.NotificationLevel.INFO, receiverId
+            ))
+            .toList();
+
+        List<NotificationModel> savedNotifications = notificationService.createAll(notifications);
+        notificationPublisher.publishAll(savedNotifications);
     }
 
     private void publishToSse(NotificationModel notification) {

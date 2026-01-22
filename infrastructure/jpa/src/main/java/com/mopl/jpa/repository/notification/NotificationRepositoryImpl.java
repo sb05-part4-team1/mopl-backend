@@ -7,6 +7,7 @@ import com.mopl.jpa.entity.notification.NotificationEntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,5 +29,16 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         NotificationEntity notificationEntity = notificationEntityMapper.toEntity(notificationModel);
         NotificationEntity savedNotificationEntity = jpaNotificationRepository.save(notificationEntity);
         return notificationEntityMapper.toModel(savedNotificationEntity);
+    }
+
+    @Override
+    public List<NotificationModel> saveAll(List<NotificationModel> notifications) {
+        List<NotificationEntity> entities = notifications.stream()
+            .map(notificationEntityMapper::toEntity)
+            .toList();
+        List<NotificationEntity> savedEntities = jpaNotificationRepository.saveAll(entities);
+        return savedEntities.stream()
+            .map(notificationEntityMapper::toModel)
+            .toList();
     }
 }

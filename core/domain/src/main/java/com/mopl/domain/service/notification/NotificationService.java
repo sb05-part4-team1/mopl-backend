@@ -8,6 +8,7 @@ import com.mopl.domain.repository.notification.NotificationRepository;
 import com.mopl.domain.support.cursor.CursorResponse;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -30,6 +31,10 @@ public class NotificationService {
 
     public NotificationModel create(NotificationModel notification) {
         return notificationRepository.save(notification);
+    }
+
+    public List<NotificationModel> createAll(List<NotificationModel> notifications) {
+        return notificationRepository.saveAll(notifications);
     }
 
     public void deleteById(UUID notificationId) {

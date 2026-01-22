@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -227,6 +228,64 @@ class NotificationRepositoryImplTest {
             // then
             assertThat(updatedNotification.isDeleted()).isTrue();
             assertThat(updatedNotification.getDeletedAt()).isNotNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("saveAll()")
+    class SaveAllTest {
+
+        @Test
+        @DisplayName("여러 알림을 한 번에 저장하고 반환한다")
+        void withMultipleNotifications_savesAndReturnsAll() {
+            // given
+            List<NotificationModel> notifications = List.of(
+                NotificationModel.create(
+                    "알림 1",
+                    "첫 번째 알림",
+                    NotificationModel.NotificationLevel.INFO,
+                    savedReceiverId
+                ),
+                NotificationModel.create(
+                    "알림 2",
+                    "두 번째 알림",
+                    NotificationModel.NotificationLevel.WARNING,
+                    savedReceiverId
+                ),
+                NotificationModel.create(
+                    "알림 3",
+                    "세 번째 알림",
+                    NotificationModel.NotificationLevel.ERROR,
+                    savedReceiverId
+                )
+            );
+
+            // when
+            List<NotificationModel> savedNotifications = notificationRepository.saveAll(notifications);
+
+            // then
+            assertThat(savedNotifications).hasSize(3);
+            assertThat(savedNotifications).allSatisfy(notification -> {
+                assertThat(notification.getId()).isNotNull();
+                assertThat(notification.getCreatedAt()).isNotNull();
+                assertThat(notification.getReceiverId()).isEqualTo(savedReceiverId);
+            });
+            assertThat(savedNotifications.get(0).getTitle()).isEqualTo("알림 1");
+            assertThat(savedNotifications.get(1).getTitle()).isEqualTo("알림 2");
+            assertThat(savedNotifications.get(2).getTitle()).isEqualTo("알림 3");
+        }
+
+        @Test
+        @DisplayName("빈 목록을 저장하면 빈 목록을 반환한다")
+        void withEmptyList_returnsEmptyList() {
+            // given
+            List<NotificationModel> emptyList = List.of();
+
+            // when
+            List<NotificationModel> savedNotifications = notificationRepository.saveAll(emptyList);
+
+            // then
+            assertThat(savedNotifications).isEmpty();
         }
     }
 }

@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class NotificationPublisher {
@@ -15,5 +17,9 @@ public class NotificationPublisher {
 
     public void publish(NotificationModel notification) {
         redisTemplate.convertAndSend(CHANNEL, notification);
+    }
+
+    public void publishAll(List<NotificationModel> notifications) {
+        notifications.forEach(this::publish);
     }
 }
