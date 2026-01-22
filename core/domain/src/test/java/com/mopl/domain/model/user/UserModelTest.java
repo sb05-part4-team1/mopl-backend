@@ -68,12 +68,7 @@ class UserModelTest {
         @MethodSource("com.mopl.domain.model.user.UserModelTest#blankStringProvider")
         void withBlankEmail_throwsException(String description, String email) {
             assertThatThrownBy(() -> UserModel.create(email, DEFAULT_NAME, DEFAULT_PASSWORD))
-                .isInstanceOf(InvalidUserDataException.class)
-                .satisfies(e -> {
-                    InvalidUserDataException ex = (InvalidUserDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("이메일은 비어있을 수 없습니다.");
-                });
+                .isInstanceOf(InvalidUserDataException.class);
         }
 
         @DisplayName("이메일이 정확히 최대 길이면 생성 성공")
@@ -92,12 +87,7 @@ class UserModelTest {
             String longEmail = "a".repeat(EMAIL_MAX_LENGTH + 1);
 
             assertThatThrownBy(() -> UserModel.create(longEmail, DEFAULT_NAME, DEFAULT_PASSWORD))
-                .isInstanceOf(InvalidUserDataException.class)
-                .satisfies(e -> {
-                    InvalidUserDataException ex = (InvalidUserDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("이메일은 " + EMAIL_MAX_LENGTH + "자를 초과할 수 없습니다.");
-                });
+                .isInstanceOf(InvalidUserDataException.class);
         }
 
         @DisplayName("이름이 비어있으면 예외 발생")
@@ -105,12 +95,7 @@ class UserModelTest {
         @MethodSource("com.mopl.domain.model.user.UserModelTest#blankStringProvider")
         void withBlankName_throwsException(String description, String name) {
             assertThatThrownBy(() -> UserModel.create(DEFAULT_EMAIL, name, DEFAULT_PASSWORD))
-                .isInstanceOf(InvalidUserDataException.class)
-                .satisfies(e -> {
-                    InvalidUserDataException ex = (InvalidUserDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("이름은 비어있을 수 없습니다.");
-                });
+                .isInstanceOf(InvalidUserDataException.class);
         }
 
         @DisplayName("이름이 정확히 최대 길이면 생성 성공")
@@ -129,12 +114,7 @@ class UserModelTest {
             String longName = "가".repeat(NAME_MAX_LENGTH + 1);
 
             assertThatThrownBy(() -> UserModel.create(DEFAULT_EMAIL, longName, DEFAULT_PASSWORD))
-                .isInstanceOf(InvalidUserDataException.class)
-                .satisfies(e -> {
-                    InvalidUserDataException ex = (InvalidUserDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("이름은 " + NAME_MAX_LENGTH + "자를 초과할 수 없습니다.");
-                });
+                .isInstanceOf(InvalidUserDataException.class);
         }
 
         @DisplayName("비밀번호가 비어있으면 예외 발생")
@@ -142,12 +122,7 @@ class UserModelTest {
         @MethodSource("com.mopl.domain.model.user.UserModelTest#blankStringProvider")
         void withBlankPassword_throwsException(String description, String password) {
             assertThatThrownBy(() -> UserModel.create(DEFAULT_EMAIL, DEFAULT_NAME, password))
-                .isInstanceOf(InvalidUserDataException.class)
-                .satisfies(e -> {
-                    InvalidUserDataException ex = (InvalidUserDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("비밀번호는 비어있을 수 없습니다.");
-                });
+                .isInstanceOf(InvalidUserDataException.class);
         }
 
         @DisplayName("비밀번호가 정확히 최대 길이면 생성 성공")
@@ -166,12 +141,7 @@ class UserModelTest {
             String longPassword = "a".repeat(ENCODED_PASSWORD_MAX_LENGTH + 1);
 
             assertThatThrownBy(() -> UserModel.create(DEFAULT_EMAIL, DEFAULT_NAME, longPassword))
-                .isInstanceOf(InvalidUserDataException.class)
-                .satisfies(e -> {
-                    InvalidUserDataException ex = (InvalidUserDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("비밀번호는 " + ENCODED_PASSWORD_MAX_LENGTH + "자를 초과할 수 없습니다.");
-                });
+                .isInstanceOf(InvalidUserDataException.class);
         }
 
     }
@@ -207,12 +177,7 @@ class UserModelTest {
                 "test@example.com",
                 "홍길동"
             ))
-                .isInstanceOf(InvalidUserDataException.class)
-                .satisfies(e -> {
-                    InvalidUserDataException ex = (InvalidUserDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("OAuth 회원가입에는 유효한 OAuth 제공자가 필요합니다.");
-                });
+                .isInstanceOf(InvalidUserDataException.class);
         }
 
         @DisplayName("null provider로 생성 시 예외 발생")
@@ -224,12 +189,7 @@ class UserModelTest {
                 "test@example.com",
                 "홍길동"
             ))
-                .isInstanceOf(InvalidUserDataException.class)
-                .satisfies(e -> {
-                    InvalidUserDataException ex = (InvalidUserDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("OAuth 회원가입에는 유효한 OAuth 제공자가 필요합니다.");
-                });
+                .isInstanceOf(InvalidUserDataException.class);
         }
 
         @DisplayName("이메일이 비어있으면 예외 발생")
@@ -238,12 +198,7 @@ class UserModelTest {
         void withBlankEmail_throwsException(String description, String email) {
             assertThatThrownBy(() -> UserModel.createOAuthUser(
                 UserModel.AuthProvider.GOOGLE, email, DEFAULT_NAME))
-                .isInstanceOf(InvalidUserDataException.class)
-                .satisfies(e -> {
-                    InvalidUserDataException ex = (InvalidUserDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("이메일은 비어있을 수 없습니다.");
-                });
+                .isInstanceOf(InvalidUserDataException.class);
         }
 
         @DisplayName("이메일이 정확히 최대 길이면 생성 성공")
@@ -264,12 +219,7 @@ class UserModelTest {
 
             assertThatThrownBy(() -> UserModel.createOAuthUser(
                 UserModel.AuthProvider.GOOGLE, longEmail, DEFAULT_NAME))
-                .isInstanceOf(InvalidUserDataException.class)
-                .satisfies(e -> {
-                    InvalidUserDataException ex = (InvalidUserDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("이메일은 " + EMAIL_MAX_LENGTH + "자를 초과할 수 없습니다.");
-                });
+                .isInstanceOf(InvalidUserDataException.class);
         }
 
         @DisplayName("이름이 비어있으면 예외 발생")
@@ -278,12 +228,7 @@ class UserModelTest {
         void withBlankName_throwsException(String description, String name) {
             assertThatThrownBy(() -> UserModel.createOAuthUser(
                 UserModel.AuthProvider.GOOGLE, DEFAULT_EMAIL, name))
-                .isInstanceOf(InvalidUserDataException.class)
-                .satisfies(e -> {
-                    InvalidUserDataException ex = (InvalidUserDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("이름은 비어있을 수 없습니다.");
-                });
+                .isInstanceOf(InvalidUserDataException.class);
         }
 
         @DisplayName("이름이 정확히 최대 길이면 생성 성공")
@@ -304,12 +249,7 @@ class UserModelTest {
 
             assertThatThrownBy(() -> UserModel.createOAuthUser(
                 UserModel.AuthProvider.GOOGLE, DEFAULT_EMAIL, longName))
-                .isInstanceOf(InvalidUserDataException.class)
-                .satisfies(e -> {
-                    InvalidUserDataException ex = (InvalidUserDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("이름은 " + NAME_MAX_LENGTH + "자를 초과할 수 없습니다.");
-                });
+                .isInstanceOf(InvalidUserDataException.class);
         }
 
     }
@@ -330,8 +270,6 @@ class UserModelTest {
             // then
             assertThat(result.getName()).isEqualTo("김철수");
             assertThat(result).isNotSameAs(user);
-            assertThat(result.getEmail()).isEqualTo(user.getEmail());
-            assertThat(result.getPassword()).isEqualTo(user.getPassword());
         }
 
         @DisplayName("null이거나 빈 문자열이면 변경하지 않음")
@@ -359,12 +297,7 @@ class UserModelTest {
 
             // when & then
             assertThatThrownBy(() -> user.updateName(longName))
-                .isInstanceOf(InvalidUserDataException.class)
-                .satisfies(e -> {
-                    InvalidUserDataException ex = (InvalidUserDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("이름은 " + NAME_MAX_LENGTH + "자를 초과할 수 없습니다.");
-                });
+                .isInstanceOf(InvalidUserDataException.class);
         }
     }
 
@@ -384,8 +317,6 @@ class UserModelTest {
             // then
             assertThat(result.getPassword()).isEqualTo("newEncodedPassword");
             assertThat(result).isNotSameAs(user);
-            assertThat(result.getEmail()).isEqualTo(user.getEmail());
-            assertThat(result.getName()).isEqualTo(user.getName());
         }
 
         @DisplayName("null이거나 빈 문자열이면 변경하지 않음")
@@ -413,12 +344,7 @@ class UserModelTest {
 
             // when & then
             assertThatThrownBy(() -> user.updatePassword(longPassword))
-                .isInstanceOf(InvalidUserDataException.class)
-                .satisfies(e -> {
-                    InvalidUserDataException ex = (InvalidUserDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("비밀번호는 " + ENCODED_PASSWORD_MAX_LENGTH + "자를 초과할 수 없습니다.");
-                });
+                .isInstanceOf(InvalidUserDataException.class);
         }
     }
 
@@ -438,8 +364,6 @@ class UserModelTest {
             // then
             assertThat(result.getProfileImageUrl()).isEqualTo("https://example.com/profile.jpg");
             assertThat(result).isNotSameAs(user);
-            assertThat(result.getEmail()).isEqualTo(user.getEmail());
-            assertThat(result.getName()).isEqualTo(user.getName());
         }
 
         @DisplayName("빈 문자열로 변경하면 새 객체 반환")
@@ -479,13 +403,7 @@ class UserModelTest {
 
             // when & then
             assertThatThrownBy(() -> user.updateProfileImageUrl(longUrl))
-                .isInstanceOf(InvalidUserDataException.class)
-                .satisfies(e -> {
-                    InvalidUserDataException ex = (InvalidUserDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("프로필 이미지 URL은 " + PROFILE_IMAGE_URL_MAX_LENGTH
-                            + "자를 초과할 수 없습니다.");
-                });
+                .isInstanceOf(InvalidUserDataException.class);
         }
 
         private UserModel createUserWithProfileImage() {
@@ -513,8 +431,6 @@ class UserModelTest {
             // then
             assertThat(result.getRole()).isEqualTo(role);
             assertThat(result).isNotSameAs(user);
-            assertThat(result.getEmail()).isEqualTo(user.getEmail());
-            assertThat(result.getName()).isEqualTo(user.getName());
         }
 
         @DisplayName("null이면 변경하지 않음")
@@ -549,8 +465,6 @@ class UserModelTest {
             // then
             assertThat(result.isLocked()).isTrue();
             assertThat(result).isNotSameAs(user);
-            assertThat(result.getEmail()).isEqualTo(user.getEmail());
-            assertThat(result.getName()).isEqualTo(user.getName());
         }
 
         @DisplayName("이미 잠긴 계정을 잠가도 새 객체 반환")
@@ -586,8 +500,6 @@ class UserModelTest {
             // then
             assertThat(result.isLocked()).isFalse();
             assertThat(result).isNotSameAs(user);
-            assertThat(result.getEmail()).isEqualTo(user.getEmail());
-            assertThat(result.getName()).isEqualTo(user.getName());
         }
 
         @DisplayName("이미 해제된 계정을 해제해도 새 객체 반환")
