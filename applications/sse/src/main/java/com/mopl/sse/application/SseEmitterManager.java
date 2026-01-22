@@ -2,6 +2,8 @@ package com.mopl.sse.application;
 
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedEpochGenerator;
+import com.mopl.domain.model.notification.NotificationModel;
+import com.mopl.domain.repository.notification.NotificationQueryRepository;
 import com.mopl.sse.repository.RedisEmitterRepository;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -27,6 +30,7 @@ public class SseEmitterManager {
     private static final TimeBasedEpochGenerator UUID_V7_GENERATOR = Generators.timeBasedEpochGenerator();
 
     private final RedisEmitterRepository emitterRepository;
+    private final NotificationQueryRepository notificationQueryRepository;
     private final MeterRegistry meterRegistry;
 
     private Counter eventSentCounter;
@@ -109,6 +113,36 @@ public class SseEmitterManager {
     public void resendEventsAfter(UUID userId, UUID lastEventId, SseEmitter emitter) {
         List<RedisEmitterRepository.CachedEvent> cachedEvents = emitterRepository.getEventsAfter(userId, lastEventId);
 
+        if (!cachedEvents.isEmpty()) {
+            resendFromCache(cachedEvents, emitter, userId);
+            return;
+        }
+
+        Instant lastEventTime = extractInstantFromUuidV7(lastEventId);
+        List<NotificationModel> notifications = notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(userId, lastEventTime);
+
+        for (NotificationModel notification : notifications) {
+            try {
+                UUID eventId = generateEventId();
+                emitter.send(SseEmitter.event()
+                    .id(eventId.toString())
+                    .name("notifications")
+                    .data(notification));
+                resendCounter.increment();
+                log.debug("Resent from DB event {} to user: {}", eventId, userId);
+            } catch (IOException e) {
+                eventFailedCounter.increment();
+                log.error("Failed to resend from DB to user: {}", userId, e);
+                break;
+            }
+        }
+    }
+
+    private void resendFromCache(
+        List<RedisEmitterRepository.CachedEvent> cachedEvents,
+        SseEmitter emitter,
+        UUID userId
+    ) {
         for (RedisEmitterRepository.CachedEvent cachedEvent : cachedEvents) {
             try {
                 emitter.send(SseEmitter.event()
@@ -116,13 +150,18 @@ public class SseEmitterManager {
                     .name("notifications")
                     .data(cachedEvent.data()));
                 resendCounter.increment();
-                log.debug("Resent event {} to user: {}", cachedEvent.eventId(), userId);
+                log.debug("Resent from cache event {} to user: {}", cachedEvent.eventId(), userId);
             } catch (IOException e) {
                 eventFailedCounter.increment();
-                log.error("Failed to resend event to user: {}", userId, e);
+                log.error("Failed to resend from cache to user: {}", userId, e);
                 break;
             }
         }
+    }
+
+    private Instant extractInstantFromUuidV7(UUID uuid) {
+        long timestamp = (uuid.getMostSignificantBits() >> 16) & 0xFFFFFFFFFFFFL;
+        return Instant.ofEpochMilli(timestamp);
     }
 
     @Scheduled(fixedRate = 30000)
