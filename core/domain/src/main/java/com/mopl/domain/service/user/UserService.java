@@ -18,8 +18,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
     private final UserQueryRepository userQueryRepository;
+    private final UserRepository userRepository;
 
     public CursorResponse<UserModel> getAll(UserQueryRequest request) {
         return userQueryRepository.findAll(request);
