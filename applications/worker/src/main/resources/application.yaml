@@ -17,3 +17,5 @@ spring:
   threads:
     virtual:
       enabled: true
+  jpa:
+    show-sql: false
