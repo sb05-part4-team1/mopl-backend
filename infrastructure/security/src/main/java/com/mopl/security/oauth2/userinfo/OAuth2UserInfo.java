@@ -1,10 +1,10 @@
 package com.mopl.security.oauth2.userinfo;
 
-import com.mopl.domain.model.user.UserModel.AuthProvider;
+import com.mopl.domain.model.user.UserModel;
 
 public interface OAuth2UserInfo {
 
-    AuthProvider getProvider();
+    UserModel.AuthProvider getProvider();
 
     String getProviderId();
 

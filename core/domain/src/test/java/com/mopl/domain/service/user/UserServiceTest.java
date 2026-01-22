@@ -3,7 +3,6 @@ package com.mopl.domain.service.user;
 import com.mopl.domain.exception.user.DuplicateEmailException;
 import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.domain.model.user.UserModel;
-import com.mopl.domain.model.user.UserModel.AuthProvider;
 import com.mopl.domain.repository.user.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -42,7 +41,7 @@ class UserServiceTest {
         void withValidUser_createsUser() {
             // given
             UserModel userModel = UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "encodedPassword"
@@ -65,7 +64,7 @@ class UserServiceTest {
         void withDuplicateEmail_throwsException() {
             // given
             UserModel userModel = UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "duplicate@example.com",
                 "홍길동",
                 "encodedPassword"
@@ -96,7 +95,7 @@ class UserServiceTest {
             // given
             UUID userId = UUID.randomUUID();
             UserModel userModel = UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "encodedPassword"
@@ -142,7 +141,7 @@ class UserServiceTest {
             // given
             String email = "test@example.com";
             UserModel userModel = UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 email,
                 "홍길동",
                 "encodedPassword"
@@ -187,7 +186,7 @@ class UserServiceTest {
         void withValidUser_updatesUser() {
             // given
             UserModel userModel = UserModel.create(
-                AuthProvider.EMAIL,
+                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "encodedPassword"

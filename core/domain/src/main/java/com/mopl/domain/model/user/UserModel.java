@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder(toBuilder = true)
 public class UserModel extends BaseUpdatableModel {
 
     public static final int AUTH_PROVIDER_MAX_LENGTH = 20;

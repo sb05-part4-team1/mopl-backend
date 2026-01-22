@@ -1,7 +1,6 @@
 package com.mopl.jpa.repository.user.query;
 
 import com.mopl.domain.model.user.UserModel;
-import com.mopl.domain.model.user.UserModel.AuthProvider;
 import com.mopl.domain.model.user.UserModel.Role;
 import com.mopl.domain.repository.user.UserQueryRepository;
 import com.mopl.domain.repository.user.UserQueryRequest;
@@ -69,7 +68,7 @@ class UserQueryRepositoryImplTest {
         UserEntity entity = UserEntity.builder()
             .createdAt(createdAt)
             .updatedAt(createdAt)
-            .authProvider(AuthProvider.EMAIL)
+            .authProvider(UserModel.AuthProvider.EMAIL)
             .email(email)
             .name(name)
             .password("encodedPassword")

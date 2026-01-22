@@ -1,7 +1,6 @@
 package com.mopl.jpa.entity.user;
 
 import com.mopl.domain.model.user.UserModel;
-import com.mopl.domain.model.user.UserModel.AuthProvider;
 import com.mopl.jpa.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,7 +30,7 @@ public class UserEntity extends BaseUpdatableEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = AUTH_PROVIDER_MAX_LENGTH)
-    private AuthProvider authProvider;
+    private UserModel.AuthProvider authProvider;
 
     @Column(nullable = false, unique = true, length = EMAIL_MAX_LENGTH)
     private String email;

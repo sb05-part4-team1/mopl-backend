@@ -1,7 +1,6 @@
 package com.mopl.jpa.repository.notification.query;
 
 import com.mopl.domain.model.notification.NotificationModel;
-import com.mopl.domain.model.user.UserModel.AuthProvider;
 import com.mopl.domain.model.user.UserModel.Role;
 import com.mopl.domain.repository.notification.NotificationQueryRepository;
 import com.mopl.domain.repository.notification.NotificationQueryRequest;
@@ -78,7 +77,7 @@ class NotificationQueryRepositoryImplTest {
 
     private UserEntity createAndPersistUser(String email, String name) {
         UserEntity entity = UserEntity.builder()
-            .authProvider(AuthProvider.EMAIL)
+            .authProvider(UserModel.AuthProvider.EMAIL)
             .email(email)
             .name(name)
             .password("encodedPassword")

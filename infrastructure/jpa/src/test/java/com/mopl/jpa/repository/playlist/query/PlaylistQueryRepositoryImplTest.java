@@ -2,7 +2,6 @@ package com.mopl.jpa.repository.playlist.query;
 
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
-import com.mopl.domain.model.user.UserModel.AuthProvider;
 import com.mopl.domain.repository.playlist.PlaylistQueryRepository;
 import com.mopl.domain.repository.playlist.PlaylistQueryRequest;
 import com.mopl.domain.repository.playlist.PlaylistSortField;
@@ -94,7 +93,7 @@ class PlaylistQueryRepositoryImplTest {
         UserEntity entity = UserEntity.builder()
             .createdAt(createdAt)
             .updatedAt(createdAt)
-            .authProvider(AuthProvider.EMAIL)
+            .authProvider(UserModel.AuthProvider.EMAIL)
             .email(email)
             .name(name)
             .password("encodedPassword")

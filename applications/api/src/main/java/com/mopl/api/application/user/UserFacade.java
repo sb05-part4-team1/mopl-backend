@@ -11,7 +11,6 @@ import com.mopl.domain.event.user.UserRoleChangedEvent;
 import com.mopl.domain.exception.user.SelfLockChangeException;
 import com.mopl.domain.exception.user.SelfRoleChangeException;
 import com.mopl.domain.model.user.UserModel;
-import com.mopl.domain.model.user.UserModel.AuthProvider;
 import com.mopl.domain.repository.user.TemporaryPasswordRepository;
 import com.mopl.domain.repository.user.UserQueryRequest;
 import com.mopl.domain.service.outbox.OutboxService;
@@ -50,7 +49,7 @@ public class UserFacade {
         String encodedPassword = passwordEncoder.encode(userCreateRequest.password());
 
         UserModel userModel = UserModel.create(
-            AuthProvider.EMAIL,
+            UserModel.AuthProvider.EMAIL,
             email,
             name,
             encodedPassword
