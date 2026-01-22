@@ -124,7 +124,7 @@ class AuthControllerTest {
             String refreshToken = "valid-refresh-token";
 
             given(tokenRefreshService.refresh(refreshToken))
-                .willThrow(new AccountLockedException());
+                .willThrow(AccountLockedException.withEmail("locked@example.com"));
 
             // when & then
             mockMvc.perform(post("/api/auth/refresh")

@@ -37,7 +37,7 @@ public class TokenRefreshService {
 
         if (user.isLocked()) {
             log.debug("차단된 사용자의 토큰 갱신 시도: userId={}", payload.sub());
-            throw new AccountLockedException();
+            throw AccountLockedException.withId(user.getId());
         }
 
         MoplUserDetails userDetails = MoplUserDetails.from(user);

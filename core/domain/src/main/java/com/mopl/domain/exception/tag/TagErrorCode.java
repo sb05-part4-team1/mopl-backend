@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum TagErrorCode implements ErrorCode {
 
-    INVALID_TAG_DATA(400, "유효하지 않은 태그 데이터입니다");
+    INVALID_TAG_DATA(400, "유효하지 않은 태그 데이터입니다.");
 
     private final int status;
     private final String message;
