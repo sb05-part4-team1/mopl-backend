@@ -352,7 +352,7 @@ class ReviewQueryRepositoryImplTest {
 
             // then
             assertThat(secondResponse.data()).hasSize(1);
-            assertThat(secondResponse.data().get(0).getText()).isEqualTo("리뷰 1");
+            assertThat(secondResponse.data().getFirst().getText()).isEqualTo("리뷰 1");
             assertThat(secondResponse.hasNext()).isFalse();
             assertThat(secondResponse.nextCursor()).isNull();
         }

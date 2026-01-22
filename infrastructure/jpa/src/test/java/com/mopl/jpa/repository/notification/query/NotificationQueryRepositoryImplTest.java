@@ -1,6 +1,7 @@
 package com.mopl.jpa.repository.notification.query;
 
 import com.mopl.domain.model.notification.NotificationModel;
+import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.model.user.UserModel.Role;
 import com.mopl.domain.repository.notification.NotificationQueryRepository;
 import com.mopl.domain.repository.notification.NotificationQueryRequest;

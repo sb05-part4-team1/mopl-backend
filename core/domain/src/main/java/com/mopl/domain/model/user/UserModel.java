@@ -19,7 +19,6 @@ public class UserModel extends BaseUpdatableModel {
     public static final int RAW_PASSWORD_MAX_LENGTH = 50;
     public static final int PROFILE_IMAGE_URL_MAX_LENGTH = 1024;
     public static final int ROLE_MAX_LENGTH = 20;
-    public static final String OAUTH_PASSWORD_PLACEHOLDER = "{oauth2}";
 
     public enum AuthProvider {
         EMAIL, GOOGLE, KAKAO
@@ -92,7 +91,7 @@ public class UserModel extends BaseUpdatableModel {
             .authProvider(authProvider)
             .email(email)
             .name(name)
-            .password(OAUTH_PASSWORD_PLACEHOLDER)
+            .password(null)
             .profileImageUrl(null)
             .role(Role.USER)
             .locked(false)

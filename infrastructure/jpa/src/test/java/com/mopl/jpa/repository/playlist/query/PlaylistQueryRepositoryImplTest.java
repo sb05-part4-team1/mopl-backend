@@ -49,10 +49,6 @@ class PlaylistQueryRepositoryImplTest {
     private UserEntity owner1;
     private UserEntity owner2;
     private UserEntity subscriber1;
-    private PlaylistEntity playlist1;
-    private PlaylistEntity playlist2;
-    private PlaylistEntity playlist3;
-    private PlaylistEntity playlist4;
 
     @BeforeEach
     void setUp() {
@@ -63,16 +59,16 @@ class PlaylistQueryRepositoryImplTest {
         subscriber1 = createAndPersistUser("subscriber1@example.com", "Subscriber1", baseTime);
 
         // playlist1: owner1, updatedAt=baseTime, subscribeCount=3
-        playlist1 = createAndPersistPlaylist("음악 모음", "좋아하는 음악", owner1, baseTime);
+        PlaylistEntity playlist1 = createAndPersistPlaylist("음악 모음", "좋아하는 음악", owner1, baseTime);
 
         // playlist2: owner1, updatedAt=baseTime+1, subscribeCount=1
-        playlist2 = createAndPersistPlaylist("영화 OST", "영화 음악 모음", owner1, baseTime.plusSeconds(1));
+        PlaylistEntity playlist2 = createAndPersistPlaylist("영화 OST", "영화 음악 모음", owner1, baseTime.plusSeconds(1));
 
         // playlist3: owner2, updatedAt=baseTime+2, subscribeCount=2
-        playlist3 = createAndPersistPlaylist("힐링 음악", "힐링되는 플리", owner2, baseTime.plusSeconds(2));
+        PlaylistEntity playlist3 = createAndPersistPlaylist("힐링 음악", "힐링되는 플리", owner2, baseTime.plusSeconds(2));
 
         // playlist4: owner2, updatedAt=baseTime+3, subscribeCount=0
-        playlist4 = createAndPersistPlaylist("운동 음악", "운동할 때 듣는 플리", owner2, baseTime.plusSeconds(
+        createAndPersistPlaylist("운동 음악", "운동할 때 듣는 플리", owner2, baseTime.plusSeconds(
             3));
 
         // subscriber 설정: playlist1에 3명, playlist2에 1명, playlist3에 2명

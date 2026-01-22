@@ -187,7 +187,7 @@ class UserQueryRepositoryImplTest {
 
             // then
             assertThat(response.data()).hasSize(1);
-            assertThat(response.data().get(0).getName()).isEqualTo("Charlie");
+            assertThat(response.data().getFirst().getName()).isEqualTo("Charlie");
         }
 
         @Test
@@ -397,7 +397,7 @@ class UserQueryRepositoryImplTest {
 
             // then
             assertThat(thirdResponse.data()).hasSize(1);
-            assertThat(thirdResponse.data().get(0).getName()).isEqualTo("Eve");
+            assertThat(thirdResponse.data().getFirst().getName()).isEqualTo("Eve");
             assertThat(thirdResponse.hasNext()).isFalse();
             assertThat(thirdResponse.nextCursor()).isNull();
         }
