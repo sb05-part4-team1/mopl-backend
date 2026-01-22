@@ -25,8 +25,8 @@ public class PlaylistModel extends BaseUpdatableModel {
         String description,
         UserModel owner
     ) {
-        if (title == null || title.isBlank()) {
-            throw InvalidPlaylistDataException.withDetailMessage("제목은 비어있을 수 없습니다.");
+        if (title == null) {
+            throw InvalidPlaylistDataException.withDetailMessage("제목은 null일 수 없습니다.");
         }
         if (owner == null) {
             throw InvalidPlaylistDataException.withDetailMessage("소유자는 null일 수 없습니다.");
@@ -36,7 +36,9 @@ public class PlaylistModel extends BaseUpdatableModel {
         }
 
         validateTitle(title);
-        validateDescription(description);
+        if (description != null) {
+            validateDescription(description);
+        }
 
         return PlaylistModel.builder()
             .owner(owner)
@@ -69,6 +71,9 @@ public class PlaylistModel extends BaseUpdatableModel {
     }
 
     private static void validateTitle(String title) {
+        if (title.isBlank()) {
+            throw InvalidPlaylistDataException.withDetailMessage("제목은 비어있을 수 없습니다.");
+        }
         if (title.length() > TITLE_MAX_LENGTH) {
             throw InvalidPlaylistDataException.withDetailMessage(
                 "제목은 " + TITLE_MAX_LENGTH + "자를 초과할 수 없습니다.");
@@ -76,7 +81,10 @@ public class PlaylistModel extends BaseUpdatableModel {
     }
 
     private static void validateDescription(String description) {
-        if (description != null && description.length() > DESCRIPTION_MAX_LENGTH) {
+        if (description.isBlank()) {
+            throw InvalidPlaylistDataException.withDetailMessage("설명은 비어있을 수 없습니다.");
+        }
+        if (description.length() > DESCRIPTION_MAX_LENGTH) {
             throw InvalidPlaylistDataException.withDetailMessage(
                 "설명은 " + DESCRIPTION_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
