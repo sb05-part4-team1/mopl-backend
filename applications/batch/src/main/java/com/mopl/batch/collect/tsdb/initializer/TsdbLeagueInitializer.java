@@ -1,6 +1,6 @@
 package com.mopl.batch.collect.tsdb.initializer;
 
-import com.mopl.batch.tsdb.service.TsdbLeagueSyncService;
+import com.mopl.batch.collect.tsdb.service.league.TsdbLeagueSyncTxService;
 import com.mopl.domain.repository.league.LeagueRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TsdbLeagueInitializer implements CommandLineRunner {
 
-    private final TsdbLeagueSyncService syncService;
+    private final TsdbLeagueSyncTxService syncService;
     private final LeagueRepository leagueRepository;
 
     @Override
