@@ -41,7 +41,6 @@ class UserServiceTest {
         void withValidUser_createsUser() {
             // given
             UserModel userModel = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "encodedPassword"
@@ -64,7 +63,6 @@ class UserServiceTest {
         void withDuplicateEmail_throwsException() {
             // given
             UserModel userModel = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "duplicate@example.com",
                 "홍길동",
                 "encodedPassword"
@@ -95,7 +93,6 @@ class UserServiceTest {
             // given
             UUID userId = UUID.randomUUID();
             UserModel userModel = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "encodedPassword"
@@ -141,7 +138,6 @@ class UserServiceTest {
             // given
             String email = "test@example.com";
             UserModel userModel = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 email,
                 "홍길동",
                 "encodedPassword"
@@ -186,7 +182,6 @@ class UserServiceTest {
         void withValidUser_updatesUser() {
             // given
             UserModel userModel = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "encodedPassword"

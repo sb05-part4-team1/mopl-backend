@@ -38,7 +38,6 @@ class UserRepositoryImplTest {
             // given
             UserModel savedUser = userRepository.save(
                 UserModel.create(
-                    UserModel.AuthProvider.EMAIL,
                     "test@example.com",
                     "홍길동",
                     "encodedPassword"
@@ -80,7 +79,6 @@ class UserRepositoryImplTest {
             String email = "test@example.com";
             UserModel savedUser = userRepository.save(
                 UserModel.create(
-                    UserModel.AuthProvider.EMAIL,
                     email,
                     "홍길동",
                     "encodedPassword"
@@ -119,7 +117,6 @@ class UserRepositoryImplTest {
             String email = "existing@example.com";
             userRepository.save(
                 UserModel.create(
-                    UserModel.AuthProvider.EMAIL,
                     email,
                     "홍길동",
                     "encodedPassword"
@@ -153,7 +150,6 @@ class UserRepositoryImplTest {
         void withNewUser_savesAndReturnsUser() {
             // given
             UserModel userModel = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "encodedPassword"
@@ -174,7 +170,6 @@ class UserRepositoryImplTest {
         void withExistingUser_updatesAndReturnsUser() {
             // given
             UserModel userModel = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "encodedPassword"

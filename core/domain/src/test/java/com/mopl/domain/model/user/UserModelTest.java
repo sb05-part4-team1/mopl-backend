@@ -75,7 +75,6 @@ class UserModelTest {
         void withValidData_createsUserModel() {
             // when
             UserModel user = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "encodedPassword123"
@@ -91,24 +90,6 @@ class UserModelTest {
             assertThat(user.getProfileImageUrl()).isNull();
         }
 
-        @SuppressWarnings("ConstantConditions")
-        @Test
-        @DisplayName("authProvider가 null이면 예외 발생")
-        void withNullAuthProvider_throwsException() {
-            assertThatThrownBy(() -> UserModel.create(
-                null,
-                "test@example.com",
-                "홍길동",
-                "password"
-            ))
-                .isInstanceOf(InvalidUserDataException.class)
-                .satisfies(e -> {
-                    InvalidUserDataException ex = (InvalidUserDataException) e;
-                    assertThat(ex.getDetails().get("detailMessage"))
-                        .isEqualTo("회원가입 경로는 null일 수 없습니다.");
-                });
-        }
-
         static Stream<Arguments> invalidEmailProvider() {
             return Stream.of(
                 Arguments.of("null", null),
@@ -122,7 +103,6 @@ class UserModelTest {
         @DisplayName("이메일이 비어있으면 예외 발생")
         void withEmptyEmail_throwsException(String description, String email) {
             assertThatThrownBy(() -> UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 email,
                 "홍길동",
                 "password"
@@ -141,7 +121,6 @@ class UserModelTest {
             String longEmail = "a".repeat(EMAIL_MAX_LENGTH + 1);
 
             assertThatThrownBy(() -> UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 longEmail,
                 "홍길동",
                 "password"
@@ -167,7 +146,6 @@ class UserModelTest {
         @DisplayName("이름이 비어있으면 예외 발생")
         void withEmptyName_throwsException(String description, String name) {
             assertThatThrownBy(() -> UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 name,
                 "password"
@@ -186,7 +164,6 @@ class UserModelTest {
             String longName = "가".repeat(NAME_MAX_LENGTH + 1);
 
             assertThatThrownBy(() -> UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 longName,
                 "password"
@@ -212,7 +189,6 @@ class UserModelTest {
         @DisplayName("비밀번호가 비어있으면 예외 발생")
         void withEmptyPassword_throwsException(String description, String password) {
             assertThatThrownBy(() -> UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 password
@@ -231,7 +207,6 @@ class UserModelTest {
             String longPassword = "a".repeat(ENCODED_PASSWORD_MAX_LENGTH + 1);
 
             assertThatThrownBy(() -> UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 longPassword
@@ -254,7 +229,6 @@ class UserModelTest {
         void withValidPassword_updatesPassword() {
             // given
             UserModel user = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "oldPassword"
@@ -274,7 +248,6 @@ class UserModelTest {
         void withEmptyPassword_doesNotUpdate(String newPassword) {
             // given
             UserModel user = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "originalPassword"
@@ -292,7 +265,6 @@ class UserModelTest {
         void withPasswordExceedingMaxLength_throwsException() {
             // given
             UserModel user = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -314,7 +286,6 @@ class UserModelTest {
         void withValidPassword_returnsThis() {
             // given
             UserModel user = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -337,7 +308,6 @@ class UserModelTest {
         void withValidUrl_updatesProfileImageUrl() {
             // given
             UserModel user = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -380,7 +350,6 @@ class UserModelTest {
         void withUrlExceedingMaxLength_throwsException() {
             // given
             UserModel user = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -403,7 +372,6 @@ class UserModelTest {
         void withValidUrl_returnsThis() {
             // given
             UserModel user = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -426,7 +394,6 @@ class UserModelTest {
         void withValidName_updatesName() {
             // given
             UserModel user = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -446,7 +413,6 @@ class UserModelTest {
         void withEmptyName_doesNotUpdate(String newName) {
             // given
             UserModel user = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -464,7 +430,6 @@ class UserModelTest {
         void withNameExceedingMaxLength_throwsException() {
             // given
             UserModel user = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -486,7 +451,6 @@ class UserModelTest {
         void withValidName_returnsThis() {
             // given
             UserModel user = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -509,7 +473,6 @@ class UserModelTest {
         void withValidRole_updatesRole() {
             // given
             UserModel user = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -528,7 +491,6 @@ class UserModelTest {
         void withNullRole_doesNotUpdate() {
             // given
             UserModel user = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -546,7 +508,6 @@ class UserModelTest {
         void withValidRole_returnsThis() {
             // given
             UserModel user = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -569,7 +530,6 @@ class UserModelTest {
         void withUnlockedAccount_locksAccount() {
             // given
             UserModel user = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -588,7 +548,6 @@ class UserModelTest {
         void withUnlockedAccount_returnsThis() {
             // given
             UserModel user = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"
@@ -638,7 +597,6 @@ class UserModelTest {
         void withLockedAccount_returnsThis() {
             // given
             UserModel user = UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "password"

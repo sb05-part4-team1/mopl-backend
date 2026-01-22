@@ -49,7 +49,6 @@ public class UserFacade {
         String encodedPassword = passwordEncoder.encode(userCreateRequest.password());
 
         UserModel userModel = UserModel.create(
-            UserModel.AuthProvider.EMAIL,
             email,
             name,
             encodedPassword

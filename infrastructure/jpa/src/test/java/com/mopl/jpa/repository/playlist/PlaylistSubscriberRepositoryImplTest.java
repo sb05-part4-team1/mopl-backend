@@ -54,7 +54,6 @@ class PlaylistSubscriberRepositoryImplTest {
     void setUp() {
         UserModel owner = userRepository.save(
             UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "owner@example.com",
                 "소유자",
                 "encodedPassword"
@@ -63,7 +62,6 @@ class PlaylistSubscriberRepositoryImplTest {
 
         subscriber = userRepository.save(
             UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "subscriber@example.com",
                 "구독자",
                 "encodedPassword"
@@ -171,7 +169,6 @@ class PlaylistSubscriberRepositoryImplTest {
             // given
             UserModel anotherSubscriber = userRepository.save(
                 UserModel.create(
-                    UserModel.AuthProvider.EMAIL,
                     "another@example.com",
                     "다른 구독자",
                     "encodedPassword"
@@ -217,7 +214,6 @@ class PlaylistSubscriberRepositoryImplTest {
             // given
             UserModel anotherSubscriber = userRepository.save(
                 UserModel.create(
-                    UserModel.AuthProvider.EMAIL,
                     "another@example.com",
                     "다른 구독자",
                     "encodedPassword"

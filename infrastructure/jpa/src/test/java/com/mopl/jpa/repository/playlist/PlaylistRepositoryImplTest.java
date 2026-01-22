@@ -44,7 +44,6 @@ class PlaylistRepositoryImplTest {
     void setUp() {
         savedOwner = userRepository.save(
             UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "owner@example.com",
                 "플레이리스트 소유자",
                 "encodedPassword"

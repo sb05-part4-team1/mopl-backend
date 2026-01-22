@@ -181,7 +181,7 @@ class PlaylistQueryRepositoryImplTest {
 
             // then
             assertThat(response.data()).hasSize(1);
-            assertThat(response.data().get(0).getTitle()).isEqualTo("힐링 음악");
+            assertThat(response.data().getFirst().getTitle()).isEqualTo("힐링 음악");
         }
 
         @Test
@@ -606,7 +606,7 @@ class PlaylistQueryRepositoryImplTest {
 
             // then
             assertThat(response.data()).hasSize(1);
-            assertThat(response.data().get(0).getTitle()).isEqualTo("힐링 음악"); // subscribeCount=2
+            assertThat(response.data().getFirst().getTitle()).isEqualTo("힐링 음악"); // subscribeCount=2
             assertThat(response.totalCount()).isEqualTo(2);
             assertThat(response.hasNext()).isTrue();
         }

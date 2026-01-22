@@ -45,7 +45,6 @@ class NotificationRepositoryImplTest {
     void setUp() {
         UserModel savedReceiver = userRepository.save(
             UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "receiver@example.com",
                 "수신자",
                 "encodedPassword"

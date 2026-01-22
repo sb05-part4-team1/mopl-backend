@@ -63,7 +63,6 @@ class ReviewRepositoryImplTest {
 
         savedAuthor = userRepository.save(
             UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "reviewer@example.com",
                 "리뷰어",
                 "encodedPassword"

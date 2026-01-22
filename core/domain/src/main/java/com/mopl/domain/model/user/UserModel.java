@@ -37,14 +37,10 @@ public class UserModel extends BaseUpdatableModel {
     private boolean locked;
 
     public static UserModel create(
-        AuthProvider authProvider,
         String email,
         String name,
         String password
     ) {
-        if (authProvider == null) {
-            throw new InvalidUserDataException("회원가입 경로는 null일 수 없습니다.");
-        }
         if (email == null || email.isBlank()) {
             throw new InvalidUserDataException("이메일은 비어있을 수 없습니다.");
         }
@@ -60,7 +56,7 @@ public class UserModel extends BaseUpdatableModel {
         validatePassword(password);
 
         return UserModel.builder()
-            .authProvider(authProvider)
+            .authProvider(AuthProvider.EMAIL)
             .email(email)
             .name(name)
             .password(password)

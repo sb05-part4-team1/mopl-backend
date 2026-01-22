@@ -339,7 +339,7 @@ class NotificationQueryRepositoryImplTest {
 
             // then
             assertThat(thirdResponse.data()).hasSize(1);
-            assertThat(thirdResponse.data().get(0).getTitle()).isEqualTo("알림5");
+            assertThat(thirdResponse.data().getFirst().getTitle()).isEqualTo("알림5");
             assertThat(thirdResponse.hasNext()).isFalse();
             assertThat(thirdResponse.nextCursor()).isNull();
         }
