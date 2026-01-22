@@ -59,8 +59,8 @@ public class PlaylistService {
         String description
     ) {
         PlaylistModel playlistModel = getByIdAndValidateOwner(playlistId, requesterId);
-        playlistModel.update(title, description);
-        return playlistCacheService.save(playlistModel);
+        PlaylistModel updatedPlaylist = playlistModel.update(title, description);
+        return playlistCacheService.save(updatedPlaylist);
     }
 
     public void delete(
