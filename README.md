@@ -62,7 +62,19 @@
 
 ### 류승민
 
-- 
+- Conversation API
+- swagger 정리
+
+---
+
+
+# 협업 방식
+
+- Jira를 사용한 일정 관리
+- Discord를 사용해 회의 진행
+- PR은 다른 팀원 1명 이상의 코드리뷰를 받아 Merge
+- 노션을 통한 의사소통,회의록 및 문서화 진행
+- Slack을 활용하여 팀원 간 작업 진행 상황과 이슈를 실시간으로 공유
 
 ---
 
@@ -136,7 +148,7 @@ mopl-backend/
 |   |   |   |   |   |   |   |--review/
 |   |   |   |   |   |   |   |--tag/
 |   |   |   |   |   |   |   |--user/
-|   |   |   |   |   |   |   |--watchingsession
+|   |   |   |   |   |   |   |--watchingsession/
 |   |   |   |   |   |   |--support/
 |   |   |   |   |   |   |   |--cache/
 |   |   |   |   |   |   |   |--cursor/
@@ -152,15 +164,15 @@ mopl-backend/
 |   |   |   |   |   |--com.mopl.batch/
 |   |   |   |   |   |   |--config
 |   |   |   |   |   |   |--tmdb
-|   |   |   |   |   |   |   |--initializer
-|   |   |   |   |   |   |   |--job
-|   |   |   |   |   |   |   |--scheduler
-|   |   |   |   |   |   |   |--service
+|   |   |   |   |   |   |   |--initializer/
+|   |   |   |   |   |   |   |--job/
+|   |   |   |   |   |   |   |--scheduler/
+|   |   |   |   |   |   |   |--service/
 |   |   |   |   |   |   |--tsdb
-|   |   |   |   |   |   |   |--initializer
-|   |   |   |   |   |   |   |--job
-|   |   |   |   |   |   |   |--scheduler
-|   |   |   |   |   |   |   |--service
+|   |   |   |   |   |   |   |--initializer/
+|   |   |   |   |   |   |   |--job/
+|   |   |   |   |   |   |   |--scheduler/
+|   |   |   |   |   |   |   |--service/
 |   |   |   |   |   |   |--BatchApplication
 |   |   |   |   |--resources/
 |   |   |   |   |   |--application.yaml
@@ -172,60 +184,263 @@ mopl-backend/
 |   |   |   |   |--java
 |   |   |   |   |   |--com.mopl.sse
 |   |   |   |   |   |   |--com.mopl.sse/
-|   |   |   |   |   |   |   |--appication
-|   |   |   |   |   |   |   |--interfaces.api
-|   |   |   |   |   |   |   |--repository
-|   |   |   |   |   |   |   |--service
+|   |   |   |   |   |   |   |--appication/
+|   |   |   |   |   |   |   |--interfaces.api/
+|   |   |   |   |   |   |   |--repository/
+|   |   |   |   |   |   |   |--service/
 |   |   |--build.gradle.kts
 |   |--websocket
 |   |   |--build
 |   |   |--src
 |   |   |   |--main/
-|   |   |   |   |--
+|   |   |   |   |--java
+|   |   |   |   |   |--com.mopl.websocket/
+|   |   |   |   |   |   |--application/
+|   |   |   |   |   |   |   |--content/
+|   |   |   |   |   |   |   |--conversation/
+|   |   |   |   |   |   |--config/
+|   |   |   |   |   |   |--interfaces.api/
+|   |   |   |   |   |   |   |--content/
+|   |   |   |   |   |   |   |--conversation/
+|   |   |   |   |   |   |--monitoring/
+|   |   |   |   |   |   |--repository/
+|   |   |   |   |   |   |--service.content/
+|   |   |   |   |   |   |--WebSocketApplication
+|   |   |   |   |--resources/
+|   |   |   |   |   |--application.yaml
 |   |   |--build.gradle.kts
-|
-|
-|
-|
-|
-|
-|
-|
-|--config
-|--core
+|--config/
+|   |--checkstyle/
+|   |   |--google_checks.xml
+|   |--eclipse/
+|   |   |--eclipse-java-formatter.xml
+|--core/
+|   |--domain/
+|   |   |--src/
+|   |   |   |--main/
+|   |   |   |   |--java/
+|   |   |   |   |   |--com.mopl.domain/
+|   |   |   |   |   |   |--exception/
+|   |   |   |   |   |   |   |--auth/
+|   |   |   |   |   |   |   |--content/
+|   |   |   |   |   |   |   |--conversation/
+|   |   |   |   |   |   |   |--follow/
+|   |   |   |   |   |   |   |--notification/
+|   |   |   |   |   |   |   |--playlist/
+|   |   |   |   |   |   |   |--review/
+|   |   |   |   |   |   |   |--tag/
+|   |   |   |   |   |   |   |--user/
+|   |   |   |   |   |   |   |--watchingsession/
+|   |   |   |   |   |   |   |--ApiErrorCode
+|   |   |   |   |   |   |   |--ErrorCode
+|   |   |   |   |   |   |   |--ErrorResponse
+|   |   |   |   |   |   |   |--InternalServerException
+|   |   |   |   |   |   |   |--MoplException
+|   |   |   |   |   |   |--model/
+|   |   |   |   |   |   |   |--base/
+|   |   |   |   |   |   |   |--content/
+|   |   |   |   |   |   |   |--conversation/
+|   |   |   |   |   |   |   |--follow/
+|   |   |   |   |   |   |   |--league/
+|   |   |   |   |   |   |   |--notification/
+|   |   |   |   |   |   |   |--playlist/
+|   |   |   |   |   |   |   |--review/
+|   |   |   |   |   |   |   |--tag/
+|   |   |   |   |   |   |   |--user/
+|   |   |   |   |   |   |   |--watchingsession/
+|   |   |   |   |   |   |--repository/
+|   |   |   |   |   |   |   |--content/
+|   |   |   |   |   |   |   |--conversation/
+|   |   |   |   |   |   |   |--follow/
+|   |   |   |   |   |   |   |--league/
+|   |   |   |   |   |   |   |--notification/
+|   |   |   |   |   |   |   |--playlist/
+|   |   |   |   |   |   |   |--review/
+|   |   |   |   |   |   |   |--tag/
+|   |   |   |   |   |   |   |--user/
+|   |   |   |   |   |   |   |--watchingsession/
+|   |   |   |   |   |   |--service/
+|   |   |   |   |   |   |   |--content/
+|   |   |   |   |   |   |   |--conversation/
+|   |   |   |   |   |   |   |--follow/
+|   |   |   |   |   |   |   |--notification/
+|   |   |   |   |   |   |   |--playlist/
+|   |   |   |   |   |   |   |--review/
+|   |   |   |   |   |   |   |--tag/
+|   |   |   |   |   |   |   |--user/
+|   |   |   |   |   |   |   |--watchingsession/
+|   |   |   |   |   |   |--support/
+|   |   |   |   |   |   |   |--cache/
+|   |   |   |   |   |   |   |--cursor/
+|   |   |   |   |   |   |   |--redis/
+|   |   |   |--test/
+|   |   |   |--testFixtures/
+|   |   |--build.gradle.kts
 |--docker/
-|--infrastructure
-|--shared
+|--infrastructure/
+|   |--cache/
+|   |   |--src/
+|   |   |   |--main/
+|   |   |   |   |--java/
+|   |   |   |   |   |--com.mopl.cache/
+|   |   |   |   |   |   |--config/
+|   |   |   |   |--resources/
+|   |   |   |   |   |--cache.yaml
+|   |   |   |--test/
+|   |   |--build.gradle.kts
+|   |--jpa/
+|   |   |--src/
+|   |   |   |--main/
+|   |   |   |   |--java/
+|   |   |   |   |   |--com.mopl.jpa/
+|   |   |   |   |   |   |--config/
+|   |   |   |   |   |   |--entity/
+|   |   |   |   |   |   |   |--base/
+|   |   |   |   |   |   |   |--content/
+|   |   |   |   |   |   |   |--conversation/
+|   |   |   |   |   |   |   |--follow/
+|   |   |   |   |   |   |   |--league/
+|   |   |   |   |   |   |   |--notification/
+|   |   |   |   |   |   |   |--playlist/
+|   |   |   |   |   |   |   |--review/
+|   |   |   |   |   |   |   |--tag/
+|   |   |   |   |   |   |   |--user/
+|   |   |   |   |   |   |--repository/
+|   |   |   |   |   |   |   |--content/
+|   |   |   |   |   |   |   |--conversation/
+|   |   |   |   |   |   |   |--follow/
+|   |   |   |   |   |   |   |--league/
+|   |   |   |   |   |   |   |--notification/
+|   |   |   |   |   |   |   |--playlist/
+|   |   |   |   |   |   |   |--review/
+|   |   |   |   |   |   |   |--tag/
+|   |   |   |   |   |   |   |--user/
+|   |   |   |   |   |   |   |--watchingsession/
+|   |   |   |   |   |   |--support.cursor/
+|   |   |   |   |--resources/
+|   |   |   |--test/
+|   |   |--build.gradle.kts
+|   |--kafka/
+|   |   |--src/
+|   |   |   |--main/
+|   |   |   |   |--java/
+|   |   |   |   |   |--com/
+|   |   |   |   |   |   |--mopl/
+|   |   |   |   |   |   |   |--kafka/
+|   |   |   |   |   |   |   |   |--config/
+|   |   |   |   |   |   |   |   |   |--kafkaConfig
+|   |   |--build.gradle.kts
+|   |--mail/
+|   |   |--src/
+|   |   |   |--main/
+|   |   |   |   |--java/
+|   |   |   |   |   |--com.mopl.mail.service/
+|   |   |   |   |--resources/
+|   |   |   |   |   |--mail.yaml
+|   |   |   |--test/
+|   |   |--build.gradle.kts
+|   |--openapi/
+|   |   |--src/
+|   |   |   |--main/
+|   |   |   |   |--java/
+|   |   |   |   |   |--com.mopl.external/
+|   |   |   |   |   |   |--tmdb/
+|   |   |   |   |   |   |   |--client/
+|   |   |   |   |   |   |   |--config/
+|   |   |   |   |   |   |   |--exception/
+|   |   |   |   |   |   |   |--model/
+|   |   |   |   |   |   |   |--properties/
+|   |   |   |   |   |   |--tsdb/
+|   |   |   |   |   |   |   |--client/
+|   |   |   |   |   |   |   |--config/
+|   |   |   |   |   |   |   |--exception/
+|   |   |   |   |   |   |   |--model/
+|   |   |   |   |   |   |   |--properties/
+|   |   |   |   |--resources/
+|   |   |   |   |   |--openapi/yaml
+|   |   |--build.gradle.kts
+|   |--redis/
+|   |   |--src/
+|   |   |   |--main/
+|   |   |   |   |--java/
+|   |   |   |   |   |--com.mopl.redis/
+|   |   |   |   |   |   |--config/
+|   |   |   |   |   |   |--repository/
+|   |   |   |   |   |   |   |--playlist/
+|   |   |   |   |   |   |   |--user/
+|   |   |   |   |--resources/
+|   |   |   |--test/
+|   |   |--build.gradle.kts
+|   |--security/
+|   |   |--src/
+|   |   |   |--main/
+|   |   |   |   |--java/
+|   |   |   |   |   |--com.mopl.security/
+|   |   |   |   |   |   |--authentication/
+|   |   |   |   |   |   |   |--handler/
+|   |   |   |   |   |   |   |--TemporaryPasswordAuthenticationProvider
+|   |   |   |   |   |   |--config/
+|   |   |   |   |   |   |--csrf/
+|   |   |   |   |   |   |--exception/
+|   |   |   |   |   |   |--jwt/
+|   |   |   |   |   |   |   |--dto/
+|   |   |   |   |   |   |   |--filter/
+|   |   |   |   |   |   |   |--porovider/
+|   |   |   |   |   |   |   |--registry/
+|   |   |   |   |   |   |   |--service/
+|   |   |   |   |   |   |--oauth2/
+|   |   |   |   |   |   |   |--handler/
+|   |   |   |   |   |   |   |--userinfo/
+|   |   |   |   |   |   |   |--CustomOAuth2UserSErvice
+|   |   |   |   |   |   |   |--OAuth2UserPrincipal
+|   |   |   |   |   |   |--userdetails/
+|   |   |   |   |--resources/
+|   |   |   |   |   |--META-INF.spring/
+|   |   |   |   |   |--security.yaml
+|   |   |--build.gradle.kts
+|   |--storage/
+|   |   |--src/
+|   |   |   |--main/
+|   |   |   |   |--java/
+|   |   |   |   |   |--com.mopl.storage/
+|   |   |   |   |   |   |--config/
+|   |   |   |   |   |   |--provider/
+|   |   |   |   |--resources/
+|   |   |   |   |   |--storage.yaml
+|   |   |   |--test/
+|   |   |--build.gradle.kts
+|--shared/
+|   |--jackson/
+|   |   |--src/
+|   |   |   |--main/
+|   |   |   |   |--java/
+|   |   |   |   |   |--com.mopl.jackson.config/ 
+|   |   |   |   |--resources/
+|   |   |   |   |   |--META-INF.spring/
+|   |   |--build.gradle.kts
+|   |--logging/
+|   |   |--src/
+|   |   |   |--main/
+|   |   |   |   |--java/
+|   |   |   |   |   |--com.mopl.logging/
+|   |   |   |   |   |   |--config/
+|   |   |   |   |   |   |--mdc/
+|   |   |   |   |--resources/
+|   |   |   |   |   |--META-INF.spring/
+|   |   |   |--test/
+|   |   |--build.gradle.kts
+|   |--monitoring/
+|   |   |--src/
+|   |   |   |--main/
+|   |   |   |   |--java/
+|   |   |   |   |   |--com.mopl.shared.monitoring/
+|   |   |--build.gradle.kts
 |--.env
 |--README.md
 |--.gitignore
 |--build.gradle.kts
 |--settings.gradle.kts
-|
-|
-|
-|
-|
-|
-|
-|
-|
-|
-|
-|
-|
-|
+
 ```
-
 ---
 
-
-# 협업 방식
-
-- Jira를 사용한 일정 관리
-- Discord를 사용해 회의 진행
-- PR은 다른 팀원 1명 이상의 코드리뷰를 받아 Merge
-- 노션을 통한 의사소통,회의록 및 문서화 진행
-- Slack을 활용하여 팀원 간 작업 진행 상황과 이슈를 실시간으로 공유
-
----
