@@ -109,6 +109,10 @@ subprojects {
         toolVersion = "10.12.3"
         configFile = file("${rootDir}/config/checkstyle/google_checks.xml")
     }
+
+    tasks.withType<Checkstyle>().configureEach {
+        exclude("**/*ApiSpec.java")
+    }
 }
 
 project("applications") { tasks.configureEach { enabled = false } }
