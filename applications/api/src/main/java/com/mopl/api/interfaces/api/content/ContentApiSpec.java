@@ -22,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
-@Tag(name = "Content API", description = "콘텐츠 관리 API")
+@Tag(name = "Content API")
 public interface ContentApiSpec {
 
     @Operation(summary = "콘텐츠 목록 조회 (커서 페이지네이션)")
@@ -35,13 +35,13 @@ public interface ContentApiSpec {
         ),
         @Parameter(
             name = "keywordLike",
-            description = "검색 키워드",
+            description = "제목 또는 설명 부분일치 검색어",
             in = ParameterIn.QUERY,
             schema = @Schema(implementation = String.class)
         ),
         @Parameter(
             name = "tagsIn",
-            description = "태그 목록",
+            description = "태그 목록 (포함 필터)",
             in = ParameterIn.QUERY,
             schema = @Schema(implementation = String[].class)
         ),
@@ -59,21 +59,24 @@ public interface ContentApiSpec {
         ),
         @Parameter(
             name = "limit",
-            description = "한 번에 가져올 개수",
+            description = "한 번에 가져올 개수 (1~100)",
             in = ParameterIn.QUERY,
-            schema = @Schema(implementation = Integer.class, defaultValue = "100")
+            required = true,
+            schema = @Schema(implementation = Integer.class, minimum = "1", maximum = "100")
         ),
         @Parameter(
             name = "sortDirection",
             description = "정렬 방향",
             in = ParameterIn.QUERY,
-            schema = @Schema(implementation = SortDirection.class, defaultValue = "ASCENDING")
+            required = true,
+            schema = @Schema(implementation = SortDirection.class)
         ),
         @Parameter(
             name = "sortBy",
             description = "정렬 기준",
             in = ParameterIn.QUERY,
-            schema = @Schema(implementation = ContentSortField.class, defaultValue = "watcherCount")
+            required = true,
+            schema = @Schema(implementation = ContentSortField.class)
         )
     })
     @ApiResponse(
@@ -84,7 +87,7 @@ public interface ContentApiSpec {
     CursorResponse<ContentResponse> getContents(@Parameter(hidden = true) ContentQueryRequest request);
 
     @Operation(summary = "콘텐츠 상세 조회")
-    @Parameter(name = "contentId", description = "콘텐츠 UUID", required = true)
+    @Parameter(name = "contentId", required = true)
     @ApiResponse(
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = ContentResponse.class))
@@ -93,7 +96,7 @@ public interface ContentApiSpec {
     @CommonApiResponse.NotFound
     ContentResponse getContent(UUID contentId);
 
-    @Operation(summary = "[어드민] 콘텐츠 업로드", description = "콘텐츠 정보와 썸네일 이미지를 업로드합니다.")
+    @Operation(summary = "[어드민] 콘텐츠 생성")
     @ApiResponse(
         responseCode = "201",
         content = @Content(schema = @Schema(implementation = ContentResponse.class))
@@ -101,15 +104,12 @@ public interface ContentApiSpec {
     @CommonApiResponse.Default
     @CommonApiResponse.Forbidden
     ContentResponse upload(
-        @Parameter(description = "콘텐츠 정보 (JSON)", required = true) ContentCreateRequest request,
-        @Parameter(description = "썸네일 이미지 파일") MultipartFile thumbnail
+        @Parameter(required = true) ContentCreateRequest request,
+        @Parameter(description = "썸네일 이미지 파일", required = true) MultipartFile thumbnail
     );
 
-    @Operation(
-        summary = "[어드민] 콘텐츠 수정",
-        description = "콘텐츠 제목, 설명, 태그 및 썸네일 이미지를 수정합니다. 썸네일은 선택 사항입니다."
-    )
-    @Parameter(name = "contentId", description = "콘텐츠 UUID", required = true)
+    @Operation(summary = "[어드민] 콘텐츠 수정")
+    @Parameter(name = "contentId", required = true)
     @ApiResponse(
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = ContentResponse.class))
@@ -119,8 +119,8 @@ public interface ContentApiSpec {
     @CommonApiResponse.NotFound
     ContentResponse update(
         UUID contentId,
-        @Parameter(description = "수정할 콘텐츠 정보 (JSON)", required = true) ContentUpdateRequest request,
-        @Parameter(description = "새 썸네일 이미지 파일 (선택)") MultipartFile thumbnail
+        @Parameter(required = true) ContentUpdateRequest request,
+        @Parameter(description = "새 썸네일 이미지 파일") MultipartFile thumbnail
     );
 
     @Operation(
@@ -131,8 +131,8 @@ public interface ContentApiSpec {
             - 연관 데이터: Review, ContentTag, PlaylistContent
             """
     )
-    @Parameter(name = "contentId", description = "콘텐츠 UUID", required = true)
-    @ApiResponse(responseCode = "204", description = "성공")
+    @Parameter(name = "contentId", required = true)
+    @ApiResponse(responseCode = "204")
     @CommonApiResponse.Default
     @CommonApiResponse.Forbidden
     @CommonApiResponse.NotFound

@@ -32,7 +32,7 @@ public class ContentController implements ContentApiSpec {
     private final ContentFacade contentFacade;
 
     @GetMapping
-    public CursorResponse<ContentResponse> getContents(ContentQueryRequest request) {
+    public CursorResponse<ContentResponse> getContents(@Valid ContentQueryRequest request) {
         return contentFacade.getContents(request);
     }
 
@@ -56,7 +56,7 @@ public class ContentController implements ContentApiSpec {
     public ContentResponse update(
         @PathVariable UUID contentId,
         @RequestPart("request") @Valid ContentUpdateRequest request,
-        @RequestPart("thumbnail") MultipartFile thumbnail
+        @RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail
     ) {
         return contentFacade.update(contentId, request, thumbnail);
     }

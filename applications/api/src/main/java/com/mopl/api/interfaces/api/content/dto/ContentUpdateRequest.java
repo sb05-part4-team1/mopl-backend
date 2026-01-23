@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 
 import static com.mopl.domain.model.content.ContentModel.TITLE_MAX_LENGTH;
+import static com.mopl.domain.model.playlist.PlaylistModel.DESCRIPTION_MAX_LENGTH;
 
 @Schema(example = """
     {
@@ -17,7 +18,7 @@ import static com.mopl.domain.model.content.ContentModel.TITLE_MAX_LENGTH;
     """)
 public record ContentUpdateRequest(
     @Size(max = TITLE_MAX_LENGTH) String title,
-    String description,
+    @Size(max = DESCRIPTION_MAX_LENGTH) String description,
     List<@NotBlank String> tags
 ) {
 }
