@@ -29,7 +29,8 @@ public record StorageProperties(
         String secretKey,
         String region,
         String bucket,
-        Duration presignedUrlExpiration
+        Duration presignedUrlExpiration,
+        String endpoint
     ) {
     }
 
