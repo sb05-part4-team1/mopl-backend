@@ -116,7 +116,7 @@ class PlaylistFacadeTest {
                 .willReturn(Map.of(playlistId, subscriberCount));
             given(playlistSubscriptionService.findSubscribedPlaylistIds(requesterId, playlistIds))
                 .willReturn(Set.of(playlistId));
-            given(playlistService.getContentsByPlaylistIds(playlistIds))
+            given(playlistService.getContentsByPlaylistIdIn(playlistIds))
                 .willReturn(Map.of(playlistId, Collections.emptyList()));
             given(playlistResponseMapper.toResponse(
                 playlistModel, subscriberCount, true, Collections.emptyList()
@@ -137,7 +137,7 @@ class PlaylistFacadeTest {
             then(playlistSubscriptionService).should().getSubscriberCounts(playlistIds);
             then(playlistSubscriptionService).should()
                 .findSubscribedPlaylistIds(requesterId, playlistIds);
-            then(playlistService).should().getContentsByPlaylistIds(playlistIds);
+            then(playlistService).should().getContentsByPlaylistIdIn(playlistIds);
         }
 
         @Test
@@ -166,7 +166,7 @@ class PlaylistFacadeTest {
             then(playlistSubscriptionService).should(never()).getSubscriberCounts(any());
             then(playlistSubscriptionService).should(never())
                 .findSubscribedPlaylistIds(any(), any());
-            then(playlistService).should(never()).getContentsByPlaylistIds(any());
+            then(playlistService).should(never()).getContentsByPlaylistIdIn(any());
         }
 
         @Test
@@ -202,7 +202,7 @@ class PlaylistFacadeTest {
                 .willReturn(Map.of(playlistId, subscriberCount));
             given(playlistSubscriptionService.findSubscribedPlaylistIds(null, playlistIds))
                 .willReturn(Collections.emptySet());
-            given(playlistService.getContentsByPlaylistIds(playlistIds))
+            given(playlistService.getContentsByPlaylistIdIn(playlistIds))
                 .willReturn(Map.of(playlistId, Collections.emptyList()));
             given(playlistResponseMapper.toResponse(
                 playlistModel, subscriberCount, false, Collections.emptyList()
@@ -298,7 +298,7 @@ class PlaylistFacadeTest {
             );
 
             given(userService.getById(owner.getId())).willReturn(owner);
-            given(playlistService.create(eq(owner), eq(title), eq(description)))
+            given(playlistService.create(eq(title), eq(description), eq(owner)))
                 .willReturn(playlistModel);
             given(playlistResponseMapper.toResponse(playlistModel)).willReturn(expectedResponse);
             willAnswer(invocation -> invocation.<org.springframework.transaction.support.TransactionCallback<?>>getArgument(0)
@@ -314,7 +314,7 @@ class PlaylistFacadeTest {
                 .isEqualTo(expectedResponse);
 
             then(userService).should().getById(owner.getId());
-            then(playlistService).should().create(eq(owner), eq(title), eq(description));
+            then(playlistService).should().create(eq(title), eq(description), eq(owner));
             then(playlistResponseMapper).should().toResponse(playlistModel);
         }
     }

@@ -46,6 +46,7 @@ public class PlaylistCacheService {
     }
 
     @CacheEvict(cacheNames = CacheName.PLAYLIST_CONTENTS, key = "#playlistId")
+    @SuppressWarnings("unused")
     public void evictContents(UUID playlistId) {
     }
 }

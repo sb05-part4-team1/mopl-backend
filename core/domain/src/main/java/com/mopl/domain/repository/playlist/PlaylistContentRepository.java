@@ -11,7 +11,7 @@ public interface PlaylistContentRepository {
 
     List<ContentModel> findContentsByPlaylistId(UUID playlistId);
 
-    Map<UUID, List<ContentModel>> findContentsByPlaylistIds(Collection<UUID> playlistIds);
+    Map<UUID, List<ContentModel>> findContentsByPlaylistIdIn(Collection<UUID> playlistIds);
 
     boolean exists(UUID playlistId, UUID contentId);
 

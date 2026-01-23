@@ -18,7 +18,6 @@ public class PlaylistSubscriptionService {
     private final PlaylistSubscriberRepository playlistSubscriberRepository;
     private final PlaylistSubscriberCountRepository playlistSubscriberCountRepository;
 
-    // TODO: redis 장애 시 fallback
     public long getSubscriberCount(UUID playlistId) {
         return playlistSubscriberCountRepository.getCount(playlistId);
     }
@@ -49,8 +48,10 @@ public class PlaylistSubscriptionService {
     }
 
     public void subscribe(UUID playlistId, UUID subscriberId) {
-        if (playlistSubscriberRepository.existsByPlaylistIdAndSubscriberId(playlistId,
-            subscriberId)) {
+        if (playlistSubscriberRepository.existsByPlaylistIdAndSubscriberId(
+            playlistId,
+            subscriberId)
+        ) {
             throw PlaylistSubscriptionAlreadyExistsException.withPlaylistIdAndSubscriberId(playlistId, subscriberId);
         }
 

@@ -1,5 +1,6 @@
 package com.mopl.domain.service.playlist;
 
+import com.mopl.domain.exception.playlist.PlaylistContentAlreadyExistsException;
 import com.mopl.domain.exception.playlist.PlaylistContentNotFoundException;
 import com.mopl.domain.exception.playlist.PlaylistForbiddenException;
 import com.mopl.domain.model.content.ContentModel;
@@ -35,14 +36,14 @@ public class PlaylistService {
         return playlistCacheService.getContentsByPlaylistId(playlistId);
     }
 
-    public Map<UUID, List<ContentModel>> getContentsByPlaylistIds(Collection<UUID> playlistIds) {
-        return playlistContentRepository.findContentsByPlaylistIds(playlistIds);
+    public Map<UUID, List<ContentModel>> getContentsByPlaylistIdIn(Collection<UUID> playlistIds) {
+        return playlistContentRepository.findContentsByPlaylistIdIn(playlistIds);
     }
 
     public PlaylistModel create(
-        UserModel owner,
         String title,
-        String description
+        String description,
+        UserModel owner
     ) {
         PlaylistModel playlistModel = PlaylistModel.create(
             title,
@@ -70,7 +71,6 @@ public class PlaylistService {
         PlaylistModel playlistModel = getByIdAndValidateOwner(playlistId, requesterId);
         playlistModel.delete();
         playlistCacheService.saveAndEvict(playlistModel);
-        // TODO: Cascading hard-delete for playlist contents by event listener
     }
 
     public void addContent(
@@ -79,7 +79,9 @@ public class PlaylistService {
         UUID contentId
     ) {
         getByIdAndValidateOwner(playlistId, requesterId);
-
+        if (playlistContentRepository.exists(playlistId, contentId)) {
+            throw PlaylistContentAlreadyExistsException.withPlaylistIdAndContentId(playlistId, contentId);
+        }
         playlistContentRepository.save(playlistId, contentId);
         playlistCacheService.evictContents(playlistId);
     }
@@ -90,20 +92,18 @@ public class PlaylistService {
         UUID contentId
     ) {
         getByIdAndValidateOwner(playlistId, requesterId);
-
         boolean deleted = playlistContentRepository.delete(playlistId, contentId);
         if (!deleted) {
             throw PlaylistContentNotFoundException.withPlaylistIdAndContentId(playlistId, contentId);
         }
-
         playlistCacheService.evictContents(playlistId);
     }
 
     private PlaylistModel getByIdAndValidateOwner(UUID playlistId, UUID requesterId) {
         PlaylistModel playlistModel = playlistCacheService.getById(playlistId);
-        UUID ownerId = (playlistModel.getOwner() != null) ? playlistModel.getOwner().getId() : null;
+        UUID ownerId = playlistModel.getOwner().getId();
 
-        if (ownerId == null || !ownerId.equals(requesterId)) {
+        if (!ownerId.equals(requesterId)) {
             throw PlaylistForbiddenException.withPlaylistIdAndRequesterIdAndOwnerId(
                 playlistId,
                 requesterId,

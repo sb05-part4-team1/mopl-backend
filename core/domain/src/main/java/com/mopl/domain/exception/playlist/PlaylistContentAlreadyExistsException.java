@@ -14,6 +14,9 @@ public class PlaylistContentAlreadyExistsException extends PlaylistException {
     }
 
     public static PlaylistContentAlreadyExistsException withPlaylistIdAndContentId(UUID playlistId, UUID contentId) {
-        return new PlaylistContentAlreadyExistsException(Map.of("playlistId", playlistId, "contentId", contentId));
+        return new PlaylistContentAlreadyExistsException(Map.of(
+            "playlistId", playlistId,
+            "contentId", contentId
+        ));
     }
 }

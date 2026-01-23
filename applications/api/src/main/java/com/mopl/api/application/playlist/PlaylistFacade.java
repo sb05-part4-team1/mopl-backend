@@ -64,7 +64,7 @@ public class PlaylistFacade {
             requesterId,
             playlistIds
         );
-        Map<UUID, List<ContentModel>> contentsMap = playlistService.getContentsByPlaylistIds(
+        Map<UUID, List<ContentModel>> contentsMap = playlistService.getContentsByPlaylistIdIn(
             playlistIds);
 
         return playlistPage.map(playlist -> playlistResponseMapper.toResponse(
@@ -78,6 +78,7 @@ public class PlaylistFacade {
     public PlaylistResponse getPlaylist(UUID requesterId, UUID playlistId) {
         UserModel requester = userService.getById(requesterId);
         PlaylistModel playlist = playlistService.getById(playlistId);
+        // TODO: redis 장애 시 fallback
         long subscriberCount = playlistSubscriptionService.getSubscriberCount(playlist.getId());
         boolean subscribedByMe = playlistSubscriptionService
             .isSubscribedByPlaylistIdAndSubscriberId(
@@ -102,9 +103,7 @@ public class PlaylistFacade {
 
         PlaylistModel playlistModel = transactionTemplate.execute(status -> {
             PlaylistModel created = playlistService.create(
-                owner,
-                request.title(),
-                request.description()
+                request.title(), request.description(), owner
             );
 
             PlaylistCreatedEvent event = PlaylistCreatedEvent.builder()
