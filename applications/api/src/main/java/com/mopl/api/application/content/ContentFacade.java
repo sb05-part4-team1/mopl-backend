@@ -2,18 +2,13 @@ package com.mopl.api.application.content;
 
 import com.mopl.api.interfaces.api.content.dto.ContentCreateRequest;
 import com.mopl.api.interfaces.api.content.dto.ContentResponse;
-import com.mopl.api.interfaces.api.content.dto.ContentSummary;
 import com.mopl.api.interfaces.api.content.dto.ContentUpdateRequest;
 import com.mopl.api.interfaces.api.content.mapper.ContentResponseMapper;
-import com.mopl.api.interfaces.api.content.mapper.ContentSummaryMapper;
 import com.mopl.domain.exception.content.InvalidContentDataException;
 import com.mopl.domain.model.content.ContentModel;
-import com.mopl.domain.model.review.ReviewStats;
-import com.mopl.domain.model.tag.TagModel;
 import com.mopl.domain.repository.content.ContentQueryRequest;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.content.ContentTagService;
-import com.mopl.domain.service.review.ReviewStatsService;
 import com.mopl.domain.service.watchingsession.WatchingSessionService;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.storage.provider.StorageProvider;
@@ -34,11 +29,9 @@ public class ContentFacade {
 
     private final ContentService contentService;
     private final ContentTagService contentTagService;
-    private final ReviewStatsService reviewStatsService;
     private final WatchingSessionService watchingSessionService;
     private final StorageProvider storageProvider;
     private final ContentResponseMapper contentResponseMapper;
-    private final ContentSummaryMapper contentSummaryMapper;
 
     public CursorResponse<ContentResponse> getContents(ContentQueryRequest request) {
         CursorResponse<ContentModel> response = contentService.getAll(request);
@@ -53,15 +46,13 @@ public class ContentFacade {
             .toList();
 
         Map<UUID, List<String>> tagsByContentId = contentTagService.getTagNamesByContentIds(contentIds);
-        Map<UUID, ReviewStats> reviewStatsByContentId = reviewStatsService.getStats(contentIds);
 
         return response.map(content -> {
-            String thumbnailUrl = storageProvider.getUrl(content.getThumbnailUrl());
+            String thumbnailUrl = storageProvider.getUrl(content.getThumbnailPath());
             List<String> tagNames = tagsByContentId.getOrDefault(content.getId(), List.of());
-            ReviewStats reviewStats = reviewStatsByContentId.getOrDefault(content.getId(), ReviewStats.empty());
             long watcherCount = watchingSessionService.countByContentId(content.getId());
 
-            return contentResponseMapper.toResponseWithTagNames(content, thumbnailUrl, tagNames, reviewStats, watcherCount);
+            return contentResponseMapper.toResponse(content, thumbnailUrl, tagNames, watcherCount);
         });
     }
 
@@ -85,8 +76,8 @@ public class ContentFacade {
             storedPath
         );
 
-        ContentModel saved = contentService.create(contentModel);
-        return toContentResponse(saved);
+        ContentModel savedContentModel = contentService.create(contentModel);
+        return toContentResponse(savedContentModel);
     }
 
     @Transactional
@@ -124,11 +115,10 @@ public class ContentFacade {
     }
 
     private ContentResponse toContentResponse(ContentModel content) {
-        String thumbnailUrl = storageProvider.getUrl(content.getThumbnailUrl());
-        List<TagModel> tags = contentTagService.getTagsByContentId(content.getId());
-        ReviewStats reviewStats = reviewStatsService.getStats(content.getId());
+        String thumbnailUrl = storageProvider.getUrl(content.getThumbnailPath());
+        List<String> tagNames = contentTagService.getTagNamesByContentId(content.getId());
         long watcherCount = watchingSessionService.countByContentId(content.getId());
 
-        return contentResponseMapper.toResponse(content, thumbnailUrl, tags, reviewStats, watcherCount);
+        return contentResponseMapper.toResponse(content, thumbnailUrl, tagNames, watcherCount);
     }
 }

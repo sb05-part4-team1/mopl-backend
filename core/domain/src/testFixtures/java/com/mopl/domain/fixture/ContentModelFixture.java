@@ -19,8 +19,8 @@ public final class ContentModelFixture {
         return fixtureMonkey().giveMeBuilder(ContentModel.class)
             .setNull("updatedAt")
             .set("type", Arbitraries.of(ContentType.movie, ContentType.tvSeries, ContentType.sport))
-            .set("thumbnailUrl", Arbitraries.strings().alpha().ofLength(10)
-                .map(s -> "https://example.com/" + s.toLowerCase(Locale.ROOT) + ".jpg"))
+            .set("thumbnailPath", Arbitraries.strings().alpha().ofLength(10)
+                .map(s -> "contents/" + s.toLowerCase(Locale.ROOT) + ".jpg"))
             .set("tags", List.of());
     }
 

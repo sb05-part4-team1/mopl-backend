@@ -115,7 +115,7 @@ class ContentEntityTest {
                 .type(ContentModel.ContentType.movie)
                 .title("삭제된 콘텐츠")
                 .description("설명")
-                .thumbnailUrl("url")
+                .thumbnailPath("path")
                 .deletedAt(Instant.now())
                 .build();
 
@@ -150,7 +150,7 @@ class ContentEntityTest {
             .type(ContentModel.ContentType.movie)
             .title("인셉션")
             .description("꿈속의 꿈")
-            .thumbnailUrl("https://mopl.com/inception.png")
+            .thumbnailPath("contents/inception.png")
             .build();
     }
 }

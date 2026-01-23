@@ -21,9 +21,9 @@ public class PlaylistResponseMapper {
     private final UserSummaryMapper userSummaryMapper;
     private final ContentSummaryMapper contentSummaryMapper;
 
-    public PlaylistResponse toResponse(PlaylistModel model) {
+    public PlaylistResponse toResponse(PlaylistModel playlistModel) {
         return toResponse(
-            model,
+            playlistModel,
             0L,
             false,
             Collections.emptyList(),
@@ -32,18 +32,18 @@ public class PlaylistResponseMapper {
     }
 
     public PlaylistResponse toResponse(
-        PlaylistModel model,
+        PlaylistModel playlistModel,
         long subscriberCount,
         boolean subscribedByMe,
         Collection<ContentModel> contentModels,
         Map<UUID, List<String>> tagsByContentId
     ) {
         return new PlaylistResponse(
-            model.getId(),
-            userSummaryMapper.toSummary(model.getOwner()),
-            model.getTitle(),
-            model.getDescription(),
-            model.getUpdatedAt(),
+            playlistModel.getId(),
+            userSummaryMapper.toSummary(playlistModel.getOwner()),
+            playlistModel.getTitle(),
+            playlistModel.getDescription(),
+            playlistModel.getUpdatedAt(),
             subscriberCount,
             subscribedByMe,
             contentSummaryMapper.toSummaries(contentModels, tagsByContentId)

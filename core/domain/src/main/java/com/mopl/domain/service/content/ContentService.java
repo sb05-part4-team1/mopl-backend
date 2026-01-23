@@ -17,8 +17,12 @@ public class ContentService {
 
     private final ContentCacheService contentCacheService;
     private final ContentTagService contentTagService;
-    private final ContentRepository contentRepository;
     private final ContentQueryRepository contentQueryRepository;
+    private final ContentRepository contentRepository;
+
+    public CursorResponse<ContentModel> getAll(ContentQueryRequest request) {
+        return contentQueryRepository.findAll(request);
+    }
 
     @CacheEvict(cacheNames = CacheName.CONTENTS, key = "#result.id")
     public ContentModel create(ContentModel content) {
@@ -29,10 +33,6 @@ public class ContentService {
         return contentRepository.existsById(contentId);
     }
 
-    public CursorResponse<ContentModel> getAll(ContentQueryRequest request) {
-        return contentQueryRepository.findAll(request);
-    }
-
     public ContentModel getById(UUID contentId) {
         return contentCacheService.getById(contentId);
     }
@@ -41,16 +41,12 @@ public class ContentService {
         UUID contentId,
         String title,
         String description,
-        String thumbnailUrl,
+        String thumbnailPath,
         List<String> tagNames
     ) {
         ContentModel content = contentCacheService.getById(contentId);
 
-        String finalTitle = title != null ? title : content.getTitle();
-        String finalDescription = description != null ? description : content.getDescription();
-        String finalThumbnailUrl = thumbnailUrl != null ? thumbnailUrl : content.getThumbnailUrl();
-
-        ContentModel updated = content.update(finalTitle, finalDescription, finalThumbnailUrl);
+        ContentModel updated = content.update(title, description, thumbnailPath);
         ContentModel saved = contentRepository.save(updated);
 
         if (tagNames == null) {

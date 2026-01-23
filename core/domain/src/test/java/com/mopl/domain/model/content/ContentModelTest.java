@@ -11,13 +11,16 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-import static com.mopl.domain.model.content.ContentModel.THUMBNAIL_URL_MAX_LENGTH;
+import static com.mopl.domain.model.content.ContentModel.THUMBNAIL_PATH_MAX_LENGTH;
 import static com.mopl.domain.model.content.ContentModel.TITLE_MAX_LENGTH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("ContentModel 단위 테스트")
 class ContentModelTest {
+
+    private static final String DEFAULT_TITLE = "시빌엄";
+    private static final String DEFAULT_DESCRIPTION = "진짜 좋다.";
 
     static Stream<Arguments> emptyFieldsProvider() {
         return Stream.of(
@@ -45,16 +48,16 @@ class ContentModelTest {
             ContentModel.ContentType type = ContentModel.ContentType.movie;
             String title = "인셉션";
             String description = "꿈속의 꿈";
-            String thumbnailUrl = "https://mopl.com/inception.png";
+            String thumbnailPath = "contents/inception.png";
 
             // when
-            ContentModel content = ContentModel.create(type, title, description, thumbnailUrl);
+            ContentModel content = ContentModel.create(type, title, description, thumbnailPath);
 
             // then
             assertThat(content.getType()).isEqualTo(type);
             assertThat(content.getTitle()).isEqualTo(title);
             assertThat(content.getDescription()).isEqualTo(description);
-            assertThat(content.getThumbnailUrl()).isEqualTo(thumbnailUrl);
+            assertThat(content.getThumbnailPath()).isEqualTo(thumbnailPath);
         }
 
         @Test
@@ -98,14 +101,14 @@ class ContentModelTest {
         }
 
         @Test
-        @DisplayName("썸네일 URL 길이 초과 시 예외 발생")
+        @DisplayName("썸네일 경로 길이 초과 시 예외 발생")
         void create_withThumbnailTooLong() {
             // given
-            String longUrl = "a".repeat(THUMBNAIL_URL_MAX_LENGTH + 1);
+            String longPath = "a".repeat(THUMBNAIL_PATH_MAX_LENGTH + 1);
 
             // when / then
             assertThatThrownBy(() -> ContentModel.create(ContentModel.ContentType.movie, "제목", "설명",
-                longUrl)
+                longPath)
             ).isInstanceOf(InvalidContentDataException.class);
         }
     }
@@ -130,7 +133,7 @@ class ContentModelTest {
             assertThat(updated.getType()).isEqualTo(ContentModel.ContentType.movie);
             assertThat(updated.getTitle()).isEqualTo("새 제목");
             assertThat(updated.getDescription()).isEqualTo("새 설명");
-            assertThat(updated.getThumbnailUrl()).isEqualTo("new-url");
+            assertThat(updated.getThumbnailPath()).isEqualTo("new-url");
         }
 
         @ParameterizedTest
@@ -161,15 +164,15 @@ class ContentModelTest {
         }
 
         @Test
-        @DisplayName("update 시 썸네일 URL 길이 초과하면 예외 발생")
+        @DisplayName("update 시 썸네일 경로 길이 초과하면 예외 발생")
         void update_withThumbnailTooLong() {
             // given
             ContentModel original = ContentModel.create(ContentModel.ContentType.movie, "제목", "설명",
-                "url");
-            String longUrl = "a".repeat(THUMBNAIL_URL_MAX_LENGTH + 1);
+                "path");
+            String longPath = "a".repeat(THUMBNAIL_PATH_MAX_LENGTH + 1);
 
             // when / then
-            assertThatThrownBy(() -> original.update("제목", "설명", longUrl)
+            assertThatThrownBy(() -> original.update("제목", "설명", longPath)
             ).isInstanceOf(InvalidContentDataException.class);
         }
     }

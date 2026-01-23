@@ -16,8 +16,8 @@ public class ContentTagService {
     private final ContentTagRepository contentTagRepository;
     private final TagService tagService;
 
-    public List<TagModel> getTagsByContentId(UUID contentId) {
-        return contentTagRepository.findTagsByContentId(contentId);
+    public List<String> getTagNamesByContentId(UUID contentId) {
+        return toTagNames(contentTagRepository.findTagsByContentId(contentId));
     }
 
     public Map<UUID, List<String>> getTagNamesByContentIds(List<UUID> contentIds) {

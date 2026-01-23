@@ -106,7 +106,7 @@ class ContentRepositoryImplTest {
                 ContentModel.ContentType.movie,
                 "인셉션",
                 "꿈속의 꿈",
-                "https://mopl.com/inception.png"
+                "contents/inception.png"
             );
 
             // when
@@ -117,7 +117,7 @@ class ContentRepositoryImplTest {
             assertThat(savedContent.getType()).isEqualTo(ContentModel.ContentType.movie);
             assertThat(savedContent.getTitle()).isEqualTo("인셉션");
             assertThat(savedContent.getDescription()).isEqualTo("꿈속의 꿈");
-            assertThat(savedContent.getThumbnailUrl()).isEqualTo("https://mopl.com/inception.png");
+            assertThat(savedContent.getThumbnailPath()).isEqualTo("contents/inception.png");
             assertThat(savedContent.getCreatedAt()).isNotNull();
             assertThat(savedContent.getUpdatedAt()).isNotNull();
             assertThat(savedContent.getDeletedAt()).isNull();

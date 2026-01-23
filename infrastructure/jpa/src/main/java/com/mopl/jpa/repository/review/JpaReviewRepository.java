@@ -55,12 +55,4 @@ public interface JpaReviewRepository extends JpaRepository<ReviewEntity, UUID> {
         @Param("contentIds") List<UUID> contentIds,
         @Param("now") Instant now
     );
-
-    @Query("""
-            select avg(r.rating), count(r)
-            from ReviewEntity r
-            where r.content.id = :contentId
-              and r.deletedAt is null
-        """)
-    Object[] findStatsByContentId(@Param("contentId") UUID contentId);
 }

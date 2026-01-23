@@ -19,7 +19,7 @@ public class ContentEntityMapper {
             .type(entity.getType())
             .title(entity.getTitle())
             .description(entity.getDescription())
-            .thumbnailUrl(entity.getThumbnailUrl())
+            .thumbnailPath(entity.getThumbnailPath())
             .reviewCount(entity.getReviewCount())
             .averageRating(entity.getAverageRating())
             .build();
@@ -38,7 +38,7 @@ public class ContentEntityMapper {
             .type(model.getType())
             .title(model.getTitle())
             .description(model.getDescription())
-            .thumbnailUrl(model.getThumbnailUrl())
+            .thumbnailPath(model.getThumbnailPath())
             .reviewCount(model.getReviewCount())
             .averageRating(model.getAverageRating())
             .build();

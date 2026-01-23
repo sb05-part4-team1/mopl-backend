@@ -6,6 +6,7 @@ import com.mopl.domain.repository.content.ContentTagRepository;
 import com.mopl.domain.repository.tag.TagRepository;
 import com.mopl.domain.service.content.ContentCacheService;
 import com.mopl.domain.service.content.ContentService;
+import com.mopl.domain.service.content.ContentTagService;
 import com.mopl.domain.service.tag.TagService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,17 +17,15 @@ public class DomainServiceConfig {
     @Bean
     public ContentService contentService(
         ContentCacheService contentCacheService,
-        TagService tagService,
+        ContentTagService contentTagService,
         ContentRepository contentRepository,
-        ContentQueryRepository contentQueryRepository,
-        ContentTagRepository contentTagRepository
+        ContentQueryRepository contentQueryRepository
     ) {
         return new ContentService(
             contentCacheService,
-            tagService,
-            contentRepository,
+            contentTagService,
             contentQueryRepository,
-            contentTagRepository
+            contentRepository
         );
     }
 

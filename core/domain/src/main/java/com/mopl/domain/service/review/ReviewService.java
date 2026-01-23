@@ -20,7 +20,6 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ReviewQueryRepository reviewQueryRepository;
     private final ContentRepository contentRepository;
-    private final ReviewStatsService reviewStatsService;
 
     public CursorResponse<ReviewModel> getAll(ReviewQueryRequest request) {
         return reviewQueryRepository.findAll(request);
@@ -35,9 +34,8 @@ public class ReviewService {
         ReviewModel reviewModel = ReviewModel.create(content, author, text, rating);
         ReviewModel savedReviewModel = reviewRepository.save(reviewModel);
 
-        ContentModel updatedContent = content.applyReview(rating);
+        ContentModel updatedContent = content.addReview(rating);
         contentRepository.save(updatedContent);
-        reviewStatsService.applyReview(content.getId(), rating);
 
         return savedReviewModel;
     }
@@ -59,7 +57,6 @@ public class ReviewService {
         if (rating != null && rating != oldRating) {
             ContentModel content = saved.getContent();
             contentRepository.save(content.updateReview(oldRating, rating));
-            reviewStatsService.updateReview(content.getId(), oldRating, rating);
         }
 
         return saved;
@@ -79,7 +76,6 @@ public class ReviewService {
 
         ContentModel content = review.getContent();
         contentRepository.save(content.removeReview(rating));
-        reviewStatsService.removeReview(content.getId(), rating);
     }
 
     private ReviewModel getById(UUID reviewId) {

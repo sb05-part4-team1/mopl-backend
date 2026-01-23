@@ -52,7 +52,7 @@ public class ContentRepositoryImpl implements ContentRepository {
 
         Map<UUID, String> result = new HashMap<>();
         for (ContentThumbnailRow row : rows) {
-            result.put(row.getId(), row.getThumbnailUrl());
+            result.put(row.getId(), row.getThumbnailPath());
         }
         return result;
     }

@@ -8,15 +8,15 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Getter
-@SuperBuilder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder(toBuilder = true)
 public class ContentModel extends BaseUpdatableModel {
 
     public static final int CONTENT_TYPE_MAX_LENGTH = 20;
     public static final int TITLE_MAX_LENGTH = 255;
-    public static final int THUMBNAIL_URL_MAX_LENGTH = 1024;
+    public static final int DESCRIPTION_MAX_LENGTH = 10_000;
+    public static final int THUMBNAIL_PATH_MAX_LENGTH = 1024;
 
-    // TODO: FE 대문자 snake case로 변환
     public enum ContentType {
         movie,
         tvSeries,
@@ -26,50 +26,77 @@ public class ContentModel extends BaseUpdatableModel {
     private ContentType type;
     private String title;
     private String description;
-    private String thumbnailUrl;
+    private String thumbnailPath;
 
-    private double averageRating;
     private int reviewCount;
+    private double averageRating;
 
     public static ContentModel create(
         ContentType type,
         String title,
         String description,
-        String thumbnailUrl
+        String thumbnailPath
     ) {
-        validateRequiredFields(type, title, description, thumbnailUrl);
+        if (type == null) {
+            throw InvalidContentDataException.withDetailMessage("콘텐츠 타입은 null일 수 없습니다.");
+        }
+        if (title == null) {
+            throw InvalidContentDataException.withDetailMessage("제목은 null일 수 없습니다.");
+        }
+        if (description == null) {
+            throw InvalidContentDataException.withDetailMessage("설명은 null일 수 없습니다.");
+        }
+        if (thumbnailPath == null) {
+            throw InvalidContentDataException.withDetailMessage("썸네일 경로는 null일 수 없습니다.");
+        }
+
         validateTitle(title);
-        validateThumbnailUrl(thumbnailUrl);
+        validateDescription(description);
+        validateThumbnailPath(thumbnailPath);
 
         return ContentModel.builder()
             .type(type)
             .title(title)
             .description(description)
-            .thumbnailUrl(thumbnailUrl)
+            .thumbnailPath(thumbnailPath)
             .reviewCount(0)
             .averageRating(0.0)
             .build();
     }
 
     public ContentModel update(
-        String title,
-        String description,
-        String thumbnailUrl
+        String newTitle,
+        String newDescription,
+        String newThumbnailPath
     ) {
-        validateRequiredFields(this.type, title, description, thumbnailUrl);
-        validateTitle(title);
-        validateThumbnailUrl(thumbnailUrl);
+        String updatedTitle = this.title;
+        String updatedDescription = this.description;
+        String updatedThumbnailPath = this.thumbnailPath;
+
+        if (newTitle != null) {
+            validateTitle(newTitle);
+            updatedTitle = newTitle;
+        }
+
+        if (newDescription != null) {
+            validateDescription(newDescription);
+            updatedDescription = newDescription;
+        }
+
+        if (newThumbnailPath != null) {
+            validateThumbnailPath(newThumbnailPath);
+            updatedThumbnailPath = newThumbnailPath;
+        }
 
         return this.toBuilder()
-            .title(title)
-            .description(description)
-            .thumbnailUrl(thumbnailUrl)
+            .title(updatedTitle)
+            .description(updatedDescription)
+            .thumbnailPath(updatedThumbnailPath)
             .build();
     }
 
-    public ContentModel applyReview(double rating) {
+    public ContentModel addReview(double rating) {
         int newCount = this.reviewCount + 1;
-
         double newAverage = ((this.averageRating * this.reviewCount) + rating) / newCount;
 
         return this.toBuilder()
@@ -110,39 +137,33 @@ public class ContentModel extends BaseUpdatableModel {
             .build();
     }
 
-    private static void validateRequiredFields(
-        ContentType type,
-        String title,
-        String description,
-        String thumbnailUrl
-    ) {
-        if (type == null) {
-            throw InvalidContentDataException.withDetailMessage("콘텐츠 타입은 필수입니다.");
-        }
-        if (title == null || title.isBlank()) {
+    private static void validateTitle(String title) {
+        if (title.isBlank()) {
             throw InvalidContentDataException.withDetailMessage("제목은 비어있을 수 없습니다.");
         }
-        if (description == null || description.isBlank()) {
-            throw InvalidContentDataException.withDetailMessage("설명은 비어있을 수 없습니다.");
-        }
-        if (thumbnailUrl == null || thumbnailUrl.isBlank()) {
-            throw InvalidContentDataException.withDetailMessage("썸네일 URL은 비어있을 수 없습니다.");
-        }
-    }
-
-    private static void validateTitle(String title) {
         if (title.length() > TITLE_MAX_LENGTH) {
             throw InvalidContentDataException.withDetailMessage(
-                "제목은 " + TITLE_MAX_LENGTH + "자를 초과할 수 없습니다."
-            );
+                "제목은 " + TITLE_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 
-    private static void validateThumbnailUrl(String thumbnailUrl) {
-        if (thumbnailUrl.length() > THUMBNAIL_URL_MAX_LENGTH) {
+    private static void validateDescription(String description) {
+        if (description.isBlank()) {
+            throw InvalidContentDataException.withDetailMessage("설명은 비어있을 수 없습니다.");
+        }
+        if (description.length() > DESCRIPTION_MAX_LENGTH) {
             throw InvalidContentDataException.withDetailMessage(
-                "썸네일 URL은 " + THUMBNAIL_URL_MAX_LENGTH + "자를 초과할 수 없습니다."
-            );
+                "설명은 " + DESCRIPTION_MAX_LENGTH + "자를 초과할 수 없습니다.");
+        }
+    }
+
+    private static void validateThumbnailPath(String thumbnailPath) {
+        if (thumbnailPath.isBlank()) {
+            throw InvalidContentDataException.withDetailMessage("썸네일 경로는 비어있을 수 없습니다.");
+        }
+        if (thumbnailPath.length() > THUMBNAIL_PATH_MAX_LENGTH) {
+            throw InvalidContentDataException.withDetailMessage(
+                "썸네일 경로는 " + THUMBNAIL_PATH_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 }

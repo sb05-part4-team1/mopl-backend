@@ -2,6 +2,8 @@ package com.mopl.api.interfaces.api.content.mapper;
 
 import com.mopl.api.interfaces.api.content.dto.ContentSummary;
 import com.mopl.domain.model.content.ContentModel;
+import com.mopl.storage.provider.StorageProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -11,7 +13,10 @@ import java.util.Map;
 import java.util.UUID;
 
 @Component
+@RequiredArgsConstructor
 public class ContentSummaryMapper {
+
+    private final StorageProvider storageProvider;
 
     public ContentSummary toSummary(ContentModel model, List<String> tags) {
         return new ContentSummary(
@@ -19,7 +24,7 @@ public class ContentSummaryMapper {
             model.getType(),
             model.getTitle(),
             model.getDescription(),
-            model.getThumbnailUrl(),
+            storageProvider.getUrl(model.getThumbnailPath()),
             tags,
             model.getAverageRating(),
             model.getReviewCount()

@@ -34,7 +34,7 @@ public interface JpaContentRepository extends JpaRepository<ContentEntity, UUID>
         value = """
                 select
                     BIN_TO_UUID(id) as id,
-                    thumbnail_url as thumbnailUrl
+                    thumbnail_path as thumbnailPath
                 from contents
                 where id in (:contentIds)
             """,

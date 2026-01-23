@@ -6,5 +6,5 @@ public interface ContentThumbnailRow {
 
     UUID getId();
 
-    String getThumbnailUrl();
+    String getThumbnailPath();
 }
