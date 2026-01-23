@@ -30,4 +30,19 @@ public interface JpaPlaylistContentRepository extends JpaRepository<PlaylistCont
         @Param("playlistId") UUID playlistId,
         @Param("contentId") UUID contentId
     );
+
+    // 이하 메서드들 cleanup batch 전용
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            delete from PlaylistContentEntity pc
+            where pc.content.id in :contentIds
+        """)
+    int deleteAllByContentIds(@Param("contentIds") List<UUID> contentIds);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            delete from PlaylistContentEntity pc
+            where pc.playlist.id in :playlistIds
+        """)
+    int deleteAllByPlaylistIds(@Param("playlistIds") List<UUID> playlistIds);
 }

@@ -7,6 +7,8 @@ import com.mopl.jpa.entity.review.ReviewEntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,5 +30,21 @@ public class ReviewRepositoryImpl implements ReviewRepository {
         ReviewEntity reviewEntity = reviewEntityMapper.toEntity(reviewModel);
         ReviewEntity savedReviewEntity = jpaReviewRepository.save(reviewEntity);
         return reviewEntityMapper.toModel(savedReviewEntity);
+    }
+
+    // 이하 메서드들 cleanup batch 전용
+    @Override
+    public List<UUID> findCleanupTargets(Instant threshold, int limit) {
+        return jpaReviewRepository.findCleanupTargets(threshold, limit);
+    }
+
+    @Override
+    public int deleteAllByIds(List<UUID> reviewIds) {
+        return jpaReviewRepository.deleteAllByIds(reviewIds);
+    }
+
+    @Override
+    public int softDeleteByContentIds(List<UUID> contentIds, Instant now) {
+        return jpaReviewRepository.softDeleteByContentIds(contentIds, now);
     }
 }

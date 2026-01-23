@@ -76,4 +76,9 @@ public class PlaylistSubscriberRepositoryImpl implements PlaylistSubscriberRepos
     public List<UUID> findSubscriberIdsByPlaylistId(UUID playlistId) {
         return jpaPlaylistSubscriberRepository.findSubscriberIdsByPlaylistId(playlistId);
     }
+
+    @Override
+    public int deleteAllByPlaylistIds(List<UUID> playlistIds) {
+        return jpaPlaylistSubscriberRepository.deleteAllByPlaylistIds(playlistIds);
+    }
 }
