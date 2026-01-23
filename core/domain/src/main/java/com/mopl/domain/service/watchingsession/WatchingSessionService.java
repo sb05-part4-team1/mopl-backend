@@ -12,7 +12,6 @@ import java.util.UUID;
 
 /**
  * 시청 세션 도메인 서비스.
- *
  * - 활성 시청 세션은 Fake(인메모리) Repository에 저장되어 있다고 가정한다.
  * - 목록 조회는 커서 페이지네이션을 지원한다.
  * - 추후 Redis로 Repository 구현체를 교체해도 Service 시그니처는 유지한다.

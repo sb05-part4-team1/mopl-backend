@@ -33,11 +33,10 @@ public class ContentWebSocketFacade {
         UserModel watcher = userService.getById(userId);
         ContentModel content = contentService.getById(contentId);
         WatchingSessionModel session = WatchingSessionModel.create(watcher, content);
-        WatchingSessionModel dtoTarget = null;
+        WatchingSessionModel dtoTarget;
 
         if (type == ChangeType.JOIN) {
-            WatchingSessionModel saved = webSocketWatchingSessionService.create(session);
-            dtoTarget = saved;
+            dtoTarget = webSocketWatchingSessionService.create(session);
         } else {
             dtoTarget = webSocketWatchingSessionService.findCurrentByWatcherId(userId)
                 .orElse(session); // 혹시 없으면 fallback(없으면 id/createdAt null일 수 있음)

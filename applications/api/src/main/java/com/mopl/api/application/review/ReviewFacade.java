@@ -27,6 +27,10 @@ public class ReviewFacade {
     private final ContentService contentService;
     private final ReviewResponseMapper reviewResponseMapper;
 
+    public CursorResponse<ReviewResponse> getReviews(ReviewQueryRequest request) {
+        return reviewService.getAll(request).map(reviewResponseMapper::toResponse);
+    }
+
     @Transactional
     public ReviewResponse createReview(
         UUID requesterId,
@@ -43,10 +47,6 @@ public class ReviewFacade {
         );
 
         return reviewResponseMapper.toResponse(savedReview);
-    }
-
-    public CursorResponse<ReviewResponse> getReviews(ReviewQueryRequest request) {
-        return reviewService.getAll(request).map(reviewResponseMapper::toResponse);
     }
 
     @Transactional

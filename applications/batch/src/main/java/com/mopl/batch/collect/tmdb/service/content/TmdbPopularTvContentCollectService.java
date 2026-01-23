@@ -1,0 +1,71 @@
+package com.mopl.batch.collect.tmdb.service.content;
+
+import com.mopl.batch.collect.tmdb.properties.TmdbCollectPolicyResolver;
+import com.mopl.batch.collect.tmdb.properties.TmdbCollectProperties;
+import com.mopl.external.tmdb.client.TmdbClient;
+import com.mopl.external.tmdb.model.TmdbTvItem;
+import com.mopl.external.tmdb.model.TmdbTvResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class TmdbPopularTvContentCollectService {
+
+    private final TmdbClient tmdbClient;
+    private final TmdbPopularContentUpsertTxService upsertService;
+    private final TmdbCollectProperties collectProperties;
+    private final TmdbCollectPolicyResolver policyResolver;
+
+    public int collectPopularTvSeries() {
+        int maxPage = policyResolver.maxPage(collectProperties.getTvContent());
+        int processed = 0;
+
+        for (int page = 1; page <= maxPage; page++) {
+            TmdbTvResponse response = tmdbClient.fetchPopularTvSeries(page);
+
+            if (response == null || response.results() == null) {
+                log.debug("TMDB tv results empty: page={}",
+                    page);
+                continue;
+            }
+
+            for (TmdbTvItem item : response.results()) {
+                if (!isValid(item)) {
+                    log.debug("TMDB invalid tv skipped: page={}, externalId={}",
+                        page,
+                        item == null ? null : item.id());
+                    continue;
+                }
+
+                try {
+                    boolean created = upsertService.upsertTv(item);
+                    if (created) {
+                        processed++;
+                    }
+
+                } catch (DataIntegrityViolationException e) {
+                    log.debug("TMDB duplicate skipped: externalId={}",
+                        item.id());
+
+                } catch (RuntimeException e) {
+                    log.warn("Failed to process TMDB tv: name={}, reason={}",
+                        item.name(),
+                        e.getMessage());
+                }
+            }
+        }
+
+        return processed;
+    }
+
+    private boolean isValid(TmdbTvItem item) {
+        return item != null
+            && item.name() != null && !item.name().isBlank()
+            && item.poster_path() != null && !item.poster_path().isBlank()
+            && item.overview() != null && !item.overview().isBlank();
+    }
+}

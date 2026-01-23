@@ -6,6 +6,7 @@ import com.mopl.api.interfaces.api.user.UserResponse;
 import com.mopl.api.interfaces.api.user.UserResponseMapper;
 import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserUpdateRequest;
+import com.mopl.api.application.outbox.DomainEventOutboxMapper;
 import com.mopl.domain.exception.user.SelfLockChangeException;
 import com.mopl.domain.exception.user.SelfRoleChangeException;
 import com.mopl.domain.fixture.UserModelFixture;
@@ -13,6 +14,7 @@ import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.user.TemporaryPasswordRepository;
 import com.mopl.domain.repository.user.UserQueryRequest;
 import com.mopl.domain.repository.user.UserSortField;
+import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
@@ -27,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
@@ -42,6 +45,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 
@@ -66,6 +70,15 @@ class UserFacadeTest {
 
     @Mock
     private JwtRegistry jwtRegistry;
+
+    @Mock
+    private OutboxService outboxService;
+
+    @Mock
+    private DomainEventOutboxMapper domainEventOutboxMapper;
+
+    @Mock
+    private TransactionTemplate transactionTemplate;
 
     @InjectMocks
     private UserFacade userFacade;
@@ -183,6 +196,9 @@ class UserFacadeTest {
 
             given(userService.getById(targetUser.getId())).willReturn(targetUser);
             given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
+            willAnswer(invocation -> invocation.<org.springframework.transaction.support.TransactionCallback<?>>getArgument(0)
+                .doInTransaction(null))
+                .given(transactionTemplate).execute(any());
 
             // when
             UserModel result = userFacade.updateRole(requesterId, request, targetUser.getId());
@@ -220,6 +236,9 @@ class UserFacadeTest {
 
             given(userService.getById(targetUser.getId())).willReturn(targetUser);
             given(userService.update(any(UserModel.class))).willReturn(targetUser);
+            willAnswer(invocation -> invocation.<org.springframework.transaction.support.TransactionCallback<?>>getArgument(0)
+                .doInTransaction(null))
+                .given(transactionTemplate).execute(any());
 
             // when & then
             assertThatNoException()
@@ -590,7 +609,7 @@ class UserFacadeTest {
 
             // then
             assertThat(result.data()).hasSize(1);
-            assertThat(result.data().get(0).role()).isEqualTo(UserModel.Role.ADMIN);
+            assertThat(result.data().getFirst().role()).isEqualTo(UserModel.Role.ADMIN);
             assertThat(result.hasNext()).isFalse();
 
             then(userService).should().getAll(request);

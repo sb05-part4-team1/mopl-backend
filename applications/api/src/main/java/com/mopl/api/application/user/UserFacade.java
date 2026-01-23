@@ -1,17 +1,20 @@
 package com.mopl.api.application.user;
 
+import com.mopl.api.application.outbox.DomainEventOutboxMapper;
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
 import com.mopl.api.interfaces.api.user.UserLockUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserResponse;
 import com.mopl.api.interfaces.api.user.UserResponseMapper;
 import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserUpdateRequest;
+import com.mopl.domain.event.user.UserRoleChangedEvent;
 import com.mopl.domain.exception.user.SelfLockChangeException;
 import com.mopl.domain.exception.user.SelfRoleChangeException;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.model.user.UserModel.AuthProvider;
 import com.mopl.domain.repository.user.TemporaryPasswordRepository;
 import com.mopl.domain.repository.user.UserQueryRequest;
+import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.security.jwt.registry.JwtRegistry;
@@ -19,6 +22,7 @@ import com.mopl.storage.provider.FileStorageProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -36,6 +40,9 @@ public class UserFacade {
     private final PasswordEncoder passwordEncoder;
     private final TemporaryPasswordRepository temporaryPasswordRepository;
     private final JwtRegistry jwtRegistry;
+    private final DomainEventOutboxMapper domainEventOutboxMapper;
+    private final OutboxService outboxService;
+    private final TransactionTemplate transactionTemplate;
 
     public UserModel signUp(UserCreateRequest userCreateRequest) {
         String email = userCreateRequest.email().strip().toLowerCase(Locale.ROOT);
@@ -73,9 +80,23 @@ public class UserFacade {
 
     public UserModel updateRoleInternal(UUID userId, UserModel.Role role) {
         UserModel userModel = userService.getById(userId);
+        String oldRole = userModel.getRole().name();
         userModel.updateRole(role);
-        UserModel updatedUser = userService.update(userModel);
+
+        UserRoleChangedEvent event = UserRoleChangedEvent.builder()
+            .userId(userId)
+            .oldRole(oldRole)
+            .newRole(role.name())
+            .build();
+
+        UserModel updatedUser = transactionTemplate.execute(status -> {
+            UserModel saved = userService.update(userModel);
+            outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
+            return saved;
+        });
+
         jwtRegistry.revokeAllByUserId(userId);
+
         return updatedUser;
     }
 

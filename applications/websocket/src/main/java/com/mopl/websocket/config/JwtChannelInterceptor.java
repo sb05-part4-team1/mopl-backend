@@ -4,6 +4,7 @@ import com.mopl.security.jwt.provider.JwtPayload;
 import com.mopl.security.jwt.provider.JwtProvider;
 import com.mopl.security.jwt.provider.TokenType;
 import com.mopl.security.userdetails.MoplUserDetails;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -28,7 +29,7 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
     private final JwtProvider jwtProvider;
 
     @Override
-    public Message<?> preSend(Message<?> message, MessageChannel channel) {
+    public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message,
             StompHeaderAccessor.class);
 
@@ -68,9 +69,7 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
                     accessor.getSessionAttributes().put("watchingContentId", contentId);
                 }
             }
-        }
-
-        else if (accessor.getUser() != null) {
+        } else if (accessor.getUser() != null) {
             Authentication authentication = (Authentication) accessor.getUser();
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

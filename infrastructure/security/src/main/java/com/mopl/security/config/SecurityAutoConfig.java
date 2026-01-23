@@ -11,6 +11,7 @@ import com.mopl.security.jwt.filter.JwtAuthenticationFilter;
 import com.mopl.security.oauth2.CustomOAuth2UserService;
 import com.mopl.security.oauth2.handler.OAuth2FailureHandler;
 import com.mopl.security.oauth2.handler.OAuth2SuccessHandler;
+import jakarta.servlet.DispatcherType;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -23,6 +24,7 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -49,6 +51,7 @@ public class SecurityAutoConfig {
     @ConditionalOnMissingBean(SecurityRegistry.class)
     public SecurityRegistry defaultSecurityRegistry() {
         return auth -> auth
+            .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
             .requestMatchers(
                 new AntPathRequestMatcher("h2-console/**")
             ).permitAll()
@@ -71,6 +74,7 @@ public class SecurityAutoConfig {
         OAuth2FailureHandler oAuth2FailureHandler
     ) throws Exception {
         http
+            .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf
                 .ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**"))
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())

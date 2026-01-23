@@ -7,6 +7,7 @@ import com.mopl.domain.repository.playlist.PlaylistSubscriberRepository;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -17,6 +18,7 @@ public class PlaylistSubscriptionService {
     private final PlaylistSubscriberRepository playlistSubscriberRepository;
     private final PlaylistSubscriberCountRepository playlistSubscriberCountRepository;
 
+    // TODO: redis 장애 시 fallback
     public long getSubscriberCount(UUID playlistId) {
         return playlistSubscriberCountRepository.getCount(playlistId);
     }
@@ -40,6 +42,10 @@ public class PlaylistSubscriptionService {
             subscriberId,
             playlistIds
         );
+    }
+
+    public List<UUID> getSubscriberIds(UUID playlistId) {
+        return playlistSubscriberRepository.findSubscriberIdsByPlaylistId(playlistId);
     }
 
     public void subscribe(UUID playlistId, UUID subscriberId) {

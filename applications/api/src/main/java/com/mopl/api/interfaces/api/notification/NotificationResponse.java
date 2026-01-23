@@ -1,10 +1,10 @@
 package com.mopl.api.interfaces.api.notification;
 
+import com.mopl.domain.model.notification.NotificationModel;
 import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.time.Instant;
 import java.util.UUID;
-
-import com.mopl.domain.model.notification.NotificationLevel;
 
 public record NotificationResponse(
 
@@ -18,6 +18,6 @@ public record NotificationResponse(
 
     @Schema(description = "알림 내용") String content,
 
-    @Schema(description = "알림 수준") NotificationLevel level
+    @Schema(description = "알림 수준") NotificationModel.NotificationLevel level
 ) {
 }

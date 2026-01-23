@@ -1,27 +1,24 @@
 package com.mopl.domain.repository.follow;
 
+import com.mopl.domain.model.follow.FollowModel;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.mopl.domain.model.follow.FollowModel;
-
 public interface FollowRepository {
-
-    FollowModel save(FollowModel followModel);
-
-    /**
-     * follower ID와 followee ID로 팔로우 관계 조회
-     */
-    Optional<FollowModel> findByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId);
-
-    /**
-     * 팔로우 관계가 존재하는지 확인 (soft delete 제외)
-     */
-    boolean existsByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId);
 
     Optional<FollowModel> findById(UUID followId);
 
-    void delete(FollowModel followModel);
+    Optional<FollowModel> findByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId);
+
+    List<UUID> findFollowerIdsByFolloweeId(UUID followeeId);
+
+    boolean existsByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId);
 
     long countByFolloweeId(UUID followeeId);
+
+    FollowModel save(FollowModel followModel);
+
+    void delete(FollowModel followModel);
 }

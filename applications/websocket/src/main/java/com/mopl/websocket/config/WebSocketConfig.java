@@ -1,5 +1,6 @@
 package com.mopl.websocket.config;
 
+import lombok.NonNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -44,7 +45,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registration.interceptors(new ChannelInterceptor() {
 
             @Override
-            public Message<?> preSend(Message<?> message, MessageChannel channel) {
+            public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
                 webSocketMetrics.onInboundMessage(); // inbound 메시지 +1
                 return message; // 메시지는 그대로 통과
             }
@@ -57,7 +58,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registration.interceptors(new ChannelInterceptor() {
 
             @Override
-            public Message<?> preSend(Message<?> message, MessageChannel channel) {
+            public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
                 webSocketMetrics.onOutboundMessage(); // outbound 메시지 +1
                 return message; // 메시지는 그대로 통과
             }

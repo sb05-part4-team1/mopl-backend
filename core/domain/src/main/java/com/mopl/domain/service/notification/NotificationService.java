@@ -8,6 +8,7 @@ import com.mopl.domain.repository.notification.NotificationRepository;
 import com.mopl.domain.support.cursor.CursorResponse;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -16,10 +17,11 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationQueryRepository notificationQueryRepository;
 
-    public void deleteById(UUID notificationId) {
-        NotificationModel notification = getById(notificationId);
-        notification.delete();
-        notificationRepository.save(notification);
+    public CursorResponse<NotificationModel> getAll(
+        UUID receiverId,
+        NotificationQueryRequest request
+    ) {
+        return notificationQueryRepository.findAll(receiverId, request);
     }
 
     public NotificationModel getById(UUID notificationId) {
@@ -27,10 +29,17 @@ public class NotificationService {
             .orElseThrow(() -> new NotificationNotFoundException(notificationId));
     }
 
-    public CursorResponse<NotificationModel> getAll(
-        UUID receiverId,
-        NotificationQueryRequest request
-    ) {
-        return notificationQueryRepository.findAll(receiverId, request);
+    public NotificationModel create(NotificationModel notification) {
+        return notificationRepository.save(notification);
+    }
+
+    public List<NotificationModel> createAll(List<NotificationModel> notifications) {
+        return notificationRepository.saveAll(notifications);
+    }
+
+    public void deleteById(UUID notificationId) {
+        NotificationModel notification = getById(notificationId);
+        notification.delete();
+        notificationRepository.save(notification);
     }
 }

@@ -5,6 +5,7 @@ import com.mopl.domain.repository.playlist.PlaylistQueryRepository;
 import com.mopl.domain.repository.playlist.PlaylistQueryRequest;
 import com.mopl.domain.repository.playlist.PlaylistSortField;
 import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.domain.support.cursor.SortDirection;
 import com.mopl.jpa.entity.playlist.PlaylistEntity;
 import com.mopl.jpa.entity.playlist.PlaylistEntityMapper;
 import com.mopl.jpa.support.cursor.CursorPaginationHelper;
@@ -14,6 +15,7 @@ import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -122,7 +124,7 @@ public class PlaylistQueryRepositoryImpl implements PlaylistQueryRepository {
         boolean isAscending = request.sortDirection().isAscending();
         Long cursorValue = Long.parseLong(cursor);
 
-        var countExpr = Expressions.asNumber(subscribeCount);
+        NumberExpression<Long> countExpr = Expressions.asNumber(subscribeCount);
         if (isAscending) {
             return countExpr.gt(cursorValue)
                 .or(countExpr.eq(cursorValue).and(playlistEntity.id.gt(idAfter)));
@@ -151,7 +153,7 @@ public class PlaylistQueryRepositoryImpl implements PlaylistQueryRepository {
         long totalCount
     ) {
         String sortByStr = sortFieldJpa.getFieldName();
-        var direction = request.sortDirection();
+        SortDirection direction = request.sortDirection();
 
         if (rows.isEmpty()) {
             return CursorResponse.empty(sortByStr, direction);
@@ -175,7 +177,7 @@ public class PlaylistQueryRepositoryImpl implements PlaylistQueryRepository {
             );
         }
 
-        Tuple lastRow = resultRows.get(resultRows.size() - 1);
+        Tuple lastRow = resultRows.getLast();
         Long lastSubscribeCount = lastRow.get(1, Long.class);
         String nextCursor = sortFieldJpa.serializeCursor(lastSubscribeCount);
         UUID nextIdAfter = Objects.requireNonNull(lastRow.get(playlistEntity)).getId();

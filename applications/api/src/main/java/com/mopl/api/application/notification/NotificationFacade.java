@@ -35,7 +35,7 @@ public class NotificationFacade {
         userService.getById(userId);
         NotificationModel notification = notificationService.getById(notificationId);
 
-        if (!notification.getReceiver().getId().equals(userId)) {
+        if (!notification.getReceiverId().equals(userId)) {
             throw new NotificationOwnershipException(notificationId, userId);
         }
 

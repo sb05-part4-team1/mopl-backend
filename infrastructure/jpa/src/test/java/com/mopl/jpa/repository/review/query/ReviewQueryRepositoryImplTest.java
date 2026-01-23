@@ -32,7 +32,7 @@ import static com.mopl.domain.model.user.UserModel.AuthProvider;
 import static com.mopl.domain.model.user.UserModel.Role;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @Import({
     JpaConfig.class,
     QuerydslConfig.class,

@@ -1,10 +1,8 @@
 package com.mopl.jpa.repository.notification.query;
 
-import com.mopl.domain.model.notification.NotificationLevel;
-import com.mopl.domain.model.user.UserModel;
+import com.mopl.domain.model.notification.NotificationModel;
 import com.mopl.domain.repository.notification.NotificationSortField;
 import com.mopl.jpa.entity.notification.NotificationEntity;
-import com.mopl.jpa.entity.user.UserEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -77,23 +75,13 @@ class NotificationSortFieldJpaTest {
     class ExtractValueTest {
 
         private NotificationEntity createTestEntity() {
-            UserEntity receiver = UserEntity.builder()
-                .id(UUID.randomUUID())
-                .authProvider(UserModel.AuthProvider.EMAIL)
-                .email("test@example.com")
-                .name("테스트")
-                .password("encodedPassword")
-                .role(UserModel.Role.USER)
-                .locked(false)
-                .build();
-
             return NotificationEntity.builder()
                 .id(UUID.randomUUID())
                 .createdAt(Instant.parse("2024-01-15T10:30:00Z"))
                 .title("테스트 알림")
                 .content("테스트 내용")
-                .level(NotificationLevel.INFO)
-                .receiver(receiver)
+                .level(NotificationModel.NotificationLevel.INFO)
+                .receiverId(UUID.randomUUID())
                 .build();
         }
 

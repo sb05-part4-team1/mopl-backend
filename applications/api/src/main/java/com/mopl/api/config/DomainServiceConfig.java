@@ -11,6 +11,7 @@ import com.mopl.domain.repository.conversation.ReadStatusRepository;
 import com.mopl.domain.repository.follow.FollowRepository;
 import com.mopl.domain.repository.notification.NotificationQueryRepository;
 import com.mopl.domain.repository.notification.NotificationRepository;
+import com.mopl.domain.repository.outbox.OutboxRepository;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.domain.repository.playlist.PlaylistQueryRepository;
 import com.mopl.domain.repository.playlist.PlaylistRepository;
@@ -27,6 +28,7 @@ import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.conversation.ConversationService;
 import com.mopl.domain.service.follow.FollowService;
 import com.mopl.domain.service.notification.NotificationService;
+import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.domain.service.playlist.PlaylistCacheService;
 import com.mopl.domain.service.playlist.PlaylistService;
 import com.mopl.domain.service.playlist.PlaylistSubscriptionService;
@@ -95,7 +97,6 @@ public class DomainServiceConfig {
             playlistRepository,
             playlistContentRepository
         );
-
     }
 
     @Bean
@@ -115,7 +116,6 @@ public class DomainServiceConfig {
     public PlaylistSubscriptionService playlistSubscriptionService(
         PlaylistSubscriberRepository playlistSubscriberRepository,
         PlaylistSubscriberCountRepository playlistSubscriberCountRepository
-
     ) {
         return new PlaylistSubscriptionService(
             playlistSubscriberRepository,
@@ -162,5 +162,12 @@ public class DomainServiceConfig {
             conversationQueryRepository,
             directMessageQueryRepository
         );
+    }
+
+    @Bean
+    public OutboxService outboxService(
+        OutboxRepository outboxRepository
+    ) {
+        return new OutboxService(outboxRepository);
     }
 }

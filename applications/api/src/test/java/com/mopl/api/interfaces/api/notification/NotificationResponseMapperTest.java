@@ -29,7 +29,7 @@ class NotificationResponseMapperTest {
             // then
             assertThat(result.id()).isEqualTo(notificationModel.getId());
             assertThat(result.createdAt()).isEqualTo(notificationModel.getCreatedAt());
-            assertThat(result.receiverId()).isEqualTo(notificationModel.getReceiver().getId());
+            assertThat(result.receiverId()).isEqualTo(notificationModel.getReceiverId());
             assertThat(result.title()).isEqualTo(notificationModel.getTitle());
             assertThat(result.content()).isEqualTo(notificationModel.getContent());
             assertThat(result.level()).isEqualTo(notificationModel.getLevel());

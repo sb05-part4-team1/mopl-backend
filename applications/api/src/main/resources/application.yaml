@@ -14,8 +14,9 @@ spring:
       - jpa.yaml
       - security.yaml
       - storage.yaml
-      - redis.yaml
       - cache.yaml
+      - redis.yaml
+      - kafka.yaml
       - mail.yaml
   threads:
     virtual:
@@ -37,7 +38,6 @@ mopl:
     name: 관리자
     password: ${ADMIN_PASSWORD:}
 
-#===============================
 management:
   endpoints:
     web:

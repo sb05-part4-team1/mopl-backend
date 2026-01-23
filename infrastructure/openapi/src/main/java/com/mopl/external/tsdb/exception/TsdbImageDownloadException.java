@@ -1,5 +1,8 @@
 package com.mopl.external.tsdb.exception;
 
+import lombok.Getter;
+
+@Getter
 public class TsdbImageDownloadException extends RuntimeException {
 
     private final String imageUrl;
@@ -7,9 +10,5 @@ public class TsdbImageDownloadException extends RuntimeException {
     public TsdbImageDownloadException(String imageUrl, Throwable cause) {
         super("TSDB image download failed: imageUrl=" + imageUrl, cause);
         this.imageUrl = imageUrl;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
     }
 }

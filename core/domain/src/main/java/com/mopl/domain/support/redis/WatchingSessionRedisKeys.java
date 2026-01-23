@@ -4,7 +4,6 @@ import java.util.UUID;
 
 /**
  * WatchingSession Redis Key 규칙 중앙화.
- *
  * - 키 문자열(prefix/suffix)은 여기에서만 정의한다.
  * - 다른 클래스에서는 문자열 조합 금지하고 이 클래스 메서드만 사용한다.
  */

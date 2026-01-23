@@ -7,7 +7,6 @@ import com.mopl.domain.exception.notification.NotificationNotFoundException;
 import com.mopl.domain.exception.notification.NotificationOwnershipException;
 import com.mopl.domain.fixture.NotificationModelFixture;
 import com.mopl.domain.fixture.UserModelFixture;
-import com.mopl.domain.model.notification.NotificationLevel;
 import com.mopl.domain.model.notification.NotificationModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.notification.NotificationQueryRequest;
@@ -87,13 +86,13 @@ class NotificationControllerTest {
                 .set("receiver", receiver)
                 .set("title", "알림1")
                 .set("content", "알림 내용1")
-                .set("level", NotificationLevel.INFO)
+                .set("level", NotificationModel.NotificationLevel.INFO)
                 .sample();
             NotificationModel notification2 = NotificationModelFixture.builder()
                 .set("receiver", receiver)
                 .set("title", "알림2")
                 .set("content", "알림 내용2")
-                .set("level", NotificationLevel.WARNING)
+                .set("level", NotificationModel.NotificationLevel.WARNING)
                 .sample();
 
             NotificationResponse response1 = notificationResponseMapper.toResponse(notification1);
