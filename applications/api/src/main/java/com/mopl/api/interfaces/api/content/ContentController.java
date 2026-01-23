@@ -1,6 +1,8 @@
 package com.mopl.api.interfaces.api.content;
 
 import com.mopl.api.application.content.ContentFacade;
+import com.mopl.domain.model.content.ContentModel;
+import com.mopl.domain.model.tag.TagModel;
 import com.mopl.domain.repository.content.ContentQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import jakarta.validation.Valid;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -27,6 +30,7 @@ import java.util.UUID;
 public class ContentController implements ContentApiSpec {
 
     private final ContentFacade contentFacade;
+    private final ContentResponseMapper contentResponseMapper;
 
     // TODO: ContentResponse로 다시 변경
     @GetMapping
@@ -36,35 +40,42 @@ public class ContentController implements ContentApiSpec {
 
     @GetMapping("/{contentId}")
     public ContentResponse getContent(@PathVariable UUID contentId) {
-        return contentFacade.getContent(contentId);
+        ContentModel contentModel = contentFacade.getContent(contentId);
+        String thumbnailUrl = contentFacade.getThumbnailUrl(contentModel.getThumbnailUrl());
+        List<TagModel> tags = contentFacade.getTags(contentId);
+        return contentResponseMapper.toResponse(contentModel, thumbnailUrl, tags);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public ContentResponse upload(
-        @RequestPart(name = "request") @Valid ContentCreateRequest request,
-        @RequestPart(name = "thumbnail") MultipartFile thumbnail
+        @RequestPart("request") @Valid ContentCreateRequest request,
+        @RequestPart("thumbnail") MultipartFile thumbnail
     ) {
-        return contentFacade.upload(request, thumbnail);
+        ContentModel content = contentFacade.upload(request, thumbnail);
+        String thumbnailUrl = contentFacade.getThumbnailUrl(content.getThumbnailUrl());
+        List<TagModel> tags = contentFacade.getTags(content.getId());
+        return contentResponseMapper.toResponse(content, thumbnailUrl, tags);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping(value = "/{contentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ContentResponse update(
         @PathVariable UUID contentId,
-        @RequestPart(name = "request") @Valid ContentUpdateRequest request,
-        @RequestPart(name = "thumbnail", required = false) MultipartFile thumbnail
+        @RequestPart("request") @Valid ContentUpdateRequest request,
+        @RequestPart("thumbnail") MultipartFile thumbnail
     ) {
-        return contentFacade.update(contentId, request, thumbnail);
+        ContentModel content = contentFacade.update(contentId, request, thumbnail);
+        String thumbnailUrl = contentFacade.getThumbnailUrl(content.getThumbnailUrl());
+        List<TagModel> tags = contentFacade.getTags(contentId);
+        return contentResponseMapper.toResponse(content, thumbnailUrl, tags);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{contentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(
-        @PathVariable UUID contentId
-    ) {
+    public void delete(@PathVariable UUID contentId) {
         contentFacade.delete(contentId);
     }
 }

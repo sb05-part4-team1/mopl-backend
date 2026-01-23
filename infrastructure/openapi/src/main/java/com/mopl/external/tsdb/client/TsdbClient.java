@@ -4,8 +4,6 @@ import com.mopl.external.tsdb.exception.TsdbImageDownloadException;
 import com.mopl.external.tsdb.model.EventResponse;
 import com.mopl.external.tsdb.model.LeagueResponse;
 import com.mopl.external.tsdb.properties.TsdbProperties;
-import java.io.IOException;
-import java.io.InputStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -50,21 +48,19 @@ public class TsdbClient {
             .block();
     }
 
-    public InputStream downloadImageStream(String fullImageUrl) {
+    public Resource downloadImage(String fullImageUrl) {
         if (fullImageUrl == null || fullImageUrl.isBlank()) {
             return null;
         }
 
         try {
-            Resource resource = tsdbWebClient.get()
+            return tsdbWebClient.get()
                 .uri(fullImageUrl + "/" + props.getImage().getDefaultSize())
                 .retrieve()
                 .bodyToMono(Resource.class)
                 .block();
 
-            return resource != null ? resource.getInputStream() : null;
-
-        } catch (IOException | RuntimeException e) {
+        } catch (RuntimeException e) {
             throw new TsdbImageDownloadException(fullImageUrl, e);
         }
     }

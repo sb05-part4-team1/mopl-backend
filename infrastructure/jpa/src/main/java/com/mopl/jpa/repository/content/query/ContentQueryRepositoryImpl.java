@@ -1,10 +1,8 @@
 package com.mopl.jpa.repository.content.query;
 
 import com.mopl.domain.model.content.ContentModel;
-import com.mopl.domain.model.tag.TagModel;
 import com.mopl.domain.repository.content.ContentQueryRepository;
 import com.mopl.domain.repository.content.ContentQueryRequest;
-import com.mopl.domain.repository.content.ContentTagRepository;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.jpa.entity.content.ContentEntity;
 import com.mopl.jpa.entity.content.ContentEntityMapper;
@@ -30,7 +28,6 @@ public class ContentQueryRepositoryImpl implements ContentQueryRepository {
 
     private final JPAQueryFactory queryFactory;
     private final ContentEntityMapper contentEntityMapper;
-    private final ContentTagRepository contentTagRepository;
 
     @Override
     public CursorResponse<ContentModel> findAll(ContentQueryRequest request) {
@@ -67,14 +64,11 @@ public class ContentQueryRepositoryImpl implements ContentQueryRepository {
             .map(contentEntityMapper::toModel)
             .collect(Collectors.toList());
 
-        // 3️⃣ 태그 배치 조회 후 매핑
-        attachTags(models);
-
-        // 4️⃣ id → model 매핑 (CursorResponse용)
+        // 3️⃣ id → model 매핑 (CursorResponse용)
         Map<UUID, ContentModel> modelById = models.stream()
             .collect(Collectors.toMap(ContentModel::getId, Function.identity()));
 
-        // 5️⃣ CursorResponse 생성
+        // 4️⃣ CursorResponse 생성
         return CursorPaginationHelper.buildResponse(
             entities,
             request,
@@ -108,31 +102,5 @@ public class ContentQueryRepositoryImpl implements ContentQueryRepository {
             ? contentEntity.title.containsIgnoreCase(keyword)
                 .or(contentEntity.description.containsIgnoreCase(keyword))
             : null;
-    }
-
-    /**
-     * 태그 배치 조회 후 ContentModel에 매핑
-     */
-    private void attachTags(List<ContentModel> contents) {
-
-        List<UUID> contentIds = contents.stream()
-            .map(ContentModel::getId)
-            .toList();
-
-        if (contentIds.isEmpty()) {
-            return;
-        }
-
-        Map<UUID, List<TagModel>> tagsByContentId = contentTagRepository.findTagsByContentIds(
-            contentIds);
-
-        contents.replaceAll(content -> content.withTags(
-            tagsByContentId
-                .getOrDefault(content.getId(), List.of())
-                .stream()
-                .map(TagModel::getName)
-                .toList()
-        )
-        );
     }
 }

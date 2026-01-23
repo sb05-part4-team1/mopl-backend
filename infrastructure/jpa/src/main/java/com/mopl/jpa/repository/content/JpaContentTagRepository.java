@@ -11,7 +11,6 @@ import java.util.UUID;
 
 public interface JpaContentTagRepository extends JpaRepository<ContentTagEntity, Long> {
 
-    // @Query를 사용하여 Tag 엔티티까지 한 번에 조회
     @Query("""
             select ct
             from ContentTagEntity ct

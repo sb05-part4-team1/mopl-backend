@@ -29,7 +29,6 @@ public interface WatchingSessionApiSpec {
             responseCode = "200",
             description = "성공",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(
                     implementation = WatchingSessionDto.class
                 )
@@ -39,7 +38,6 @@ public interface WatchingSessionApiSpec {
             responseCode = "400",
             description = "잘못된 요청",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -47,7 +45,6 @@ public interface WatchingSessionApiSpec {
             responseCode = "401",
             description = "인증 오류",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -55,7 +52,6 @@ public interface WatchingSessionApiSpec {
             responseCode = "500",
             description = "서버 오류",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         )
@@ -133,7 +129,6 @@ public interface WatchingSessionApiSpec {
             responseCode = "400",
             description = "잘못된 요청",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -141,7 +136,6 @@ public interface WatchingSessionApiSpec {
             responseCode = "401",
             description = "인증 오류",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -149,7 +143,6 @@ public interface WatchingSessionApiSpec {
             responseCode = "500",
             description = "서버 오류",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         )

@@ -15,7 +15,7 @@ import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.security.jwt.registry.JwtRegistry;
-import com.mopl.storage.provider.FileStorageProvider;
+import com.mopl.storage.provider.StorageProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -32,12 +32,12 @@ import java.util.UUID;
 public class UserFacade {
 
     private final UserService userService;
-    private final FileStorageProvider fileStorageProvider;
+    private final OutboxService outboxService;
     private final PasswordEncoder passwordEncoder;
-    private final TemporaryPasswordRepository temporaryPasswordRepository;
     private final JwtRegistry jwtRegistry;
     private final DomainEventOutboxMapper domainEventOutboxMapper;
-    private final OutboxService outboxService;
+    private final StorageProvider storageProvider;
+    private final TemporaryPasswordRepository temporaryPasswordRepository;
     private final TransactionTemplate transactionTemplate;
 
     public UserModel signUp(UserCreateRequest userCreateRequest) {
@@ -128,11 +128,12 @@ public class UserFacade {
                     + UUID.randomUUID()
                     + "_"
                     + image.getOriginalFilename();
-                String storedPath = fileStorageProvider.upload(
+                storageProvider.upload(
                     image.getInputStream(),
+                    image.getSize(),
                     fileName
                 );
-                String profileImageUrl = fileStorageProvider.getUrl(storedPath);
+                String profileImageUrl = storageProvider.getUrl(fileName);
                 userModel.updateProfileImageUrl(profileImageUrl);
             } catch (IOException exception) {
                 throw new UncheckedIOException("파일 스트림 읽기 실패", exception);

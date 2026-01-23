@@ -1,5 +1,6 @@
 package com.mopl.websocket.application.content;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
@@ -44,7 +45,7 @@ public class ContentWebSocketFacade {
             webSocketWatchingSessionService.delete(session);
         }
 
-        WatchingSessionDto dto = watchingSessionResponseMapper.toDto(dtoTarget, watcher, content);
+        WatchingSessionDto dto = watchingSessionResponseMapper.toDto(dtoTarget, watcher, content, List.of());
         long watcherCount = webSocketWatchingSessionService.getWatcherCount(contentId);
 
         return new WatchingSessionChange(type, dto, watcherCount);

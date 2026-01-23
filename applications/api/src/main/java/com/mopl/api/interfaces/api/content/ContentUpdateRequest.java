@@ -21,10 +21,7 @@ import static com.mopl.domain.model.content.ContentModel.TITLE_MAX_LENGTH;
 public record ContentUpdateRequest(
 
     @Schema(description = "콘텐츠 제목") @Size(max = TITLE_MAX_LENGTH) String title,
-
     @Schema(description = "콘텐츠 설명") String description,
-
     @Schema(description = "콘텐츠 태그 목록") List<@NotBlank String> tags
-
 ) {
 }

@@ -6,7 +6,7 @@ import java.io.InputStream;
 
 public interface StorageProvider {
 
-    void upload(InputStream inputStream, String path);
+    void upload(InputStream inputStream, long contentLength, String path);
 
     String getUrl(String path);
 

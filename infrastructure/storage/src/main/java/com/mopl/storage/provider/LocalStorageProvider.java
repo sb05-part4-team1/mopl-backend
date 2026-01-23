@@ -39,12 +39,12 @@ public class LocalStorageProvider implements StorageProvider {
     }
 
     @Override
-    public void upload(InputStream inputStream, String path) {
+    public void upload(InputStream inputStream, long contentLength, String path) {
         Path targetPath = resolveSafePath(path);
         try (inputStream) {
             Files.createDirectories(targetPath.getParent());
             Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
-            log.info("파일 업로드 성공: {}", targetPath);
+            log.info("파일 업로드 성공: path={}, size={}", targetPath, contentLength);
         } catch (IOException e) {
             log.error("파일 업로드 실패: {}", path, e);
             throw FileUploadException.withPathAndCause(path, e.getMessage());

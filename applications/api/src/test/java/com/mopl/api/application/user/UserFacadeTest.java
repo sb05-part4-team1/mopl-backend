@@ -17,7 +17,7 @@ import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
 import com.mopl.security.jwt.registry.JwtRegistry;
-import com.mopl.storage.provider.FileStorageProvider;
+import com.mopl.storage.provider.StorageProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -39,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -54,7 +55,7 @@ class UserFacadeTest {
     private UserService userService;
 
     @Mock
-    private FileStorageProvider fileStorageProvider;
+    private StorageProvider storageProvider;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -343,8 +344,7 @@ class UserFacadeTest {
                 .sample();
 
             given(userService.getById(userModel.getId())).willReturn(userModel);
-            given(fileStorageProvider.upload(any(), anyString())).willReturn(storedPath);
-            given(fileStorageProvider.getUrl(storedPath)).willReturn(profileImageUrl);
+            given(storageProvider.getUrl(storedPath)).willReturn(profileImageUrl);
             given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
 
             // when
@@ -354,8 +354,8 @@ class UserFacadeTest {
             assertThat(result.getProfileImageUrl()).isEqualTo(profileImageUrl);
 
             then(userService).should().getById(userModel.getId());
-            then(fileStorageProvider).should().upload(any(), anyString());
-            then(fileStorageProvider).should().getUrl(storedPath);
+            then(storageProvider).should().upload(any(), anyLong(), anyString());
+            then(storageProvider).should().getUrl(storedPath);
             then(userService).should().update(any(UserModel.class));
         }
 
@@ -383,7 +383,7 @@ class UserFacadeTest {
             assertThat(result.getName()).isEqualTo(newName);
 
             then(userService).should().getById(userModel.getId());
-            then(fileStorageProvider).should(never()).upload(any(), anyString());
+            then(storageProvider).should(never()).upload(any(), anyLong(), anyString());
             then(userService).should().update(any(UserModel.class));
         }
 
@@ -410,8 +410,7 @@ class UserFacadeTest {
                 .sample();
 
             given(userService.getById(userModel.getId())).willReturn(userModel);
-            given(fileStorageProvider.upload(any(), anyString())).willReturn(storedPath);
-            given(fileStorageProvider.getUrl(storedPath)).willReturn(profileImageUrl);
+            given(storageProvider.getUrl(storedPath)).willReturn(profileImageUrl);
             given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
 
             // when
@@ -422,8 +421,8 @@ class UserFacadeTest {
             assertThat(result.getProfileImageUrl()).isEqualTo(profileImageUrl);
 
             then(userService).should().getById(userModel.getId());
-            then(fileStorageProvider).should().upload(any(), anyString());
-            then(fileStorageProvider).should().getUrl(storedPath);
+            then(storageProvider).should().upload(any(), anyLong(), anyString());
+            then(storageProvider).should().getUrl(storedPath);
             then(userService).should().update(any(UserModel.class));
         }
 
@@ -443,7 +442,7 @@ class UserFacadeTest {
             assertThat(result.getId()).isEqualTo(userModel.getId());
 
             then(userService).should().getById(userModel.getId());
-            then(fileStorageProvider).should(never()).upload(any(), anyString());
+            then(storageProvider).should(never()).upload(any(), anyLong(), anyString());
             then(userService).should().update(any(UserModel.class));
         }
 
@@ -466,7 +465,7 @@ class UserFacadeTest {
             assertThat(result.getId()).isEqualTo(userModel.getId());
 
             then(userService).should().getById(userModel.getId());
-            then(fileStorageProvider).should(never()).upload(any(), anyString());
+            then(storageProvider).should(never()).upload(any(), anyLong(), anyString());
             then(userService).should().update(any(UserModel.class));
         }
 
@@ -487,7 +486,7 @@ class UserFacadeTest {
                 .isInstanceOf(UncheckedIOException.class)
                 .hasMessageContaining("파일 스트림 읽기 실패");
 
-            then(fileStorageProvider).should(never()).upload(any(), anyString());
+            then(storageProvider).should(never()).upload(any(), anyLong(), anyString());
             then(userService).should(never()).update(any(UserModel.class));
         }
     }

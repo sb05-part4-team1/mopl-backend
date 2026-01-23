@@ -35,9 +35,9 @@ public class ContentRepositoryImpl implements ContentRepository {
 
     @Override
     public ContentModel save(ContentModel contentModel) {
-        ContentEntity entity = contentEntityMapper.toEntity(contentModel);
-        ContentEntity saved = jpaContentRepository.save(entity);
-        return contentEntityMapper.toModel(saved);
+        ContentEntity contentEntity = contentEntityMapper.toEntity(contentModel);
+        ContentEntity savedContentEntity = jpaContentRepository.save(contentEntity);
+        return contentEntityMapper.toModel(savedContentEntity);
     }
 
     // cleanup batch 전용

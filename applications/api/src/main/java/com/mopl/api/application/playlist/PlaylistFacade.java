@@ -9,7 +9,6 @@ import com.mopl.domain.event.playlist.PlaylistContentAddedEvent;
 import com.mopl.domain.event.playlist.PlaylistCreatedEvent;
 import com.mopl.domain.event.playlist.PlaylistSubscribedEvent;
 import com.mopl.domain.event.playlist.PlaylistUpdatedEvent;
-import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.exception.playlist.PlaylistForbiddenException;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.playlist.PlaylistModel;

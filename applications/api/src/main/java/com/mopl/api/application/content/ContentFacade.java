@@ -1,21 +1,26 @@
 package com.mopl.api.application.content;
 
 import com.mopl.api.interfaces.api.content.ContentCreateRequest;
-import com.mopl.api.interfaces.api.content.ContentResponse;
-import com.mopl.api.interfaces.api.content.ContentResponseMapper;
+import com.mopl.api.interfaces.api.content.ContentSummary;
+import com.mopl.api.interfaces.api.content.ContentSummaryMapper;
 import com.mopl.api.interfaces.api.content.ContentUpdateRequest;
 import com.mopl.domain.exception.content.InvalidContentDataException;
 import com.mopl.domain.model.content.ContentModel;
+import com.mopl.domain.model.tag.TagModel;
 import com.mopl.domain.repository.content.ContentQueryRequest;
 import com.mopl.domain.service.content.ContentService;
+import com.mopl.domain.service.content.ContentTagService;
 import com.mopl.domain.support.cursor.CursorResponse;
-import com.mopl.storage.provider.FileStorageProvider;
+import com.mopl.storage.provider.StorageProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Component
@@ -23,8 +28,36 @@ import java.util.UUID;
 public class ContentFacade {
 
     private final ContentService contentService;
-    private final ContentResponseMapper contentResponseMapper;
-    private final FileStorageProvider fileStorageProvider;
+    private final ContentTagService contentTagService;
+    private final ContentSummaryMapper contentSummaryMapper;
+    private final StorageProvider storageProvider;
+
+    public CursorResponse<ContentSummary> getContents(ContentQueryRequest request) {
+        CursorResponse<ContentModel> response = contentService.getAll(request);
+
+        List<UUID> contentIds = response.data().stream()
+            .map(ContentModel::getId)
+            .toList();
+
+        Map<UUID, List<String>> tagsByContentId = contentTagService.getTagNamesByContentIds(contentIds);
+
+        return response.map(model -> contentSummaryMapper.toSummary(
+            model,
+            tagsByContentId.getOrDefault(model.getId(), List.of())
+        ));
+    }
+
+    public ContentModel getContent(UUID contentId) {
+        return contentService.getById(contentId);
+    }
+
+    public List<TagModel> getTags(UUID contentId) {
+        return contentTagService.getTagsByContentId(contentId);
+    }
+
+    public String getThumbnailUrl(String storedPath) {
+        return storageProvider.getUrl(storedPath);
+    }
 
     @Transactional
     public ContentModel upload(ContentCreateRequest request, MultipartFile thumbnail) {
@@ -32,27 +65,16 @@ public class ContentFacade {
             throw InvalidContentDataException.withDetailMessage("썸네일 파일은 필수입니다.");
         }
 
-        String thumbnailUrl = uploadToStorage(thumbnail);
+        String storedPath = uploadToStorage(thumbnail);
 
         ContentModel contentModel = ContentModel.create(
             request.type(),
             request.title(),
             request.description(),
-            thumbnailUrl
+            storedPath
         );
 
         return contentService.create(contentModel, request.tags());
-    }
-
-    @Transactional(readOnly = true)
-    public CursorResponse<ContentResponse> getContents(ContentQueryRequest request) {
-        return contentService.getAll(request).map(contentResponseMapper::toResponse);
-    }
-
-    @Transactional(readOnly = true)
-    public ContentModel getDetail(UUID contentId) {
-        // TODO: 평균 평점(averageRating), 리뷰 수(reviewCount), 시청자 수(watcherCount) 로직 추가 필요
-        return contentService.getById(contentId);
     }
 
     @Transactional
@@ -61,7 +83,7 @@ public class ContentFacade {
         ContentUpdateRequest request,
         MultipartFile thumbnail
     ) {
-        String thumbnailUrl = (thumbnail != null && !thumbnail.isEmpty())
+        String storedPath = (thumbnail != null && !thumbnail.isEmpty())
             ? uploadToStorage(thumbnail)
             : null;
 
@@ -69,25 +91,22 @@ public class ContentFacade {
             contentId,
             request.title(),
             request.description(),
-            thumbnailUrl,
+            storedPath,
             request.tags()
         );
     }
 
-    @Transactional
     public void delete(UUID contentId) {
-        contentService.delete(contentId);
+        ContentModel contentModel = contentService.getById(contentId);
+        contentService.delete(contentModel);
     }
 
-    /**
-     * 파일 업로드 로직 공통화
-     */
     private String uploadToStorage(MultipartFile file) {
         try {
             String fileName = "contents/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
-            return fileStorageProvider.upload(file.getInputStream(), fileName);
+            storageProvider.upload(file.getInputStream(), file.getSize(), fileName);
         } catch (IOException e) {
-            throw new RuntimeException("파일 저장 중 오류가 발생했습니다.", e);
+            throw new UncheckedIOException("파일 저장 중 오류가 발생했습니다.", e);
         }
     }
 }
