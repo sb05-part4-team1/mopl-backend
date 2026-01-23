@@ -110,6 +110,14 @@ public interface UserApiSpec {
     @CommonApiResponse.Conflict
     UserResponse signUp(UserCreateRequest request);
 
+    @Operation(summary = "비밀번호 변경", description = "본인의 비밀번호만 변경할 수 있습니다.")
+    @Parameter(name = "userId", description = "사용자 ID", required = true)
+    @ApiResponse(responseCode = "204", description = "성공")
+    @CommonApiResponse.Default
+    @CommonApiResponse.Forbidden
+    @CommonApiResponse.NotFound
+    void updatePassword(UUID userId, ChangePasswordRequest request);
+
     @Operation(summary = "사용자 프로필 변경", description = "본인의 프로필만 변경할 수 있습니다.")
     @Parameter(name = "userId", description = "수정할 User ID", required = true)
     @ApiResponse(
@@ -120,18 +128,6 @@ public interface UserApiSpec {
     @CommonApiResponse.Forbidden
     @CommonApiResponse.NotFound
     UserResponse updateProfile(UUID userId, UserUpdateRequest request, MultipartFile image);
-
-    @Operation(summary = "[어드민] 계정 잠금 상태 수정")
-    @Parameter(name = "userId", description = "수정할 사용자 ID", required = true)
-    @ApiResponse(responseCode = "204", description = "성공")
-    @CommonApiResponse.Default
-    @CommonApiResponse.Forbidden
-    @CommonApiResponse.NotFound
-    void updateLocked(
-        @Parameter(hidden = true) MoplUserDetails userDetails,
-        UUID userId,
-        UserLockUpdateRequest request
-    );
 
     @Operation(summary = "[어드민] 사용자 역할 수정")
     @Parameter(name = "userId", description = "수정할 사용자 ID", required = true)
@@ -145,11 +141,15 @@ public interface UserApiSpec {
         UserRoleUpdateRequest request
     );
 
-    @Operation(summary = "비밀번호 변경", description = "본인의 비밀번호만 변경할 수 있습니다.")
-    @Parameter(name = "userId", description = "사용자 ID", required = true)
+    @Operation(summary = "[어드민] 계정 잠금 상태 수정")
+    @Parameter(name = "userId", description = "수정할 사용자 ID", required = true)
     @ApiResponse(responseCode = "204", description = "성공")
     @CommonApiResponse.Default
     @CommonApiResponse.Forbidden
     @CommonApiResponse.NotFound
-    void updatePassword(UUID userId, ChangePasswordRequest request);
+    void updateLocked(
+        @Parameter(hidden = true) MoplUserDetails userDetails,
+        UUID userId,
+        UserLockUpdateRequest request
+    );
 }
