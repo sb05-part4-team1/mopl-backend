@@ -1,9 +1,8 @@
 package com.mopl.api.interfaces.api.content;
 
 import com.mopl.api.interfaces.api.common.CommonApiResponse;
-import com.mopl.domain.exception.ErrorResponse;
-import com.mopl.domain.repository.content.ContentQueryRequest;
 import com.mopl.domain.model.content.ContentModel;
+import com.mopl.domain.repository.content.ContentQueryRequest;
 import com.mopl.domain.repository.content.ContentSortField;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
@@ -14,10 +13,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
@@ -47,13 +43,13 @@ public interface ContentApiSpec {
         ),
         @Parameter(
             name = "cursor",
-            description = "커서",
+            description = "커서 (다음 페이지 시작점)",
             in = ParameterIn.QUERY,
             schema = @Schema(implementation = String.class)
         ),
         @Parameter(
             name = "idAfter",
-            description = "보조 커서",
+            description = "보조 커서 (현재 페이지 마지막 요소 ID)",
             in = ParameterIn.QUERY,
             schema = @Schema(implementation = UUID.class)
         ),
@@ -79,204 +75,51 @@ public interface ContentApiSpec {
             schema = @Schema(implementation = ContentSortField.class)
         )
     })
-    @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description = "성공",
-            content = @Content(
-                schema = @Schema(
-                    implementation = ContentCursorResponse.class
-                )
-            )
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "잘못된 요청",
-            content = @Content(
-                schema = @Schema(implementation = ErrorResponse.class)
-            )
-        ),
-        @ApiResponse(
-            responseCode = "401",
-            description = "인증 오류",
-            content = @Content(
-                schema = @Schema(implementation = ErrorResponse.class)
-            )
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "서버 오류",
-            content = @Content(
-                schema = @Schema(implementation = ErrorResponse.class)
-            )
-        )
-    })
-    CursorResponse<ContentSummary> getContents(
-        @Parameter(hidden = true) ContentQueryRequest request
-    );
-
-    @Operation(
-        summary = "콘텐츠 상세 조회",
-        description = "콘텐츠 ID를 통해 상세 정보와 태그 목록을 조회합니다."
-    )
     @ApiResponse(
         responseCode = "200",
-        description = "성공",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ContentResponse.class)
-        )
+        content = @Content(schema = @Schema(implementation = ContentCursorResponse.class))
     )
-    @ApiResponse(
-        responseCode = "400",
-        description = "잘못된 요청",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "401",
-        description = "인증 오류",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "404",
-        description = "존재하지 않는 콘텐츠",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "500",
-        description = "서버 오류",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    ContentResponse getContent(
-        @Parameter(
-            description = "콘텐츠 UUID",
-            required = true,
-            example = "550e8400-e29b-41d4-a716-446655440000"
-        ) UUID contentId
-    );
+    @CommonApiResponse.Default
+    CursorResponse<ContentSummary> getContents(@Parameter(hidden = true) ContentQueryRequest request);
 
-    @Operation(
-        summary = "[어드민]콘텐츠 업로드",
-        description = "콘텐츠 정보와 썸네일 이미지를 업로드합니다."
+    @Operation(summary = "콘텐츠 상세 조회")
+    @Parameter(name = "contentId", description = "콘텐츠 UUID", required = true)
+    @ApiResponse(
+        responseCode = "200",
+        content = @Content(schema = @Schema(implementation = ContentResponse.class))
     )
+    @CommonApiResponse.Default
+    @CommonApiResponse.NotFound
+    ContentResponse getContent(UUID contentId);
+
+    @Operation(summary = "[어드민] 콘텐츠 업로드", description = "콘텐츠 정보와 썸네일 이미지를 업로드합니다.")
     @ApiResponse(
         responseCode = "201",
-        description = "성공",
-        content = @Content(
-            schema = @Schema(implementation = ContentResponse.class)
-        )
+        content = @Content(schema = @Schema(implementation = ContentResponse.class))
     )
-    @ApiResponse(
-        responseCode = "400",
-        description = "잘못된 요청 데이터 또는 파일 형식",
-        content = @Content(
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "401",
-        description = "인증 오류",
-        content = @Content(
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "403",
-        description = "권한 오류",
-        content = @Content(
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "500",
-        description = "서버 오류",
-        content = @Content(
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
+    @CommonApiResponse.Default
+    @CommonApiResponse.Forbidden
     ContentResponse upload(
         @Parameter(description = "콘텐츠 정보 (JSON)", required = true) ContentCreateRequest request,
-
         @Parameter(description = "썸네일 이미지 파일") MultipartFile thumbnail
     );
 
     @Operation(
-        summary = "[어드민]콘텐츠 수정",
+        summary = "[어드민] 콘텐츠 수정",
         description = "콘텐츠 제목, 설명, 태그 및 썸네일 이미지를 수정합니다. 썸네일은 선택 사항입니다."
     )
-    @PutMapping(
-        value = "/{contentId}",
-        consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+    @Parameter(name = "contentId", description = "콘텐츠 UUID", required = true)
     @ApiResponse(
         responseCode = "200",
-        description = "콘텐츠가 성공적으로 수정됨",
-        content = @Content(
-            schema = @Schema(implementation = ContentResponse.class)
-        )
+        content = @Content(schema = @Schema(implementation = ContentResponse.class))
     )
-    @ApiResponse(
-        responseCode = "400",
-        description = "잘못된 요청",
-        content = @Content(
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "401",
-        description = "인증 오류",
-        content = @Content(
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "403",
-        description = "권한 오류",
-        content = @Content(
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "404",
-        description = "존재하지 않는 콘텐츠",
-        content = @Content(
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "500",
-        description = "서버 오류",
-        content = @Content(
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
+    @CommonApiResponse.Default
+    @CommonApiResponse.Forbidden
+    @CommonApiResponse.NotFound
     ContentResponse update(
-        @Parameter(
-            description = "콘텐츠 UUID",
-            required = true,
-            example = "550e8400-e29b-41d4-a716-446655440000"
-        ) UUID contentId,
-
-        @Parameter(
-            description = "수정할 콘텐츠 정보 (JSON)",
-            required = true
-        ) ContentUpdateRequest request,
-
-        @Parameter(
-            description = "새 썸네일 이미지 파일 (선택)"
-        ) MultipartFile thumbnail
+        UUID contentId,
+        @Parameter(description = "수정할 콘텐츠 정보 (JSON)", required = true) ContentUpdateRequest request,
+        @Parameter(description = "새 썸네일 이미지 파일 (선택)") MultipartFile thumbnail
     );
 
     @Operation(
@@ -287,6 +130,7 @@ public interface ContentApiSpec {
             - 연관 데이터: Review, ContentTag, PlaylistContent
             """
     )
+    @Parameter(name = "contentId", description = "콘텐츠 UUID", required = true)
     @ApiResponse(responseCode = "204", description = "성공")
     @CommonApiResponse.Default
     @CommonApiResponse.Forbidden

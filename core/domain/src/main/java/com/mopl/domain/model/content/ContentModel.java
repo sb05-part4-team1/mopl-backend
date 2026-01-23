@@ -16,6 +16,7 @@ public class ContentModel extends BaseUpdatableModel {
     public static final int TITLE_MAX_LENGTH = 255;
     public static final int THUMBNAIL_URL_MAX_LENGTH = 1024;
 
+    // TODO: FE 대문자 snake case로 변환
     public enum ContentType {
         movie,
         tvSeries,
