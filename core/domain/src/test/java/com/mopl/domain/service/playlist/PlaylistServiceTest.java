@@ -2,7 +2,6 @@ package com.mopl.domain.service.playlist;
 
 import com.mopl.domain.exception.playlist.PlaylistContentAlreadyExistsException;
 import com.mopl.domain.exception.playlist.PlaylistContentNotFoundException;
-import com.mopl.domain.exception.playlist.PlaylistForbiddenException;
 import com.mopl.domain.exception.playlist.PlaylistNotFoundException;
 import com.mopl.domain.fixture.ContentModelFixture;
 import com.mopl.domain.fixture.PlaylistModelFixture;
@@ -54,29 +53,15 @@ class PlaylistServiceTest {
     @Nested
     class GetAllTest {
 
-        @DisplayName("정상 조회 시 CursorResponse 반환")
+        @DisplayName("Repository에 위임하여 결과 반환")
         @Test
-        void withValidRequest_returnsCursorResponse() {
+        void delegatesToRepository() {
             // given
-            PlaylistModel playlist = PlaylistModelFixture.create();
             PlaylistQueryRequest request = new PlaylistQueryRequest(
-                null,
-                null,
-                null,
-                null,
-                null,
-                10,
-                SortDirection.ASCENDING,
-                null
+                null, null, null, null, null, 10, SortDirection.ASCENDING, null
             );
-            CursorResponse<PlaylistModel> expectedResponse = CursorResponse.of(
-                List.of(playlist),
-                "nextCursor",
-                UUID.randomUUID(),
-                true,
-                1L,
-                "updatedAt",
-                SortDirection.ASCENDING
+            CursorResponse<PlaylistModel> expectedResponse = CursorResponse.empty(
+                "updatedAt", SortDirection.ASCENDING
             );
 
             given(playlistQueryRepository.findAll(request)).willReturn(expectedResponse);
@@ -86,38 +71,7 @@ class PlaylistServiceTest {
 
             // then
             assertThat(result).isEqualTo(expectedResponse);
-            assertThat(result.data()).hasSize(1);
             then(playlistQueryRepository).should().findAll(request);
-        }
-
-        @DisplayName("결과가 없으면 빈 CursorResponse 반환")
-        @Test
-        void withNoResults_returnsEmptyCursorResponse() {
-            // given
-            PlaylistQueryRequest request = new PlaylistQueryRequest(
-                null,
-                null,
-                null,
-                null,
-                null,
-                10,
-                SortDirection.ASCENDING,
-                null
-            );
-            CursorResponse<PlaylistModel> emptyResponse = CursorResponse.empty(
-                "updatedAt",
-                SortDirection.ASCENDING
-            );
-
-            given(playlistQueryRepository.findAll(request)).willReturn(emptyResponse);
-
-            // when
-            CursorResponse<PlaylistModel> result = playlistService.getAll(request);
-
-            // then
-            assertThat(result.data()).isEmpty();
-            assertThat(result.hasNext()).isFalse();
-            assertThat(result.totalCount()).isZero();
         }
     }
 
@@ -153,7 +107,11 @@ class PlaylistServiceTest {
 
             // when & then
             assertThatThrownBy(() -> playlistService.getById(playlistId))
-                .isInstanceOf(PlaylistNotFoundException.class);
+                .isInstanceOf(PlaylistNotFoundException.class)
+                .satisfies(e -> {
+                    PlaylistNotFoundException ex = (PlaylistNotFoundException) e;
+                    assertThat(ex.getDetails().get("id")).isEqualTo(playlistId);
+                });
 
             then(playlistCacheService).should().getById(playlistId);
         }
@@ -198,9 +156,9 @@ class PlaylistServiceTest {
         }
     }
 
-    @DisplayName("getContentsByPlaylistIds()")
+    @DisplayName("getContentsByPlaylistIdIn()")
     @Nested
-    class GetContentsByPlaylistIdsTest {
+    class GetContentsByPlaylistIdInTest {
 
         @DisplayName("여러 플레이리스트의 콘텐츠 조회")
         @Test
@@ -257,20 +215,20 @@ class PlaylistServiceTest {
         void withValidPlaylist_createsPlaylist() {
             // given
             UserModel owner = UserModelFixture.create();
-            String title = "내 플레이리스트";
-            String description = "플레이리스트 설명";
+            PlaylistModel playlistModel = PlaylistModel.create(
+                "내 플레이리스트",
+                "플레이리스트 설명",
+                owner
+            );
 
-            given(playlistCacheService.save(any(PlaylistModel.class)))
-                .willAnswer(invocation -> invocation.getArgument(0));
+            given(playlistCacheService.save(playlistModel)).willReturn(playlistModel);
 
             // when
-            PlaylistModel result = playlistService.create(title, description, owner);
+            PlaylistModel result = playlistService.create(playlistModel);
 
             // then
-            assertThat(result.getOwner()).isEqualTo(owner);
-            assertThat(result.getTitle()).isEqualTo(title);
-            assertThat(result.getDescription()).isEqualTo(description);
-            then(playlistCacheService).should().save(any(PlaylistModel.class));
+            assertThat(result).isEqualTo(playlistModel);
+            then(playlistCacheService).should().save(playlistModel);
         }
     }
 
@@ -278,51 +236,22 @@ class PlaylistServiceTest {
     @Nested
     class UpdateTest {
 
-        @DisplayName("소유자가 플레이리스트 수정 성공")
+        @DisplayName("플레이리스트 수정 성공")
         @Test
-        void withOwner_updatesPlaylist() {
+        void withValidPlaylist_updatesPlaylist() {
             // given
             UserModel owner = UserModelFixture.create();
             PlaylistModel playlistModel = PlaylistModelFixture.create(owner);
-            UUID playlistId = UUID.randomUUID();
-            UUID requesterId = owner.getId();
-            String newTitle = "수정된 제목";
-            String newDescription = "수정된 설명";
+            PlaylistModel updatedPlaylist = playlistModel.update("수정된 제목", "수정된 설명");
 
-            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
-            given(playlistCacheService.save(any(PlaylistModel.class)))
-                .willAnswer(invocation -> invocation.getArgument(0));
+            given(playlistCacheService.save(updatedPlaylist)).willReturn(updatedPlaylist);
 
             // when
-            PlaylistModel result = playlistService.update(
-                playlistId, requesterId, newTitle, newDescription
-            );
+            PlaylistModel result = playlistService.update(updatedPlaylist);
 
             // then
-            assertThat(result.getTitle()).isEqualTo(newTitle);
-            assertThat(result.getDescription()).isEqualTo(newDescription);
-            then(playlistCacheService).should().getById(playlistId);
-            then(playlistCacheService).should().save(any(PlaylistModel.class));
-        }
-
-        @DisplayName("소유자가 아닌 사용자가 수정 시 PlaylistForbiddenException 발생")
-        @Test
-        void withNonOwner_throwsPlaylistForbiddenException() {
-            // given
-            UserModel owner = UserModelFixture.create();
-            PlaylistModel playlistModel = PlaylistModelFixture.create(owner);
-            UUID playlistId = UUID.randomUUID();
-            UUID requesterId = UUID.randomUUID();
-
-            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
-
-            // when & then
-            assertThatThrownBy(
-                () -> playlistService.update(playlistId, requesterId, "새 제목", "새 설명")
-            ).isInstanceOf(PlaylistForbiddenException.class);
-
-            then(playlistCacheService).should().getById(playlistId);
-            then(playlistCacheService).should(never()).save(any(PlaylistModel.class));
+            assertThat(result).isEqualTo(updatedPlaylist);
+            then(playlistCacheService).should().save(updatedPlaylist);
         }
     }
 
@@ -330,43 +259,19 @@ class PlaylistServiceTest {
     @Nested
     class DeleteTest {
 
-        @DisplayName("소유자가 플레이리스트 삭제 성공")
+        @DisplayName("플레이리스트 삭제 성공")
         @Test
-        void withOwner_deletesPlaylist() {
+        void withValidPlaylist_deletesPlaylist() {
             // given
             UserModel owner = UserModelFixture.create();
             PlaylistModel playlistModel = PlaylistModelFixture.create(owner);
-            UUID playlistId = UUID.randomUUID();
-            UUID requesterId = owner.getId();
-
-            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
 
             // when
-            playlistService.delete(playlistId, requesterId);
+            playlistService.delete(playlistModel);
 
             // then
             assertThat(playlistModel.isDeleted()).isTrue();
-            then(playlistCacheService).should().getById(playlistId);
             then(playlistCacheService).should().saveAndEvict(playlistModel);
-        }
-
-        @DisplayName("소유자가 아닌 사용자가 삭제 시 PlaylistForbiddenException 발생")
-        @Test
-        void withNonOwner_throwsPlaylistForbiddenException() {
-            // given
-            UserModel owner = UserModelFixture.create();
-            PlaylistModel playlistModel = PlaylistModelFixture.create(owner);
-            UUID playlistId = UUID.randomUUID();
-            UUID requesterId = UUID.randomUUID();
-
-            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
-
-            // when & then
-            assertThatThrownBy(() -> playlistService.delete(playlistId, requesterId))
-                .isInstanceOf(PlaylistForbiddenException.class);
-
-            then(playlistCacheService).should().getById(playlistId);
-            then(playlistCacheService).should(never()).saveAndEvict(any(PlaylistModel.class));
         }
     }
 
@@ -374,65 +279,40 @@ class PlaylistServiceTest {
     @Nested
     class AddContentTest {
 
-        @DisplayName("소유자가 콘텐츠 추가 성공")
+        @DisplayName("콘텐츠 추가 성공")
         @Test
-        void withOwner_addsContent() {
+        void withValidContent_addsContent() {
             // given
-            UserModel owner = UserModelFixture.create();
-            PlaylistModel playlistModel = PlaylistModelFixture.create(owner);
             UUID playlistId = UUID.randomUUID();
-            UUID requesterId = owner.getId();
             UUID contentId = UUID.randomUUID();
 
-            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
             given(playlistContentRepository.exists(playlistId, contentId)).willReturn(false);
 
             // when
-            playlistService.addContent(playlistId, requesterId, contentId);
+            playlistService.addContent(playlistId, contentId);
 
             // then
-            then(playlistCacheService).should().getById(playlistId);
             then(playlistContentRepository).should().exists(playlistId, contentId);
             then(playlistContentRepository).should().save(playlistId, contentId);
-        }
-
-        @DisplayName("소유자가 아닌 사용자가 콘텐츠 추가 시 PlaylistForbiddenException 발생")
-        @Test
-        void withNonOwner_throwsPlaylistForbiddenException() {
-            // given
-            UserModel owner = UserModelFixture.create();
-            PlaylistModel playlistModel = PlaylistModelFixture.create(owner);
-            UUID playlistId = UUID.randomUUID();
-            UUID requesterId = UUID.randomUUID();
-            UUID contentId = UUID.randomUUID();
-
-            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
-
-            // when & then
-            assertThatThrownBy(
-                () -> playlistService.addContent(playlistId, requesterId, contentId)
-            ).isInstanceOf(PlaylistForbiddenException.class);
-
-            then(playlistContentRepository).should(never()).save(any(UUID.class), any(UUID.class));
         }
 
         @DisplayName("이미 존재하는 콘텐츠 추가 시 PlaylistContentAlreadyExistsException 발생")
         @Test
         void withExistingContent_throwsPlaylistContentAlreadyExistsException() {
             // given
-            UserModel owner = UserModelFixture.create();
-            PlaylistModel playlistModel = PlaylistModelFixture.create(owner);
             UUID playlistId = UUID.randomUUID();
-            UUID requesterId = owner.getId();
             UUID contentId = UUID.randomUUID();
 
-            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
             given(playlistContentRepository.exists(playlistId, contentId)).willReturn(true);
 
             // when & then
-            assertThatThrownBy(
-                () -> playlistService.addContent(playlistId, requesterId, contentId)
-            ).isInstanceOf(PlaylistContentAlreadyExistsException.class);
+            assertThatThrownBy(() -> playlistService.addContent(playlistId, contentId))
+                .isInstanceOf(PlaylistContentAlreadyExistsException.class)
+                .satisfies(e -> {
+                    PlaylistContentAlreadyExistsException ex = (PlaylistContentAlreadyExistsException) e;
+                    assertThat(ex.getDetails().get("playlistId")).isEqualTo(playlistId);
+                    assertThat(ex.getDetails().get("contentId")).isEqualTo(contentId);
+                });
 
             then(playlistContentRepository).should(never()).save(any(UUID.class), any(UUID.class));
         }
@@ -442,64 +322,39 @@ class PlaylistServiceTest {
     @Nested
     class RemoveContentTest {
 
-        @DisplayName("소유자가 콘텐츠 삭제 성공")
+        @DisplayName("콘텐츠 삭제 성공")
         @Test
-        void withOwner_removesContent() {
+        void withExistingContent_removesContent() {
             // given
-            UserModel owner = UserModelFixture.create();
-            PlaylistModel playlistModel = PlaylistModelFixture.create(owner);
             UUID playlistId = UUID.randomUUID();
-            UUID requesterId = owner.getId();
             UUID contentId = UUID.randomUUID();
 
-            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
             given(playlistContentRepository.delete(playlistId, contentId)).willReturn(true);
 
             // when
-            playlistService.removeContent(playlistId, requesterId, contentId);
+            playlistService.removeContent(playlistId, contentId);
 
             // then
-            then(playlistCacheService).should().getById(playlistId);
             then(playlistContentRepository).should().delete(playlistId, contentId);
-        }
-
-        @DisplayName("소유자가 아닌 사용자가 콘텐츠 삭제 시 PlaylistForbiddenException 발생")
-        @Test
-        void withNonOwner_throwsPlaylistForbiddenException() {
-            // given
-            UserModel owner = UserModelFixture.create();
-            PlaylistModel playlistModel = PlaylistModelFixture.create(owner);
-            UUID playlistId = UUID.randomUUID();
-            UUID requesterId = UUID.randomUUID();
-            UUID contentId = UUID.randomUUID();
-
-            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
-
-            // when & then
-            assertThatThrownBy(
-                () -> playlistService.removeContent(playlistId, requesterId, contentId)
-            ).isInstanceOf(PlaylistForbiddenException.class);
-
-            then(playlistContentRepository).should(never()).delete(any(UUID.class), any(UUID.class));
         }
 
         @DisplayName("존재하지 않는 콘텐츠 삭제 시 PlaylistContentNotFoundException 발생")
         @Test
         void withNonExistingContent_throwsPlaylistContentNotFoundException() {
             // given
-            UserModel owner = UserModelFixture.create();
-            PlaylistModel playlistModel = PlaylistModelFixture.create(owner);
             UUID playlistId = UUID.randomUUID();
-            UUID requesterId = owner.getId();
             UUID contentId = UUID.randomUUID();
 
-            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
             given(playlistContentRepository.delete(playlistId, contentId)).willReturn(false);
 
             // when & then
-            assertThatThrownBy(
-                () -> playlistService.removeContent(playlistId, requesterId, contentId)
-            ).isInstanceOf(PlaylistContentNotFoundException.class);
+            assertThatThrownBy(() -> playlistService.removeContent(playlistId, contentId))
+                .isInstanceOf(PlaylistContentNotFoundException.class)
+                .satisfies(e -> {
+                    PlaylistContentNotFoundException ex = (PlaylistContentNotFoundException) e;
+                    assertThat(ex.getDetails().get("playlistId")).isEqualTo(playlistId);
+                    assertThat(ex.getDetails().get("contentId")).isEqualTo(contentId);
+                });
         }
     }
 }

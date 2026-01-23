@@ -2,10 +2,8 @@ package com.mopl.domain.service.playlist;
 
 import com.mopl.domain.exception.playlist.PlaylistContentAlreadyExistsException;
 import com.mopl.domain.exception.playlist.PlaylistContentNotFoundException;
-import com.mopl.domain.exception.playlist.PlaylistForbiddenException;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.playlist.PlaylistModel;
-import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.domain.repository.playlist.PlaylistQueryRepository;
 import com.mopl.domain.repository.playlist.PlaylistQueryRequest;
@@ -42,46 +40,21 @@ public class PlaylistService {
         return playlistContentRepository.findContentsByPlaylistIdIn(playlistIds);
     }
 
-    public PlaylistModel create(
-        String title,
-        String description,
-        UserModel owner
-    ) {
-        PlaylistModel playlistModel = PlaylistModel.create(
-            title,
-            description,
-            owner
-        );
+    public PlaylistModel create(PlaylistModel playlistModel) {
         return playlistCacheService.save(playlistModel);
     }
 
-    public PlaylistModel update(
-        UUID playlistId,
-        UUID requesterId,
-        String title,
-        String description
-    ) {
-        PlaylistModel playlistModel = getByIdAndValidateOwner(playlistId, requesterId);
-        PlaylistModel updatedPlaylist = playlistModel.update(title, description);
-        return playlistCacheService.save(updatedPlaylist);
+    public PlaylistModel update(PlaylistModel playlistModel) {
+        return playlistCacheService.save(playlistModel);
     }
 
-    public void delete(
-        UUID playlistId,
-        UUID requesterId
-    ) {
-        PlaylistModel playlistModel = getByIdAndValidateOwner(playlistId, requesterId);
+    public void delete(PlaylistModel playlistModel) {
         playlistModel.delete();
         playlistCacheService.saveAndEvict(playlistModel);
     }
 
     @CacheEvict(cacheNames = CacheName.PLAYLIST_CONTENTS, key = "#playlistId")
-    public void addContent(
-        UUID playlistId,
-        UUID requesterId,
-        UUID contentId
-    ) {
-        getByIdAndValidateOwner(playlistId, requesterId);
+    public void addContent(UUID playlistId, UUID contentId) {
         if (playlistContentRepository.exists(playlistId, contentId)) {
             throw PlaylistContentAlreadyExistsException.withPlaylistIdAndContentId(playlistId, contentId);
         }
@@ -89,30 +62,10 @@ public class PlaylistService {
     }
 
     @CacheEvict(cacheNames = CacheName.PLAYLIST_CONTENTS, key = "#playlistId")
-    public void removeContent(
-        UUID playlistId,
-        UUID requesterId,
-        UUID contentId
-    ) {
-        getByIdAndValidateOwner(playlistId, requesterId);
+    public void removeContent(UUID playlistId, UUID contentId) {
         boolean deleted = playlistContentRepository.delete(playlistId, contentId);
         if (!deleted) {
             throw PlaylistContentNotFoundException.withPlaylistIdAndContentId(playlistId, contentId);
         }
-    }
-
-    private PlaylistModel getByIdAndValidateOwner(UUID playlistId, UUID requesterId) {
-        PlaylistModel playlistModel = playlistCacheService.getById(playlistId);
-        UUID ownerId = playlistModel.getOwner().getId();
-
-        if (!ownerId.equals(requesterId)) {
-            throw PlaylistForbiddenException.withPlaylistIdAndRequesterIdAndOwnerId(
-                playlistId,
-                requesterId,
-                ownerId
-            );
-        }
-
-        return playlistModel;
     }
 }
