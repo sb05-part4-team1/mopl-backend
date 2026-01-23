@@ -7,6 +7,7 @@ import com.mopl.jpa.entity.notification.NotificationEntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,5 +41,15 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         return savedEntities.stream()
             .map(notificationEntityMapper::toModel)
             .toList();
+    }
+
+    @Override
+    public List<UUID> findCleanupTargets(Instant threshold, int limit) {
+        return jpaNotificationRepository.findCleanupTargets(threshold, limit);
+    }
+
+    @Override
+    public int deleteAllByIds(List<UUID> notificationIds) {
+        return jpaNotificationRepository.deleteAllByIds(notificationIds);
     }
 }

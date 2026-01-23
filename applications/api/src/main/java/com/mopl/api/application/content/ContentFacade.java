@@ -85,8 +85,7 @@ public class ContentFacade {
     private String uploadToStorage(MultipartFile file) {
         try {
             String fileName = "contents/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
-            String storedPath = fileStorageProvider.upload(file.getInputStream(), fileName);
-            return fileStorageProvider.getUrl(storedPath);
+            return fileStorageProvider.upload(file.getInputStream(), fileName);
         } catch (IOException e) {
             throw new RuntimeException("파일 저장 중 오류가 발생했습니다.", e);
         }

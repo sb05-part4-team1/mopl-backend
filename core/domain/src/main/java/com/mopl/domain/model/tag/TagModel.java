@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TagModel extends BaseModel {
 
-    public static final int NAME_MAX_LENGTH = 20;
+    public static final int NAME_MAX_LENGTH = 64;
 
     private String name;
 
