@@ -127,7 +127,7 @@ class NotificationServiceTest {
             // when & then
             assertThatThrownBy(() -> notificationService.getById(notificationId))
                 .isInstanceOf(NotificationNotFoundException.class)
-                .satisfies(e -> assertThat(((NotificationNotFoundException) e).getDetails().get("notificationId"))
+                .satisfies(e -> assertThat(((NotificationNotFoundException) e).getDetails().get("id"))
                     .isEqualTo(notificationId));
 
             then(notificationRepository).should().findById(notificationId);

@@ -1,19 +1,31 @@
 package com.mopl.api.interfaces.api.content;
 
 import com.mopl.domain.model.content.ContentModel;
+import com.mopl.storage.provider.FileStorageProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 @DisplayName("ContentResponseMapper 단위 테스트")
+@ExtendWith(MockitoExtension.class)
 class ContentResponseMapperTest {
 
-    private final ContentResponseMapper mapper = new ContentResponseMapper();
+    @Mock
+    private FileStorageProvider fileStorageProvider;
+
+    @InjectMocks
+    private ContentResponseMapper mapper;
 
     @Nested
     @DisplayName("toResponse()")
@@ -29,11 +41,14 @@ class ContentResponseMapperTest {
                 .type(ContentModel.ContentType.movie)
                 .title("인셉션")
                 .description("꿈속의 꿈")
-                .thumbnailUrl("https://mopl.com/inception.png")
+                .thumbnailUrl("inception.png")
                 .tags(List.of("SF", "액션"))
                 .averageRating(4.5)
                 .reviewCount(100)
                 .build();
+
+            given(fileStorageProvider.getUrl("inception.png"))
+                .willReturn("https://mopl.com/inception.png");
 
             // when
             ContentResponse result = mapper.toResponse(model);
@@ -58,6 +73,8 @@ class ContentResponseMapperTest {
                 .tags(List.of())
                 .build();
 
+            given(fileStorageProvider.getUrl(any())).willReturn(null);
+
             // when
             ContentResponse result = mapper.toResponse(model);
 
@@ -72,6 +89,8 @@ class ContentResponseMapperTest {
             ContentModel model = ContentModel.builder()
                 .id(UUID.randomUUID())
                 .build();
+
+            given(fileStorageProvider.getUrl(any())).willReturn(null);
 
             // when
             ContentResponse result = mapper.toResponse(model);
@@ -90,6 +109,8 @@ class ContentResponseMapperTest {
                 .id(UUID.randomUUID())
                 .tags(List.of("SF"))
                 .build();
+
+            given(fileStorageProvider.getUrl(any())).willReturn(null);
 
             // when
             ContentResponse result = mapper.toResponse(model);

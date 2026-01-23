@@ -64,19 +64,16 @@ class ContentFacadeTest {
             given(thumbnail.getInputStream()).willReturn(inputStream);
 
             String storedPath = "contents/uuid_inception.png";
-            String thumbnailUrl = "http://localhost/files/" + storedPath;
 
             given(fileStorageProvider.upload(eq(inputStream), anyString()))
                 .willReturn(storedPath);
-            given(fileStorageProvider.getUrl(storedPath))
-                .willReturn(thumbnailUrl);
 
             ContentModel savedModel = ContentModel.builder()
                 .id(UUID.randomUUID())
                 .type(ContentModel.ContentType.movie)
                 .title("인셉션")
                 .description("꿈속의 꿈")
-                .thumbnailUrl(thumbnailUrl)
+                .thumbnailUrl(storedPath)
                 .tags(tagNames)
                 .createdAt(Instant.now())
                 .build();
@@ -89,7 +86,7 @@ class ContentFacadeTest {
 
             // then
             assertThat(result.getTitle()).isEqualTo("인셉션");
-            assertThat(result.getThumbnailUrl()).isEqualTo(thumbnailUrl);
+            assertThat(result.getThumbnailUrl()).isEqualTo(storedPath);
             assertThat(result.getTags()).containsExactly("SF", "액션");
 
             then(fileStorageProvider).should().upload(eq(inputStream), anyString());
@@ -178,18 +175,15 @@ class ContentFacadeTest {
             given(thumbnail.getInputStream()).willReturn(inputStream);
 
             String storedPath = "contents/uuid_new.png";
-            String thumbnailUrl = "http://localhost/files/" + storedPath;
 
             given(fileStorageProvider.upload(eq(inputStream), anyString()))
                 .willReturn(storedPath);
-            given(fileStorageProvider.getUrl(storedPath))
-                .willReturn(thumbnailUrl);
 
             ContentModel updatedModel = ContentModel.builder()
                 .id(contentId)
                 .title("새 제목")
                 .description("새 설명")
-                .thumbnailUrl(thumbnailUrl)
+                .thumbnailUrl(storedPath)
                 .tags(tagNames)
                 .build();
 
@@ -197,7 +191,7 @@ class ContentFacadeTest {
                 eq(contentId),
                 eq("새 제목"),
                 eq("새 설명"),
-                eq(thumbnailUrl),
+                eq(storedPath),
                 eq(tagNames)
             )).willReturn(updatedModel);
 
@@ -206,14 +200,14 @@ class ContentFacadeTest {
 
             // then
             assertThat(result.getTitle()).isEqualTo("새 제목");
-            assertThat(result.getThumbnailUrl()).isEqualTo(thumbnailUrl);
+            assertThat(result.getThumbnailUrl()).isEqualTo(storedPath);
             assertThat(result.getTags()).containsExactly("SF");
 
             then(contentService).should().update(
                 eq(contentId),
                 eq("새 제목"),
                 eq("새 설명"),
-                eq(thumbnailUrl),
+                eq(storedPath),
                 eq(tagNames)
             );
         }

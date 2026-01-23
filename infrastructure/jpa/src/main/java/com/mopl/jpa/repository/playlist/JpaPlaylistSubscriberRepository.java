@@ -21,7 +21,7 @@ public interface JpaPlaylistSubscriberRepository extends
 
     boolean existsByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
         DELETE FROM PlaylistSubscriberEntity ps
         WHERE ps.playlist.id = :playlistId AND ps.subscriber.id = :subscriberId
@@ -43,4 +43,11 @@ public interface JpaPlaylistSubscriberRepository extends
 
     @Query("SELECT ps.subscriber.id FROM PlaylistSubscriberEntity ps WHERE ps.playlist.id = :playlistId")
     List<UUID> findSubscriberIdsByPlaylistId(@Param("playlistId") UUID playlistId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            delete from PlaylistSubscriberEntity ps
+            where ps.playlist.id in :playlistIds
+        """)
+    int deleteAllByPlaylistIds(@Param("playlistIds") List<UUID> playlistIds);
 }

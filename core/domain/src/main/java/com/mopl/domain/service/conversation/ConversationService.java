@@ -175,7 +175,7 @@ public class ConversationService {
     ) {
 
         return directMessageRepository.findOtherDirectMessage(conversationId, directMessageId,
-                userId)
+            userId)
             .orElse(null);
     }
 
@@ -185,7 +185,7 @@ public class ConversationService {
             .orElseThrow(() -> UserNotFoundException.withId(withId));
         // message 포함
         ConversationModel conversationModel = conversationRepository.findByParticipants(userId,
-                withId)
+            withId)
             .orElseGet(() -> {
                 UserModel userModel = userRepository.findById(userId)
                     .orElseThrow(() -> UserNotFoundException.withId(userId));
@@ -199,9 +199,9 @@ public class ConversationService {
         if (lastMessage != null) {
             readStatusModel = lastMessage.getSender().getId().equals(userId)
                 ? readStatusRepository.findByConversationIdAndParticipantId(conversationModel
-                .getId(), withId)
+                    .getId(), withId)
                 : readStatusRepository.findByConversationIdAndParticipantId(conversationModel
-                .getId(), userId);
+                    .getId(), userId);
         }
 
         if (lastMessage != null && !lastMessage.getSender().getId().equals(userId)) {
@@ -216,7 +216,7 @@ public class ConversationService {
             DirectMessageModel directMessageModel = lastMessage.getSender().getId().equals(userId)
                 ? conversationModel.getLastMessage().setReceiver(withModel)
                 : conversationModel.getLastMessage()
-                .setReceiver(readStatusModel.getUser());
+                    .setReceiver(readStatusModel.getUser());
         }
 
         conversationModel.withUser(withModel);
@@ -247,11 +247,11 @@ public class ConversationService {
         if (lastMessage != null) {
             DirectMessageModel directMessageModel = lastMessage.getSender().getId().equals(userId)
                 ? conversationModel.getLastMessage()
-                .setReceiver(otherReadStatus.getUser())
+                    .setReceiver(otherReadStatus.getUser())
                 : conversationModel.getLastMessage().setReceiver(
-                userRepository.findById(userId)
-                    .orElseThrow(() -> UserNotFoundException.withId(userId))
-            );
+                    userRepository.findById(userId)
+                        .orElseThrow(() -> UserNotFoundException.withId(userId))
+                );
         }
         // unread 계산
         if (lastMessage != null && !lastMessage.getSender().getId().equals(userId)) {
@@ -281,7 +281,7 @@ public class ConversationService {
     }
 
     public ReadStatusModel getReadStatusByConversationIdAndUserId(UUID conversationId,
-                                                                  UUID userId) {
+        UUID userId) {
         return readStatusRepository.findByConversationIdAndUserId(conversationId, userId);
     }
 

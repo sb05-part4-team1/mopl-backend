@@ -14,7 +14,6 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLRestriction;
 
 import static com.mopl.domain.model.content.ContentModel.THUMBNAIL_URL_MAX_LENGTH;
-import static com.mopl.domain.model.content.ContentModel.TITLE_MAX_LENGTH;
 
 @Entity
 @Table(name = "contents")
@@ -28,13 +27,13 @@ public class ContentEntity extends BaseUpdatableEntity {
     @Column(nullable = false, length = 20)
     private ContentType type;
 
-    @Column(nullable = false, length = TITLE_MAX_LENGTH)
+    @Column(nullable = false)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @Column(length = THUMBNAIL_URL_MAX_LENGTH)
+    @Column(nullable = false, length = THUMBNAIL_URL_MAX_LENGTH)
     private String thumbnailUrl;
 
     @Column(nullable = false)

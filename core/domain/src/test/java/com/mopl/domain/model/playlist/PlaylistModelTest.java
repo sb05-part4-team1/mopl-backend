@@ -66,7 +66,7 @@ class PlaylistModelTest {
             assertThatThrownBy(() -> PlaylistModel.create(null, "제목", "설명"))
                 .isInstanceOf(InvalidPlaylistDataException.class)
                 .satisfies(e -> assertThat(((InvalidPlaylistDataException) e).getDetails())
-                    .containsEntry("reason", "소유자 정보는 null일 수 없습니다."));
+                    .containsEntry("detailMessage", "소유자 정보는 null일 수 없습니다."));
         }
 
         @Test
@@ -80,7 +80,7 @@ class PlaylistModelTest {
             assertThatThrownBy(() -> PlaylistModel.create(owner, "제목", "설명"))
                 .isInstanceOf(InvalidPlaylistDataException.class)
                 .satisfies(e -> assertThat(((InvalidPlaylistDataException) e).getDetails())
-                    .containsEntry("reason", "소유자 정보는 null일 수 없습니다."));
+                    .containsEntry("detailMessage", "소유자 정보는 null일 수 없습니다."));
         }
 
         @Test
@@ -94,7 +94,7 @@ class PlaylistModelTest {
             assertThatThrownBy(() -> PlaylistModel.create(owner, null, "설명"))
                 .isInstanceOf(InvalidPlaylistDataException.class)
                 .satisfies(e -> assertThat(((InvalidPlaylistDataException) e).getDetails())
-                    .containsEntry("reason", "제목은 null일 수 없습니다."));
+                    .containsEntry("detailMessage", "제목은 null일 수 없습니다."));
         }
 
         @ParameterizedTest
@@ -109,7 +109,7 @@ class PlaylistModelTest {
             assertThatThrownBy(() -> PlaylistModel.create(owner, blankTitle, "설명"))
                 .isInstanceOf(InvalidPlaylistDataException.class)
                 .satisfies(e -> assertThat(((InvalidPlaylistDataException) e).getDetails())
-                    .containsEntry("reason", "제목은 공백일 수 없습니다."));
+                    .containsEntry("detailMessage", "제목은 공백일 수 없습니다."));
         }
 
         @Test
@@ -124,7 +124,7 @@ class PlaylistModelTest {
             assertThatThrownBy(() -> PlaylistModel.create(owner, tooLongTitle, "설명"))
                 .isInstanceOf(InvalidPlaylistDataException.class)
                 .satisfies(e -> assertThat(((InvalidPlaylistDataException) e).getDetails())
-                    .containsEntry("reason",
+                    .containsEntry("detailMessage",
                         "제목은 " + PlaylistModel.TITLE_MAX_LENGTH + "자를 초과할 수 없습니다."));
         }
 
@@ -140,7 +140,7 @@ class PlaylistModelTest {
             assertThatThrownBy(() -> PlaylistModel.create(owner, "제목", tooLongDescription))
                 .isInstanceOf(InvalidPlaylistDataException.class)
                 .satisfies(e -> assertThat(((InvalidPlaylistDataException) e).getDetails())
-                    .containsEntry("reason",
+                    .containsEntry("detailMessage",
                         "설명은 " + PlaylistModel.DESCRIPTION_MAX_LENGTH + "자를 초과할 수 없습니다."));
         }
     }
@@ -224,7 +224,7 @@ class PlaylistModelTest {
             assertThatThrownBy(() -> playlist.update(blankTitle, "설명"))
                 .isInstanceOf(InvalidPlaylistDataException.class)
                 .satisfies(e -> assertThat(((InvalidPlaylistDataException) e).getDetails())
-                    .containsEntry("reason", "제목은 공백일 수 없습니다."));
+                    .containsEntry("detailMessage", "제목은 공백일 수 없습니다."));
         }
 
         @Test
@@ -238,7 +238,7 @@ class PlaylistModelTest {
             assertThatThrownBy(() -> playlist.update(tooLongTitle, "설명"))
                 .isInstanceOf(InvalidPlaylistDataException.class)
                 .satisfies(e -> assertThat(((InvalidPlaylistDataException) e).getDetails())
-                    .containsEntry("reason",
+                    .containsEntry("detailMessage",
                         "제목은 " + PlaylistModel.TITLE_MAX_LENGTH + "자를 초과할 수 없습니다."));
         }
 
@@ -253,7 +253,7 @@ class PlaylistModelTest {
             assertThatThrownBy(() -> playlist.update("제목", tooLongDescription))
                 .isInstanceOf(InvalidPlaylistDataException.class)
                 .satisfies(e -> assertThat(((InvalidPlaylistDataException) e).getDetails())
-                    .containsEntry("reason",
+                    .containsEntry("detailMessage",
                         "설명은 " + PlaylistModel.DESCRIPTION_MAX_LENGTH + "자를 초과할 수 없습니다."));
         }
     }
