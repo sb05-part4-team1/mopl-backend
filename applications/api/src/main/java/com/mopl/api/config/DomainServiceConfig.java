@@ -71,6 +71,16 @@ public class DomainServiceConfig {
         );
     }
 
+    @Bean ContentCacheService contentCacheService(
+        ContentRepository contentRepository,
+        ContentTagRepository contentTagRepository
+    ) {
+        return new ContentCacheService(
+            contentRepository,
+            contentTagRepository
+        );
+    }
+
     @Bean
     public TagService tagService(TagRepository tagRepository) {
         return new TagService(tagRepository);
