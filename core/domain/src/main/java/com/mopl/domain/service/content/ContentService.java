@@ -9,14 +9,14 @@ import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
 import com.mopl.domain.service.tag.TagService;
 import com.mopl.domain.support.cursor.CursorResponse;
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class ContentService {
 
+    private final ContentCacheService contentCacheService;
     private final TagService tagService;
     private final ContentRepository contentRepository;
     private final ContentQueryRepository contentQueryRepository;
@@ -24,7 +24,9 @@ public class ContentService {
 
     public ContentModel create(ContentModel content, List<String> tagNames) {
         ContentModel savedContent = contentRepository.save(content);
-        return applyTags(savedContent, tagNames);
+        ContentModel savedWithTags = applyTags(savedContent, tagNames);
+        contentCacheService.evict(savedWithTags.getId());
+        return savedWithTags;
     }
 
     public boolean exists(UUID contentId) {
@@ -36,12 +38,7 @@ public class ContentService {
     }
 
     public ContentModel getById(UUID contentId) {
-        ContentModel content = contentRepository.findById(contentId)
-            .orElseThrow(() -> ContentNotFoundException.withId(contentId));
-
-        List<TagModel> tags = contentTagRepository.findTagsByContentId(contentId);
-
-        return content.withTags(toTagNames(tags));
+        return contentCacheService.getById(contentId);
     }
 
     public ContentModel update(
@@ -51,32 +48,32 @@ public class ContentService {
         String thumbnailUrl,
         List<String> tagNames
     ) {
-        ContentModel content = getById(contentId);
+        ContentModel content = contentCacheService.getById(contentId);
 
         String finalTitle = title != null ? title : content.getTitle();
         String finalDescription = description != null ? description : content.getDescription();
         String finalThumbnailUrl = thumbnailUrl != null ? thumbnailUrl : content.getThumbnailUrl();
 
-        ContentModel updated = content.update(
-            finalTitle,
-            finalDescription,
-            finalThumbnailUrl
-        );
-
+        ContentModel updated = content.update(finalTitle, finalDescription, finalThumbnailUrl);
         ContentModel saved = contentRepository.save(updated);
 
         if (tagNames == null) {
+            contentCacheService.evict(saved.getId());
             return saved;
         }
 
         contentTagRepository.deleteAllByContentId(saved.getId());
-        return applyTags(saved, tagNames);
+        ContentModel savedWithTags = applyTags(saved, tagNames);
+
+        contentCacheService.evict(savedWithTags.getId());
+        return savedWithTags;
     }
 
     public void delete(UUID contentId) {
-        ContentModel content = getById(contentId);
+        ContentModel content = contentCacheService.getById(contentId);
         content.delete();
         contentRepository.save(content);
+        contentCacheService.evict(contentId);
     }
 
     private ContentModel applyTags(ContentModel content, List<String> tagNames) {

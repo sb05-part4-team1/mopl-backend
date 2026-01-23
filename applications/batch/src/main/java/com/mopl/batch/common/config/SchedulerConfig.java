@@ -1,4 +1,4 @@
-package com.mopl.batch.collect.config;
+package com.mopl.batch.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
