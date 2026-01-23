@@ -12,7 +12,7 @@ import static com.mopl.domain.model.user.UserModel.RAW_PASSWORD_MAX_LENGTH;
     example = """
         {
           "email": "test@example.com",
-          "name": "test",
+          "name": "홍길동",
           "password": "P@ssw0rd!"
         }
         """
