@@ -9,8 +9,10 @@ import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.domain.repository.playlist.PlaylistQueryRepository;
 import com.mopl.domain.repository.playlist.PlaylistQueryRequest;
+import com.mopl.domain.support.cache.CacheName;
 import com.mopl.domain.support.cursor.CursorResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.util.Collection;
 import java.util.List;
@@ -73,6 +75,7 @@ public class PlaylistService {
         playlistCacheService.saveAndEvict(playlistModel);
     }
 
+    @CacheEvict(cacheNames = CacheName.PLAYLIST_CONTENTS, key = "#playlistId")
     public void addContent(
         UUID playlistId,
         UUID requesterId,
@@ -83,9 +86,9 @@ public class PlaylistService {
             throw PlaylistContentAlreadyExistsException.withPlaylistIdAndContentId(playlistId, contentId);
         }
         playlistContentRepository.save(playlistId, contentId);
-        playlistCacheService.evictContents(playlistId);
     }
 
+    @CacheEvict(cacheNames = CacheName.PLAYLIST_CONTENTS, key = "#playlistId")
     public void removeContent(
         UUID playlistId,
         UUID requesterId,
@@ -96,7 +99,6 @@ public class PlaylistService {
         if (!deleted) {
             throw PlaylistContentNotFoundException.withPlaylistIdAndContentId(playlistId, contentId);
         }
-        playlistCacheService.evictContents(playlistId);
     }
 
     private PlaylistModel getByIdAndValidateOwner(UUID playlistId, UUID requesterId) {

@@ -44,9 +44,4 @@ public class PlaylistCacheService {
     public void saveAndEvict(PlaylistModel playlistModel) {
         playlistRepository.save(playlistModel);
     }
-
-    @CacheEvict(cacheNames = CacheName.PLAYLIST_CONTENTS, key = "#playlistId")
-    @SuppressWarnings("unused")
-    public void evictContents(UUID playlistId) {
-    }
 }

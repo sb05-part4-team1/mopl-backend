@@ -19,11 +19,19 @@ public class PlaylistSubscriptionService {
     private final PlaylistSubscriberCountRepository playlistSubscriberCountRepository;
 
     public long getSubscriberCount(UUID playlistId) {
-        return playlistSubscriberCountRepository.getCount(playlistId);
+        try {
+            return playlistSubscriberCountRepository.getCount(playlistId);
+        } catch (Exception e) {
+            return playlistSubscriberRepository.countByPlaylistId(playlistId);
+        }
     }
 
     public Map<UUID, Long> getSubscriberCounts(Collection<UUID> playlistIds) {
-        return playlistSubscriberCountRepository.getCounts(playlistIds);
+        try {
+            return playlistSubscriberCountRepository.getCounts(playlistIds);
+        } catch (Exception e) {
+            return playlistSubscriberRepository.countByPlaylistIdIn(playlistIds);
+        }
     }
 
     public boolean isSubscribedByPlaylistIdAndSubscriberId(
@@ -56,7 +64,7 @@ public class PlaylistSubscriptionService {
         }
 
         playlistSubscriberRepository.save(playlistId, subscriberId);
-        playlistSubscriberCountRepository.increment(playlistId);
+        tryIncrementCount(playlistId);
     }
 
     public void unsubscribe(UUID playlistId, UUID subscriberId) {
@@ -67,6 +75,22 @@ public class PlaylistSubscriptionService {
         if (!deleted) {
             throw PlaylistSubscriptionNotFoundException.withPlaylistIdAndSubscriberId(playlistId, subscriberId);
         }
-        playlistSubscriberCountRepository.decrement(playlistId);
+        tryDecrementCount(playlistId);
+    }
+
+    private void tryIncrementCount(UUID playlistId) {
+        try {
+            playlistSubscriberCountRepository.increment(playlistId);
+        } catch (Exception ignored) {
+            // Redis 장애 시 무시, sync scheduler가 보정
+        }
+    }
+
+    private void tryDecrementCount(UUID playlistId) {
+        try {
+            playlistSubscriberCountRepository.decrement(playlistId);
+        } catch (Exception ignored) {
+            // Redis 장애 시 무시, sync scheduler가 보정
+        }
     }
 }
