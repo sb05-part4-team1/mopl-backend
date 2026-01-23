@@ -19,6 +19,7 @@ import com.mopl.domain.repository.playlist.PlaylistSubscriberCountRepository;
 import com.mopl.domain.repository.playlist.PlaylistSubscriberRepository;
 import com.mopl.domain.repository.review.ReviewQueryRepository;
 import com.mopl.domain.repository.review.ReviewRepository;
+import com.mopl.domain.repository.review.ReviewStatsRepository;
 import com.mopl.domain.repository.tag.TagRepository;
 import com.mopl.domain.repository.user.UserQueryRepository;
 import com.mopl.domain.repository.user.UserRepository;
@@ -35,6 +36,7 @@ import com.mopl.domain.service.playlist.PlaylistCacheService;
 import com.mopl.domain.service.playlist.PlaylistService;
 import com.mopl.domain.service.playlist.PlaylistSubscriptionService;
 import com.mopl.domain.service.review.ReviewService;
+import com.mopl.domain.service.review.ReviewStatsService;
 import com.mopl.domain.service.tag.TagService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.service.watchingsession.WatchingSessionService;
@@ -97,15 +99,28 @@ public class DomainServiceConfig {
     }
 
     @Bean
+    public ReviewStatsService reviewStatsService(
+        ReviewStatsRepository reviewStatsRepository,
+        ReviewRepository reviewRepository
+    ) {
+        return new ReviewStatsService(
+            reviewStatsRepository,
+            reviewRepository
+        );
+    }
+
+    @Bean
     public ReviewService reviewService(
         ReviewRepository reviewRepository,
         ReviewQueryRepository reviewQueryRepository,
-        ContentRepository contentRepository
+        ContentRepository contentRepository,
+        ReviewStatsService reviewStatsService
     ) {
         return new ReviewService(
             reviewRepository,
             reviewQueryRepository,
-            contentRepository
+            contentRepository,
+            reviewStatsService
         );
     }
 

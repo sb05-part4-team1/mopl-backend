@@ -4,7 +4,6 @@ import com.mopl.api.interfaces.api.common.CommonApiResponse;
 import com.mopl.api.interfaces.api.content.dto.ContentCreateRequest;
 import com.mopl.api.interfaces.api.content.dto.ContentCursorResponse;
 import com.mopl.api.interfaces.api.content.dto.ContentResponse;
-import com.mopl.api.interfaces.api.content.dto.ContentSummary;
 import com.mopl.api.interfaces.api.content.dto.ContentUpdateRequest;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.repository.content.ContentQueryRequest;
@@ -82,7 +81,7 @@ public interface ContentApiSpec {
         content = @Content(schema = @Schema(implementation = ContentCursorResponse.class))
     )
     @CommonApiResponse.Default
-    CursorResponse<ContentSummary> getContents(@Parameter(hidden = true) ContentQueryRequest request);
+    CursorResponse<ContentResponse> getContents(@Parameter(hidden = true) ContentQueryRequest request);
 
     @Operation(summary = "콘텐츠 상세 조회")
     @Parameter(name = "contentId", description = "콘텐츠 UUID", required = true)

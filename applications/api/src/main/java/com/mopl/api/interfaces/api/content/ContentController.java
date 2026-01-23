@@ -3,7 +3,6 @@ package com.mopl.api.interfaces.api.content;
 import com.mopl.api.application.content.ContentFacade;
 import com.mopl.api.interfaces.api.content.dto.ContentCreateRequest;
 import com.mopl.api.interfaces.api.content.dto.ContentResponse;
-import com.mopl.api.interfaces.api.content.dto.ContentSummary;
 import com.mopl.api.interfaces.api.content.dto.ContentUpdateRequest;
 import com.mopl.domain.repository.content.ContentQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
@@ -32,9 +31,8 @@ public class ContentController implements ContentApiSpec {
 
     private final ContentFacade contentFacade;
 
-    // TODO: ContentResponse로 다시 변경
     @GetMapping
-    public CursorResponse<ContentSummary> getContents(ContentQueryRequest request) {
+    public CursorResponse<ContentResponse> getContents(ContentQueryRequest request) {
         return contentFacade.getContents(request);
     }
 

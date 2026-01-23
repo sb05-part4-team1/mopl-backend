@@ -4,7 +4,6 @@ import com.mopl.domain.exception.review.ReviewForbiddenException;
 import com.mopl.domain.exception.review.ReviewNotFoundException;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.review.ReviewModel;
-import com.mopl.domain.model.review.ReviewStats;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.review.ReviewQueryRepository;
@@ -21,13 +20,10 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ReviewQueryRepository reviewQueryRepository;
     private final ContentRepository contentRepository;
+    private final ReviewStatsService reviewStatsService;
 
     public CursorResponse<ReviewModel> getAll(ReviewQueryRequest request) {
         return reviewQueryRepository.findAll(request);
-    }
-
-    public ReviewStats getStatsByContentId(UUID contentId) {
-        return reviewRepository.getStatsByContentId(contentId);
     }
 
     public ReviewModel create(
@@ -41,6 +37,7 @@ public class ReviewService {
 
         ContentModel updatedContent = content.applyReview(rating);
         contentRepository.save(updatedContent);
+        reviewStatsService.applyReview(content.getId(), rating);
 
         return savedReviewModel;
     }
@@ -62,6 +59,7 @@ public class ReviewService {
         if (rating != null && rating != oldRating) {
             ContentModel content = saved.getContent();
             contentRepository.save(content.updateReview(oldRating, rating));
+            reviewStatsService.updateReview(content.getId(), oldRating, rating);
         }
 
         return saved;
@@ -81,6 +79,7 @@ public class ReviewService {
 
         ContentModel content = review.getContent();
         contentRepository.save(content.removeReview(rating));
+        reviewStatsService.removeReview(content.getId(), rating);
     }
 
     private ReviewModel getById(UUID reviewId) {

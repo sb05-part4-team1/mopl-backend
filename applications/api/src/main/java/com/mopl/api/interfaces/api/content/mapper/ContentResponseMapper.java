@@ -45,6 +45,26 @@ public class ContentResponseMapper {
         );
     }
 
+    public ContentResponse toResponseWithTagNames(
+        ContentModel contentModel,
+        String thumbnailUrl,
+        List<String> tagNames,
+        ReviewStats reviewStats,
+        long watcherCount
+    ) {
+        return new ContentResponse(
+            contentModel.getId(),
+            contentModel.getType(),
+            contentModel.getTitle(),
+            contentModel.getDescription(),
+            thumbnailUrl,
+            tagNames,
+            reviewStats.averageRating(),
+            reviewStats.reviewCount(),
+            watcherCount
+        );
+    }
+
     private List<String> toTagNames(List<TagModel> tags) {
         return tags.stream()
             .map(TagModel::getName)

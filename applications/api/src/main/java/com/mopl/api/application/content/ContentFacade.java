@@ -13,7 +13,7 @@ import com.mopl.domain.model.tag.TagModel;
 import com.mopl.domain.repository.content.ContentQueryRequest;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.content.ContentTagService;
-import com.mopl.domain.service.review.ReviewService;
+import com.mopl.domain.service.review.ReviewStatsService;
 import com.mopl.domain.service.watchingsession.WatchingSessionService;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.storage.provider.StorageProvider;
@@ -34,25 +34,35 @@ public class ContentFacade {
 
     private final ContentService contentService;
     private final ContentTagService contentTagService;
-    private final ReviewService reviewService;
+    private final ReviewStatsService reviewStatsService;
     private final WatchingSessionService watchingSessionService;
     private final StorageProvider storageProvider;
     private final ContentResponseMapper contentResponseMapper;
     private final ContentSummaryMapper contentSummaryMapper;
 
-    public CursorResponse<ContentSummary> getContents(ContentQueryRequest request) {
+    public CursorResponse<ContentResponse> getContents(ContentQueryRequest request) {
         CursorResponse<ContentModel> response = contentService.getAll(request);
+        List<ContentModel> contents = response.data();
 
-        List<UUID> contentIds = response.data().stream()
+        if (contents.isEmpty()) {
+            return response.map(this::toContentResponse);
+        }
+
+        List<UUID> contentIds = contents.stream()
             .map(ContentModel::getId)
             .toList();
 
         Map<UUID, List<String>> tagsByContentId = contentTagService.getTagNamesByContentIds(contentIds);
+        Map<UUID, ReviewStats> reviewStatsByContentId = reviewStatsService.getStats(contentIds);
 
-        return response.map(model -> contentSummaryMapper.toSummary(
-            model,
-            tagsByContentId.getOrDefault(model.getId(), List.of())
-        ));
+        return response.map(content -> {
+            String thumbnailUrl = storageProvider.getUrl(content.getThumbnailUrl());
+            List<String> tagNames = tagsByContentId.getOrDefault(content.getId(), List.of());
+            ReviewStats reviewStats = reviewStatsByContentId.getOrDefault(content.getId(), ReviewStats.empty());
+            long watcherCount = watchingSessionService.countByContentId(content.getId());
+
+            return contentResponseMapper.toResponseWithTagNames(content, thumbnailUrl, tagNames, reviewStats, watcherCount);
+        });
     }
 
     public ContentResponse getContent(UUID contentId) {
@@ -116,7 +126,7 @@ public class ContentFacade {
     private ContentResponse toContentResponse(ContentModel content) {
         String thumbnailUrl = storageProvider.getUrl(content.getThumbnailUrl());
         List<TagModel> tags = contentTagService.getTagsByContentId(content.getId());
-        ReviewStats reviewStats = reviewService.getStatsByContentId(content.getId());
+        ReviewStats reviewStats = reviewStatsService.getStats(content.getId());
         long watcherCount = watchingSessionService.countByContentId(content.getId());
 
         return contentResponseMapper.toResponse(content, thumbnailUrl, tags, reviewStats, watcherCount);
