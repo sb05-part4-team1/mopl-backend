@@ -59,6 +59,17 @@ public class UserController implements UserApiSpec {
         return userResponseMapper.toResponse(userModel);
     }
 
+    @PreAuthorize("#userId == authentication.principal.userId")
+    @PatchMapping("/{userId}/password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updatePassword(
+        @PathVariable UUID userId,
+        @RequestBody @Valid ChangePasswordRequest request
+    ) {
+        userFacade.updatePassword(userId, request.password());
+    }
+
+    @PreAuthorize("#userId == authentication.principal.userId")
     @PatchMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public UserResponse updateProfile(
         @PathVariable UUID userId,
@@ -89,14 +100,5 @@ public class UserController implements UserApiSpec {
         @RequestBody @Valid UserLockUpdateRequest request
     ) {
         userFacade.updateLocked(userDetails.userId(), userId, request);
-    }
-
-    @PatchMapping("/{userId}/password")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updatePassword(
-        @PathVariable UUID userId,
-        @RequestBody @Valid ChangePasswordRequest request
-    ) {
-        userFacade.updatePassword(userId, request.password());
     }
 }
