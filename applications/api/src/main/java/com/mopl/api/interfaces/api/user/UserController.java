@@ -40,13 +40,6 @@ public class UserController implements UserApiSpec {
     private final UserFacade userFacade;
     private final UserResponseMapper userResponseMapper;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse signUp(@RequestBody @Valid UserCreateRequest request) {
-        UserModel userModel = userFacade.signUp(request);
-        return userResponseMapper.toResponse(userModel);
-    }
-
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public CursorResponse<UserResponse> getUsers(@ModelAttribute UserQueryRequest request) {
@@ -56,6 +49,13 @@ public class UserController implements UserApiSpec {
     @GetMapping("/{userId}")
     public UserResponse getUser(@PathVariable UUID userId) {
         UserModel userModel = userFacade.getUser(userId);
+        return userResponseMapper.toResponse(userModel);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponse signUp(@RequestBody @Valid UserCreateRequest request) {
+        UserModel userModel = userFacade.signUp(request);
         return userResponseMapper.toResponse(userModel);
     }
 
