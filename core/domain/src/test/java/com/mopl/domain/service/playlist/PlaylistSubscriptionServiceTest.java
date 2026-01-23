@@ -24,8 +24,8 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 
-@DisplayName("PlaylistSubscriptionService 단위 테스트")
 @ExtendWith(MockitoExtension.class)
+@DisplayName("PlaylistSubscriptionService 단위 테스트")
 class PlaylistSubscriptionServiceTest {
 
     @Mock
@@ -37,12 +37,12 @@ class PlaylistSubscriptionServiceTest {
     @InjectMocks
     private PlaylistSubscriptionService playlistSubscriptionService;
 
-    @DisplayName("getSubscriberCount()")
     @Nested
+    @DisplayName("getSubscriberCount()")
     class GetSubscriberCountTest {
 
-        @DisplayName("구독자 수 조회 성공")
         @Test
+        @DisplayName("구독자 수 조회 성공")
         void withValidPlaylistId_returnsCount() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -58,8 +58,8 @@ class PlaylistSubscriptionServiceTest {
             then(playlistSubscriberRepository).should(never()).countByPlaylistId(playlistId);
         }
 
-        @DisplayName("Redis 장애 시 DB fallback")
         @Test
+        @DisplayName("Redis 장애 시 DB fallback")
         void withRedisFailure_fallsBackToDb() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -78,12 +78,12 @@ class PlaylistSubscriptionServiceTest {
         }
     }
 
-    @DisplayName("getSubscriberCounts()")
     @Nested
+    @DisplayName("getSubscriberCounts()")
     class GetSubscriberCountsTest {
 
-        @DisplayName("여러 플레이리스트 구독자 수 조회 성공")
         @Test
+        @DisplayName("여러 플레이리스트 구독자 수 조회 성공")
         void withValidPlaylistIds_returnsCountsMap() {
             // given
             UUID playlistId1 = UUID.randomUUID();
@@ -103,8 +103,8 @@ class PlaylistSubscriptionServiceTest {
             then(playlistSubscriberRepository).should(never()).countByPlaylistIdIn(playlistIds);
         }
 
-        @DisplayName("Redis 장애 시 DB fallback")
         @Test
+        @DisplayName("Redis 장애 시 DB fallback")
         void withRedisFailure_fallsBackToDb() {
             // given
             UUID playlistId1 = UUID.randomUUID();
@@ -126,12 +126,12 @@ class PlaylistSubscriptionServiceTest {
         }
     }
 
-    @DisplayName("isSubscribedByPlaylistIdAndSubscriberId()")
     @Nested
+    @DisplayName("isSubscribedByPlaylistIdAndSubscriberId()")
     class IsSubscribedByPlaylistIdAndSubscriberIdTest {
 
-        @DisplayName("구독 중이면 true 반환")
         @Test
+        @DisplayName("구독 중이면 true 반환")
         void withExistingSubscription_returnsTrue() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -150,8 +150,8 @@ class PlaylistSubscriptionServiceTest {
             assertThat(result).isTrue();
         }
 
-        @DisplayName("구독 중이 아니면 false 반환")
         @Test
+        @DisplayName("구독 중이 아니면 false 반환")
         void withNoSubscription_returnsFalse() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -171,12 +171,12 @@ class PlaylistSubscriptionServiceTest {
         }
     }
 
-    @DisplayName("findSubscribedPlaylistIds()")
     @Nested
+    @DisplayName("findSubscribedPlaylistIds()")
     class FindSubscribedPlaylistIdsTest {
 
-        @DisplayName("구독 중인 플레이리스트 ID 목록 반환")
         @Test
+        @DisplayName("구독 중인 플레이리스트 ID 목록 반환")
         void withValidSubscriberIdAndPlaylistIds_returnsSubscribedIds() {
             // given
             UUID subscriberId = UUID.randomUUID();
@@ -198,12 +198,12 @@ class PlaylistSubscriptionServiceTest {
         }
     }
 
-    @DisplayName("getSubscriberIds()")
     @Nested
+    @DisplayName("getSubscriberIds()")
     class GetSubscriberIdsTest {
 
-        @DisplayName("플레이리스트 구독자 ID 목록 반환")
         @Test
+        @DisplayName("플레이리스트 구독자 ID 목록 반환")
         void withValidPlaylistId_returnsSubscriberIds() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -222,12 +222,12 @@ class PlaylistSubscriptionServiceTest {
         }
     }
 
-    @DisplayName("subscribe()")
     @Nested
+    @DisplayName("subscribe()")
     class SubscribeTest {
 
-        @DisplayName("구독 성공")
         @Test
+        @DisplayName("구독 성공")
         void withValidPlaylistIdAndSubscriberId_subscribesSuccessfully() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -245,8 +245,8 @@ class PlaylistSubscriptionServiceTest {
             then(playlistSubscriberCountRepository).should().increment(playlistId);
         }
 
-        @DisplayName("이미 구독 중이면 PlaylistSubscriptionAlreadyExistsException 발생")
         @Test
+        @DisplayName("이미 구독 중이면 PlaylistSubscriptionAlreadyExistsException 발생")
         void withExistingSubscription_throwsPlaylistSubscriptionAlreadyExistsException() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -265,8 +265,8 @@ class PlaylistSubscriptionServiceTest {
             then(playlistSubscriberCountRepository).should(never()).increment(playlistId);
         }
 
-        @DisplayName("Redis increment 실패해도 구독 성공")
         @Test
+        @DisplayName("Redis increment 실패해도 구독 성공")
         void withRedisIncrementFailure_subscribesSuccessfully() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -287,12 +287,12 @@ class PlaylistSubscriptionServiceTest {
         }
     }
 
-    @DisplayName("unsubscribe()")
     @Nested
+    @DisplayName("unsubscribe()")
     class UnsubscribeTest {
 
-        @DisplayName("구독 취소 성공")
         @Test
+        @DisplayName("구독 취소 성공")
         void withValidPlaylistIdAndSubscriberId_unsubscribesSuccessfully() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -312,8 +312,8 @@ class PlaylistSubscriptionServiceTest {
             then(playlistSubscriberCountRepository).should().decrement(playlistId);
         }
 
-        @DisplayName("구독 중이 아니면 PlaylistSubscriptionNotFoundException 발생")
         @Test
+        @DisplayName("구독 중이 아니면 PlaylistSubscriptionNotFoundException 발생")
         void withNoSubscription_throwsPlaylistSubscriptionNotFoundException() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -331,8 +331,8 @@ class PlaylistSubscriptionServiceTest {
             then(playlistSubscriberCountRepository).should(never()).decrement(playlistId);
         }
 
-        @DisplayName("Redis decrement 실패해도 구독 취소 성공")
         @Test
+        @DisplayName("Redis decrement 실패해도 구독 취소 성공")
         void withRedisDecrementFailure_unsubscribesSuccessfully() {
             // given
             UUID playlistId = UUID.randomUUID();

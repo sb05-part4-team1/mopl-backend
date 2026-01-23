@@ -26,8 +26,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
 
-@DisplayName("UserService 단위 테스트")
 @ExtendWith(MockitoExtension.class)
+@DisplayName("UserService 단위 테스트")
 class UserServiceTest {
 
     @Mock
@@ -39,12 +39,12 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
-    @DisplayName("getAll()")
     @Nested
+    @DisplayName("getAll()")
     class GetAllTest {
 
-        @DisplayName("Repository에 위임하여 결과 반환")
         @Test
+        @DisplayName("Repository에 위임하여 결과 반환")
         void delegatesToRepository() {
             // given
             UserQueryRequest request = new UserQueryRequest(
@@ -72,12 +72,12 @@ class UserServiceTest {
         }
     }
 
-    @DisplayName("getById()")
     @Nested
+    @DisplayName("getById()")
     class GetByIdTest {
 
-        @DisplayName("존재하는 사용자 ID로 조회하면 UserModel 반환")
         @Test
+        @DisplayName("존재하는 사용자 ID로 조회하면 UserModel 반환")
         void withExistingUserId_returnsUserModel() {
             // given
             UUID userId = UUID.randomUUID();
@@ -97,8 +97,8 @@ class UserServiceTest {
             then(userRepository).should().findById(userId);
         }
 
-        @DisplayName("존재하지 않는 사용자 ID로 조회하면 UserNotFoundException 발생")
         @Test
+        @DisplayName("존재하지 않는 사용자 ID로 조회하면 UserNotFoundException 발생")
         void withNonExistingUserId_throwsUserNotFoundException() {
             // given
             UUID userId = UUID.randomUUID();
@@ -117,12 +117,12 @@ class UserServiceTest {
         }
     }
 
-    @DisplayName("getByEmail()")
     @Nested
+    @DisplayName("getByEmail()")
     class GetByEmailTest {
 
-        @DisplayName("존재하는 이메일로 조회하면 UserModel 반환")
         @Test
+        @DisplayName("존재하는 이메일로 조회하면 UserModel 반환")
         void withExistingEmail_returnsUserModel() {
             // given
             String email = "test@example.com";
@@ -142,8 +142,8 @@ class UserServiceTest {
             then(userRepository).should().findByEmail(email);
         }
 
-        @DisplayName("존재하지 않는 이메일로 조회하면 UserNotFoundException 발생")
         @Test
+        @DisplayName("존재하지 않는 이메일로 조회하면 UserNotFoundException 발생")
         void withNonExistingEmail_throwsUserNotFoundException() {
             // given
             String email = "nonexistent@example.com";
@@ -162,12 +162,12 @@ class UserServiceTest {
         }
     }
 
-    @DisplayName("create()")
     @Nested
+    @DisplayName("create()")
     class CreateTest {
 
-        @DisplayName("유효한 사용자 생성")
         @Test
+        @DisplayName("유효한 사용자 생성")
         void withValidUser_createsUser() {
             // given
             UserModel userModel = UserModel.create(
@@ -188,8 +188,8 @@ class UserServiceTest {
             then(userRepository).should().save(userModel);
         }
 
-        @DisplayName("중복 이메일이면 예외 발생")
         @Test
+        @DisplayName("중복 이메일이면 예외 발생")
         void withDuplicateEmail_throwsException() {
             // given
             UserModel userModel = UserModel.create(
@@ -213,12 +213,12 @@ class UserServiceTest {
         }
     }
 
-    @DisplayName("update()")
     @Nested
+    @DisplayName("update()")
     class UpdateTest {
 
-        @DisplayName("사용자 정보 업데이트 성공")
         @Test
+        @DisplayName("사용자 정보 업데이트 성공")
         void withValidUser_updatesUser() {
             // given
             UserModel userModel = UserModel.create(

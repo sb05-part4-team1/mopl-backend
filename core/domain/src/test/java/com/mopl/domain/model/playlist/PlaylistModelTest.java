@@ -37,12 +37,12 @@ class PlaylistModelTest {
         return PlaylistModel.create(DEFAULT_TITLE, DEFAULT_DESCRIPTION, owner);
     }
 
-    @DisplayName("create()")
     @Nested
+    @DisplayName("create()")
     class CreateTest {
 
-        @DisplayName("유효한 데이터로 PlaylistModel 생성")
         @Test
+        @DisplayName("유효한 데이터로 PlaylistModel 생성")
         void withValidData_createsPlaylistModel() {
             // given
             UserModel owner = UserModelFixture.create();
@@ -56,8 +56,8 @@ class PlaylistModelTest {
             assertThat(playlist.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
         }
 
-        @DisplayName("설명이 null이어도 생성 성공")
         @Test
+        @DisplayName("설명이 null이어도 생성 성공")
         void withNullDescription_createsPlaylistModel() {
             // given
             UserModel owner = UserModelFixture.create();
@@ -70,9 +70,9 @@ class PlaylistModelTest {
             assertThat(playlist.getDescription()).isNull();
         }
 
-        @DisplayName("제목이 비어있으면 예외 발생")
         @ParameterizedTest(name = "{0}")
         @MethodSource("com.mopl.domain.model.playlist.PlaylistModelTest#blankStringProvider")
+        @DisplayName("제목이 비어있으면 예외 발생")
         void withBlankTitle_throwsException(String description, String title) {
             UserModel owner = UserModelFixture.create();
 
@@ -80,8 +80,8 @@ class PlaylistModelTest {
                 .isInstanceOf(InvalidPlaylistDataException.class);
         }
 
-        @DisplayName("제목이 정확히 최대 길이면 생성 성공")
         @Test
+        @DisplayName("제목이 정확히 최대 길이면 생성 성공")
         void withTitleAtMaxLength_createsPlaylistModel() {
             UserModel owner = UserModelFixture.create();
             String maxTitle = "가".repeat(TITLE_MAX_LENGTH);
@@ -91,8 +91,8 @@ class PlaylistModelTest {
             assertThat(playlist.getTitle()).isEqualTo(maxTitle);
         }
 
-        @DisplayName("제목이 최대 길이 초과하면 예외 발생")
         @Test
+        @DisplayName("제목이 최대 길이 초과하면 예외 발생")
         void withTitleExceedingMaxLength_throwsException() {
             UserModel owner = UserModelFixture.create();
             String longTitle = "가".repeat(TITLE_MAX_LENGTH + 1);
@@ -102,8 +102,8 @@ class PlaylistModelTest {
         }
 
         // null은 허용되므로 빈 문자열과 공백만 테스트 (withNullDescription_createsPlaylistModel 참조)
-        @DisplayName("설명이 비어있으면 예외 발생")
         @ParameterizedTest
+        @DisplayName("설명이 비어있으면 예외 발생")
         @ValueSource(strings = {"", "   "})
         void withBlankDescription_throwsException(String blankDescription) {
             UserModel owner = UserModelFixture.create();
@@ -112,8 +112,8 @@ class PlaylistModelTest {
                 .isInstanceOf(InvalidPlaylistDataException.class);
         }
 
-        @DisplayName("설명이 정확히 최대 길이면 생성 성공")
         @Test
+        @DisplayName("설명이 정확히 최대 길이면 생성 성공")
         void withDescriptionAtMaxLength_createsPlaylistModel() {
             UserModel owner = UserModelFixture.create();
             String maxDescription = "가".repeat(DESCRIPTION_MAX_LENGTH);
@@ -123,8 +123,8 @@ class PlaylistModelTest {
             assertThat(playlist.getDescription()).isEqualTo(maxDescription);
         }
 
-        @DisplayName("설명이 최대 길이 초과하면 예외 발생")
         @Test
+        @DisplayName("설명이 최대 길이 초과하면 예외 발생")
         void withDescriptionExceedingMaxLength_throwsException() {
             UserModel owner = UserModelFixture.create();
             String longDescription = "가".repeat(DESCRIPTION_MAX_LENGTH + 1);
@@ -133,16 +133,16 @@ class PlaylistModelTest {
                 .isInstanceOf(InvalidPlaylistDataException.class);
         }
 
-        @DisplayName("소유자가 null이면 예외 발생")
         @Test
+        @DisplayName("소유자가 null이면 예외 발생")
         @SuppressWarnings("DataFlowIssue")
         void withNullOwner_throwsException() {
             assertThatThrownBy(() -> PlaylistModel.create(DEFAULT_TITLE, DEFAULT_DESCRIPTION, null))
                 .isInstanceOf(InvalidPlaylistDataException.class);
         }
 
-        @DisplayName("소유자 ID가 null이면 예외 발생")
         @Test
+        @DisplayName("소유자 ID가 null이면 예외 발생")
         void withNullOwnerId_throwsException() {
             UserModel ownerWithNullId = UserModel.builder().build();
 
@@ -151,12 +151,12 @@ class PlaylistModelTest {
         }
     }
 
-    @DisplayName("update()")
     @Nested
+    @DisplayName("update()")
     class UpdateTest {
 
-        @DisplayName("유효한 데이터로 변경하면 새 객체 반환")
         @Test
+        @DisplayName("유효한 데이터로 변경하면 새 객체 반환")
         void withValidData_returnsNewInstance() {
             // given
             PlaylistModel playlist = createDefaultPlaylist();
@@ -172,8 +172,8 @@ class PlaylistModelTest {
             assertThat(result).isNotSameAs(playlist);
         }
 
-        @DisplayName("제목만 수정하면 제목만 변경")
         @Test
+        @DisplayName("제목만 수정하면 제목만 변경")
         void withOnlyTitle_updatesTitleOnly() {
             // given
             PlaylistModel playlist = createDefaultPlaylist();
@@ -189,8 +189,8 @@ class PlaylistModelTest {
             assertThat(result).isNotSameAs(playlist);
         }
 
-        @DisplayName("설명만 수정하면 설명만 변경")
         @Test
+        @DisplayName("설명만 수정하면 설명만 변경")
         void withOnlyDescription_updatesDescriptionOnly() {
             // given
             PlaylistModel playlist = createDefaultPlaylist();
@@ -206,8 +206,8 @@ class PlaylistModelTest {
             assertThat(result).isNotSameAs(playlist);
         }
 
-        @DisplayName("둘 다 null이면 값 유지하고 새 객체 반환")
         @Test
+        @DisplayName("둘 다 null이면 값 유지하고 새 객체 반환")
         void withBothNull_returnsNewInstance() {
             // given
             PlaylistModel playlist = createDefaultPlaylist();
@@ -224,8 +224,8 @@ class PlaylistModelTest {
         }
 
         // null은 기존값 유지이므로 빈 문자열과 공백만 테스트 (withOnlyDescription_updatesDescriptionOnly 참조)
-        @DisplayName("제목이 비어있으면 예외 발생")
         @ParameterizedTest
+        @DisplayName("제목이 비어있으면 예외 발생")
         @ValueSource(strings = {"", "   "})
         void withBlankTitle_throwsException(String blankTitle) {
             // given
@@ -236,8 +236,8 @@ class PlaylistModelTest {
                 .isInstanceOf(InvalidPlaylistDataException.class);
         }
 
-        @DisplayName("제목이 정확히 최대 길이면 수정 성공")
         @Test
+        @DisplayName("제목이 정확히 최대 길이면 수정 성공")
         void withTitleAtMaxLength_updatesTitle() {
             // given
             PlaylistModel playlist = createDefaultPlaylist();
@@ -250,8 +250,8 @@ class PlaylistModelTest {
             assertThat(result.getTitle()).isEqualTo(maxTitle);
         }
 
-        @DisplayName("제목이 최대 길이 초과하면 예외 발생")
         @Test
+        @DisplayName("제목이 최대 길이 초과하면 예외 발생")
         void withTitleExceedingMaxLength_throwsException() {
             // given
             PlaylistModel playlist = createDefaultPlaylist();
@@ -263,8 +263,8 @@ class PlaylistModelTest {
         }
 
         // null은 기존값 유지이므로 빈 문자열과 공백만 테스트 (withOnlyTitle_updatesTitleOnly 참조)
-        @DisplayName("설명이 비어있으면 예외 발생")
         @ParameterizedTest
+        @DisplayName("설명이 비어있으면 예외 발생")
         @ValueSource(strings = {"", "   "})
         void withBlankDescription_throwsException(String blankDescription) {
             // given
@@ -275,8 +275,8 @@ class PlaylistModelTest {
                 .isInstanceOf(InvalidPlaylistDataException.class);
         }
 
-        @DisplayName("설명이 정확히 최대 길이면 수정 성공")
         @Test
+        @DisplayName("설명이 정확히 최대 길이면 수정 성공")
         void withDescriptionAtMaxLength_updatesDescription() {
             // given
             PlaylistModel playlist = createDefaultPlaylist();
@@ -289,8 +289,8 @@ class PlaylistModelTest {
             assertThat(result.getDescription()).isEqualTo(maxDescription);
         }
 
-        @DisplayName("설명이 최대 길이 초과하면 예외 발생")
         @Test
+        @DisplayName("설명이 최대 길이 초과하면 예외 발생")
         void withDescriptionExceedingMaxLength_throwsException() {
             // given
             PlaylistModel playlist = createDefaultPlaylist();

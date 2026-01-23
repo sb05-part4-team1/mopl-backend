@@ -33,8 +33,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
 
-@DisplayName("PlaylistService 단위 테스트")
 @ExtendWith(MockitoExtension.class)
+@DisplayName("PlaylistService 단위 테스트")
 class PlaylistServiceTest {
 
     @Mock
@@ -49,12 +49,12 @@ class PlaylistServiceTest {
     @InjectMocks
     private PlaylistService playlistService;
 
-    @DisplayName("getAll()")
     @Nested
+    @DisplayName("getAll()")
     class GetAllTest {
 
-        @DisplayName("Repository에 위임하여 결과 반환")
         @Test
+        @DisplayName("Repository에 위임하여 결과 반환")
         void delegatesToRepository() {
             // given
             PlaylistQueryRequest request = new PlaylistQueryRequest(
@@ -75,12 +75,12 @@ class PlaylistServiceTest {
         }
     }
 
-    @DisplayName("getById()")
     @Nested
+    @DisplayName("getById()")
     class GetByIdTest {
 
-        @DisplayName("존재하는 플레이리스트 ID로 조회하면 PlaylistModel 반환")
         @Test
+        @DisplayName("존재하는 플레이리스트 ID로 조회하면 PlaylistModel 반환")
         void withExistingPlaylistId_returnsPlaylistModel() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -96,8 +96,8 @@ class PlaylistServiceTest {
             then(playlistCacheService).should().getById(playlistId);
         }
 
-        @DisplayName("존재하지 않는 플레이리스트 ID로 조회하면 PlaylistNotFoundException 발생")
         @Test
+        @DisplayName("존재하지 않는 플레이리스트 ID로 조회하면 PlaylistNotFoundException 발생")
         void withNonExistingPlaylistId_throwsPlaylistNotFoundException() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -117,12 +117,12 @@ class PlaylistServiceTest {
         }
     }
 
-    @DisplayName("getContentsByPlaylistId()")
     @Nested
+    @DisplayName("getContentsByPlaylistId()")
     class GetContentsByPlaylistIdTest {
 
-        @DisplayName("플레이리스트의 콘텐츠 목록 조회")
         @Test
+        @DisplayName("플레이리스트의 콘텐츠 목록 조회")
         void withExistingPlaylistId_returnsContents() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -140,8 +140,8 @@ class PlaylistServiceTest {
             then(playlistCacheService).should().getContentsByPlaylistId(playlistId);
         }
 
-        @DisplayName("콘텐츠가 없는 플레이리스트 조회 시 빈 리스트 반환")
         @Test
+        @DisplayName("콘텐츠가 없는 플레이리스트 조회 시 빈 리스트 반환")
         void withNoContents_returnsEmptyList() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -156,12 +156,12 @@ class PlaylistServiceTest {
         }
     }
 
-    @DisplayName("getContentsByPlaylistIdIn()")
     @Nested
+    @DisplayName("getContentsByPlaylistIdIn()")
     class GetContentsByPlaylistIdInTest {
 
-        @DisplayName("여러 플레이리스트의 콘텐츠 조회")
         @Test
+        @DisplayName("여러 플레이리스트의 콘텐츠 조회")
         void withMultiplePlaylistIds_returnsContentsMap() {
             // given
             UUID playlistId1 = UUID.randomUUID();
@@ -188,8 +188,8 @@ class PlaylistServiceTest {
             assertThat(result.get(playlistId2)).containsExactly(content2);
         }
 
-        @DisplayName("빈 ID 목록으로 조회 시 빈 맵 반환")
         @Test
+        @DisplayName("빈 ID 목록으로 조회 시 빈 맵 반환")
         void withEmptyPlaylistIds_returnsEmptyMap() {
             // given
             List<UUID> emptyIds = List.of();
@@ -206,12 +206,12 @@ class PlaylistServiceTest {
         }
     }
 
-    @DisplayName("create()")
     @Nested
+    @DisplayName("create()")
     class CreateTest {
 
-        @DisplayName("유효한 플레이리스트 생성")
         @Test
+        @DisplayName("유효한 플레이리스트 생성")
         void withValidPlaylist_createsPlaylist() {
             // given
             UserModel owner = UserModelFixture.create();
@@ -232,12 +232,12 @@ class PlaylistServiceTest {
         }
     }
 
-    @DisplayName("update()")
     @Nested
+    @DisplayName("update()")
     class UpdateTest {
 
-        @DisplayName("플레이리스트 수정 성공")
         @Test
+        @DisplayName("플레이리스트 수정 성공")
         void withValidPlaylist_updatesPlaylist() {
             // given
             UserModel owner = UserModelFixture.create();
@@ -255,12 +255,12 @@ class PlaylistServiceTest {
         }
     }
 
-    @DisplayName("delete()")
     @Nested
+    @DisplayName("delete()")
     class DeleteTest {
 
-        @DisplayName("플레이리스트 삭제 성공")
         @Test
+        @DisplayName("플레이리스트 삭제 성공")
         void withValidPlaylist_deletesPlaylist() {
             // given
             UserModel owner = UserModelFixture.create();
@@ -275,12 +275,12 @@ class PlaylistServiceTest {
         }
     }
 
-    @DisplayName("addContent()")
     @Nested
+    @DisplayName("addContent()")
     class AddContentTest {
 
-        @DisplayName("콘텐츠 추가 성공")
         @Test
+        @DisplayName("콘텐츠 추가 성공")
         void withValidContent_addsContent() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -296,8 +296,8 @@ class PlaylistServiceTest {
             then(playlistContentRepository).should().save(playlistId, contentId);
         }
 
-        @DisplayName("이미 존재하는 콘텐츠 추가 시 PlaylistContentAlreadyExistsException 발생")
         @Test
+        @DisplayName("이미 존재하는 콘텐츠 추가 시 PlaylistContentAlreadyExistsException 발생")
         void withExistingContent_throwsPlaylistContentAlreadyExistsException() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -318,12 +318,12 @@ class PlaylistServiceTest {
         }
     }
 
-    @DisplayName("removeContent()")
     @Nested
+    @DisplayName("removeContent()")
     class RemoveContentTest {
 
-        @DisplayName("콘텐츠 삭제 성공")
         @Test
+        @DisplayName("콘텐츠 삭제 성공")
         void withExistingContent_removesContent() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -338,8 +338,8 @@ class PlaylistServiceTest {
             then(playlistContentRepository).should().delete(playlistId, contentId);
         }
 
-        @DisplayName("존재하지 않는 콘텐츠 삭제 시 PlaylistContentNotFoundException 발생")
         @Test
+        @DisplayName("존재하지 않는 콘텐츠 삭제 시 PlaylistContentNotFoundException 발생")
         void withNonExistingContent_throwsPlaylistContentNotFoundException() {
             // given
             UUID playlistId = UUID.randomUUID();

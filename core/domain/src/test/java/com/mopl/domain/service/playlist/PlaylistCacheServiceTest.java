@@ -24,8 +24,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
-@DisplayName("PlaylistCacheService 단위 테스트")
 @ExtendWith(MockitoExtension.class)
+@DisplayName("PlaylistCacheService 단위 테스트")
 class PlaylistCacheServiceTest {
 
     @Mock
@@ -37,12 +37,12 @@ class PlaylistCacheServiceTest {
     @InjectMocks
     private PlaylistCacheService playlistCacheService;
 
-    @DisplayName("getById()")
     @Nested
+    @DisplayName("getById()")
     class GetByIdTest {
 
-        @DisplayName("존재하는 플레이리스트 ID로 조회하면 PlaylistModel 반환")
         @Test
+        @DisplayName("존재하는 플레이리스트 ID로 조회하면 PlaylistModel 반환")
         void withExistingPlaylistId_returnsPlaylistModel() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -58,8 +58,8 @@ class PlaylistCacheServiceTest {
             then(playlistRepository).should().findById(playlistId);
         }
 
-        @DisplayName("존재하지 않는 플레이리스트 ID로 조회하면 PlaylistNotFoundException 발생")
         @Test
+        @DisplayName("존재하지 않는 플레이리스트 ID로 조회하면 PlaylistNotFoundException 발생")
         void withNonExistingPlaylistId_throwsPlaylistNotFoundException() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -74,12 +74,12 @@ class PlaylistCacheServiceTest {
         }
     }
 
-    @DisplayName("getContentsByPlaylistId()")
     @Nested
+    @DisplayName("getContentsByPlaylistId()")
     class GetContentsByPlaylistIdTest {
 
-        @DisplayName("플레이리스트의 컨텐츠 목록 반환")
         @Test
+        @DisplayName("플레이리스트의 컨텐츠 목록 반환")
         void returnsContentList() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -100,8 +100,8 @@ class PlaylistCacheServiceTest {
             then(playlistContentRepository).should().findContentsByPlaylistId(playlistId);
         }
 
-        @DisplayName("컨텐츠가 없으면 빈 목록 반환")
         @Test
+        @DisplayName("컨텐츠가 없으면 빈 목록 반환")
         void withNoContents_returnsEmptyList() {
             // given
             UUID playlistId = UUID.randomUUID();
@@ -118,12 +118,12 @@ class PlaylistCacheServiceTest {
         }
     }
 
-    @DisplayName("save()")
     @Nested
+    @DisplayName("save()")
     class SaveTest {
 
-        @DisplayName("플레이리스트 저장 성공")
         @Test
+        @DisplayName("플레이리스트 저장 성공")
         void savesPlaylist() {
             // given
             PlaylistModel playlistModel = PlaylistModelFixture.create();
@@ -139,12 +139,12 @@ class PlaylistCacheServiceTest {
         }
     }
 
-    @DisplayName("saveAndEvict()")
     @Nested
+    @DisplayName("saveAndEvict()")
     class SaveAndEvictTest {
 
-        @DisplayName("플레이리스트 저장 후 캐시 evict")
         @Test
+        @DisplayName("플레이리스트 저장 후 캐시 evict")
         void savesPlaylistAndEvictsCache() {
             // given
             PlaylistModel playlistModel = PlaylistModelFixture.create();

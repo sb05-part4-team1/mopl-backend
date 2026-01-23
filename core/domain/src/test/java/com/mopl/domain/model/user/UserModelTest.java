@@ -39,12 +39,12 @@ class UserModelTest {
         return UserModel.create(DEFAULT_EMAIL, DEFAULT_NAME, DEFAULT_PASSWORD);
     }
 
-    @DisplayName("create()")
     @Nested
+    @DisplayName("create()")
     class CreateTest {
 
-        @DisplayName("유효한 데이터로 UserModel 생성")
         @Test
+        @DisplayName("유효한 데이터로 UserModel 생성")
         void withValidData_createsUserModel() {
             // when
             UserModel user = UserModel.create(
@@ -63,16 +63,16 @@ class UserModelTest {
             assertThat(user.getProfileImageUrl()).isNull();
         }
 
-        @DisplayName("이메일이 비어있으면 예외 발생")
         @ParameterizedTest(name = "{0}")
         @MethodSource("com.mopl.domain.model.user.UserModelTest#blankStringProvider")
+        @DisplayName("이메일이 비어있으면 예외 발생")
         void withBlankEmail_throwsException(String description, String email) {
             assertThatThrownBy(() -> UserModel.create(email, DEFAULT_NAME, DEFAULT_PASSWORD))
                 .isInstanceOf(InvalidUserDataException.class);
         }
 
-        @DisplayName("이메일이 정확히 최대 길이면 생성 성공")
         @Test
+        @DisplayName("이메일이 정확히 최대 길이면 생성 성공")
         void withEmailAtMaxLength_createsUserModel() {
             String maxEmail = "a".repeat(EMAIL_MAX_LENGTH);
 
@@ -81,8 +81,8 @@ class UserModelTest {
             assertThat(user.getEmail()).isEqualTo(maxEmail);
         }
 
-        @DisplayName("이메일이 최대 길이 초과하면 예외 발생")
         @Test
+        @DisplayName("이메일이 최대 길이 초과하면 예외 발생")
         void withEmailExceedingMaxLength_throwsException() {
             String longEmail = "a".repeat(EMAIL_MAX_LENGTH + 1);
 
@@ -90,16 +90,16 @@ class UserModelTest {
                 .isInstanceOf(InvalidUserDataException.class);
         }
 
-        @DisplayName("이름이 비어있으면 예외 발생")
         @ParameterizedTest(name = "{0}")
         @MethodSource("com.mopl.domain.model.user.UserModelTest#blankStringProvider")
+        @DisplayName("이름이 비어있으면 예외 발생")
         void withBlankName_throwsException(String description, String name) {
             assertThatThrownBy(() -> UserModel.create(DEFAULT_EMAIL, name, DEFAULT_PASSWORD))
                 .isInstanceOf(InvalidUserDataException.class);
         }
 
-        @DisplayName("이름이 정확히 최대 길이면 생성 성공")
         @Test
+        @DisplayName("이름이 정확히 최대 길이면 생성 성공")
         void withNameAtMaxLength_createsUserModel() {
             String maxName = "가".repeat(NAME_MAX_LENGTH);
 
@@ -108,8 +108,8 @@ class UserModelTest {
             assertThat(user.getName()).isEqualTo(maxName);
         }
 
-        @DisplayName("이름이 최대 길이 초과하면 예외 발생")
         @Test
+        @DisplayName("이름이 최대 길이 초과하면 예외 발생")
         void withNameExceedingMaxLength_throwsException() {
             String longName = "가".repeat(NAME_MAX_LENGTH + 1);
 
@@ -117,16 +117,16 @@ class UserModelTest {
                 .isInstanceOf(InvalidUserDataException.class);
         }
 
-        @DisplayName("비밀번호가 비어있으면 예외 발생")
         @ParameterizedTest(name = "{0}")
         @MethodSource("com.mopl.domain.model.user.UserModelTest#blankStringProvider")
+        @DisplayName("비밀번호가 비어있으면 예외 발생")
         void withBlankPassword_throwsException(String description, String password) {
             assertThatThrownBy(() -> UserModel.create(DEFAULT_EMAIL, DEFAULT_NAME, password))
                 .isInstanceOf(InvalidUserDataException.class);
         }
 
-        @DisplayName("비밀번호가 정확히 최대 길이면 생성 성공")
         @Test
+        @DisplayName("비밀번호가 정확히 최대 길이면 생성 성공")
         void withPasswordAtMaxLength_createsUserModel() {
             String maxPassword = "a".repeat(ENCODED_PASSWORD_MAX_LENGTH);
 
@@ -135,8 +135,8 @@ class UserModelTest {
             assertThat(user.getPassword()).isEqualTo(maxPassword);
         }
 
-        @DisplayName("비밀번호가 최대 길이 초과하면 예외 발생")
         @Test
+        @DisplayName("비밀번호가 최대 길이 초과하면 예외 발생")
         void withPasswordExceedingMaxLength_throwsException() {
             String longPassword = "a".repeat(ENCODED_PASSWORD_MAX_LENGTH + 1);
 
@@ -146,12 +146,12 @@ class UserModelTest {
 
     }
 
-    @DisplayName("createOAuthUser()")
     @Nested
+    @DisplayName("createOAuthUser()")
     class CreateOAuthUserTest {
 
-        @DisplayName("유효한 데이터로 OAuth UserModel 생성")
         @Test
+        @DisplayName("유효한 데이터로 OAuth UserModel 생성")
         void withValidData_createsOAuthUserModel() {
             // when
             UserModel user = UserModel.createOAuthUser(
@@ -169,8 +169,8 @@ class UserModelTest {
             assertThat(user.isLocked()).isFalse();
         }
 
-        @DisplayName("EMAIL provider로 생성 시 예외 발생")
         @Test
+        @DisplayName("EMAIL provider로 생성 시 예외 발생")
         void withEmailProvider_throwsException() {
             assertThatThrownBy(() -> UserModel.createOAuthUser(
                 UserModel.AuthProvider.EMAIL,
@@ -180,8 +180,8 @@ class UserModelTest {
                 .isInstanceOf(InvalidUserDataException.class);
         }
 
-        @DisplayName("null provider로 생성 시 예외 발생")
         @Test
+        @DisplayName("null provider로 생성 시 예외 발생")
         @SuppressWarnings("DataFlowIssue")
         void withNullProvider_throwsException() {
             assertThatThrownBy(() -> UserModel.createOAuthUser(
@@ -192,17 +192,17 @@ class UserModelTest {
                 .isInstanceOf(InvalidUserDataException.class);
         }
 
-        @DisplayName("이메일이 비어있으면 예외 발생")
         @ParameterizedTest(name = "{0}")
         @MethodSource("com.mopl.domain.model.user.UserModelTest#blankStringProvider")
+        @DisplayName("이메일이 비어있으면 예외 발생")
         void withBlankEmail_throwsException(String description, String email) {
             assertThatThrownBy(() -> UserModel.createOAuthUser(
                 UserModel.AuthProvider.GOOGLE, email, DEFAULT_NAME))
                 .isInstanceOf(InvalidUserDataException.class);
         }
 
-        @DisplayName("이메일이 정확히 최대 길이면 생성 성공")
         @Test
+        @DisplayName("이메일이 정확히 최대 길이면 생성 성공")
         void withEmailAtMaxLength_createsOAuthUserModel() {
             String maxEmail = "a".repeat(EMAIL_MAX_LENGTH);
 
@@ -212,8 +212,8 @@ class UserModelTest {
             assertThat(user.getEmail()).isEqualTo(maxEmail);
         }
 
-        @DisplayName("이메일이 최대 길이 초과하면 예외 발생")
         @Test
+        @DisplayName("이메일이 최대 길이 초과하면 예외 발생")
         void withEmailExceedingMaxLength_throwsException() {
             String longEmail = "a".repeat(EMAIL_MAX_LENGTH + 1);
 
@@ -222,17 +222,17 @@ class UserModelTest {
                 .isInstanceOf(InvalidUserDataException.class);
         }
 
-        @DisplayName("이름이 비어있으면 예외 발생")
         @ParameterizedTest(name = "{0}")
         @MethodSource("com.mopl.domain.model.user.UserModelTest#blankStringProvider")
+        @DisplayName("이름이 비어있으면 예외 발생")
         void withBlankName_throwsException(String description, String name) {
             assertThatThrownBy(() -> UserModel.createOAuthUser(
                 UserModel.AuthProvider.GOOGLE, DEFAULT_EMAIL, name))
                 .isInstanceOf(InvalidUserDataException.class);
         }
 
-        @DisplayName("이름이 정확히 최대 길이면 생성 성공")
         @Test
+        @DisplayName("이름이 정확히 최대 길이면 생성 성공")
         void withNameAtMaxLength_createsOAuthUserModel() {
             String maxName = "가".repeat(NAME_MAX_LENGTH);
 
@@ -242,8 +242,8 @@ class UserModelTest {
             assertThat(user.getName()).isEqualTo(maxName);
         }
 
-        @DisplayName("이름이 최대 길이 초과하면 예외 발생")
         @Test
+        @DisplayName("이름이 최대 길이 초과하면 예외 발생")
         void withNameExceedingMaxLength_throwsException() {
             String longName = "가".repeat(NAME_MAX_LENGTH + 1);
 
@@ -254,12 +254,12 @@ class UserModelTest {
 
     }
 
-    @DisplayName("updateName()")
     @Nested
+    @DisplayName("updateName()")
     class UpdateNameTest {
 
-        @DisplayName("유효한 이름으로 변경하면 새 객체 반환")
         @Test
+        @DisplayName("유효한 이름으로 변경하면 새 객체 반환")
         void withValidName_returnsNewInstance() {
             // given
             UserModel user = createDefaultUser();
@@ -272,8 +272,8 @@ class UserModelTest {
             assertThat(result).isNotSameAs(user);
         }
 
-        @DisplayName("null이거나 빈 문자열이면 변경하지 않음")
         @ParameterizedTest
+        @DisplayName("null이거나 빈 문자열이면 변경하지 않음")
         @NullSource
         @ValueSource(strings = {"", "   "})
         void withBlankName_returnsThis(String newName) {
@@ -288,8 +288,8 @@ class UserModelTest {
             assertThat(result).isSameAs(user);
         }
 
-        @DisplayName("최대 길이 초과하면 예외 발생")
         @Test
+        @DisplayName("최대 길이 초과하면 예외 발생")
         void withNameExceedingMaxLength_throwsException() {
             // given
             UserModel user = createDefaultUser();
@@ -301,12 +301,12 @@ class UserModelTest {
         }
     }
 
-    @DisplayName("updatePassword()")
     @Nested
+    @DisplayName("updatePassword()")
     class UpdatePasswordTest {
 
-        @DisplayName("유효한 비밀번호로 변경하면 새 객체 반환")
         @Test
+        @DisplayName("유효한 비밀번호로 변경하면 새 객체 반환")
         void withValidPassword_returnsNewInstance() {
             // given
             UserModel user = createDefaultUser();
@@ -319,8 +319,8 @@ class UserModelTest {
             assertThat(result).isNotSameAs(user);
         }
 
-        @DisplayName("null이거나 빈 문자열이면 변경하지 않음")
         @ParameterizedTest
+        @DisplayName("null이거나 빈 문자열이면 변경하지 않음")
         @NullSource
         @ValueSource(strings = {"", "   "})
         void withBlankPassword_returnsThis(String newPassword) {
@@ -335,8 +335,8 @@ class UserModelTest {
             assertThat(result).isSameAs(user);
         }
 
-        @DisplayName("최대 길이 초과하면 예외 발생")
         @Test
+        @DisplayName("최대 길이 초과하면 예외 발생")
         void withPasswordExceedingMaxLength_throwsException() {
             // given
             UserModel user = createDefaultUser();
@@ -348,12 +348,12 @@ class UserModelTest {
         }
     }
 
-    @DisplayName("updateProfileImageUrl()")
     @Nested
+    @DisplayName("updateProfileImageUrl()")
     class UpdateProfileImageUrlTest {
 
-        @DisplayName("유효한 URL로 변경하면 새 객체 반환")
         @Test
+        @DisplayName("유효한 URL로 변경하면 새 객체 반환")
         void withValidUrl_returnsNewInstance() {
             // given
             UserModel user = createDefaultUser();
@@ -366,8 +366,8 @@ class UserModelTest {
             assertThat(result).isNotSameAs(user);
         }
 
-        @DisplayName("빈 문자열로 변경하면 새 객체 반환")
         @Test
+        @DisplayName("빈 문자열로 변경하면 새 객체 반환")
         void withEmptyUrl_returnsNewInstance() {
             // given
             UserModel user = createUserWithProfileImage();
@@ -380,8 +380,8 @@ class UserModelTest {
             assertThat(result).isNotSameAs(user);
         }
 
-        @DisplayName("null이면 변경하지 않음")
         @Test
+        @DisplayName("null이면 변경하지 않음")
         void withNullUrl_returnsThis() {
             // given
             UserModel user = createUserWithProfileImage();
@@ -394,8 +394,8 @@ class UserModelTest {
             assertThat(result).isSameAs(user);
         }
 
-        @DisplayName("최대 길이 초과하면 예외 발생")
         @Test
+        @DisplayName("최대 길이 초과하면 예외 발생")
         void withUrlExceedingMaxLength_throwsException() {
             // given
             UserModel user = createDefaultUser();
@@ -414,12 +414,12 @@ class UserModelTest {
         }
     }
 
-    @DisplayName("updateRole()")
     @Nested
+    @DisplayName("updateRole()")
     class UpdateRoleTest {
 
-        @DisplayName("모든 역할로 변경 가능")
         @ParameterizedTest(name = "{0}")
+        @DisplayName("모든 역할로 변경 가능")
         @EnumSource(UserModel.Role.class)
         void withAllRoles_returnsNewInstance(UserModel.Role role) {
             // given
@@ -433,8 +433,8 @@ class UserModelTest {
             assertThat(result).isNotSameAs(user);
         }
 
-        @DisplayName("null이면 변경하지 않음")
         @Test
+        @DisplayName("null이면 변경하지 않음")
         void withNullRole_returnsThis() {
             // given
             UserModel user = createDefaultUser();
@@ -448,12 +448,12 @@ class UserModelTest {
         }
     }
 
-    @DisplayName("lock()")
     @Nested
+    @DisplayName("lock()")
     class LockTest {
 
-        @DisplayName("계정을 잠그면 새 객체 반환")
         @Test
+        @DisplayName("계정을 잠그면 새 객체 반환")
         void withUnlockedAccount_returnsNewInstance() {
             // given
             UserModel user = createDefaultUser();
@@ -467,8 +467,8 @@ class UserModelTest {
             assertThat(result).isNotSameAs(user);
         }
 
-        @DisplayName("이미 잠긴 계정을 잠가도 새 객체 반환")
         @Test
+        @DisplayName("이미 잠긴 계정을 잠가도 새 객체 반환")
         void withLockedAccount_returnsNewInstance() {
             // given
             UserModel user = createDefaultUser().lock();
@@ -483,12 +483,12 @@ class UserModelTest {
         }
     }
 
-    @DisplayName("unlock()")
     @Nested
+    @DisplayName("unlock()")
     class UnlockTest {
 
-        @DisplayName("계정 잠금을 해제하면 새 객체 반환")
         @Test
+        @DisplayName("계정 잠금을 해제하면 새 객체 반환")
         void withLockedAccount_returnsNewInstance() {
             // given
             UserModel user = createDefaultUser().lock();
@@ -502,8 +502,8 @@ class UserModelTest {
             assertThat(result).isNotSameAs(user);
         }
 
-        @DisplayName("이미 해제된 계정을 해제해도 새 객체 반환")
         @Test
+        @DisplayName("이미 해제된 계정을 해제해도 새 객체 반환")
         void withUnlockedAccount_returnsNewInstance() {
             // given
             UserModel user = createDefaultUser();
