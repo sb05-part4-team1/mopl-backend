@@ -7,10 +7,12 @@ import com.mopl.domain.repository.content.ContentQueryRequest;
 import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
 import com.mopl.domain.service.tag.TagService;
+import com.mopl.domain.support.cache.CacheName;
 import com.mopl.domain.support.cursor.CursorResponse;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 
 @RequiredArgsConstructor
 public class ContentService {
@@ -21,11 +23,10 @@ public class ContentService {
     private final ContentQueryRepository contentQueryRepository;
     private final ContentTagRepository contentTagRepository;
 
+    @CacheEvict(cacheNames = CacheName.CONTENTS, key = "#result.id")
     public ContentModel create(ContentModel content, List<String> tagNames) {
         ContentModel savedContent = contentRepository.save(content);
-        ContentModel savedWithTags = applyTags(savedContent, tagNames);
-        contentCacheService.evict(savedWithTags.getId());
-        return savedWithTags;
+        return applyTags(savedContent, tagNames);
     }
 
     public boolean exists(UUID contentId) {
