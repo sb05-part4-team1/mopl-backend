@@ -41,9 +41,9 @@ public interface JpaContentDeletionLogRepository extends
             set l.imageProcessedAt = :now
             where l.id in :logIds
         """)
-    int markImageProcessed(
-        @Param("logIds") List<UUID> logIds,
-        @Param("now") Instant now
+    void markImageProcessed(
+        List<UUID> logIds,
+        Instant now
     );
 
     @Query("""
