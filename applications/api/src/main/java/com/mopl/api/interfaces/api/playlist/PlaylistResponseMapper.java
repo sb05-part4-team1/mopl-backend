@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -22,7 +25,8 @@ public class PlaylistResponseMapper {
             model,
             0L,
             false,
-            Collections.emptyList()
+            Collections.emptyList(),
+            Map.of()
         );
     }
 
@@ -30,7 +34,8 @@ public class PlaylistResponseMapper {
         PlaylistModel model,
         long subscriberCount,
         boolean subscribedByMe,
-        Collection<ContentModel> contentModels
+        Collection<ContentModel> contentModels,
+        Map<UUID, List<String>> tagsByContentId
     ) {
         return new PlaylistResponse(
             model.getId(),
@@ -40,7 +45,7 @@ public class PlaylistResponseMapper {
             model.getUpdatedAt(),
             subscriberCount,
             subscribedByMe,
-            contentSummaryMapper.toSummaries(contentModels)
+            contentSummaryMapper.toSummaries(contentModels, tagsByContentId)
         );
     }
 }

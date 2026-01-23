@@ -72,7 +72,8 @@ public class PlaylistFacade {
             playlist,
             subscriberCounts.getOrDefault(playlist.getId(), 0L),
             subscribedPlaylistIds.contains(playlist.getId()),
-            contentsMap.getOrDefault(playlist.getId(), Collections.emptyList())
+            contentsMap.getOrDefault(playlist.getId(), Collections.emptyList()),
+            Map.of()
         ));
     }
 
@@ -91,7 +92,8 @@ public class PlaylistFacade {
             playlist,
             subscriberCount,
             subscribedByMe,
-            contents
+            contents,
+            Map.of()
         );
     }
 
@@ -170,10 +172,6 @@ public class PlaylistFacade {
         UserModel owner = userService.getById(requesterId);
         PlaylistModel playlist = playlistService.getById(playlistId);
         validateOwner(playlist, requesterId);
-
-        if (!contentService.exists(contentId)) {
-            throw ContentNotFoundException.withId(contentId);
-        }
 
         ContentModel content = contentService.getById(contentId);
 
