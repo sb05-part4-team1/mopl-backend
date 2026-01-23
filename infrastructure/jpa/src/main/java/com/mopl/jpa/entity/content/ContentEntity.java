@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLRestriction;
 
+import static com.mopl.domain.model.content.ContentModel.CONTENT_TYPE_MAX_LENGTH;
 import static com.mopl.domain.model.content.ContentModel.THUMBNAIL_URL_MAX_LENGTH;
 
 @Entity
@@ -24,7 +25,7 @@ import static com.mopl.domain.model.content.ContentModel.THUMBNAIL_URL_MAX_LENGT
 public class ContentEntity extends BaseUpdatableEntity {
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = CONTENT_TYPE_MAX_LENGTH)
     private ContentType type;
 
     @Column(nullable = false)
@@ -36,6 +37,7 @@ public class ContentEntity extends BaseUpdatableEntity {
     @Column(nullable = false, length = THUMBNAIL_URL_MAX_LENGTH)
     private String thumbnailUrl;
 
+    // TODO: averageRating, reviewCount를 Redis + fallback으로 변경
     @Column(nullable = false)
     private double averageRating;
 
