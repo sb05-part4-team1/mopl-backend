@@ -61,9 +61,9 @@ class PlaylistRepositoryImplTest {
             // given
             PlaylistModel savedPlaylist = playlistRepository.save(
                 PlaylistModel.create(
-                    savedOwner,
                     "내 플레이리스트",
-                    "좋아하는 영화 모음"
+                    "좋아하는 영화 모음",
+                    savedOwner
                 )
             );
 
@@ -97,9 +97,9 @@ class PlaylistRepositoryImplTest {
             // given
             PlaylistModel savedPlaylist = playlistRepository.save(
                 PlaylistModel.create(
-                    savedOwner,
                     "내 플레이리스트",
-                    "설명"
+                    "설명",
+                    savedOwner
                 )
             );
 
@@ -126,9 +126,9 @@ class PlaylistRepositoryImplTest {
         void withNewPlaylist_savesAndReturnsPlaylist() {
             // given
             PlaylistModel playlistModel = PlaylistModel.create(
-                savedOwner,
                 "내 플레이리스트",
-                "좋아하는 영화 모음"
+                "좋아하는 영화 모음",
+                savedOwner
             );
 
             // when
@@ -149,15 +149,15 @@ class PlaylistRepositoryImplTest {
         void withExistingPlaylist_updatesAndReturnsPlaylist() {
             // given
             PlaylistModel playlistModel = PlaylistModel.create(
-                savedOwner,
                 "원래 제목",
-                "원래 설명"
+                "원래 설명",
+                savedOwner
             );
             PlaylistModel savedPlaylist = playlistRepository.save(playlistModel);
 
             // when
-            savedPlaylist.update("수정된 제목", "수정된 설명");
-            PlaylistModel updatedPlaylist = playlistRepository.save(savedPlaylist);
+            PlaylistModel toUpdate = savedPlaylist.update("수정된 제목", "수정된 설명");
+            PlaylistModel updatedPlaylist = playlistRepository.save(toUpdate);
 
             // then
             assertThat(updatedPlaylist.getId()).isEqualTo(savedPlaylist.getId());
@@ -170,9 +170,9 @@ class PlaylistRepositoryImplTest {
         void withNullDescription_savesSuccessfully() {
             // given
             PlaylistModel playlistModel = PlaylistModel.create(
-                savedOwner,
                 "설명 없는 플레이리스트",
-                null
+                null,
+                savedOwner
             );
 
             // when

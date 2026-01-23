@@ -1,11 +1,11 @@
 package com.mopl.domain.fixture;
 
-import static com.mopl.domain.fixture.FixtureMonkeyConfig.fixtureMonkey;
-
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
 import com.navercorp.fixturemonkey.ArbitraryBuilder;
 import net.jqwik.api.Arbitraries;
+
+import static com.mopl.domain.fixture.FixtureMonkeyConfig.fixtureMonkey;
 
 public final class PlaylistModelFixture {
 

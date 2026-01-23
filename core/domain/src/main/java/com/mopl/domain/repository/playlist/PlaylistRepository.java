@@ -9,12 +9,11 @@ import java.util.UUID;
 
 public interface PlaylistRepository {
 
-    PlaylistModel save(PlaylistModel playlistModel);
-
     Optional<PlaylistModel> findById(UUID playlistId);
 
-    // 이하 메서드들 cleanup batch 전용
+    PlaylistModel save(PlaylistModel playlistModel);
+
     List<UUID> findCleanupTargets(Instant threshold, int limit);
 
-    int deleteAllByIds(List<UUID> playlistIds);
+    int deleteAllByIdIn(List<UUID> playlistIds);
 }

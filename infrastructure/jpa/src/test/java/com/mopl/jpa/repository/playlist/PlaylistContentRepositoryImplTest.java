@@ -71,9 +71,9 @@ class PlaylistContentRepositoryImplTest {
 
         playlist = playlistRepository.save(
             PlaylistModel.create(
-                owner,
                 "테스트 플레이리스트",
-                "설명"
+                "설명",
+                owner
             )
         );
 
@@ -196,9 +196,9 @@ class PlaylistContentRepositoryImplTest {
 
             PlaylistModel anotherPlaylist = playlistRepository.save(
                 PlaylistModel.create(
-                    anotherOwner,
                     "다른 플레이리스트",
-                    "설명"
+                    "설명",
+                    anotherOwner
                 )
             );
 
@@ -282,9 +282,9 @@ class PlaylistContentRepositoryImplTest {
 
             PlaylistModel anotherPlaylist = playlistRepository.save(
                 PlaylistModel.create(
-                    anotherOwner,
                     "다른 플레이리스트",
-                    "설명"
+                    "설명",
+                    anotherOwner
                 )
             );
 

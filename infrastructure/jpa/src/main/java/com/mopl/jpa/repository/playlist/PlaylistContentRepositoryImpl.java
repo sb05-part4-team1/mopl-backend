@@ -68,7 +68,7 @@ public class PlaylistContentRepositoryImpl implements PlaylistContentRepository 
     }
 
     @Override
-    public Map<UUID, List<ContentModel>> findContentsByPlaylistIds(Collection<UUID> playlistIds) {
+    public Map<UUID, List<ContentModel>> findContentsByPlaylistIdIn(Collection<UUID> playlistIds) {
         if (playlistIds.isEmpty()) {
             return Map.of();
         }
