@@ -8,8 +8,11 @@ import com.mopl.api.interfaces.api.user.dto.UserLockUpdateRequest;
 import com.mopl.api.interfaces.api.user.dto.UserResponse;
 import com.mopl.api.interfaces.api.user.dto.UserRoleUpdateRequest;
 import com.mopl.api.interfaces.api.user.dto.UserUpdateRequest;
+import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.user.UserQueryRequest;
+import com.mopl.domain.repository.user.UserSortField;
 import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.domain.support.cursor.SortDirection;
 import com.mopl.security.userdetails.MoplUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -38,73 +41,52 @@ public interface UserApiSpec {
             name = "emailLike",
             description = "이메일 부분일치 검색어",
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string"
-            )
+            schema = @Schema(implementation = String.class)
         ),
         @Parameter(
             name = "roleEqual",
             description = "권한",
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string",
-                allowableValues = {"USER", "ADMIN"}
-            )
+            schema = @Schema(implementation = UserModel.Role.class)
         ),
         @Parameter(
             name = "isLocked",
             description = "계정 잠금 상태",
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "boolean"
-            )
+            schema = @Schema(implementation = Boolean.class)
         ),
         @Parameter(
             name = "cursor",
             description = "커서 (다음 페이지 시작점)",
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string"
-            )
+            schema = @Schema(implementation = String.class)
         ),
         @Parameter(
             name = "idAfter",
             description = "보조 커서 (현재 페이지 마지막 요소 ID)",
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string",
-                format = "uuid"
-            )
+            schema = @Schema(implementation = UUID.class)
         ),
         @Parameter(
             name = "limit",
             description = "한 번에 가져올 개수",
             required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "integer",
-                format = "int32"
-            )
+            schema = @Schema(implementation = Integer.class)
         ),
         @Parameter(
             name = "sortDirection",
             description = "정렬 방향",
             required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string",
-                allowableValues = {"ASCENDING", "DESCENDING"}
-            )
+            schema = @Schema(implementation = SortDirection.class)
         ),
         @Parameter(
             name = "sortBy",
             description = "정렬 기준",
             required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string",
-                allowableValues = {"name", "email", "createdAt", "isLocked", "role"}
-            )
+            schema = @Schema(implementation = UserSortField.class)
         )
     })
     CursorResponse<UserResponse> getUsers(@Parameter(hidden = true) UserQueryRequest request);
@@ -129,7 +111,7 @@ public interface UserApiSpec {
     UserResponse signUp(UserCreateRequest request);
 
     @Operation(summary = "사용자 프로필 변경", description = "본인의 프로필만 변경할 수 있습니다.")
-    @Parameter(name = "userId", description = "수정할 User ID")
+    @Parameter(name = "userId", description = "수정할 User ID", required = true)
     @ApiResponse(
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = UserResponse.class))

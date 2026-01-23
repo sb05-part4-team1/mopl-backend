@@ -2,8 +2,11 @@ package com.mopl.api.interfaces.api.conversation;
 
 import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.domain.repository.conversation.ConversationQueryRequest;
+import com.mopl.domain.repository.conversation.ConversationSortField;
 import com.mopl.domain.repository.conversation.DirectMessageQueryRequest;
+import com.mopl.domain.repository.conversation.DirectMessageSortField;
 import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.domain.support.cursor.SortDirection;
 import com.mopl.security.userdetails.MoplUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -68,46 +71,40 @@ public interface ConversationApiSpec {
             name = "keywordLike",
             description = "검색 키워드",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string")
+            schema = @Schema(implementation = String.class)
         ),
         @Parameter(
             name = "cursor",
             description = "커서",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string")
+            schema = @Schema(implementation = String.class)
         ),
         @Parameter(
             name = "idAfter",
             description = "보조 커서",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string", format = "uuid")
+            schema = @Schema(implementation = UUID.class)
         ),
         @Parameter(
             name = "limit",
             description = "한 번에 가져올 개수",
             required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "integer", format = "int32")
+            schema = @Schema(implementation = Integer.class)
         ),
         @Parameter(
             name = "sortDirection",
             description = "정렬 방향",
             required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string",
-                allowableValues = {"ASCENDING", "DESCENDING"}
-            )
+            schema = @Schema(implementation = SortDirection.class)
         ),
         @Parameter(
             name = "sortBy",
             description = "정렬 기준",
             required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string",
-                allowableValues = {"createdAt"}
-            )
+            schema = @Schema(implementation = ConversationSortField.class)
         )
     })
     CursorResponse<ConversationResponse> getConversations(
@@ -160,46 +157,40 @@ public interface ConversationApiSpec {
             name = "conversationId",
             required = true,
             in = ParameterIn.PATH,
-            schema = @Schema(type = "string", format = "uuid")
+            schema = @Schema(implementation = UUID.class)
         ),
         @Parameter(
             name = "cursor",
             description = "커서",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string")
+            schema = @Schema(implementation = String.class)
         ),
         @Parameter(
             name = "idAfter",
             description = "보조 커서",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string", format = "uuid")
+            schema = @Schema(implementation = UUID.class)
         ),
         @Parameter(
             name = "limit",
             description = "한 번에 가져올 개수",
             required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "integer", format = "int32")
+            schema = @Schema(implementation = Integer.class)
         ),
         @Parameter(
             name = "sortDirection",
             description = "정렬 방향",
             required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string",
-                allowableValues = {"ASCENDING", "DESCENDING"}
-            )
+            schema = @Schema(implementation = SortDirection.class)
         ),
         @Parameter(
             name = "sortBy",
             description = "정렬 기준",
             required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string",
-                allowableValues = {"createdAt"}
-            )
+            schema = @Schema(implementation = DirectMessageSortField.class)
         )
     })
     CursorResponse<DirectMessageResponse> getDirectMessages(
@@ -263,7 +254,7 @@ public interface ConversationApiSpec {
         @Parameter(
             description = "상대 사용자 ID",
             required = true,
-            schema = @Schema(format = "uuid")
+            schema = @Schema(implementation = UUID.class)
         ) @RequestParam UUID userId
     );
 

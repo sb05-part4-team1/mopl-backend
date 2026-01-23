@@ -2,7 +2,9 @@ package com.mopl.api.interfaces.api.playlist;
 
 import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.domain.repository.playlist.PlaylistQueryRequest;
+import com.mopl.domain.repository.playlist.PlaylistSortField;
 import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.domain.support.cursor.SortDirection;
 import com.mopl.security.userdetails.MoplUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -50,58 +52,52 @@ public interface PlaylistApiSpec {
             name = "keywordLike",
             description = "검색 키워드",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string")
+            schema = @Schema(implementation = String.class)
         ),
         @Parameter(
             name = "ownerIdEqual",
             description = "소유자 ID",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string", format = "uuid")
+            schema = @Schema(implementation = UUID.class)
         ),
         @Parameter(
             name = "subscriberIdEqual",
             description = "구독자 ID",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string", format = "uuid")
+            schema = @Schema(implementation = UUID.class)
         ),
         @Parameter(
             name = "cursor",
             description = "커서",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string")
+            schema = @Schema(implementation = String.class)
         ),
         @Parameter(
             name = "idAfter",
             description = "보조 커서",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string", format = "uuid")
+            schema = @Schema(implementation = UUID.class)
         ),
         @Parameter(
             name = "limit",
             description = "한 번에 가져올 개수",
             required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "integer", format = "int32")
+            schema = @Schema(implementation = Integer.class)
         ),
         @Parameter(
             name = "sortDirection",
             description = "정렬 방향",
             required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string",
-                allowableValues = {"ASCENDING", "DESCENDING"}
-            )
+            schema = @Schema(implementation = SortDirection.class)
         ),
         @Parameter(
             name = "sortBy",
             description = "정렬 기준",
             required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string",
-                allowableValues = {"updatedAt", "subscribeCount"}
-            )
+            schema = @Schema(implementation = PlaylistSortField.class)
         )
     })
     CursorResponse<PlaylistResponse> getPlaylists(

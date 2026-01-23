@@ -40,6 +40,14 @@ public class UserFacade {
     private final TemporaryPasswordRepository temporaryPasswordRepository;
     private final TransactionTemplate transactionTemplate;
 
+    public CursorResponse<UserModel> getUsers(UserQueryRequest request) {
+        return userService.getAll(request);
+    }
+
+    public UserModel getUser(UUID userId) {
+        return userService.getById(userId);
+    }
+
     public UserModel signUp(UserCreateRequest userCreateRequest) {
         String email = userCreateRequest.email().strip().toLowerCase(Locale.ROOT);
         String name = userCreateRequest.name().strip();
@@ -52,14 +60,6 @@ public class UserFacade {
         );
 
         return userService.create(userModel);
-    }
-
-    public CursorResponse<UserModel> getUsers(UserQueryRequest request) {
-        return userService.getAll(request);
-    }
-
-    public UserModel getUser(UUID userId) {
-        return userService.getById(userId);
     }
 
     public UserModel updateRole(

@@ -3,7 +3,10 @@ package com.mopl.api.interfaces.api.content;
 import com.mopl.api.interfaces.api.common.CommonApiResponse;
 import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.domain.repository.content.ContentQueryRequest;
+import com.mopl.domain.model.content.ContentModel;
+import com.mopl.domain.repository.content.ContentSortField;
 import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.domain.support.cursor.SortDirection;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -63,65 +66,52 @@ public interface ContentApiSpec {
             name = "typeEqual",
             description = "콘텐츠 타입",
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string",
-                allowableValues = {"movie", "tvSeries", "sport"}
-            )
+            schema = @Schema(implementation = ContentModel.ContentType.class)
         ),
         @Parameter(
             name = "keywordLike",
             description = "검색 키워드",
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string"
-            )
+            schema = @Schema(implementation = String.class)
         ),
         @Parameter(
             name = "tagsIn",
             description = "태그 목록",
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "array<string>"
-            )
+            schema = @Schema(implementation = String[].class)
         ),
         @Parameter(
             name = "cursor",
             description = "커서",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string")
+            schema = @Schema(implementation = String.class)
         ),
         @Parameter(
             name = "idAfter",
             description = "보조 커서",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string", format = "uuid")
+            schema = @Schema(implementation = UUID.class)
         ),
         @Parameter(
             name = "limit",
             description = "한 번에 가져올 개수",
             required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "integer", format = "int32")
+            schema = @Schema(implementation = Integer.class)
         ),
         @Parameter(
             name = "sortDirection",
             description = "정렬 방향",
             required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string",
-                allowableValues = {"ASCENDING", "DESCENDING"}
-            )
+            schema = @Schema(implementation = SortDirection.class)
         ),
         @Parameter(
             name = "sortBy",
             description = "정렬 기준",
             required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string",
-                allowableValues = {"createdAt", "watcherCount", "rate"}
-            )
+            schema = @Schema(implementation = ContentSortField.class)
         )
     })
     CursorResponse<ContentSummary> getContents(

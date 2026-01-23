@@ -77,7 +77,7 @@ public interface AuthApiSpec {
             description = "Refresh Token (쿠키 방식)",
             required = true,
             in = ParameterIn.COOKIE,
-            schema = @Schema(type = "string")
+            schema = @Schema(implementation = String.class)
         ) String refreshToken,
         @Parameter(hidden = true) HttpServletResponse response
     );

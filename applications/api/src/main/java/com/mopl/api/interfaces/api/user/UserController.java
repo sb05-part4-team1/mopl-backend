@@ -69,8 +69,8 @@ public class UserController implements UserApiSpec {
         return userResponseMapper.toResponse(userModel);
     }
 
-    @PatchMapping("/{userId}/role")
     @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{userId}/role")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateRole(
         @AuthenticationPrincipal MoplUserDetails userDetails,
@@ -80,8 +80,8 @@ public class UserController implements UserApiSpec {
         userFacade.updateRole(userDetails.userId(), request, userId);
     }
 
-    @PatchMapping("/{userId}/locked")
     @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{userId}/locked")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateLocked(
         @AuthenticationPrincipal MoplUserDetails userDetails,
