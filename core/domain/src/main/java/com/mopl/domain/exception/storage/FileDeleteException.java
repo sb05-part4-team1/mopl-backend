@@ -12,10 +12,6 @@ public class FileDeleteException extends StorageException {
         super(ERROR_CODE, details);
     }
 
-    public static FileDeleteException withPath(String path) {
-        return new FileDeleteException(Map.of("path", path));
-    }
-
     public static FileDeleteException withPathAndCause(String path, String cause) {
         return new FileDeleteException(Map.of("path", path, "cause", cause));
     }
