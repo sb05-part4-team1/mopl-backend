@@ -81,21 +81,18 @@ public interface PlaylistApiSpec {
         @Parameter(
             name = "limit",
             description = "한 번에 가져올 개수",
-            required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(implementation = Integer.class)
+            schema = @Schema(implementation = Integer.class, defaultValue = "100")
         ),
         @Parameter(
             name = "sortDirection",
             description = "정렬 방향",
-            required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(implementation = SortDirection.class)
+            schema = @Schema(implementation = SortDirection.class, defaultValue = "ASCENDING")
         ),
         @Parameter(
             name = "sortBy",
             description = "정렬 기준",
-            required = true,
             in = ParameterIn.QUERY,
             schema = @Schema(implementation = PlaylistSortField.class)
         )
