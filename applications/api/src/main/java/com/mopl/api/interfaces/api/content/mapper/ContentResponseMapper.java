@@ -1,5 +1,6 @@
-package com.mopl.api.interfaces.api.content;
+package com.mopl.api.interfaces.api.content.mapper;
 
+import com.mopl.api.interfaces.api.content.dto.ContentResponse;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.tag.TagModel;
 import org.springframework.stereotype.Component;

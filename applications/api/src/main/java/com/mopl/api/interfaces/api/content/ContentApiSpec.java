@@ -1,6 +1,11 @@
 package com.mopl.api.interfaces.api.content;
 
 import com.mopl.api.interfaces.api.common.CommonApiResponse;
+import com.mopl.api.interfaces.api.content.dto.ContentCreateRequest;
+import com.mopl.api.interfaces.api.content.dto.ContentCursorResponse;
+import com.mopl.api.interfaces.api.content.dto.ContentResponse;
+import com.mopl.api.interfaces.api.content.dto.ContentSummary;
+import com.mopl.api.interfaces.api.content.dto.ContentUpdateRequest;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.repository.content.ContentQueryRequest;
 import com.mopl.domain.repository.content.ContentSortField;

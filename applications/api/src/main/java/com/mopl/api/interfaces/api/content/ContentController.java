@@ -1,6 +1,11 @@
 package com.mopl.api.interfaces.api.content;
 
 import com.mopl.api.application.content.ContentFacade;
+import com.mopl.api.interfaces.api.content.dto.ContentCreateRequest;
+import com.mopl.api.interfaces.api.content.dto.ContentResponse;
+import com.mopl.api.interfaces.api.content.dto.ContentSummary;
+import com.mopl.api.interfaces.api.content.dto.ContentUpdateRequest;
+import com.mopl.api.interfaces.api.content.mapper.ContentResponseMapper;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.tag.TagModel;
 import com.mopl.domain.repository.content.ContentQueryRequest;

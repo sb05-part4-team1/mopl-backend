@@ -1,4 +1,4 @@
-package com.mopl.api.interfaces.api.content;
+package com.mopl.api.interfaces.api.content.dto;
 
 import com.mopl.domain.support.cursor.SortDirection;
 import io.swagger.v3.oas.annotations.media.Schema;

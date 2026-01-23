@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.UUID;
 
-import com.mopl.api.interfaces.api.content.ContentSummary;
+import com.mopl.api.interfaces.api.content.dto.ContentSummary;
 import com.mopl.api.interfaces.api.user.dto.UserSummary;
 
 public record WatchingSessionDto(

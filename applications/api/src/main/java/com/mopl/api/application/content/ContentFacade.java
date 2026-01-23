@@ -1,9 +1,9 @@
 package com.mopl.api.application.content;
 
-import com.mopl.api.interfaces.api.content.ContentCreateRequest;
-import com.mopl.api.interfaces.api.content.ContentSummary;
-import com.mopl.api.interfaces.api.content.ContentSummaryMapper;
-import com.mopl.api.interfaces.api.content.ContentUpdateRequest;
+import com.mopl.api.interfaces.api.content.dto.ContentCreateRequest;
+import com.mopl.api.interfaces.api.content.dto.ContentSummary;
+import com.mopl.api.interfaces.api.content.mapper.ContentSummaryMapper;
+import com.mopl.api.interfaces.api.content.dto.ContentUpdateRequest;
 import com.mopl.domain.exception.content.InvalidContentDataException;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.tag.TagModel;
