@@ -32,7 +32,7 @@ public class PlaylistModel extends BaseUpdatableModel {
             throw InvalidPlaylistDataException.withDetailMessage("소유자는 null일 수 없습니다.");
         }
         if (owner.getId() == null) {
-            throw InvalidPlaylistDataException.withDetailMessage("소유자 id는 null일 수 없습니다.");
+            throw InvalidPlaylistDataException.withDetailMessage("소유자 ID는 null일 수 없습니다.");
         }
 
         validateTitle(title);

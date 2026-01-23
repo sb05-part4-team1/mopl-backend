@@ -23,7 +23,7 @@ public class PlaylistCleanupTxService {
     public int cleanupBatch(List<UUID> playlistIds) {
         int deletedPlaylistContents = playlistContentRepository.deleteAllByPlaylistIds(playlistIds);
         int deletedSubscribers = playlistSubscriberRepository.deleteAllByPlaylistIds(playlistIds);
-        int deletedPlaylists = playlistRepository.deleteAllByIds(playlistIds);
+        int deletedPlaylists = playlistRepository.deleteAllByIdIn(playlistIds);
 
         if (deletedPlaylists != playlistIds.size()) {
             log.warn(

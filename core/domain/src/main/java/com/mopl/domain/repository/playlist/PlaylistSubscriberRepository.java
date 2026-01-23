@@ -24,6 +24,5 @@ public interface PlaylistSubscriberRepository {
 
     boolean deleteByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId);
 
-    // 이하 메서드들 cleanup batch 전용
     int deleteAllByPlaylistIds(List<UUID> playlistIds);
 }
