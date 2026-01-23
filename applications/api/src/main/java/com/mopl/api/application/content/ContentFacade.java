@@ -105,6 +105,7 @@ public class ContentFacade {
         try {
             String fileName = "contents/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
             storageProvider.upload(file.getInputStream(), file.getSize(), fileName);
+            return fileName;
         } catch (IOException e) {
             throw new UncheckedIOException("파일 저장 중 오류가 발생했습니다.", e);
         }
