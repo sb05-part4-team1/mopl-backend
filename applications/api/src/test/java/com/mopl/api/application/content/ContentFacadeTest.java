@@ -6,6 +6,7 @@
 // import com.mopl.domain.model.content.ContentModel;
 // import com.mopl.domain.service.content.ContentService;
 // import com.mopl.storage.provider.FileStorageProvider;
+// import com.mopl.storage.provider.StorageProvider;
 // import org.junit.jupiter.api.DisplayName;
 // import org.junit.jupiter.api.Nested;
 // import org.junit.jupiter.api.Test;
@@ -38,7 +39,7 @@
 //     private ContentService contentService;
 //
 //     @Mock
-//     private FileStorageProvider fileStorageProvider;
+//     private StorageProvider storageProvider;
 //
 //     @InjectMocks
 //     private ContentFacade contentFacade;
@@ -65,7 +66,7 @@
 //
 //             String storedPath = "contents/uuid_inception.png";
 //
-//             given(fileStorageProvider.upload(eq(inputStream), anyString()))
+//             given(storageProvider.upload(eq(inputStream), anyString()))
 //                 .willReturn(storedPath);
 //
 //             ContentModel savedModel = ContentModel.builder()
@@ -89,7 +90,7 @@
 //             assertThat(result.getThumbnailUrl()).isEqualTo(storedPath);
 //             assertThat(result.getTags()).containsExactly("SF", "액션");
 //
-//             then(fileStorageProvider).should().upload(eq(inputStream), anyString());
+//             then(storageProvider).should().upload(eq(inputStream), anyString());
 //             then(contentService).should().create(any(ContentModel.class), eq(tagNames));
 //         }
 //
@@ -144,7 +145,7 @@
 //             given(contentService.getById(contentId)).willReturn(model);
 //
 //             // when
-//             ContentModel result = contentFacade.getContent(contentId);
+//             ContentModel result = contentFacade.getDetail(contentId);
 //
 //             // then
 //             assertThat(result.getId()).isEqualTo(contentId);
@@ -176,7 +177,7 @@
 //
 //             String storedPath = "contents/uuid_new.png";
 //
-//             given(fileStorageProvider.upload(eq(inputStream), anyString()))
+//             given(storageProvider.upload(eq(inputStream), anyString()))
 //                 .willReturn(storedPath);
 //
 //             ContentModel updatedModel = ContentModel.builder()
@@ -243,7 +244,7 @@
 //             assertThat(result.getTitle()).isEqualTo("제목");
 //             assertThat(result.getTags()).containsExactly("액션");
 //
-//             then(fileStorageProvider).shouldHaveNoInteractions();
+//             then(storageProvider).shouldHaveNoInteractions();
 //             then(contentService).should().update(
 //                 eq(contentId),
 //                 eq("제목"),

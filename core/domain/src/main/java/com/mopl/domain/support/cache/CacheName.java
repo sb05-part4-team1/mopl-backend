@@ -12,12 +12,15 @@ public final class CacheName {
     public static final String PLAYLISTS = "playlists";
     public static final String PLAYLIST_CONTENTS = "playlist-contents";
 
+    public static final String CONTENTS = "contents";
+
     public static String[] all() {
         return new String[]{
             USERS,
             USERS_BY_EMAIL,
             PLAYLISTS,
-            PLAYLIST_CONTENTS
+            PLAYLIST_CONTENTS,
+            CONTENTS
         };
     }
 }

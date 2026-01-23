@@ -9,6 +9,7 @@ import com.mopl.domain.event.playlist.PlaylistContentAddedEvent;
 import com.mopl.domain.event.playlist.PlaylistCreatedEvent;
 import com.mopl.domain.event.playlist.PlaylistSubscribedEvent;
 import com.mopl.domain.event.playlist.PlaylistUpdatedEvent;
+import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.exception.playlist.PlaylistForbiddenException;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.playlist.PlaylistModel;
@@ -171,6 +172,13 @@ public class PlaylistFacade {
         UserModel owner = userService.getById(requesterId);
         PlaylistModel playlist = playlistService.getById(playlistId);
         validateOwner(playlist, requesterId);
+
+        PlaylistModel playlist = playlistService.getById(playlistId);
+        validateOwner(playlist, requesterId);
+
+        if (!contentService.exists(contentId)) {
+            throw ContentNotFoundException.withId(contentId);
+        }
 
         ContentModel content = contentService.getById(contentId);
 

@@ -484,6 +484,7 @@
 //
 //             given(userService.getById(owner.getId())).willReturn(owner);
 //             given(playlistService.getById(playlistId)).willReturn(playlistModel);
+//             given(contentService.exists(contentId)).willReturn(true);
 //             given(contentService.getById(contentId)).willReturn(contentModel);
 //             willDoNothing().given(playlistService).addContent(playlistId, contentId);
 //             willAnswer(invocation -> {
@@ -498,6 +499,7 @@
 //
 //             then(userService).should().getById(owner.getId());
 //             then(playlistService).should().getById(playlistId);
+//             then(contentService).should().exists(contentId);
 //             then(playlistService).should().addContent(playlistId, contentId);
 //         }
 //
@@ -548,6 +550,7 @@
 //
 //             given(userService.getById(owner.getId())).willReturn(owner);
 //             given(playlistService.getById(playlistId)).willReturn(playlist);
+//             given(contentService.exists(contentId)).willReturn(false);
 //
 //             // when & then
 //             assertThatThrownBy(() -> playlistFacade.addContentToPlaylist(owner.getId(), playlistId,

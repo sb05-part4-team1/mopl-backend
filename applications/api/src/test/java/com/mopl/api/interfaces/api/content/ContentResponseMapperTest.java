@@ -1,7 +1,7 @@
 // package com.mopl.api.interfaces.api.content;
 //
 // import com.mopl.domain.model.content.ContentModel;
-// import com.mopl.storage.provider.FileStorageProvider;
+// import com.mopl.storage.provider.StorageProvider;
 // import org.junit.jupiter.api.DisplayName;
 // import org.junit.jupiter.api.Nested;
 // import org.junit.jupiter.api.Test;
@@ -17,12 +17,12 @@
 // import static org.mockito.ArgumentMatchers.any;
 // import static org.mockito.BDDMockito.given;
 //
-// @ExtendWith(MockitoExtension.class)
 // @DisplayName("ContentResponseMapper 단위 테스트")
+// @ExtendWith(MockitoExtension.class)
 // class ContentResponseMapperTest {
 //
 //     @Mock
-//     private FileStorageProvider fileStorageProvider;
+//     private StorageProvider storageProvider;
 //
 //     @InjectMocks
 //     private ContentResponseMapper mapper;
@@ -42,12 +42,11 @@
 //                 .title("인셉션")
 //                 .description("꿈속의 꿈")
 //                 .thumbnailUrl("inception.png")
-//                 .tags(List.of("SF", "액션"))
 //                 .averageRating(4.5)
 //                 .reviewCount(100)
 //                 .build();
 //
-//             given(fileStorageProvider.getUrl("inception.png"))
+//             given(storageProvider.getUrl("inception.png"))
 //                 .willReturn("https://mopl.com/inception.png");
 //
 //             // when
@@ -73,7 +72,7 @@
 //                 .tags(List.of())
 //                 .build();
 //
-//             given(fileStorageProvider.getUrl(any())).willReturn(null);
+//             given(storageProvider.getUrl(any())).willReturn(null);
 //
 //             // when
 //             ContentResponse result = mapper.toResponse(model);
@@ -90,7 +89,7 @@
 //                 .id(UUID.randomUUID())
 //                 .build();
 //
-//             given(fileStorageProvider.getUrl(any())).willReturn(null);
+//             given(storageProvider.getUrl(any())).willReturn(null);
 //
 //             // when
 //             ContentResponse result = mapper.toResponse(model);
@@ -110,7 +109,7 @@
 //                 .tags(List.of("SF"))
 //                 .build();
 //
-//             given(fileStorageProvider.getUrl(any())).willReturn(null);
+//             given(storageProvider.getUrl(any())).willReturn(null);
 //
 //             // when
 //             ContentResponse result = mapper.toResponse(model);

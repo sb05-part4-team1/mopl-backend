@@ -4,6 +4,7 @@ import com.mopl.domain.model.review.ReviewModel;
 import com.mopl.domain.repository.review.ReviewQueryRepository;
 import com.mopl.domain.repository.review.ReviewQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.jpa.entity.review.QReviewEntity;
 import com.mopl.jpa.entity.review.ReviewEntity;
 import com.mopl.jpa.entity.review.ReviewEntityMapper;
 import com.mopl.jpa.support.cursor.CursorPaginationHelper;
@@ -28,9 +29,12 @@ public class ReviewQueryRepositoryImpl implements ReviewQueryRepository {
     @Override
     public CursorResponse<ReviewModel> findAll(ReviewQueryRequest request) {
         ReviewSortFieldJpa sortFieldJpa = ReviewSortFieldJpa.from(request.sortBy());
+        QReviewEntity reviewEntity = QReviewEntity.reviewEntity;
 
         JPAQuery<ReviewEntity> jpaQuery = queryFactory
             .selectFrom(reviewEntity)
+            .join(reviewEntity.author).fetchJoin()
+            .join(reviewEntity.content).fetchJoin()
             .where(
                 contentIdEqual(request.contentId())
             );
