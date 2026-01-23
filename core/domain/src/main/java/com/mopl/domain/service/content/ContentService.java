@@ -4,8 +4,6 @@ import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.repository.content.ContentQueryRepository;
 import com.mopl.domain.repository.content.ContentQueryRequest;
 import com.mopl.domain.repository.content.ContentRepository;
-import com.mopl.domain.repository.content.ContentTagRepository;
-import com.mopl.domain.service.tag.TagService;
 import com.mopl.domain.support.cache.CacheName;
 import com.mopl.domain.support.cursor.CursorResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +16,9 @@ import java.util.UUID;
 public class ContentService {
 
     private final ContentCacheService contentCacheService;
-    private final TagService tagService;
+    private final ContentTagService contentTagService;
     private final ContentRepository contentRepository;
     private final ContentQueryRepository contentQueryRepository;
-    private final ContentTagRepository contentTagRepository;
 
     @CacheEvict(cacheNames = CacheName.CONTENTS, key = "#result.id")
     public ContentModel create(ContentModel content) {
@@ -61,11 +58,11 @@ public class ContentService {
             return saved;
         }
 
-        contentTagRepository.deleteAllByContentId(saved.getId());
-        ContentModel savedWithTags = applyTags(saved, tagNames);
+        contentTagService.deleteAllByContentId(saved.getId());
+        contentTagService.applyTags(saved.getId(), tagNames);
 
-        contentCacheService.evict(savedWithTags.getId());
-        return savedWithTags;
+        contentCacheService.evict(saved.getId());
+        return saved;
     }
 
     public void delete(UUID contentId) {

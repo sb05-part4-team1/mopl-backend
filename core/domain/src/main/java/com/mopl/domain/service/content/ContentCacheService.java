@@ -20,16 +20,13 @@ public class ContentCacheService {
 
     @Cacheable(cacheNames = CacheName.CONTENTS, key = "#contentId")
     public ContentModel getById(UUID contentId) {
-        ContentModel content = contentRepository.findById(contentId)
+        return contentRepository.findById(contentId)
             .orElseThrow(() -> ContentNotFoundException.withId(contentId));
+    }
 
-        List<TagModel> tags = contentTagRepository.findTagsByContentId(contentId);
-
-        return content.withTags(
-            tags.stream()
-                .map(TagModel::getName)
-                .toList()
-        );
+    @Cacheable(cacheNames = CacheName.CONTENT_TAGS, key = "#contentId")
+    public List<TagModel> getTagsByContentId(UUID contentId) {
+        return contentTagRepository.findTagsByContentId(contentId);
     }
 
     @CacheEvict(cacheNames = CacheName.CONTENTS, key = "#contentId")

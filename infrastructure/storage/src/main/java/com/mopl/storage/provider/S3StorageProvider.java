@@ -3,9 +3,11 @@ package com.mopl.storage.provider;
 import com.mopl.domain.exception.storage.FileDeleteException;
 import com.mopl.domain.exception.storage.FileNotFoundException;
 import com.mopl.domain.exception.storage.FileUploadException;
+import com.mopl.domain.support.cache.CacheName;
 import com.mopl.storage.config.StorageProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -47,6 +49,7 @@ public class S3StorageProvider implements StorageProvider {
     }
 
     @Override
+    @Cacheable(value = CacheName.PRESIGNED_URLS, key = "#path", unless = "#result == null")
     public String getUrl(String path) {
         if (path == null || path.isBlank()) {
             return null;
