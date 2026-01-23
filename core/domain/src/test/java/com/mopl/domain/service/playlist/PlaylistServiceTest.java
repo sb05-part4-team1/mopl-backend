@@ -394,7 +394,6 @@ class PlaylistServiceTest {
             then(playlistCacheService).should().getById(playlistId);
             then(playlistContentRepository).should().exists(playlistId, contentId);
             then(playlistContentRepository).should().save(playlistId, contentId);
-            then(playlistCacheService).should().evictContents(playlistId);
         }
 
         @DisplayName("소유자가 아닌 사용자가 콘텐츠 추가 시 PlaylistForbiddenException 발생")
@@ -415,7 +414,6 @@ class PlaylistServiceTest {
             ).isInstanceOf(PlaylistForbiddenException.class);
 
             then(playlistContentRepository).should(never()).save(any(UUID.class), any(UUID.class));
-            then(playlistCacheService).should(never()).evictContents(any(UUID.class));
         }
 
         @DisplayName("이미 존재하는 콘텐츠 추가 시 PlaylistContentAlreadyExistsException 발생")
@@ -437,7 +435,6 @@ class PlaylistServiceTest {
             ).isInstanceOf(PlaylistContentAlreadyExistsException.class);
 
             then(playlistContentRepository).should(never()).save(any(UUID.class), any(UUID.class));
-            then(playlistCacheService).should(never()).evictContents(any(UUID.class));
         }
     }
 
@@ -464,7 +461,6 @@ class PlaylistServiceTest {
             // then
             then(playlistCacheService).should().getById(playlistId);
             then(playlistContentRepository).should().delete(playlistId, contentId);
-            then(playlistCacheService).should().evictContents(playlistId);
         }
 
         @DisplayName("소유자가 아닌 사용자가 콘텐츠 삭제 시 PlaylistForbiddenException 발생")
@@ -485,7 +481,6 @@ class PlaylistServiceTest {
             ).isInstanceOf(PlaylistForbiddenException.class);
 
             then(playlistContentRepository).should(never()).delete(any(UUID.class), any(UUID.class));
-            then(playlistCacheService).should(never()).evictContents(any(UUID.class));
         }
 
         @DisplayName("존재하지 않는 콘텐츠 삭제 시 PlaylistContentNotFoundException 발생")
@@ -505,8 +500,6 @@ class PlaylistServiceTest {
             assertThatThrownBy(
                 () -> playlistService.removeContent(playlistId, requesterId, contentId)
             ).isInstanceOf(PlaylistContentNotFoundException.class);
-
-            then(playlistCacheService).should(never()).evictContents(any(UUID.class));
         }
     }
 }

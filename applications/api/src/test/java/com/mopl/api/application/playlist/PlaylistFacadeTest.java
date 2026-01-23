@@ -27,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Collections;
@@ -70,10 +71,10 @@ class PlaylistFacadeTest {
     private TransactionTemplate transactionTemplate;
 
     @Mock
-    private OutboxService outboxService;
+    private DomainEventOutboxMapper domainEventOutboxMapper;
 
     @Mock
-    private DomainEventOutboxMapper domainEventOutboxMapper;
+    private OutboxService outboxService;
 
     @InjectMocks
     private PlaylistFacade playlistFacade;
@@ -302,7 +303,7 @@ class PlaylistFacadeTest {
                 .willReturn(playlistModel);
             given(playlistResponseMapper.toResponse(playlistModel)).willReturn(expectedResponse);
             willAnswer(invocation -> invocation.<org.springframework.transaction.support.TransactionCallback<?>>getArgument(0)
-                .doInTransaction(null))
+                .doInTransaction(org.mockito.Mockito.mock(TransactionStatus.class)))
                 .given(transactionTemplate).execute(any());
 
             // when
@@ -348,7 +349,7 @@ class PlaylistFacadeTest {
                 .willReturn(updatedPlaylist);
             given(playlistResponseMapper.toResponse(updatedPlaylist)).willReturn(expectedResponse);
             willAnswer(invocation -> invocation.<org.springframework.transaction.support.TransactionCallback<?>>getArgument(0)
-                .doInTransaction(null))
+                .doInTransaction(org.mockito.Mockito.mock(TransactionStatus.class)))
                 .given(transactionTemplate).execute(any());
 
             // when
