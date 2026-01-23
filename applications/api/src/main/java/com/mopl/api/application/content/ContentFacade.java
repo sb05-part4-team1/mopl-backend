@@ -97,8 +97,7 @@ public class ContentFacade {
     }
 
     public void delete(UUID contentId) {
-        ContentModel contentModel = contentService.getById(contentId);
-        contentService.delete(contentModel);
+        contentService.delete(contentId);
     }
 
     private String uploadToStorage(MultipartFile file) {

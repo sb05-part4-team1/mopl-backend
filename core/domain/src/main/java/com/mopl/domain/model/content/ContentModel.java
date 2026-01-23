@@ -3,30 +3,35 @@ package com.mopl.domain.model.content;
 import com.mopl.domain.exception.content.InvalidContentDataException;
 import com.mopl.domain.model.base.BaseUpdatableModel;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder(toBuilder = true)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ContentModel extends BaseUpdatableModel {
 
-    public static final int CONTENT_TYPE_MAX_LENGTH = 20;
-    public static final int TITLE_MAX_LENGTH = 255;
-    public static final int THUMBNAIL_URL_MAX_LENGTH = 1024;
-
-    // TODO: FE 대문자 snake case로 변경
     public enum ContentType {
         movie,
         tvSeries,
         sport
     }
 
+    public static final int CONTENT_TYPE_MAX_LENGTH = 20;
+    public static final int TITLE_MAX_LENGTH = 255;
+    public static final int THUMBNAIL_URL_MAX_LENGTH = 1024;
+
     private ContentType type;
     private String title;
     private String description;
     private String thumbnailUrl;
+
+    @Builder.Default
+    private List<String> tags = List.of();
 
     private double averageRating;
     private int reviewCount;
@@ -52,33 +57,24 @@ public class ContentModel extends BaseUpdatableModel {
     }
 
     public ContentModel update(
-        String newTitle,
-        String newDescription,
-        String newThumbnailUrl
+        String title,
+        String description,
+        String thumbnailUrl
     ) {
-        String updatedTitle = this.title;
-        String updatedDescription = this.description;
-        String updatedThumbnailUrl = this.thumbnailUrl;
-
-        if (newTitle != null) {
-            validateTitle(newTitle);
-            updatedTitle = newTitle;
-        }
-
-        if (newDescription != null) {
-            validateDescription(newDescription);
-            updatedDescription = newDescription;
-        }
-
-        if (newThumbnailUrl != null) {
-            validateThumbnailUrl(newThumbnailUrl);
-            updatedThumbnailUrl = newThumbnailUrl;
-        }
+        validateRequiredFields(this.type, title, description, thumbnailUrl);
+        validateTitle(title);
+        validateThumbnailUrl(thumbnailUrl);
 
         return this.toBuilder()
-            .title(updatedTitle)
-            .description(updatedDescription)
-            .thumbnailUrl(updatedThumbnailUrl)
+            .title(title)
+            .description(description)
+            .thumbnailUrl(thumbnailUrl)
+            .build();
+    }
+
+    public ContentModel withTags(List<String> tags) {
+        return this.toBuilder()
+            .tags(tags)
             .build();
     }
 
@@ -146,24 +142,12 @@ public class ContentModel extends BaseUpdatableModel {
     }
 
     private static void validateTitle(String title) {
-        if (title.isBlank()) {
-            throw InvalidContentDataException.withDetailMessage("제목은 비어있을 수 없습니다.");
-        }
         if (title.length() > TITLE_MAX_LENGTH) {
             throw InvalidContentDataException.withDetailMessage("제목은 " + TITLE_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 
-    private static void validateDescription(String description) {
-        if (description.isBlank()) {
-            throw InvalidContentDataException.withDetailMessage("설명은 비어있을 수 없습니다.");
-        }
-    }
-
     private static void validateThumbnailUrl(String thumbnailUrl) {
-        if (thumbnailUrl.isBlank()) {
-            throw InvalidContentDataException.withDetailMessage("썸네일 URL은 비어있을 수 없습니다.");
-        }
         if (thumbnailUrl.length() > THUMBNAIL_URL_MAX_LENGTH) {
             throw InvalidContentDataException.withDetailMessage("썸네일 URL은 " + THUMBNAIL_URL_MAX_LENGTH
                 + "자를 초과할 수 없습니다.");

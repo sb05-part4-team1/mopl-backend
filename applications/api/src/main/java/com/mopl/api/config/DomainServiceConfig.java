@@ -63,15 +63,14 @@ public class DomainServiceConfig {
         TagService tagService,
         ContentRepository contentRepository,
         ContentQueryRepository contentQueryRepository,
-        ContentRepository contentRepository,
-        ContentTagService contentTagService
+        ContentTagRepository contentTagRepository
     ) {
         return new ContentService(
-            contentQueryRepository,
             contentCacheService,
             tagService,
             contentRepository,
-            contentTagService
+            contentQueryRepository,
+            contentTagRepository
         );
     }
 
@@ -83,7 +82,8 @@ public class DomainServiceConfig {
         return new ContentTagService(contentTagRepository, tagService);
     }
 
-    @Bean ContentCacheService contentCacheService(
+    @Bean
+    ContentCacheService contentCacheService(
         ContentRepository contentRepository,
         ContentTagRepository contentTagRepository
     ) {

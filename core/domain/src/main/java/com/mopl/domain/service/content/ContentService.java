@@ -1,10 +1,12 @@
 package com.mopl.domain.service.content;
 
-import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.model.content.ContentModel;
+import com.mopl.domain.model.tag.TagModel;
 import com.mopl.domain.repository.content.ContentQueryRepository;
 import com.mopl.domain.repository.content.ContentQueryRequest;
 import com.mopl.domain.repository.content.ContentRepository;
+import com.mopl.domain.repository.content.ContentTagRepository;
+import com.mopl.domain.service.tag.TagService;
 import com.mopl.domain.support.cursor.CursorResponse;
 import java.util.List;
 import java.util.UUID;
@@ -17,8 +19,6 @@ public class ContentService {
     private final TagService tagService;
     private final ContentRepository contentRepository;
     private final ContentQueryRepository contentQueryRepository;
-    private final ContentRepository contentRepository;
-    private final ContentTagService contentTagService;
     private final ContentTagRepository contentTagRepository;
 
     public ContentModel create(ContentModel content, List<String> tagNames) {
@@ -37,14 +37,6 @@ public class ContentService {
     }
 
     public ContentModel getById(UUID contentId) {
-        return contentRepository.findById(contentId)
-            .orElseThrow(() -> ContentNotFoundException.withId(contentId));
-    }
-
-    public ContentModel create(ContentModel content, List<String> tagNames) {
-        ContentModel savedContent = contentRepository.save(content);
-        contentTagService.applyTags(savedContent.getId(), tagNames);
-        return savedContent;
         return contentCacheService.getById(contentId);
     }
 
@@ -57,7 +49,6 @@ public class ContentService {
     ) {
         ContentModel content = contentCacheService.getById(contentId);
 
-        ContentModel updated = content.update(title, description, thumbnailUrl);
         String finalTitle = title != null ? title : content.getTitle();
         String finalDescription = description != null ? description : content.getDescription();
         String finalThumbnailUrl = thumbnailUrl != null ? thumbnailUrl : content.getThumbnailUrl();
@@ -65,21 +56,11 @@ public class ContentService {
         ContentModel updated = content.update(finalTitle, finalDescription, finalThumbnailUrl);
         ContentModel saved = contentRepository.save(updated);
 
-        if (tagNames != null) {
-            contentTagService.deleteAllByContentId(saved.getId());
-            contentTagService.applyTags(saved.getId(), tagNames);
-        }
-
-        return saved;
-    }
         if (tagNames == null) {
             contentCacheService.evict(saved.getId());
             return saved;
         }
 
-    public void delete(ContentModel contentModel) {
-        contentModel.delete();
-        contentRepository.save(contentModel);
         contentTagRepository.deleteAllByContentId(saved.getId());
         ContentModel savedWithTags = applyTags(saved, tagNames);
 

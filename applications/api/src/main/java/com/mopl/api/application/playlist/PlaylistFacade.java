@@ -173,9 +173,6 @@ public class PlaylistFacade {
         PlaylistModel playlist = playlistService.getById(playlistId);
         validateOwner(playlist, requesterId);
 
-        PlaylistModel playlist = playlistService.getById(playlistId);
-        validateOwner(playlist, requesterId);
-
         if (!contentService.exists(contentId)) {
             throw ContentNotFoundException.withId(contentId);
         }
