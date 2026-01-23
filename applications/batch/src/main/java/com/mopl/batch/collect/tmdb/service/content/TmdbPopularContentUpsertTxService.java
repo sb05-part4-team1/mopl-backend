@@ -9,10 +9,11 @@ import com.mopl.domain.repository.content.ContentExternalMappingRepository;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.external.tmdb.model.TmdbMovieItem;
 import com.mopl.external.tmdb.model.TmdbTvItem;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -59,12 +60,11 @@ public class TmdbPopularContentUpsertTxService {
             return false;
         }
 
-        String thumbnailUrl = tmdbPosterProcessor.uploadPosterIfPresent(type, externalId,
-            posterPath);
+        tmdbPosterProcessor.uploadPosterIfPresent(type, externalId, posterPath);
         List<String> tagNames = genreTagResolver.resolve(genreIds);
 
         ContentModel content = contentService.create(
-            ContentModel.create(type, title, overview, thumbnailUrl),
+            ContentModel.create(type, title, overview, posterPath),
             tagNames
         );
 

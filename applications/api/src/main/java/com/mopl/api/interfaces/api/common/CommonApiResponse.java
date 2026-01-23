@@ -11,7 +11,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-public class CommonApiResponses {
+public class CommonApiResponse {
 
     @Target({ElementType.METHOD, ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
@@ -19,18 +19,15 @@ public class CommonApiResponses {
         @ApiResponse(
             responseCode = "400",
             description = "잘못된 요청",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-        ),
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(
             responseCode = "401",
             description = "인증 오류",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-        ),
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(
             responseCode = "500",
             description = "서버 오류",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-        )
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public @interface Default {
     }

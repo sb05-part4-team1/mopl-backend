@@ -34,7 +34,6 @@ public class TmdbPosterProcessor {
             String filePath = buildFilePath(type, externalId, extension);
 
             storageProvider.upload(resource.getInputStream(), resource.contentLength(), filePath);
-
         } catch (TmdbImageDownloadException e) {
             log.warn(
                 "TMDB poster download failed: type={}, externalId={}, path={}",

@@ -124,9 +124,9 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/users")
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(userModel.getId().toString()))
                 .andExpect(jsonPath("$.email").value(email))
@@ -168,9 +168,9 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/users")
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(requestBody)))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isBadRequest());
 
             then(userFacade).should(never()).signUp(any(UserCreateRequest.class));
@@ -188,9 +188,9 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/users")
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict());
         }
 
@@ -206,9 +206,9 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/users")
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
         }
     }
@@ -227,7 +227,7 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/users/{userId}", userModel.getId())
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(userModel.getId().toString()))
                 .andExpect(jsonPath("$.email").value(userModel.getEmail()))
@@ -249,7 +249,7 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/users/{userId}", nonExistingUserId)
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isNotFound());
         }
     }
@@ -282,9 +282,9 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(multipart(HttpMethod.PATCH, "/api/users/{userId}", userModel.getId())
-                    .file(image)
-                    .with(user(mockUserDetails))
-                    .with(csrf()))
+                .file(image)
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(userModel.getId().toString()))
                 .andExpect(jsonPath("$.profileImageUrl").value(profileImageUrl));
@@ -320,9 +320,9 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(multipart(HttpMethod.PATCH, "/api/users/{userId}", userModel.getId())
-                    .file(requestPart)
-                    .with(user(mockUserDetails))
-                    .with(csrf()))
+                .file(requestPart)
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(userModel.getId().toString()))
                 .andExpect(jsonPath("$.name").value(newName));
@@ -367,10 +367,10 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(multipart(HttpMethod.PATCH, "/api/users/{userId}", userModel.getId())
-                    .file(requestPart)
-                    .file(image)
-                    .with(user(mockUserDetails))
-                    .with(csrf()))
+                .file(requestPart)
+                .file(image)
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(userModel.getId().toString()))
                 .andExpect(jsonPath("$.name").value(newName))
@@ -442,10 +442,10 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/users")
-                    .with(user(mockAdminDetails))
-                    .param("limit", "10")
-                    .param("sortDirection", "ASCENDING")
-                    .param("sortBy", "name"))
+                .with(user(mockAdminDetails))
+                .param("limit", "10")
+                .param("sortDirection", "ASCENDING")
+                .param("sortBy", "name"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(2))
@@ -471,10 +471,10 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/users")
-                    .with(user(mockAdminDetails))
-                    .param("emailLike", "admin")
-                    .param("roleEqual", "ADMIN")
-                    .param("isLocked", "false"))
+                .with(user(mockAdminDetails))
+                .param("emailLike", "admin")
+                .param("roleEqual", "ADMIN")
+                .param("isLocked", "false"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(0))
@@ -504,10 +504,10 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/users")
-                    .with(user(mockAdminDetails))
-                    .param("cursor", "PreviousUser")
-                    .param("idAfter", idAfter.toString())
-                    .param("limit", "10"))
+                .with(user(mockAdminDetails))
+                .param("cursor", "PreviousUser")
+                .param("idAfter", idAfter.toString())
+                .param("limit", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(1))
                 .andExpect(jsonPath("$.hasNext").value(false))
@@ -527,7 +527,7 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/users")
-                    .with(user(mockAdminDetails)))
+                .with(user(mockAdminDetails)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(0))
@@ -560,10 +560,10 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(patch("/api/users/{userId}/role", targetUserId)
-                    .with(user(mockAdminDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                .with(user(mockAdminDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNoContent());
 
             then(userFacade).should().updateRole(
@@ -583,10 +583,10 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(patch("/api/users/{userId}/role", targetUserId)
-                    .with(user(mockAdminDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(requestBody)))
+                .with(user(mockAdminDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isBadRequest());
 
             then(userFacade).should(never()).updateRole(any(), any(), any());
@@ -607,10 +607,10 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(patch("/api/users/{userId}/role", targetUserId)
-                    .with(user(mockAdminDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                .with(user(mockAdminDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
         }
 
@@ -624,10 +624,10 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(patch("/api/users/{userId}/role", targetUserId)
-                    .with(user(mockAdminDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(requestBody)))
+                .with(user(mockAdminDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isBadRequest());
 
             then(userFacade).should(never()).updateRole(any(), any(), any());
@@ -647,10 +647,10 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(patch("/api/users/{userId}/role", adminId)
-                    .with(user(mockAdminDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                .with(user(mockAdminDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
         }
     }
@@ -674,10 +674,10 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(patch("/api/users/{userId}/locked", targetUserId)
-                    .with(user(mockAdminDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                .with(user(mockAdminDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNoContent());
 
             then(userFacade).should().updateLocked(
@@ -697,10 +697,10 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(patch("/api/users/{userId}/locked", targetUserId)
-                    .with(user(mockAdminDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(requestBody)))
+                .with(user(mockAdminDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isBadRequest());
 
             then(userFacade).should(never()).updateLocked(any(), any(), any());
@@ -723,10 +723,10 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(patch("/api/users/{userId}/locked", targetUserId)
-                    .with(user(mockAdminDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                .with(user(mockAdminDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
         }
 
@@ -746,10 +746,10 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(patch("/api/users/{userId}/locked", adminId)
-                    .with(user(mockAdminDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                .with(user(mockAdminDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
         }
     }
@@ -769,10 +769,10 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(patch("/api/users/{userId}/password", userId)
-                    .with(user(mockUserDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNoContent());
 
             then(userFacade).should().updatePassword(eq(userId), eq("newP@ssw0rd!"));
@@ -788,10 +788,10 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(patch("/api/users/{userId}/password", userId)
-                    .with(user(mockUserDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(requestBody)))
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isBadRequest());
 
             then(userFacade).should(never()).updatePassword(any(), any());
@@ -807,10 +807,10 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(patch("/api/users/{userId}/password", userId)
-                    .with(user(mockUserDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(requestBody)))
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isBadRequest());
 
             then(userFacade).should(never()).updatePassword(any(), any());
@@ -825,10 +825,10 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(patch("/api/users/{userId}/password", userId)
-                    .with(user(mockUserDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
 
             then(userFacade).should(never()).updatePassword(any(), any());
@@ -847,10 +847,10 @@ class UserControllerTest {
 
             // when & then
             mockMvc.perform(patch("/api/users/{userId}/password", nonExistingUserId)
-                    .with(user(mockUserDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
         }
     }

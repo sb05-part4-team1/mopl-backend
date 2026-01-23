@@ -1,6 +1,6 @@
 package com.mopl.api.interfaces.api.content;
 
-import com.mopl.api.interfaces.api.common.CommonApiResponses;
+import com.mopl.api.interfaces.api.common.CommonApiResponse;
 import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.domain.repository.content.ContentQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
@@ -301,8 +301,8 @@ public interface ContentApiSpec {
             """
     )
     @ApiResponse(responseCode = "204", description = "성공")
-    @CommonApiResponses.Default
-    @CommonApiResponses.Forbidden
-    @CommonApiResponses.NotFound
+    @CommonApiResponse.Default
+    @CommonApiResponse.Forbidden
+    @CommonApiResponse.NotFound
     void delete(UUID contentId);
 }

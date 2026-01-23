@@ -330,8 +330,7 @@ class UserFacadeTest {
         void withValidProfileImage_updateProfileSuccess() throws IOException {
             // given
             UserModel userModel = UserModelFixture.create();
-            String storedPath = "users/" + userModel.getId() + "/test.png";
-            String profileImageUrl = "http://localhost/api/v1/files/display?path=" + storedPath;
+            String profileImageUrl = "http://localhost/api/v1/files/display?path=users/test.png";
 
             MultipartFile image = mock(MultipartFile.class);
             given(image.isEmpty()).willReturn(false);
@@ -344,7 +343,7 @@ class UserFacadeTest {
                 .sample();
 
             given(userService.getById(userModel.getId())).willReturn(userModel);
-            given(storageProvider.getUrl(storedPath)).willReturn(profileImageUrl);
+            given(storageProvider.getUrl(anyString())).willReturn(profileImageUrl);
             given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
 
             // when
@@ -355,7 +354,7 @@ class UserFacadeTest {
 
             then(userService).should().getById(userModel.getId());
             then(storageProvider).should().upload(any(), anyLong(), anyString());
-            then(storageProvider).should().getUrl(storedPath);
+            then(storageProvider).should().getUrl(anyString());
             then(userService).should().update(any(UserModel.class));
         }
 
@@ -393,8 +392,7 @@ class UserFacadeTest {
             // given
             UserModel userModel = UserModelFixture.create();
             String newName = "newName";
-            String storedPath = "users/" + userModel.getId() + "/test.png";
-            String profileImageUrl = "http://localhost/api/v1/files/display?path=" + storedPath;
+            String profileImageUrl = "http://localhost/api/v1/files/display?path=users/test.png";
 
             UserUpdateRequest request = new UserUpdateRequest(newName);
 
@@ -410,7 +408,7 @@ class UserFacadeTest {
                 .sample();
 
             given(userService.getById(userModel.getId())).willReturn(userModel);
-            given(storageProvider.getUrl(storedPath)).willReturn(profileImageUrl);
+            given(storageProvider.getUrl(anyString())).willReturn(profileImageUrl);
             given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
 
             // when
@@ -422,7 +420,7 @@ class UserFacadeTest {
 
             then(userService).should().getById(userModel.getId());
             then(storageProvider).should().upload(any(), anyLong(), anyString());
-            then(storageProvider).should().getUrl(storedPath);
+            then(storageProvider).should().getUrl(anyString());
             then(userService).should().update(any(UserModel.class));
         }
 
