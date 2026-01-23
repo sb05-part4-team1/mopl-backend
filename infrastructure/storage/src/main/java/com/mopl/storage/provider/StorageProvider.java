@@ -4,13 +4,15 @@ import org.springframework.core.io.Resource;
 
 import java.io.InputStream;
 
-public interface FileStorageProvider {
+public interface StorageProvider {
 
-    String upload(InputStream inputStream, String path);
+    void upload(InputStream inputStream, String path);
 
     String getUrl(String path);
 
-    Resource load(String relativePath);
+    Resource download(String relativePath);
 
     void delete(String path);
+
+    boolean exists(String path);
 }
