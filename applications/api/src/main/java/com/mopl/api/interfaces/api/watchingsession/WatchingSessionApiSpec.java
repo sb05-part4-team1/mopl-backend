@@ -110,7 +110,7 @@ public interface WatchingSessionApiSpec {
             name = "sortBy",
             description = "정렬 기준",
             in = ParameterIn.QUERY,
-            schema = @Schema(implementation = WatchingSessionSortField.class)
+            schema = @Schema(implementation = WatchingSessionSortField.class, defaultValue = "createdAt")
         )
     })
     @ApiResponses({

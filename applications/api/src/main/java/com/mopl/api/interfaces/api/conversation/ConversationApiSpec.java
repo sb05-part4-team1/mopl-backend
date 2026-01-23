@@ -101,7 +101,7 @@ public interface ConversationApiSpec {
             name = "sortBy",
             description = "정렬 기준",
             in = ParameterIn.QUERY,
-            schema = @Schema(implementation = ConversationSortField.class)
+            schema = @Schema(implementation = ConversationSortField.class, defaultValue = "createdAt")
         )
     })
     CursorResponse<ConversationResponse> getConversations(
@@ -184,7 +184,7 @@ public interface ConversationApiSpec {
             name = "sortBy",
             description = "정렬 기준",
             in = ParameterIn.QUERY,
-            schema = @Schema(implementation = DirectMessageSortField.class)
+            schema = @Schema(implementation = DirectMessageSortField.class, defaultValue = "createdAt")
         )
     })
     CursorResponse<DirectMessageResponse> getDirectMessages(

@@ -94,7 +94,7 @@ public interface PlaylistApiSpec {
             name = "sortBy",
             description = "정렬 기준",
             in = ParameterIn.QUERY,
-            schema = @Schema(implementation = PlaylistSortField.class)
+            schema = @Schema(implementation = PlaylistSortField.class, defaultValue = "updatedAt")
         )
     })
     CursorResponse<PlaylistResponse> getPlaylists(

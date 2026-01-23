@@ -77,7 +77,7 @@ public interface UserApiSpec {
             name = "sortBy",
             description = "정렬 기준",
             in = ParameterIn.QUERY,
-            schema = @Schema(implementation = UserSortField.class)
+            schema = @Schema(implementation = UserSortField.class, defaultValue = "name")
         )
     })
     @ApiResponse(

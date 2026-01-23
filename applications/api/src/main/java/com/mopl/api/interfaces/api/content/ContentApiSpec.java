@@ -74,7 +74,7 @@ public interface ContentApiSpec {
             name = "sortBy",
             description = "정렬 기준",
             in = ParameterIn.QUERY,
-            schema = @Schema(implementation = ContentSortField.class)
+            schema = @Schema(implementation = ContentSortField.class, defaultValue = "watcherCount")
         )
     })
     @ApiResponse(
