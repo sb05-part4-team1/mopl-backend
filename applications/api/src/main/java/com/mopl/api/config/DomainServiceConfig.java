@@ -57,16 +57,16 @@ public class DomainServiceConfig {
 
     @Bean
     public ContentService contentService(
-        TagService tagService,
-        ContentRepository contentRepository,
         ContentQueryRepository contentQueryRepository,
-        ContentTagRepository contentTagRepository
+        ContentRepository contentRepository,
+        ContentTagRepository contentTagRepository,
+        TagService tagService
     ) {
         return new ContentService(
-            tagService,
-            contentRepository,
             contentQueryRepository,
-            contentTagRepository
+            contentRepository,
+            contentTagRepository,
+            tagService
         );
     }
 
