@@ -30,12 +30,6 @@ import java.util.UUID;
 public interface UserApiSpec {
 
     @Operation(summary = "[어드민] 사용자 목록 조회 (커서 페이지네이션)")
-    @ApiResponse(
-        responseCode = "200",
-        content = @Content(schema = @Schema(implementation = UserCursorResponse.class))
-    )
-    @CommonApiResponse.Default
-    @CommonApiResponse.Forbidden
     @Parameters({
         @Parameter(
             name = "emailLike",
@@ -89,6 +83,12 @@ public interface UserApiSpec {
             schema = @Schema(implementation = UserSortField.class)
         )
     })
+    @ApiResponse(
+        responseCode = "200",
+        content = @Content(schema = @Schema(implementation = UserCursorResponse.class))
+    )
+    @CommonApiResponse.Default
+    @CommonApiResponse.Forbidden
     CursorResponse<UserResponse> getUsers(@Parameter(hidden = true) UserQueryRequest request);
 
     @Operation(summary = "사용자 상세 조회")
