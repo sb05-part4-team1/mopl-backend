@@ -51,7 +51,6 @@ class ContentRepositoryImplTest {
             assertThat(found).isPresent();
             assertThat(found.get().getId()).isEqualTo(saved.getId());
             assertThat(found.get().getTitle()).isEqualTo("인셉션");
-            assertThat(found.get().getTags()).isEmpty(); // Repository는 순수하게 Content 정보만 조회하므로 태그는 비어있음
         }
 
         @Test
@@ -119,7 +118,6 @@ class ContentRepositoryImplTest {
             assertThat(savedContent.getTitle()).isEqualTo("인셉션");
             assertThat(savedContent.getDescription()).isEqualTo("꿈속의 꿈");
             assertThat(savedContent.getThumbnailUrl()).isEqualTo("https://mopl.com/inception.png");
-            assertThat(savedContent.getTags()).isEmpty();
             assertThat(savedContent.getCreatedAt()).isNotNull();
             assertThat(savedContent.getUpdatedAt()).isNotNull();
             assertThat(savedContent.getDeletedAt()).isNull();

@@ -9,7 +9,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.List;
 import java.util.stream.Stream;
 
 import static com.mopl.domain.model.content.ContentModel.THUMBNAIL_URL_MAX_LENGTH;
@@ -23,6 +22,13 @@ class ContentModelTest {
     static Stream<Arguments> emptyFieldsProvider() {
         return Stream.of(
             Arguments.of("null", null),
+            Arguments.of("빈 문자열", ""),
+            Arguments.of("공백만", "   ")
+        );
+    }
+
+    static Stream<Arguments> blankFieldsProvider() {
+        return Stream.of(
             Arguments.of("빈 문자열", ""),
             Arguments.of("공백만", "   ")
         );
@@ -49,7 +55,6 @@ class ContentModelTest {
             assertThat(content.getTitle()).isEqualTo(title);
             assertThat(content.getDescription()).isEqualTo(description);
             assertThat(content.getThumbnailUrl()).isEqualTo(thumbnailUrl);
-            assertThat(content.getTags()).isEmpty();
         }
 
         @Test
@@ -129,7 +134,7 @@ class ContentModelTest {
         }
 
         @ParameterizedTest
-        @MethodSource("com.mopl.domain.model.content.ContentModelTest#emptyFieldsProvider")
+        @MethodSource("com.mopl.domain.model.content.ContentModelTest#blankFieldsProvider")
         @DisplayName("update 시 제목이 비어있으면 예외 발생")
         void update_withEmptyTitle(String desc, String title) {
             // given
@@ -139,6 +144,20 @@ class ContentModelTest {
             // when / then
             assertThatThrownBy(() -> original.update(title, "설명", "url")
             ).isInstanceOf(InvalidContentDataException.class);
+        }
+
+        @Test
+        @DisplayName("update 시 제목이 null이면 기존 제목 유지")
+        void update_withNullTitle_keepsOriginal() {
+            // given
+            ContentModel original = ContentModel.create(ContentModel.ContentType.movie, "기존 제목", "설명",
+                "url");
+
+            // when
+            ContentModel updated = original.update(null, "새 설명", "new-url");
+
+            // then
+            assertThat(updated.getTitle()).isEqualTo("기존 제목");
         }
 
         @Test
@@ -152,62 +171,6 @@ class ContentModelTest {
             // when / then
             assertThatThrownBy(() -> original.update("제목", "설명", longUrl)
             ).isInstanceOf(InvalidContentDataException.class);
-        }
-    }
-
-    @Nested
-    @DisplayName("withTags()")
-    class WithTagsTest {
-
-        @Test
-        @DisplayName("withTags는 새 객체를 반환한다")
-        void withTags_returnsNewInstance() {
-            // given
-            ContentModel original = ContentModel.create(ContentModel.ContentType.movie, "제목", "설명",
-                "url");
-
-            // when
-            ContentModel updated = original.withTags(List.of("SF", "액션"));
-
-            // then
-            assertThat(original.getTags()).isEmpty();
-            assertThat(updated.getTags()).containsExactly("SF", "액션");
-            assertThat(updated).isNotSameAs(original);
-        }
-    }
-
-    @Nested
-    @DisplayName("SuperBuilder")
-    class BuilderTest {
-
-        @Test
-        @DisplayName("빌더로 태그 포함 생성 가능")
-        void builder_withTags() {
-            // when
-            ContentModel content = ContentModel.builder()
-                .type(ContentModel.ContentType.movie)
-                .title("인셉션")
-                .description("꿈속의 꿈")
-                .thumbnailUrl("url")
-                .tags(List.of("SF", "액션"))
-                .build();
-
-            // then
-            assertThat(content.getTags()).containsExactly("SF", "액션");
-        }
-
-        @Test
-        @DisplayName("빌더는 유효성 검증을 우회한다")
-        void builder_allowsInvalidState() {
-            // when
-            ContentModel content = ContentModel.builder()
-                .type(null)
-                .title("제목")
-                .thumbnailUrl("url")
-                .build();
-
-            // then
-            assertThat(content.getType()).isNull();
         }
     }
 

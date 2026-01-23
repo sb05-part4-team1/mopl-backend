@@ -49,7 +49,6 @@ class ContentEntityMapperTest {
             assertThat(result.getCreatedAt()).isEqualTo(now);
             assertThat(result.getUpdatedAt()).isEqualTo(now);
             assertThat(result.getDeletedAt()).isNull();
-            assertThat(result.getTags()).isEmpty();
         }
 
         @Test
