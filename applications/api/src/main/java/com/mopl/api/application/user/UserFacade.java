@@ -1,10 +1,10 @@
 package com.mopl.api.application.user;
 
 import com.mopl.api.application.outbox.DomainEventOutboxMapper;
-import com.mopl.api.interfaces.api.user.UserCreateRequest;
-import com.mopl.api.interfaces.api.user.UserLockUpdateRequest;
-import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
-import com.mopl.api.interfaces.api.user.UserUpdateRequest;
+import com.mopl.api.interfaces.api.user.dto.UserCreateRequest;
+import com.mopl.api.interfaces.api.user.dto.UserLockUpdateRequest;
+import com.mopl.api.interfaces.api.user.dto.UserRoleUpdateRequest;
+import com.mopl.api.interfaces.api.user.dto.UserUpdateRequest;
 import com.mopl.domain.event.user.UserRoleChangedEvent;
 import com.mopl.domain.exception.user.SelfLockChangeException;
 import com.mopl.domain.exception.user.SelfRoleChangeException;

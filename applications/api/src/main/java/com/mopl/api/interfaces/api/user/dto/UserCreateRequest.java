@@ -1,4 +1,4 @@
-package com.mopl.api.interfaces.api.user;
+package com.mopl.api.interfaces.api.user.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -18,11 +18,8 @@ import static com.mopl.domain.model.user.UserModel.RAW_PASSWORD_MAX_LENGTH;
         """
 )
 public record UserCreateRequest(
-
-    @Schema(description = "이메일") @NotBlank @Size(max = EMAIL_MAX_LENGTH) String email,
-
-    @Schema(description = "이름") @NotBlank @Size(max = NAME_MAX_LENGTH) String name,
-
-    @Schema(description = "비밀번호") @NotBlank @Size(max = RAW_PASSWORD_MAX_LENGTH) String password
+    @NotBlank @Size(max = EMAIL_MAX_LENGTH) String email,
+    @NotBlank @Size(max = NAME_MAX_LENGTH) String name,
+    @NotBlank @Size(max = RAW_PASSWORD_MAX_LENGTH) String password
 ) {
 }

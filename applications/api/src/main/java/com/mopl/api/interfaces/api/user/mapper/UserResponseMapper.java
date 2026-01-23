@@ -1,5 +1,6 @@
-package com.mopl.api.interfaces.api.user;
+package com.mopl.api.interfaces.api.user.mapper;
 
+import com.mopl.api.interfaces.api.user.dto.UserResponse;
 import com.mopl.domain.model.user.UserModel;
 import org.springframework.stereotype.Component;
 

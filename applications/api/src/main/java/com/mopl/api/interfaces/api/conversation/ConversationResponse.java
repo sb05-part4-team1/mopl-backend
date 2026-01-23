@@ -1,6 +1,6 @@
 package com.mopl.api.interfaces.api.conversation;
 
-import com.mopl.api.interfaces.api.user.UserSummary;
+import com.mopl.api.interfaces.api.user.dto.UserSummary;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 

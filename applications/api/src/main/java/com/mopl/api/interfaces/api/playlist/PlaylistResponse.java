@@ -1,7 +1,7 @@
 package com.mopl.api.interfaces.api.playlist;
 
 import com.mopl.api.interfaces.api.content.ContentSummary;
-import com.mopl.api.interfaces.api.user.UserSummary;
+import com.mopl.api.interfaces.api.user.dto.UserSummary;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;

@@ -1,4 +1,4 @@
-package com.mopl.api.interfaces.api.user;
+package com.mopl.api.interfaces.api.user.dto;
 
 import com.mopl.domain.model.user.UserModel;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,6 +12,6 @@ import jakarta.validation.constraints.NotNull;
         """
 )
 public record UserRoleUpdateRequest(
-    @Schema(description = "권한") @NotNull UserModel.Role role
+    @NotNull UserModel.Role role
 ) {
 }

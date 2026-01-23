@@ -5,7 +5,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import com.mopl.api.interfaces.api.content.ContentSummary;
-import com.mopl.api.interfaces.api.user.UserSummary;
+import com.mopl.api.interfaces.api.user.dto.UserSummary;
 
 public record WatchingSessionDto(
     @Schema(description = "시청 세션 ID", format = "uuid") UUID id,

@@ -1,5 +1,7 @@
 package com.mopl.api.interfaces.api.user;
 
+import com.mopl.api.interfaces.api.user.dto.UserResponse;
+import com.mopl.api.interfaces.api.user.mapper.UserResponseMapper;
 import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.user.UserModel;
 import org.junit.jupiter.api.DisplayName;

@@ -3,6 +3,8 @@ package com.mopl.api.interfaces.api.user;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.api.application.user.UserFacade;
 import com.mopl.api.interfaces.api.ApiControllerAdvice;
+import com.mopl.api.interfaces.api.user.dto.UserRoleUpdateRequest;
+import com.mopl.api.interfaces.api.user.mapper.UserResponseMapper;
 import com.mopl.domain.exception.user.SelfRoleChangeException;
 import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.domain.fixture.UserModelFixture;

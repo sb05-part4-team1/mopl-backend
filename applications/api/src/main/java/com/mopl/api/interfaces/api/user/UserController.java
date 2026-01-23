@@ -1,6 +1,13 @@
 package com.mopl.api.interfaces.api.user;
 
 import com.mopl.api.application.user.UserFacade;
+import com.mopl.api.interfaces.api.user.dto.ChangePasswordRequest;
+import com.mopl.api.interfaces.api.user.dto.UserCreateRequest;
+import com.mopl.api.interfaces.api.user.dto.UserLockUpdateRequest;
+import com.mopl.api.interfaces.api.user.dto.UserResponse;
+import com.mopl.api.interfaces.api.user.dto.UserRoleUpdateRequest;
+import com.mopl.api.interfaces.api.user.dto.UserUpdateRequest;
+import com.mopl.api.interfaces.api.user.mapper.UserResponseMapper;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.user.UserQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;

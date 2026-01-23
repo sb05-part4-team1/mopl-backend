@@ -1,7 +1,7 @@
 // package com.mopl.api.interfaces.api.playlist;
 //
 // import com.mopl.api.interfaces.api.content.ContentSummaryMapper;
-// import com.mopl.api.interfaces.api.user.UserSummaryMapper;
+// import com.mopl.api.interfaces.api.user.mapper.UserSummaryMapper;
 // import com.mopl.domain.fixture.ContentModelFixture;
 // import com.mopl.domain.fixture.PlaylistModelFixture;
 // import com.mopl.domain.model.content.ContentModel;

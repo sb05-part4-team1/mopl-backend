@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.api.application.review.ReviewFacade;
 import com.mopl.api.config.TestSecurityConfig;
 import com.mopl.api.interfaces.api.ApiControllerAdvice;
-import com.mopl.api.interfaces.api.user.UserSummary;
+import com.mopl.api.interfaces.api.user.dto.UserSummary;
 import com.mopl.domain.repository.review.ReviewQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
