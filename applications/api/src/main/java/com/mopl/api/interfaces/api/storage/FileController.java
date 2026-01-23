@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/files")
 @RequiredArgsConstructor
 @Slf4j
-public class FileController implements FileApiSpec {
+public class FileController {
 
     private final StorageProvider storageProvider;
 

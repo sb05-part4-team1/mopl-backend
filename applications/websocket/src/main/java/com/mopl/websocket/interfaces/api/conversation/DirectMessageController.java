@@ -9,7 +9,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mopl.api.interfaces.api.conversation.DirectMessageResponse;
+import com.mopl.api.interfaces.api.conversation.dto.DirectMessageResponse;
 import com.mopl.security.userdetails.MoplUserDetails;
 import com.mopl.websocket.application.conversation.DirectMessageFacade;
 

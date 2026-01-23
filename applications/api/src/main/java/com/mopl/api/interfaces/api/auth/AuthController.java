@@ -1,6 +1,7 @@
 package com.mopl.api.interfaces.api.auth;
 
 import com.mopl.api.application.auth.AuthFacade;
+import com.mopl.api.interfaces.api.auth.dto.ResetPasswordRequest;
 import com.mopl.security.jwt.dto.JwtResponse;
 import com.mopl.security.jwt.service.TokenRefreshService;
 import com.mopl.security.jwt.service.TokenRefreshService.TokenRefreshResult;

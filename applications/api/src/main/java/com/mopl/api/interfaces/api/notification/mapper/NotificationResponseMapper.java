@@ -1,5 +1,6 @@
-package com.mopl.api.interfaces.api.notification;
+package com.mopl.api.interfaces.api.notification.mapper;
 
+import com.mopl.api.interfaces.api.notification.dto.NotificationResponse;
 import com.mopl.domain.model.notification.NotificationModel;
 import org.springframework.stereotype.Component;
 

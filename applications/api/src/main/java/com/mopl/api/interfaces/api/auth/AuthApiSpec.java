@@ -1,5 +1,6 @@
 package com.mopl.api.interfaces.api.auth;
 
+import com.mopl.api.interfaces.api.auth.dto.ResetPasswordRequest;
 import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.security.jwt.dto.JwtResponse;
 import io.swagger.v3.oas.annotations.Operation;

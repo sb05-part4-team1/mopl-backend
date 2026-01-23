@@ -1,5 +1,7 @@
 package com.mopl.api.interfaces.api.review;
 
+import com.mopl.api.interfaces.api.review.dto.ReviewResponse;
+import com.mopl.api.interfaces.api.review.mapper.ReviewResponseMapper;
 import com.mopl.api.interfaces.api.user.dto.UserSummary;
 import com.mopl.api.interfaces.api.user.mapper.UserSummaryMapper;
 import com.mopl.domain.fixture.ReviewModelFixture;

@@ -1,7 +1,7 @@
 package com.mopl.api.application.notification;
 
-import com.mopl.api.interfaces.api.notification.NotificationResponse;
-import com.mopl.api.interfaces.api.notification.NotificationResponseMapper;
+import com.mopl.api.interfaces.api.notification.dto.NotificationResponse;
+import com.mopl.api.interfaces.api.notification.mapper.NotificationResponseMapper;
 import com.mopl.domain.exception.notification.NotificationForbiddenException;
 import com.mopl.domain.model.notification.NotificationModel;
 import com.mopl.domain.repository.notification.NotificationQueryRequest;

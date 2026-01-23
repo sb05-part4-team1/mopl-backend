@@ -1,5 +1,6 @@
-package com.mopl.api.interfaces.api.watchingsession;
+package com.mopl.api.interfaces.api.watchingsession.mapper;
 
+import com.mopl.api.interfaces.api.watchingsession.dto.WatchingSessionDto;
 import org.springframework.stereotype.Component;
 
 import com.mopl.api.interfaces.api.content.mapper.ContentSummaryMapper;

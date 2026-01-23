@@ -1,5 +1,6 @@
-package com.mopl.api.interfaces.api.conversation;
+package com.mopl.api.interfaces.api.conversation.mapper;
 
+import com.mopl.api.interfaces.api.conversation.dto.ConversationResponse;
 import com.mopl.api.interfaces.api.user.mapper.UserSummaryMapper;
 import com.mopl.domain.model.conversation.ConversationModel;
 import lombok.RequiredArgsConstructor;

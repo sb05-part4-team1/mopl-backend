@@ -1,5 +1,6 @@
-package com.mopl.api.interfaces.api.follow;
+package com.mopl.api.interfaces.api.follow.mapper;
 
+import com.mopl.api.interfaces.api.follow.dto.FollowResponse;
 import org.springframework.stereotype.Component;
 
 import com.mopl.domain.model.follow.FollowModel;

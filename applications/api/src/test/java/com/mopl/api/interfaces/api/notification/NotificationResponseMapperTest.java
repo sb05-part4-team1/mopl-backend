@@ -1,5 +1,7 @@
 package com.mopl.api.interfaces.api.notification;
 
+import com.mopl.api.interfaces.api.notification.dto.NotificationResponse;
+import com.mopl.api.interfaces.api.notification.mapper.NotificationResponseMapper;
 import com.mopl.domain.fixture.NotificationModelFixture;
 import com.mopl.domain.model.notification.NotificationModel;
 import org.junit.jupiter.api.DisplayName;

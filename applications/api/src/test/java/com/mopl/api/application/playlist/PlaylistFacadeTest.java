@@ -1,10 +1,10 @@
 // package com.mopl.api.application.playlist;
 //
 // import com.mopl.api.application.outbox.DomainEventOutboxMapper;
-// import com.mopl.api.interfaces.api.playlist.PlaylistCreateRequest;
-// import com.mopl.api.interfaces.api.playlist.PlaylistResponse;
-// import com.mopl.api.interfaces.api.playlist.PlaylistResponseMapper;
-// import com.mopl.api.interfaces.api.playlist.PlaylistUpdateRequest;
+// import com.mopl.api.interfaces.api.playlist.dto.PlaylistCreateRequest;
+// import com.mopl.api.interfaces.api.playlist.dto.PlaylistResponse;
+// import com.mopl.api.interfaces.api.playlist.mapper.PlaylistResponseMapper;
+// import com.mopl.api.interfaces.api.playlist.dto.PlaylistUpdateRequest;
 // import com.mopl.domain.exception.content.ContentNotFoundException;
 // import com.mopl.domain.exception.playlist.PlaylistForbiddenException;
 // import com.mopl.domain.fixture.ContentModelFixture;

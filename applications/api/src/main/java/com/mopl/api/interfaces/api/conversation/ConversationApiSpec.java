@@ -1,5 +1,10 @@
 package com.mopl.api.interfaces.api.conversation;
 
+import com.mopl.api.interfaces.api.conversation.dto.ConversationCreateRequest;
+import com.mopl.api.interfaces.api.conversation.dto.ConversationCursorResponse;
+import com.mopl.api.interfaces.api.conversation.dto.ConversationResponse;
+import com.mopl.api.interfaces.api.conversation.dto.DirectMessageCursorResponse;
+import com.mopl.api.interfaces.api.conversation.dto.DirectMessageResponse;
 import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.domain.repository.conversation.ConversationQueryRequest;
 import com.mopl.domain.repository.conversation.ConversationSortField;

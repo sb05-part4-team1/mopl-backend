@@ -3,6 +3,7 @@ package com.mopl.api.interfaces.api.auth;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.api.application.auth.AuthFacade;
 import com.mopl.api.interfaces.api.ApiControllerAdvice;
+import com.mopl.api.interfaces.api.auth.dto.ResetPasswordRequest;
 import com.mopl.domain.exception.auth.AccountLockedException;
 import com.mopl.domain.exception.auth.InvalidTokenException;
 import com.mopl.domain.exception.user.UserNotFoundException;
