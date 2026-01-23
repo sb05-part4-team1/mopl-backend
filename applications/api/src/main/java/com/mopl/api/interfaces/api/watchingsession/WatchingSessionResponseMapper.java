@@ -10,6 +10,8 @@ import com.mopl.domain.model.watchingsession.WatchingSessionModel;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class WatchingSessionResponseMapper {
@@ -20,30 +22,14 @@ public class WatchingSessionResponseMapper {
     public WatchingSessionDto toDto(
         WatchingSessionModel session,
         UserModel watcher,
-        ContentModel content
-    ) {
-        return toDto(
-            session,
-            watcher,
-            content,
-            // TODO: 바꿔야 하지않나 나중에 아마 수요일까진
-            0.0,
-            0
-        );
-    }
-
-    public WatchingSessionDto toDto(
-        WatchingSessionModel session,
-        UserModel watcher,
         ContentModel content,
-        double averageRating,
-        int reviewCount
+        List<String> tags
     ) {
         return new WatchingSessionDto(
             session.getId(),
             session.getCreatedAt(),
             userSummaryMapper.toSummary(watcher),
-            contentSummaryMapper.toSummary(content, averageRating, reviewCount)
+            contentSummaryMapper.toSummary(content, tags)
         );
     }
 }
