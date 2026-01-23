@@ -25,42 +25,7 @@ import java.util.UUID;
 @Tag(name = "Content API", description = "콘텐츠 관리 API")
 public interface ContentApiSpec {
 
-    @Operation(
-        summary = "콘텐츠 목록 조회(커서 페이지네이션)",
-        description = "커서 기반 페이지네이션을 사용하여 콘텐츠 목록을 조회합니다."
-    )
-    @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description = "성공",
-            content = @Content(
-                schema = @Schema(
-                    implementation = ContentCursorResponse.class
-                )
-            )
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "잘못된 요청",
-            content = @Content(
-                schema = @Schema(implementation = ErrorResponse.class)
-            )
-        ),
-        @ApiResponse(
-            responseCode = "401",
-            description = "인증 오류",
-            content = @Content(
-                schema = @Schema(implementation = ErrorResponse.class)
-            )
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "서버 오류",
-            content = @Content(
-                schema = @Schema(implementation = ErrorResponse.class)
-            )
-        )
-    })
+    @Operation(summary = "콘텐츠 목록 조회 (커서 페이지네이션)")
     @Parameters({
         @Parameter(
             name = "typeEqual",
@@ -112,6 +77,38 @@ public interface ContentApiSpec {
             required = true,
             in = ParameterIn.QUERY,
             schema = @Schema(implementation = ContentSortField.class)
+        )
+    })
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "성공",
+            content = @Content(
+                schema = @Schema(
+                    implementation = ContentCursorResponse.class
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "잘못된 요청",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "인증 오류",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "서버 오류",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
         )
     })
     CursorResponse<ContentSummary> getContents(

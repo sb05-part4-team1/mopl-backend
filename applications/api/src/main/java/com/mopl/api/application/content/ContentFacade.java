@@ -74,7 +74,7 @@ public class ContentFacade {
             storedPath
         );
 
-        return contentService.create(contentModel, request.tags());
+        return contentService.create(contentModel);
     }
 
     @Transactional
