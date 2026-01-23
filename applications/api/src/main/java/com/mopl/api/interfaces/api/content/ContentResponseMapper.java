@@ -1,31 +1,36 @@
 package com.mopl.api.interfaces.api.content;
 
 import com.mopl.domain.model.content.ContentModel;
-import com.mopl.storage.provider.FileStorageProvider;
-import lombok.RequiredArgsConstructor;
+import com.mopl.domain.model.tag.TagModel;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
-@RequiredArgsConstructor
 public class ContentResponseMapper {
 
-    private final FileStorageProvider fileStorageProvider;
-
     public ContentResponse toResponse(
-        ContentModel model
+        ContentModel contentModel,
+        String thumbnailUrl,
+        List<TagModel> tags
     ) {
-        String thumbnailUrl = fileStorageProvider.getUrl(model.getThumbnailUrl());
         return new ContentResponse(
-            model.getId(),
-            model.getType(),
-            model.getTitle(),
-            model.getDescription(),
+            contentModel.getId(),
+            contentModel.getType(),
+            contentModel.getTitle(),
+            contentModel.getDescription(),
             thumbnailUrl,
-            model.getTags(),
-            model.getAverageRating(),
-            model.getReviewCount(),
-            // TODO: 아래 `watcherCounts` 는 추후 실제 값으로 대체 필요
+            toTagNames(tags),
+            // TODO: 아래 3개 구현
+            contentModel.getAverageRating(),
+            contentModel.getReviewCount(),
             0
         );
+    }
+
+    private List<String> toTagNames(List<TagModel> tags) {
+        return tags.stream()
+            .map(TagModel::getName)
+            .toList();
     }
 }
