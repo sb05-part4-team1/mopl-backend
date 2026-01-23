@@ -1,11 +1,18 @@
-<!--
-Copilot Review Instruction:
-- 리뷰는 한국어로 작성
-- 구조/책임/확장성 위주로 피드백
-- ApiSpec Override 리뷰 제외
-- 거의 일어나지 않을 Null Check 리뷰 제외 
-- javadoc, 주석 추가하라는 리뷰 제외
--->
+[//]: # (<!--)
+
+[//]: # (Copilot Review Instruction:)
+
+[//]: # (- 리뷰는 한국어로 작성)
+
+[//]: # (- 구조/책임/확장성 위주로 피드백)
+
+[//]: # (- ApiSpec Override 리뷰 제외)
+
+[//]: # (- 거의 일어나지 않을 Null Check 리뷰 제외 )
+
+[//]: # (- javadoc, 주석 추가하라는 리뷰 제외)
+
+[//]: # (-->)
 ---
 name: PR 템플릿
 about: PR 생성 시 이 템플릿을 사용해 주세요.
