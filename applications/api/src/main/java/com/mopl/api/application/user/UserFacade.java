@@ -3,8 +3,6 @@ package com.mopl.api.application.user;
 import com.mopl.api.application.outbox.DomainEventOutboxMapper;
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
 import com.mopl.api.interfaces.api.user.UserLockUpdateRequest;
-import com.mopl.api.interfaces.api.user.UserResponse;
-import com.mopl.api.interfaces.api.user.UserResponseMapper;
 import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserUpdateRequest;
 import com.mopl.domain.event.user.UserRoleChangedEvent;
@@ -34,7 +32,6 @@ import java.util.UUID;
 public class UserFacade {
 
     private final UserService userService;
-    private final UserResponseMapper userResponseMapper;
     private final FileStorageProvider fileStorageProvider;
     private final PasswordEncoder passwordEncoder;
     private final TemporaryPasswordRepository temporaryPasswordRepository;
@@ -57,8 +54,8 @@ public class UserFacade {
         return userService.create(userModel);
     }
 
-    public CursorResponse<UserResponse> getUsers(UserQueryRequest request) {
-        return userService.getAll(request).map(userResponseMapper::toResponse);
+    public CursorResponse<UserModel> getUsers(UserQueryRequest request) {
+        return userService.getAll(request);
     }
 
     public UserModel getUser(UUID userId) {

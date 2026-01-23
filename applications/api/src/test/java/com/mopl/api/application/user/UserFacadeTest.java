@@ -1,12 +1,10 @@
 package com.mopl.api.application.user;
 
+import com.mopl.api.application.outbox.DomainEventOutboxMapper;
 import com.mopl.api.interfaces.api.user.UserCreateRequest;
 import com.mopl.api.interfaces.api.user.UserLockUpdateRequest;
-import com.mopl.api.interfaces.api.user.UserResponse;
-import com.mopl.api.interfaces.api.user.UserResponseMapper;
 import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
 import com.mopl.api.interfaces.api.user.UserUpdateRequest;
-import com.mopl.api.application.outbox.DomainEventOutboxMapper;
 import com.mopl.domain.exception.user.SelfLockChangeException;
 import com.mopl.domain.exception.user.SelfRoleChangeException;
 import com.mopl.domain.fixture.UserModelFixture;
@@ -26,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -55,9 +52,6 @@ class UserFacadeTest {
 
     @Mock
     private UserService userService;
-
-    @Spy
-    private UserResponseMapper userResponseMapper = new UserResponseMapper();
 
     @Mock
     private FileStorageProvider fileStorageProvider;
@@ -532,12 +526,12 @@ class UserFacadeTest {
             given(userService.getAll(request)).willReturn(serviceResponse);
 
             // when
-            CursorResponse<UserResponse> result = userFacade.getUsers(request);
+            CursorResponse<UserModel> result = userFacade.getUsers(request);
 
             // then
             assertThat(result.data()).hasSize(2);
-            assertThat(result.data().getFirst().email()).isEqualTo("user1@example.com");
-            assertThat(result.data().get(1).email()).isEqualTo("user2@example.com");
+            assertThat(result.data().getFirst().getEmail()).isEqualTo("user1@example.com");
+            assertThat(result.data().get(1).getEmail()).isEqualTo("user2@example.com");
             assertThat(result.hasNext()).isTrue();
             assertThat(result.nextCursor()).isEqualTo("User2");
             assertThat(result.totalCount()).isEqualTo(10);
@@ -568,7 +562,7 @@ class UserFacadeTest {
             given(userService.getAll(request)).willReturn(emptyResponse);
 
             // when
-            CursorResponse<UserResponse> result = userFacade.getUsers(request);
+            CursorResponse<UserModel> result = userFacade.getUsers(request);
 
             // then
             assertThat(result.data()).isEmpty();
@@ -605,11 +599,11 @@ class UserFacadeTest {
             given(userService.getAll(request)).willReturn(serviceResponse);
 
             // when
-            CursorResponse<UserResponse> result = userFacade.getUsers(request);
+            CursorResponse<UserModel> result = userFacade.getUsers(request);
 
             // then
             assertThat(result.data()).hasSize(1);
-            assertThat(result.data().getFirst().role()).isEqualTo(UserModel.Role.ADMIN);
+            assertThat(result.data().getFirst().getRole()).isEqualTo(UserModel.Role.ADMIN);
             assertThat(result.hasNext()).isFalse();
 
             then(userService).should().getAll(request);

@@ -40,10 +40,10 @@ public class UserController implements UserApiSpec {
         return userResponseMapper.toResponse(userModel);
     }
 
-    @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping
     public CursorResponse<UserResponse> getUsers(@ModelAttribute UserQueryRequest request) {
-        return userFacade.getUsers(request);
+        return userFacade.getUsers(request).map(userResponseMapper::toResponse);
     }
 
     @GetMapping("/{userId}")

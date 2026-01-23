@@ -427,11 +427,8 @@ class UserControllerTest {
                 .set("name", "User2")
                 .sample();
 
-            UserResponse response1 = userResponseMapper.toResponse(user1);
-            UserResponse response2 = userResponseMapper.toResponse(user2);
-
-            CursorResponse<UserResponse> cursorResponse = CursorResponse.of(
-                List.of(response1, response2),
+            CursorResponse<UserModel> cursorResponse = CursorResponse.of(
+                List.of(user1, user2),
                 "User2",
                 user2.getId(),
                 true,
@@ -466,7 +463,7 @@ class UserControllerTest {
         @DisplayName("필터 파라미터가 적용된 요청 처리")
         void withFilterParams_appliesFilters() throws Exception {
             // given
-            CursorResponse<UserResponse> emptyResponse = CursorResponse.empty("name",
+            CursorResponse<UserModel> emptyResponse = CursorResponse.empty("name",
                 SortDirection.ASCENDING);
 
             given(userFacade.getUsers(any(UserQueryRequest.class))).willReturn(emptyResponse);
@@ -491,10 +488,9 @@ class UserControllerTest {
             // given
             UUID idAfter = UUID.randomUUID();
             UserModel userModel = UserModelFixture.create();
-            UserResponse response = userResponseMapper.toResponse(userModel);
 
-            CursorResponse<UserResponse> cursorResponse = CursorResponse.of(
-                List.of(response),
+            CursorResponse<UserModel> cursorResponse = CursorResponse.of(
+                List.of(userModel),
                 null,
                 null,
                 false,
@@ -523,7 +519,7 @@ class UserControllerTest {
         @DisplayName("빈 결과 시 빈 목록 반환")
         void withNoResults_returnsEmptyList() throws Exception {
             // given
-            CursorResponse<UserResponse> emptyResponse = CursorResponse.empty("name",
+            CursorResponse<UserModel> emptyResponse = CursorResponse.empty("name",
                 SortDirection.DESCENDING);
 
             given(userFacade.getUsers(any(UserQueryRequest.class))).willReturn(emptyResponse);
