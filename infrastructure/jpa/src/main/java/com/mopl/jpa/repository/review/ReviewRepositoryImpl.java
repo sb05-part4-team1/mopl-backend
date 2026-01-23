@@ -1,6 +1,7 @@
 package com.mopl.jpa.repository.review;
 
 import com.mopl.domain.model.review.ReviewModel;
+import com.mopl.domain.model.review.ReviewStats;
 import com.mopl.domain.repository.review.ReviewRepository;
 import com.mopl.jpa.entity.review.ReviewEntity;
 import com.mopl.jpa.entity.review.ReviewEntityMapper;
@@ -46,5 +47,16 @@ public class ReviewRepositoryImpl implements ReviewRepository {
     @Override
     public int softDeleteByContentIds(List<UUID> contentIds, Instant now) {
         return jpaReviewRepository.softDeleteByContentIds(contentIds, now);
+    }
+
+    @Override
+    public ReviewStats getStatsByContentId(UUID contentId) {
+        Object[] result = jpaReviewRepository.findStatsByContentId(contentId);
+        if (result == null || result[0] == null) {
+            return ReviewStats.empty();
+        }
+        double averageRating = ((Number) result[0]).doubleValue();
+        int reviewCount = ((Number) result[1]).intValue();
+        return new ReviewStats(averageRating, reviewCount);
     }
 }

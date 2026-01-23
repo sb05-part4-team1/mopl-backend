@@ -2,6 +2,7 @@ package com.mopl.api.interfaces.api.content.mapper;
 
 import com.mopl.api.interfaces.api.content.dto.ContentResponse;
 import com.mopl.domain.model.content.ContentModel;
+import com.mopl.domain.model.review.ReviewStats;
 import com.mopl.domain.model.tag.TagModel;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,22 @@ public class ContentResponseMapper {
         String thumbnailUrl,
         List<TagModel> tags
     ) {
+        return toResponse(
+            contentModel,
+            thumbnailUrl,
+            tags,
+            ReviewStats.empty(),
+            0L
+        );
+    }
+
+    public ContentResponse toResponse(
+        ContentModel contentModel,
+        String thumbnailUrl,
+        List<TagModel> tags,
+        ReviewStats reviewStats,
+        long watcherCount
+    ) {
         return new ContentResponse(
             contentModel.getId(),
             contentModel.getType(),
@@ -22,10 +39,9 @@ public class ContentResponseMapper {
             contentModel.getDescription(),
             thumbnailUrl,
             toTagNames(tags),
-            // TODO: 아래 3개 구현
-            contentModel.getAverageRating(),
-            contentModel.getReviewCount(),
-            0
+            reviewStats.averageRating(),
+            reviewStats.reviewCount(),
+            watcherCount
         );
     }
 

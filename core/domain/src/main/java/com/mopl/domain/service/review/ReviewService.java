@@ -4,6 +4,7 @@ import com.mopl.domain.exception.review.ReviewForbiddenException;
 import com.mopl.domain.exception.review.ReviewNotFoundException;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.review.ReviewModel;
+import com.mopl.domain.model.review.ReviewStats;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.review.ReviewQueryRepository;
@@ -23,6 +24,10 @@ public class ReviewService {
 
     public CursorResponse<ReviewModel> getAll(ReviewQueryRequest request) {
         return reviewQueryRepository.findAll(request);
+    }
+
+    public ReviewStats getStatsByContentId(UUID contentId) {
+        return reviewRepository.getStatsByContentId(contentId);
     }
 
     public ReviewModel create(

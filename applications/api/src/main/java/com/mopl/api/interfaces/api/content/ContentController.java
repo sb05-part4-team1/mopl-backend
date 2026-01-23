@@ -5,9 +5,6 @@ import com.mopl.api.interfaces.api.content.dto.ContentCreateRequest;
 import com.mopl.api.interfaces.api.content.dto.ContentResponse;
 import com.mopl.api.interfaces.api.content.dto.ContentSummary;
 import com.mopl.api.interfaces.api.content.dto.ContentUpdateRequest;
-import com.mopl.api.interfaces.api.content.mapper.ContentResponseMapper;
-import com.mopl.domain.model.content.ContentModel;
-import com.mopl.domain.model.tag.TagModel;
 import com.mopl.domain.repository.content.ContentQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import jakarta.validation.Valid;
@@ -26,7 +23,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -35,7 +31,6 @@ import java.util.UUID;
 public class ContentController implements ContentApiSpec {
 
     private final ContentFacade contentFacade;
-    private final ContentResponseMapper contentResponseMapper;
 
     // TODO: ContentResponse로 다시 변경
     @GetMapping
@@ -45,10 +40,7 @@ public class ContentController implements ContentApiSpec {
 
     @GetMapping("/{contentId}")
     public ContentResponse getContent(@PathVariable UUID contentId) {
-        ContentModel contentModel = contentFacade.getContent(contentId);
-        String thumbnailUrl = contentFacade.getThumbnailUrl(contentModel.getThumbnailUrl());
-        List<TagModel> tags = contentFacade.getTags(contentId);
-        return contentResponseMapper.toResponse(contentModel, thumbnailUrl, tags);
+        return contentFacade.getContent(contentId);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -58,10 +50,7 @@ public class ContentController implements ContentApiSpec {
         @RequestPart("request") @Valid ContentCreateRequest request,
         @RequestPart("thumbnail") MultipartFile thumbnail
     ) {
-        ContentModel content = contentFacade.upload(request, thumbnail);
-        String thumbnailUrl = contentFacade.getThumbnailUrl(content.getThumbnailUrl());
-        List<TagModel> tags = contentFacade.getTags(content.getId());
-        return contentResponseMapper.toResponse(content, thumbnailUrl, tags);
+        return contentFacade.upload(request, thumbnail);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -71,10 +60,7 @@ public class ContentController implements ContentApiSpec {
         @RequestPart("request") @Valid ContentUpdateRequest request,
         @RequestPart("thumbnail") MultipartFile thumbnail
     ) {
-        ContentModel content = contentFacade.update(contentId, request, thumbnail);
-        String thumbnailUrl = contentFacade.getThumbnailUrl(content.getThumbnailUrl());
-        List<TagModel> tags = contentFacade.getTags(contentId);
-        return contentResponseMapper.toResponse(content, thumbnailUrl, tags);
+        return contentFacade.update(contentId, request, thumbnail);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

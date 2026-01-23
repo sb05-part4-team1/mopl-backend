@@ -39,4 +39,8 @@ public class WatchingSessionService {
     ) {
         return watchingSessionQueryRepository.findByContentId(contentId, request);
     }
+
+    public long countByContentId(UUID contentId) {
+        return watchingSessionRepository.countByContentId(contentId);
+    }
 }

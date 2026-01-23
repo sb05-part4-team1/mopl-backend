@@ -52,4 +52,10 @@ public class RedisWatchingSessionRepositoryImpl implements WatchingSessionReposi
         Object value = redisTemplate.opsForValue().get(key);
         return value != null ? value.toString() : null;
     }
+
+    @Override
+    public long countByContentId(UUID contentId) {
+        Long size = redisTemplate.opsForZSet().zCard(WatchingSessionRedisKeys.contentSessionsZsetKey(contentId));
+        return size != null ? size : 0L;
+    }
 }

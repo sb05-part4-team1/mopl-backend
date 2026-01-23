@@ -1,6 +1,7 @@
 package com.mopl.domain.repository.review;
 
 import com.mopl.domain.model.review.ReviewModel;
+import com.mopl.domain.model.review.ReviewStats;
 
 import java.time.Instant;
 import java.util.List;
@@ -12,6 +13,8 @@ public interface ReviewRepository {
     ReviewModel save(ReviewModel reviewModel);
 
     Optional<ReviewModel> findById(UUID reviewId);
+
+    ReviewStats getStatsByContentId(UUID contentId);
 
     // 이하 메서드들 cleanup batch 전용
     List<UUID> findCleanupTargets(Instant threshold, int limit);
