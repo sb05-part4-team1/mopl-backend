@@ -1,7 +1,6 @@
 package com.mopl.api.interfaces.api.content;
 
 import com.mopl.api.application.content.ContentFacade;
-import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.repository.content.ContentQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import jakarta.validation.Valid;
@@ -28,9 +27,18 @@ import java.util.UUID;
 public class ContentController implements ContentApiSpec {
 
     private final ContentFacade contentFacade;
-    private final ContentResponseMapper contentResponseMapper;
 
-    @Override
+    // TODO: ContentResponse로 다시 변경
+    @GetMapping
+    public CursorResponse<ContentSummary> getContents(ContentQueryRequest request) {
+        return contentFacade.getContents(request);
+    }
+
+    @GetMapping("/{contentId}")
+    public ContentResponse getContent(@PathVariable UUID contentId) {
+        return contentFacade.getContent(contentId);
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
@@ -38,48 +46,19 @@ public class ContentController implements ContentApiSpec {
         @RequestPart(name = "request") @Valid ContentCreateRequest request,
         @RequestPart(name = "thumbnail") MultipartFile thumbnail
     ) {
-        ContentModel contentModel = contentFacade.upload(request, thumbnail);
-
-        return contentResponseMapper.toResponse(
-            contentModel
-        );
+        return contentFacade.upload(request, thumbnail);
     }
 
-    @Override
-    @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public CursorResponse<ContentResponse> getContents(ContentQueryRequest request) {
-        return contentFacade.getContents(request);
-    }
-
-    @Override
-    @GetMapping("/{contentId}")
-    @ResponseStatus(HttpStatus.OK)
-    public ContentResponse getDetail(@PathVariable UUID contentId) {
-        ContentModel contentModel = contentFacade.getDetail(contentId);
-
-        return contentResponseMapper.toResponse(
-            contentModel
-        );
-    }
-
-    @Override
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping(value = "/{contentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ResponseStatus(HttpStatus.OK)
     public ContentResponse update(
         @PathVariable UUID contentId,
         @RequestPart(name = "request") @Valid ContentUpdateRequest request,
         @RequestPart(name = "thumbnail", required = false) MultipartFile thumbnail
     ) {
-        ContentModel contentModel = contentFacade.update(contentId, request, thumbnail);
-
-        return contentResponseMapper.toResponse(
-            contentModel
-        );
+        return contentFacade.update(contentId, request, thumbnail);
     }
 
-    @Override
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{contentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
