@@ -28,7 +28,6 @@ public interface PlaylistApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -36,7 +35,6 @@ public interface PlaylistApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -44,7 +42,6 @@ public interface PlaylistApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -122,7 +119,6 @@ public interface PlaylistApiSpec {
         responseCode = "200",
         description = "성공",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = PlaylistResponse.class)
         )
     )
@@ -130,7 +126,6 @@ public interface PlaylistApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -138,7 +133,6 @@ public interface PlaylistApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -146,7 +140,6 @@ public interface PlaylistApiSpec {
         responseCode = "404",
         description = "유저 또는 플레이리스트를 찾을 수 없음",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -154,7 +147,6 @@ public interface PlaylistApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -175,7 +167,6 @@ public interface PlaylistApiSpec {
         responseCode = "201",
         description = "성공",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = PlaylistResponse.class)
         )
     )
@@ -183,7 +174,6 @@ public interface PlaylistApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -191,7 +181,6 @@ public interface PlaylistApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -207,7 +196,6 @@ public interface PlaylistApiSpec {
         responseCode = "500",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -233,7 +221,6 @@ public interface PlaylistApiSpec {
         responseCode = "200",
         description = "성공",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = PlaylistResponse.class)
         )
     )
@@ -241,7 +228,6 @@ public interface PlaylistApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -249,7 +235,6 @@ public interface PlaylistApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -257,7 +242,6 @@ public interface PlaylistApiSpec {
         responseCode = "403",
         description = "권한 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -265,7 +249,6 @@ public interface PlaylistApiSpec {
         responseCode = "404",
         description = "유저 또는 플레이리스트를 찾을 수 없음",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -273,7 +256,6 @@ public interface PlaylistApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -300,7 +282,6 @@ public interface PlaylistApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -308,7 +289,6 @@ public interface PlaylistApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -316,7 +296,6 @@ public interface PlaylistApiSpec {
         responseCode = "403",
         description = "권한 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -324,7 +303,6 @@ public interface PlaylistApiSpec {
         responseCode = "404",
         description = "유저 또는 플레이리스트를 찾을 수 없음",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -332,7 +310,6 @@ public interface PlaylistApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -363,7 +340,6 @@ public interface PlaylistApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -371,7 +347,6 @@ public interface PlaylistApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -379,7 +354,6 @@ public interface PlaylistApiSpec {
         responseCode = "403",
         description = "권한 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -387,7 +361,6 @@ public interface PlaylistApiSpec {
         responseCode = "404",
         description = "유저, 플레이리스트 또는 콘텐츠를 찾을 수 없음",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -395,7 +368,6 @@ public interface PlaylistApiSpec {
         responseCode = "409",
         description = "이미 추가된 콘텐츠",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -403,7 +375,6 @@ public interface PlaylistApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -433,7 +404,6 @@ public interface PlaylistApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -441,7 +411,6 @@ public interface PlaylistApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -449,7 +418,6 @@ public interface PlaylistApiSpec {
         responseCode = "403",
         description = "권한 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -457,7 +425,6 @@ public interface PlaylistApiSpec {
         responseCode = "404",
         description = "유저, 플레이리스트 또는 플레이리스트 콘텐츠를 찾을 수 없음",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -465,7 +432,6 @@ public interface PlaylistApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -489,7 +455,6 @@ public interface PlaylistApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -497,7 +462,6 @@ public interface PlaylistApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -505,7 +469,6 @@ public interface PlaylistApiSpec {
         responseCode = "404",
         description = "유저 또는 플레이리스트를 찾을 수 없음",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -513,7 +476,6 @@ public interface PlaylistApiSpec {
         responseCode = "409",
         description = "이미 구독 중인 플레이리스트",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -521,7 +483,6 @@ public interface PlaylistApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -544,7 +505,6 @@ public interface PlaylistApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -552,7 +512,6 @@ public interface PlaylistApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -560,7 +519,6 @@ public interface PlaylistApiSpec {
         responseCode = "404",
         description = "유저 또는 플레이리스트를 찾을 수 없음",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -568,7 +526,6 @@ public interface PlaylistApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )

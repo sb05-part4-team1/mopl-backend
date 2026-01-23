@@ -29,7 +29,6 @@ public interface FollowApiSpec {
         responseCode = "200",
         description = "성공",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = FollowResponse.class)
         )
     )
@@ -37,7 +36,6 @@ public interface FollowApiSpec {
         responseCode = "201",
         description = "성공",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = FollowResponse.class)
         )
     )
@@ -45,7 +43,6 @@ public interface FollowApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -53,7 +50,6 @@ public interface FollowApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -61,7 +57,6 @@ public interface FollowApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -83,7 +78,6 @@ public interface FollowApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -91,7 +85,6 @@ public interface FollowApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -99,7 +92,6 @@ public interface FollowApiSpec {
         responseCode = "403",
         description = "권한 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -107,7 +99,6 @@ public interface FollowApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -123,14 +114,12 @@ public interface FollowApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         ))
     @ApiResponse(
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -138,7 +127,6 @@ public interface FollowApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -154,14 +142,12 @@ public interface FollowApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         ))
     @ApiResponse(
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -169,7 +155,6 @@ public interface FollowApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )

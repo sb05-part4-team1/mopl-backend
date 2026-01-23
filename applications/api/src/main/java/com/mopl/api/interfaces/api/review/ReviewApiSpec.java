@@ -111,7 +111,6 @@ public interface ReviewApiSpec {
         responseCode = "201",
         description = "성공",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ReviewResponse.class)
         )
     )
@@ -119,7 +118,6 @@ public interface ReviewApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -127,7 +125,6 @@ public interface ReviewApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -135,7 +132,6 @@ public interface ReviewApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -157,7 +153,6 @@ public interface ReviewApiSpec {
         responseCode = "200",
         description = "성공",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ReviewResponse.class)
         )
     )
@@ -165,7 +160,6 @@ public interface ReviewApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -173,7 +167,6 @@ public interface ReviewApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -181,7 +174,6 @@ public interface ReviewApiSpec {
         responseCode = "403",
         description = "권한 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -189,7 +181,6 @@ public interface ReviewApiSpec {
         responseCode = "404",
         description = "리뷰를 찾을 수 없음",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -197,7 +188,6 @@ public interface ReviewApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -220,7 +210,6 @@ public interface ReviewApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -228,7 +217,6 @@ public interface ReviewApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -236,7 +224,6 @@ public interface ReviewApiSpec {
         responseCode = "403",
         description = "권한 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -244,7 +231,6 @@ public interface ReviewApiSpec {
         responseCode = "404",
         description = "리뷰를 찾을 수 없음",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -252,7 +238,6 @@ public interface ReviewApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )

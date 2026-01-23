@@ -28,7 +28,6 @@ public interface AuthApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -36,7 +35,6 @@ public interface AuthApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -54,7 +52,6 @@ public interface AuthApiSpec {
         responseCode = "400",
         description = "리프레시 토큰 쿠키 누락",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -62,7 +59,6 @@ public interface AuthApiSpec {
         responseCode = "401",
         description = "유효하지 않은 리프레시 토큰",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
 
@@ -71,7 +67,6 @@ public interface AuthApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
 
@@ -100,7 +95,6 @@ public interface AuthApiSpec {
             responseCode = "400",
             description = "잘못된 요청",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -108,7 +102,6 @@ public interface AuthApiSpec {
             responseCode = "404",
             description = "사용자를 찾을 수 없음",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -116,7 +109,6 @@ public interface AuthApiSpec {
             responseCode = "500",
             description = "서버 오류",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         )

@@ -31,7 +31,6 @@ public interface UserApiSpec {
         responseCode = "201",
         description = "성공",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = UserResponse.class)
         )
     )
@@ -39,7 +38,6 @@ public interface UserApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -47,7 +45,6 @@ public interface UserApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -55,7 +52,6 @@ public interface UserApiSpec {
         responseCode = "409",
         description = "중복된 이메일",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -63,7 +59,6 @@ public interface UserApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -77,7 +72,6 @@ public interface UserApiSpec {
         responseCode = "200",
         description = "사용자 목록 조회 성공",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = UserCursorResponse.class)
         )
     )
@@ -85,7 +79,6 @@ public interface UserApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -93,7 +86,6 @@ public interface UserApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -101,7 +93,6 @@ public interface UserApiSpec {
         responseCode = "403",
         description = "권한 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -109,7 +100,6 @@ public interface UserApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -191,7 +181,6 @@ public interface UserApiSpec {
         responseCode = "200",
         description = "성공",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = UserResponse.class)
         )
     )
@@ -199,7 +188,6 @@ public interface UserApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -207,7 +195,6 @@ public interface UserApiSpec {
         responseCode = "401",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -215,7 +202,6 @@ public interface UserApiSpec {
         responseCode = "404",
         description = "사용자를 찾을 수 없음",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -223,7 +209,6 @@ public interface UserApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -241,7 +226,6 @@ public interface UserApiSpec {
         responseCode = "200",
         description = "성공",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = UserResponse.class)
         )
     )
@@ -249,7 +233,6 @@ public interface UserApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -257,7 +240,6 @@ public interface UserApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -265,7 +247,6 @@ public interface UserApiSpec {
         responseCode = "403",
         description = "권한 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -273,7 +254,6 @@ public interface UserApiSpec {
         responseCode = "404",
         description = "사용자를 찾을 수 없음",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -281,7 +261,6 @@ public interface UserApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -310,7 +289,6 @@ public interface UserApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -318,7 +296,6 @@ public interface UserApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -326,7 +303,6 @@ public interface UserApiSpec {
         responseCode = "403",
         description = "권한 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -334,7 +310,6 @@ public interface UserApiSpec {
         responseCode = "404",
         description = "사용자를 찾을 수 없음",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -342,7 +317,6 @@ public interface UserApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -374,7 +348,6 @@ public interface UserApiSpec {
         responseCode = "400",
         description = "잘못된 요청 데이터",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -382,7 +355,6 @@ public interface UserApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -390,7 +362,6 @@ public interface UserApiSpec {
         responseCode = "403",
         description = "권한 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -398,7 +369,6 @@ public interface UserApiSpec {
         responseCode = "404",
         description = "사용자를 찾을 수 없음",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -406,7 +376,6 @@ public interface UserApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -436,7 +405,6 @@ public interface UserApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -444,7 +412,6 @@ public interface UserApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -452,7 +419,6 @@ public interface UserApiSpec {
         responseCode = "403",
         description = "권한 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -460,7 +426,6 @@ public interface UserApiSpec {
         responseCode = "404",
         description = "사용자를 찾을 수 없음",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -468,7 +433,6 @@ public interface UserApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )

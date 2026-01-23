@@ -1,5 +1,6 @@
 package com.mopl.api.interfaces.api.content;
 
+import com.mopl.api.interfaces.api.common.CommonApiResponses;
 import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.domain.repository.content.ContentQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
@@ -30,7 +31,6 @@ public interface ContentApiSpec {
             responseCode = "200",
             description = "성공",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(
                     implementation = ContentCursorResponse.class
                 )
@@ -40,7 +40,6 @@ public interface ContentApiSpec {
             responseCode = "400",
             description = "잘못된 요청",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -48,7 +47,6 @@ public interface ContentApiSpec {
             responseCode = "401",
             description = "인증 오류",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -56,7 +54,6 @@ public interface ContentApiSpec {
             responseCode = "500",
             description = "서버 오류",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         )
@@ -191,7 +188,6 @@ public interface ContentApiSpec {
         responseCode = "201",
         description = "성공",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ContentResponse.class)
         )
     )
@@ -199,7 +195,6 @@ public interface ContentApiSpec {
         responseCode = "400",
         description = "잘못된 요청 데이터 또는 파일 형식",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -207,7 +202,6 @@ public interface ContentApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -215,7 +209,6 @@ public interface ContentApiSpec {
         responseCode = "403",
         description = "권한 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -223,7 +216,6 @@ public interface ContentApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -245,7 +237,6 @@ public interface ContentApiSpec {
         responseCode = "200",
         description = "콘텐츠가 성공적으로 수정됨",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ContentResponse.class)
         )
     )
@@ -253,7 +244,6 @@ public interface ContentApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -261,7 +251,6 @@ public interface ContentApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -269,7 +258,6 @@ public interface ContentApiSpec {
         responseCode = "403",
         description = "권한 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -277,7 +265,6 @@ public interface ContentApiSpec {
         responseCode = "404",
         description = "존재하지 않는 콘텐츠",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -285,7 +272,6 @@ public interface ContentApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -307,55 +293,16 @@ public interface ContentApiSpec {
     );
 
     @Operation(
-        summary = "[어드민]콘텐츠 삭제",
+        summary = "[어드민] 콘텐츠 삭제",
         description = """
             콘텐츠를 소프트 삭제합니다.
-            - 콘텐츠와 리뷰는 soft delete 처리됩니다.
-            - 태그, 플레이리스트 등 연관관계는 유지됩니다.
-            - purge 시점에 연관 데이터는 함께 하드 삭제됩니다.
+            - purge 시점에 연관 데이터와 함께 하드 삭제됩니다.
+            - 연관 데이터: Review, ContentTag, PlaylistContent
             """
     )
-    @ApiResponse(
-        responseCode = "200",
-        description = "성공"
-    )
-    @ApiResponse(
-        responseCode = "400",
-        description = "잘못된 요청",
-        content = @Content(
-            mediaType = "*/*",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "401",
-        description = "인증 오류",
-        content = @Content(
-            mediaType = "*/*",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "403",
-        description = "권한 오류",
-        content = @Content(
-            mediaType = "*/*",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "500",
-        description = "서버 오류",
-        content = @Content(
-            mediaType = "*/*",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    void delete(
-        @Parameter(
-            description = "콘텐츠 UUID",
-            required = true,
-            example = "550e8400-e29b-41d4-a716-446655440000"
-        ) UUID contentId
-    );
+    @ApiResponse(responseCode = "204", description = "성공")
+    @CommonApiResponses.Default
+    @CommonApiResponses.Forbidden
+    @CommonApiResponses.NotFound
+    void delete(UUID contentId);
 }

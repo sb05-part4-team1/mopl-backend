@@ -10,16 +10,15 @@ import java.util.UUID;
 
 public interface ContentRepository {
 
-    ContentModel save(ContentModel contentModel);
-
-    boolean existsById(UUID contentId);
-
     Optional<ContentModel> findById(UUID contentId);
 
-    // 이하 메서드들 cleanup batch 전용
     List<UUID> findCleanupTargets(Instant threshold, int limit);
 
     Map<UUID, String> findThumbnailPathsByIds(List<UUID> contentIds);
+
+    ContentModel save(ContentModel contentModel);
+
+    boolean existsById(UUID contentId);
 
     int deleteAllByIds(List<UUID> contentIds);
 }
