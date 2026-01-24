@@ -2,6 +2,7 @@ package com.mopl.batch.collect.tsdb.service.content;
 
 import com.mopl.batch.collect.tsdb.properties.TsdbCollectPolicyResolver;
 import com.mopl.batch.collect.tsdb.properties.TsdbCollectProperties;
+import com.mopl.domain.model.league.LeagueModel;
 import com.mopl.domain.repository.league.LeagueRepository;
 import com.mopl.external.tsdb.client.TsdbClient;
 import com.mopl.external.tsdb.model.EventItem;
@@ -26,7 +27,7 @@ public class TsdbNextLeagueEventCollectService {
         int sleepMs = policyResolver.sleepMs(collectProperties.getLeagueEvent());
         int processed = 0;
 
-        for (var league : leagueRepository.findAll()) {
+        for (LeagueModel league : leagueRepository.findAll()) {
             Long leagueId = league.getLeagueId();
             EventResponse response = tsdbClient.fetchNextLeagueEvent(leagueId);
 

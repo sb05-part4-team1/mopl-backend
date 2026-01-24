@@ -12,6 +12,7 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -252,7 +253,7 @@ class RedisEmitterRepositoryTest {
             redisEmitterRepository.save(userId2, emitter2);
 
             // when
-            var result = redisEmitterRepository.getLocalEmitters();
+            Map<UUID, SseEmitter> result = redisEmitterRepository.getLocalEmitters();
 
             // then
             assertThat(result).hasSize(2);
