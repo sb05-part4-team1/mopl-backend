@@ -13,18 +13,18 @@ import lombok.experimental.SuperBuilder;
 public class DirectMessageModel extends BaseModel {
 
     private String content;
-    private ConversationModel conversation;
     private UserModel sender;
+    private ConversationModel conversation;
 
     public static DirectMessageModel create(
         String content,
-        ConversationModel conversation,
-        UserModel sender
+        UserModel sender,
+        ConversationModel conversation
     ) {
         return DirectMessageModel.builder()
             .content(content)
-            .conversation(conversation)
             .sender(sender)
+            .conversation(conversation)
             .build();
     }
 }

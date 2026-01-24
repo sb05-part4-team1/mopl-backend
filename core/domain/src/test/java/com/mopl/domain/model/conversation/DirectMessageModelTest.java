@@ -34,7 +34,7 @@ class DirectMessageModelTest {
             String content = "안녕하세요";
 
             // when
-            DirectMessageModel directMessage = DirectMessageModel.create(content, conversation, sender);
+            DirectMessageModel directMessage = DirectMessageModel.create(content, sender, conversation);
 
             // then
             assertThat(directMessage.getContent()).isEqualTo(content);
@@ -51,7 +51,7 @@ class DirectMessageModelTest {
             String content = "";
 
             // when
-            DirectMessageModel directMessage = DirectMessageModel.create(content, conversation, sender);
+            DirectMessageModel directMessage = DirectMessageModel.create(content, sender, conversation);
 
             // then
             assertThat(directMessage.getContent()).isEmpty();
