@@ -36,6 +36,10 @@ public class WatchingSessionEventListener {
             MoplUserDetails user = (MoplUserDetails) ((Authentication) accessor.getUser())
                 .getPrincipal();
 
+            if (accessor.getSessionAttributes() != null) {
+                accessor.getSessionAttributes().put("watchingContentId", contentId);
+            }
+
             WatchingSessionChange change = contentWebSocketFacade.updateSession(contentId, user
                 .userId(), ChangeType.JOIN);
             messagingTemplate.convertAndSend(destination, change);
