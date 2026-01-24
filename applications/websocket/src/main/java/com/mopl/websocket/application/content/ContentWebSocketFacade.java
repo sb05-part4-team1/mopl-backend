@@ -1,11 +1,10 @@
 package com.mopl.websocket.application.content;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
-
-import com.mopl.domain.exception.watchingsession.WatchingSessionNotFoundException;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.tag.TagModel;
 import com.mopl.domain.model.user.UserModel;
@@ -49,8 +48,12 @@ public class ContentWebSocketFacade {
             );
             session = watchingSessionWebSocketFacade.create(session);
         } else {
-            session = watchingSessionWebSocketFacade.findCurrentByWatcherId(userId)
-                .orElseThrow(() -> WatchingSessionNotFoundException.withUserIdAndContentId(userId, contentId));
+            Optional<WatchingSessionModel> sessionOpt = watchingSessionWebSocketFacade.findCurrentByWatcherId(userId);
+            if (sessionOpt.isEmpty()) {
+                long watcherCount = watchingSessionWebSocketFacade.getWatcherCount(contentId);
+                return new WatchingSessionChange(type, null, watcherCount);
+            }
+            session = sessionOpt.get();
             watchingSessionWebSocketFacade.delete(session);
         }
 
