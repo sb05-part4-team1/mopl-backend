@@ -2,14 +2,17 @@ package com.mopl.websocket.config;
 
 import com.mopl.domain.repository.content.ContentQueryRepository;
 import com.mopl.domain.repository.content.ContentRepository;
+import com.mopl.domain.repository.content.ContentTagRepository;
 import com.mopl.domain.repository.conversation.ConversationQueryRepository;
 import com.mopl.domain.repository.conversation.ConversationRepository;
 import com.mopl.domain.repository.conversation.DirectMessageQueryRepository;
 import com.mopl.domain.repository.conversation.DirectMessageRepository;
 import com.mopl.domain.repository.conversation.ReadStatusRepository;
+import com.mopl.domain.repository.tag.TagRepository;
 import com.mopl.domain.repository.user.UserQueryRepository;
 import com.mopl.domain.repository.user.UserRepository;
 import com.mopl.domain.service.content.ContentService;
+import com.mopl.domain.service.content.ContentTagService;
 import com.mopl.domain.service.conversation.ConversationService;
 import com.mopl.domain.service.user.UserService;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +27,14 @@ public class DomainServiceConfig {
         ContentRepository contentRepository
     ) {
         return new ContentService(contentQueryRepository, contentRepository);
+    }
+
+    @Bean
+    public ContentTagService contentTagService(
+        ContentTagRepository contentTagRepository,
+        TagRepository tagRepository
+    ) {
+        return new ContentTagService(contentTagRepository, tagRepository);
     }
 
     @Bean
