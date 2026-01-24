@@ -36,12 +36,4 @@ public class WatchingSessionService {
     public Map<UUID, Long> countByContentIdIn(List<UUID> contentIds) {
         return watchingSessionRepository.countByContentIdIn(contentIds);
     }
-
-    public long countByContentId(UUID contentId) {
-        return watchingSessionRepository.countByContentId(contentId);
-    }
-
-    public Map<UUID, Long> countByContentIdIn(List<UUID> contentIds) {
-        return watchingSessionRepository.countByContentIdIn(contentIds);
-    }
 }
