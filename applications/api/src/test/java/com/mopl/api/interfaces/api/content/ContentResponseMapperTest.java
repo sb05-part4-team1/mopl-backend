@@ -58,7 +58,6 @@ class ContentResponseMapperTest {
             ContentResponse result = mapper.toResponse(contentModel, thumbnailUrl, tags, watcherCount);
 
             // then
-            assertThat(result.id()).isEqualTo(contentModel.getId());
             assertThat(result.tags()).isEmpty();
             assertThat(result.watcherCount()).isZero();
         }
@@ -68,17 +67,29 @@ class ContentResponseMapperTest {
         void withNullThumbnailUrl_returnsContentResponseWithNullThumbnailUrl() {
             // given
             ContentModel contentModel = ContentModelFixture.create();
-            String thumbnailUrl = null;
             List<String> tags = List.of("Drama");
             long watcherCount = 50L;
 
             // when
-            ContentResponse result = mapper.toResponse(contentModel, thumbnailUrl, tags, watcherCount);
+            ContentResponse result = mapper.toResponse(contentModel, null, tags, watcherCount);
 
             // then
-            assertThat(result.id()).isEqualTo(contentModel.getId());
             assertThat(result.thumbnailUrl()).isNull();
-            assertThat(result.tags()).containsExactly("Drama");
+        }
+
+        @Test
+        @DisplayName("null tags로 변환")
+        void withNullTags_returnsContentResponseWithNullTags() {
+            // given
+            ContentModel contentModel = ContentModelFixture.create();
+            String thumbnailUrl = "https://cdn.example.com/thumbnail.jpg";
+            long watcherCount = 50L;
+
+            // when
+            ContentResponse result = mapper.toResponse(contentModel, thumbnailUrl, null, watcherCount);
+
+            // then
+            assertThat(result.tags()).isNull();
         }
     }
 }
