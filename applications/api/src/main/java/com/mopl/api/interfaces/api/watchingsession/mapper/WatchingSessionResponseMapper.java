@@ -1,11 +1,10 @@
 package com.mopl.api.interfaces.api.watchingsession.mapper;
 
-import com.mopl.api.interfaces.api.content.mapper.ContentSummaryMapper;
-import com.mopl.api.interfaces.api.user.mapper.UserSummaryMapper;
+import com.mopl.api.interfaces.api.content.dto.ContentSummary;
+import com.mopl.api.interfaces.api.user.dto.UserSummary;
 import com.mopl.api.interfaces.api.watchingsession.dto.WatchingSessionResponse;
-import com.mopl.domain.model.content.ContentModel;
-import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.model.watchingsession.WatchingSessionModel;
+import com.mopl.storage.provider.StorageProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,19 +14,27 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WatchingSessionResponseMapper {
 
-    private final UserSummaryMapper userSummaryMapper;
-    private final ContentSummaryMapper contentSummaryMapper;
+    private final StorageProvider storageProvider;
 
-    public WatchingSessionResponse toDto(
-        WatchingSessionModel session,
-        UserModel watcher,
-        ContentModel content
-    ) {
+    public WatchingSessionResponse toDto(WatchingSessionModel watchingSessionModel) {
         return new WatchingSessionResponse(
-            session.getId(),
-            session.getCreatedAt(),
-            userSummaryMapper.toSummary(watcher),
-            contentSummaryMapper.toSummary(content, List.of())
+            watchingSessionModel.getWatcherId(),
+            watchingSessionModel.getCreatedAt(),
+            new UserSummary(
+                watchingSessionModel.getWatcherId(),
+                watchingSessionModel.getWatcherName(),
+                storageProvider.getUrl(watchingSessionModel.getWatcherProfileImagePath())
+            ),
+            new ContentSummary(
+                watchingSessionModel.getContentId(),
+                null,
+                watchingSessionModel.getContentTitle(),
+                null,
+                null,
+                List.of(),
+                0,
+                0
+            )
         );
     }
 }

@@ -5,6 +5,7 @@ import com.mopl.api.interfaces.api.watchingsession.dto.WatchingSessionResponse;
 import com.mopl.domain.repository.watchingsession.WatchingSessionQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +20,6 @@ public class WatchingSessionController implements WatchingSessionApiSpec {
 
     private final WatchingSessionFacade watchingSessionFacade;
 
-    @Override
     @GetMapping("/contents/{contentId}/watching-sessions")
     public CursorResponse<WatchingSessionResponse> getWatchingSessions(
         @PathVariable UUID contentId,
@@ -28,9 +28,10 @@ public class WatchingSessionController implements WatchingSessionApiSpec {
         return watchingSessionFacade.getWatchingSessions(contentId, request);
     }
 
-    @Override
     @GetMapping("/users/{watcherId}/watching-sessions")
-    public WatchingSessionResponse getWatchingSession(@PathVariable UUID watcherId) {
-        return watchingSessionFacade.getWatchingSession(watcherId).orElse(null);
+    public ResponseEntity<WatchingSessionResponse> getWatchingSession(@PathVariable UUID watcherId) {
+        return watchingSessionFacade.getWatchingSession(watcherId)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.noContent().build());
     }
 }

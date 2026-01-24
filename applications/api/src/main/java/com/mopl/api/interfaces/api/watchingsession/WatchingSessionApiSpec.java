@@ -21,16 +21,6 @@ import java.util.UUID;
 @Tag(name = "WatchingSession API", description = "시청 세션 API")
 public interface WatchingSessionApiSpec {
 
-    @Operation(summary = "특정 사용자의 시청 세션 조회 (nullable)")
-    @Parameter(name = "watcherId", required = true)
-    @ApiResponse(
-        responseCode = "200",
-        content = @Content(schema = @Schema(implementation = WatchingSessionResponse.class))
-    )
-    @ApiResponse(responseCode = "204", description = "시청 중인 세션 없음")
-    @CommonApiResponse.Default
-    WatchingSessionResponse getWatchingSession(UUID watcherId);
-
     @Operation(summary = "특정 콘텐츠의 시청 세션 목록 조회 (커서 페이지네이션)")
     @Parameters({
         @Parameter(
@@ -84,8 +74,18 @@ public interface WatchingSessionApiSpec {
         content = @Content(schema = @Schema(implementation = CursorResponse.class))
     )
     @CommonApiResponse.Default
-    ResponseEntity<WatchingSessionResponse> getWatchingSessions(
+    CursorResponse<WatchingSessionResponse> getWatchingSessions(
         @Parameter(hidden = true) UUID contentId,
         @Parameter(hidden = true) WatchingSessionQueryRequest request
     );
+
+    @Operation(summary = "특정 사용자의 시청 세션 조회 (nullable)")
+    @Parameter(name = "watcherId", required = true)
+    @ApiResponse(
+        responseCode = "200",
+        content = @Content(schema = @Schema(implementation = WatchingSessionResponse.class))
+    )
+    @ApiResponse(responseCode = "204", description = "시청 중인 세션 없음")
+    @CommonApiResponse.Default
+    ResponseEntity<WatchingSessionResponse> getWatchingSession(UUID watcherId);
 }
