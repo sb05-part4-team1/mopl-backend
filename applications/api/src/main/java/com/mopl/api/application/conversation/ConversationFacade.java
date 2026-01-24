@@ -36,10 +36,10 @@ public class ConversationFacade {
     private final DirectMessageResponseMapper directMessageResponseMapper;
 
     public CursorResponse<ConversationResponse> getConversations(
-        UUID requesterId,
+        UUID userId,
         ConversationQueryRequest request
     ) {
-        CursorResponse<ConversationModel> response = conversationService.getAll(requesterId, request);
+        CursorResponse<ConversationModel> response = conversationService.getAll(request);
         List<ConversationModel> conversations = response.data();
 
         if (conversations.isEmpty()) {
@@ -50,11 +50,11 @@ public class ConversationFacade {
             .map(ConversationModel::getId)
             .toList();
 
-        Map<UUID, DirectMessageModel> lastMessageMap = conversationService.getLastMessagesByConversationIdIn(conversationIds);
+        Map<UUID, DirectMessageModel> lastMessageMap = directMessageService.getLastMessagesByConversationIdIn(conversationIds);
         Map<UUID, ReadStatusModel> otherReadStatusMap =
-            conversationService.getOtherReadStatusWithUserByConversationIdIn(conversationIds, requesterId);
+            readStatusService.getOtherReadStatusWithUserByConversationIdIn(conversationIds, userId);
         Map<UUID, ReadStatusModel> myReadStatusMap =
-            conversationService.getMyReadStatusByConversationIdIn(conversationIds, requesterId);
+            readStatusService.getMyReadStatusByConversationIdIn(conversationIds, userId);
 
         return response.map(conversation -> {
             UUID conversationId = conversation.getId();
@@ -64,7 +64,7 @@ public class ConversationFacade {
             ReadStatusModel myReadStatus = myReadStatusMap.get(conversationId);
 
             UserModel withUser = otherReadStatus != null ? otherReadStatus.getUser() : null;
-            boolean hasUnread = calculateHasUnread(lastMessage, myReadStatus, requesterId);
+            boolean hasUnread = calculateHasUnread(lastMessage, myReadStatus, userId);
 
             return conversationResponseMapper.toResponse(
                 conversation,

@@ -1,23 +1,14 @@
 package com.mopl.domain.service.conversation;
 
-import com.mopl.domain.exception.conversation.ConversationAccessDeniedException;
 import com.mopl.domain.exception.conversation.ConversationNotFoundException;
-import com.mopl.domain.exception.conversation.DirectMessageNotFoundException;
 import com.mopl.domain.model.conversation.ConversationModel;
-import com.mopl.domain.model.conversation.DirectMessageModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.conversation.ConversationQueryRepository;
 import com.mopl.domain.repository.conversation.ConversationQueryRequest;
 import com.mopl.domain.repository.conversation.ConversationRepository;
-import com.mopl.domain.repository.conversation.DirectMessageQueryRepository;
-import com.mopl.domain.repository.conversation.DirectMessageQueryRequest;
-import com.mopl.domain.repository.conversation.DirectMessageRepository;
-import com.mopl.domain.repository.conversation.ReadStatusRepository;
 import com.mopl.domain.support.cursor.CursorResponse;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,11 +18,8 @@ public class ConversationService {
     private final ConversationQueryRepository conversationQueryRepository;
     private final ConversationRepository conversationRepository;
 
-    public CursorResponse<ConversationModel> getAll(
-        UUID requesterId,
-        ConversationQueryRequest request
-    ) {
-        return conversationQueryRepository.findAllConversation(requesterId, request);
+    public CursorResponse<ConversationModel> getAll(ConversationQueryRequest request) {
+        return conversationQueryRepository.findAllConversation(request);
     }
 
     public ConversationModel getById(UUID conversationId) {
@@ -57,11 +45,11 @@ public class ConversationService {
     }
 
     public void validateAccess(UUID conversationId, UUID requesterId) {
-        if (!conversationQueryRepository.existsParticipant(conversationId, requesterId)) {
-            throw ConversationAccessDeniedException.withConversationIdAndUserId(
-                conversationId,
-                requesterId
-            );
-        }
+        // if (!conversationQueryRepository.existsParticipant(conversationId, requesterId)) {
+        //     throw ConversationAccessDeniedException.withConversationIdAndUserId(
+        //         conversationId,
+        //         requesterId
+        //     );
+        // }
     }
 }
