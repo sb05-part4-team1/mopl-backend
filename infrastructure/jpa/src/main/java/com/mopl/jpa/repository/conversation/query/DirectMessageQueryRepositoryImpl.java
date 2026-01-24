@@ -39,16 +39,9 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
     ) {
         DirectMessageSortFieldJpa sortFieldJpa = DirectMessageSortFieldJpa.from(request.sortBy());
 
-        JPAQuery<DirectMessageEntity> jpaQuery = queryFactory
+        JPAQuery<DirectMessageEntity> jpaQuery = baseQuery(userId, conversationId)
             .select(directMessageEntity)
-            .from(directMessageEntity)
-            .join(directMessageEntity.conversation, conversationEntity)
-            .join(readStatusEntity)
-            .on(readStatusEntity.conversation.eq(conversationEntity))
-            .where(
-                conversationEntity.id.eq(conversationId),
-                readStatusEntity.participant.id.eq(userId)
-            );
+            .join(directMessageEntity.sender).fetchJoin();
 
         CursorPaginationHelper.applyCursorPagination(
             request,
@@ -66,19 +59,7 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
             );
         }
 
-        Long totalCountValue = queryFactory
-            .select(directMessageEntity.count())
-            .from(directMessageEntity)
-            .join(directMessageEntity.conversation, conversationEntity)
-            .join(readStatusEntity)
-            .on(readStatusEntity.conversation.eq(conversationEntity))
-            .where(
-                conversationEntity.id.eq(conversationId),
-                readStatusEntity.participant.id.eq(userId)
-            )
-            .fetchOne();
-
-        long totalCount = totalCountValue != null ? totalCountValue : 0L;
+        long totalCount = countTotal(userId, conversationId);
 
         return CursorPaginationHelper.buildResponse(
             rows,
@@ -89,6 +70,25 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
             sortFieldJpa::extractValue,
             DirectMessageEntity::getId
         );
+    }
+
+    private JPAQuery<?> baseQuery(UUID userId, UUID conversationId) {
+        return queryFactory
+            .from(directMessageEntity)
+            .join(directMessageEntity.conversation, conversationEntity)
+            .join(readStatusEntity)
+            .on(readStatusEntity.conversation.eq(conversationEntity))
+            .where(
+                conversationEntity.id.eq(conversationId),
+                readStatusEntity.participant.id.eq(userId)
+            );
+    }
+
+    private long countTotal(UUID userId, UUID conversationId) {
+        Long count = baseQuery(userId, conversationId)
+            .select(directMessageEntity.count())
+            .fetchOne();
+        return count != null ? count : 0L;
     }
 
     @Override
