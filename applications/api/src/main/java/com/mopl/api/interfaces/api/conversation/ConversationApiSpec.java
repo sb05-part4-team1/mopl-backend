@@ -77,6 +77,44 @@ public interface ConversationApiSpec {
         @Parameter(hidden = true) ConversationQueryRequest request
     );
 
+    @Operation(summary = "대화 상세 조회")
+    @Parameter(name = "conversationId", description = "대화 ID", required = true)
+    @ApiResponse(
+        responseCode = "200",
+        content = @Content(schema = @Schema(implementation = ConversationResponse.class))
+    )
+    @CommonApiResponse.Default
+    @CommonApiResponse.Forbidden
+    @CommonApiResponse.NotFound
+    ConversationResponse getConversation(
+        @Parameter(hidden = true) MoplUserDetails userDetails,
+        UUID conversationId
+    );
+
+    @Operation(summary = "특정 사용자와의 대화 조회")
+    @Parameter(name = "userId", description = "상대 사용자 ID", required = true)
+    @ApiResponse(
+        responseCode = "200",
+        content = @Content(schema = @Schema(implementation = ConversationResponse.class))
+    )
+    @CommonApiResponse.Default
+    @CommonApiResponse.NotFound
+    ConversationResponse findByWith(
+        @Parameter(hidden = true) MoplUserDetails userDetails,
+        UUID userId
+    );
+
+    @Operation(summary = "대화 생성")
+    @ApiResponse(
+        responseCode = "201",
+        content = @Content(schema = @Schema(implementation = ConversationResponse.class))
+    )
+    @CommonApiResponse.Default
+    ConversationResponse createConversation(
+        @Parameter(hidden = true) MoplUserDetails userDetails,
+        ConversationCreateRequest request
+    );
+
     @Operation(
         summary = "DM 목록 조회 (커서 페이지네이션)",
         description = "특정 대화의 DM 목록을 조회합니다. 해당 대화의 참여자만 조회할 수 있습니다."
@@ -125,44 +163,6 @@ public interface ConversationApiSpec {
         @Parameter(hidden = true) MoplUserDetails userDetails,
         UUID conversationId,
         @Parameter(hidden = true) DirectMessageQueryRequest request
-    );
-
-    @Operation(summary = "특정 사용자와의 대화 조회")
-    @Parameter(name = "userId", description = "상대 사용자 ID", required = true)
-    @ApiResponse(
-        responseCode = "200",
-        content = @Content(schema = @Schema(implementation = ConversationResponse.class))
-    )
-    @CommonApiResponse.Default
-    @CommonApiResponse.NotFound
-    ConversationResponse findByWith(
-        @Parameter(hidden = true) MoplUserDetails userDetails,
-        UUID userId
-    );
-
-    @Operation(summary = "대화 상세 조회")
-    @Parameter(name = "conversationId", description = "대화 ID", required = true)
-    @ApiResponse(
-        responseCode = "200",
-        content = @Content(schema = @Schema(implementation = ConversationResponse.class))
-    )
-    @CommonApiResponse.Default
-    @CommonApiResponse.Forbidden
-    @CommonApiResponse.NotFound
-    ConversationResponse findConversationById(
-        @Parameter(hidden = true) MoplUserDetails userDetails,
-        UUID conversationId
-    );
-
-    @Operation(summary = "대화 생성")
-    @ApiResponse(
-        responseCode = "201",
-        content = @Content(schema = @Schema(implementation = ConversationResponse.class))
-    )
-    @CommonApiResponse.Default
-    ConversationResponse createConversation(
-        @Parameter(hidden = true) MoplUserDetails userDetails,
-        ConversationCreateRequest request
     );
 
     @Operation(summary = "메시지 읽음 처리")

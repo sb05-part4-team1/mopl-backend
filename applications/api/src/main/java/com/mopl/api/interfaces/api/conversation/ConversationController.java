@@ -39,16 +39,14 @@ public class ConversationController implements ConversationApiSpec {
         return conversationFacade.getConversations(userDetails.userId(), request);
     }
 
-    @GetMapping("/{conversationId}/direct-messages")
-    public CursorResponse<DirectMessageResponse> getDirectMessages(
+    @GetMapping("/{conversationId}")
+    public ConversationResponse getConversation(
         @AuthenticationPrincipal MoplUserDetails userDetails,
-        @PathVariable UUID conversationId,
-        @ModelAttribute DirectMessageQueryRequest request
+        @PathVariable UUID conversationId
     ) {
-        return conversationFacade.getDirectMessages(
+        return conversationFacade.getConversation(
             userDetails.userId(),
-            conversationId,
-            request
+            conversationId
         );
     }
 
@@ -63,17 +61,6 @@ public class ConversationController implements ConversationApiSpec {
         );
     }
 
-    @GetMapping("/{conversationId}")
-    public ConversationResponse findConversationById(
-        @AuthenticationPrincipal MoplUserDetails userDetails,
-        @PathVariable UUID conversationId
-    ) {
-        return conversationFacade.getConversation(
-            userDetails.userId(),
-            conversationId
-        );
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ConversationResponse createConversation(
@@ -81,6 +68,19 @@ public class ConversationController implements ConversationApiSpec {
         @RequestBody @Valid ConversationCreateRequest request
     ) {
         return conversationFacade.createConversation(userDetails.userId(), request);
+    }
+
+    @GetMapping("/{conversationId}/direct-messages")
+    public CursorResponse<DirectMessageResponse> getDirectMessages(
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @PathVariable UUID conversationId,
+        @ModelAttribute DirectMessageQueryRequest request
+    ) {
+        return conversationFacade.getDirectMessages(
+            userDetails.userId(),
+            conversationId,
+            request
+        );
     }
 
     @PostMapping("/{conversationId}/direct-messages/{directMessageId}/read")
