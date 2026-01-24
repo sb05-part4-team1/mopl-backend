@@ -132,12 +132,12 @@ public class DomainServiceConfig {
 
     @Bean
     public WatchingSessionService watchingSessionService(
-        WatchingSessionRepository watchingSessionRepository,
-        WatchingSessionQueryRepository watchingSessionQueryRepository
+        WatchingSessionQueryRepository watchingSessionQueryRepository,
+        WatchingSessionRepository watchingSessionRepository
     ) {
         return new WatchingSessionService(
-            watchingSessionRepository,
-            watchingSessionQueryRepository
+            watchingSessionQueryRepository,
+            watchingSessionRepository
         );
     }
 

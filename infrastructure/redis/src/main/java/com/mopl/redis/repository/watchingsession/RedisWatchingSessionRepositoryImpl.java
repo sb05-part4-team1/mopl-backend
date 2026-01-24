@@ -56,7 +56,7 @@ public class RedisWatchingSessionRepositoryImpl implements WatchingSessionReposi
 
     @Override
     public long countByContentId(UUID contentId) {
-        Long size = redisTemplate.opsForZSet().zCard(WatchingSessionRedisKeys.contentSessionsZsetKey(contentId));
+        Long size = redisTemplate.opsForSet().size(WatchingSessionRedisKeys.watchingCountKey(contentId));
         return size != null ? size : 0L;
     }
 
