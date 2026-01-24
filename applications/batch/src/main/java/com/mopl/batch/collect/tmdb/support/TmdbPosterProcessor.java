@@ -19,21 +19,22 @@ public class TmdbPosterProcessor {
     private final TmdbClient tmdbClient;
     private final StorageProvider storageProvider;
 
-    public void uploadPosterIfPresent(ContentType type, Long externalId, String posterPath) {
+    public String uploadPosterIfPresent(ContentType type, Long externalId, String posterPath) {
         if (posterPath == null || posterPath.isBlank()) {
-            return;
+            return null;
         }
 
         try {
             Resource resource = tmdbClient.downloadImage(posterPath);
             if (resource == null) {
-                return;
+                return null;
             }
 
             String extension = extractExtension(posterPath);
             String filePath = buildFilePath(type, externalId, extension);
 
             storageProvider.upload(resource.getInputStream(), resource.contentLength(), filePath);
+            return filePath;
         } catch (TmdbImageDownloadException e) {
             log.warn(
                 "TMDB poster download failed: type={}, externalId={}, path={}",
@@ -52,6 +53,7 @@ public class TmdbPosterProcessor {
                 type, externalId, e
             );
         }
+        return null;
     }
 
     private String extractExtension(String posterPath) {

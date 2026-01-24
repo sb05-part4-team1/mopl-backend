@@ -62,11 +62,11 @@ public class TmdbPopularContentUpsertTxService {
             return false;
         }
 
-        tmdbPosterProcessor.uploadPosterIfPresent(type, externalId, posterPath);
+        String storedThumbnailPath = tmdbPosterProcessor.uploadPosterIfPresent(type, externalId, posterPath);
         List<String> tagNames = genreTagResolver.resolve(genreIds);
 
         ContentModel content = contentService.create(
-            ContentModel.create(type, title, overview, posterPath)
+            ContentModel.create(type, title, overview, storedThumbnailPath)
         );
         contentTagService.applyTags(content.getId(), tagNames);
 
