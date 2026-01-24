@@ -3,7 +3,6 @@ package com.mopl.domain.repository.conversation;
 import com.mopl.domain.model.conversation.ReadStatusModel;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 

@@ -4,7 +4,6 @@ import com.mopl.jpa.entity.conversation.ReadStatusEntity;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.List;
@@ -41,17 +40,4 @@ public interface JpaReadStatusRepository extends JpaRepository<ReadStatusEntity,
         UUID participantId,
         Collection<UUID> conversationId
     );
-
-    @Query("""
-            SELECT rs
-            FROM ReadStatusEntity rs
-            JOIN FETCH rs.participant
-            WHERE rs.conversation.id IN :conversationIds
-              AND rs.participant.id = :userId
-        """)
-    List<ReadStatusEntity> findMineByConversationIds(
-        @Param("conversationIds") List<UUID> conversationIds,
-        @Param("userId") UUID userId
-    );
-
 }
