@@ -63,7 +63,8 @@ public class PlaylistFacade {
             playlistIds
         );
         Map<UUID, List<ContentModel>> contentsMap = playlistService.getContentsByPlaylistIdIn(
-            playlistIds);
+            playlistIds
+        );
 
         return playlistPage.map(playlist -> playlistResponseMapper.toResponse(
             playlist,
