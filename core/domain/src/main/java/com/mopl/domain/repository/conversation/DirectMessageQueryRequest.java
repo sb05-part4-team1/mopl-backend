@@ -13,12 +13,12 @@ public record DirectMessageQueryRequest(
 
 ) implements CursorRequest<DirectMessageSortField> {
 
-    private static final int DEFAULT_LIMIT = 100;
-    private static final int MAX_LIMIT = 1000;
+    private static final int DEFAULT_LIMIT = 20;
+    private static final int MAX_LIMIT = 100;
 
     public DirectMessageQueryRequest {
         limit = limit != null ? Math.min(limit, MAX_LIMIT) : DEFAULT_LIMIT;
-        sortDirection = sortDirection != null ? sortDirection : SortDirection.ASCENDING;
+        sortDirection = sortDirection != null ? sortDirection : SortDirection.DESCENDING;
         sortBy = sortBy != null ? sortBy : DirectMessageSortField.createdAt;
     }
 }
