@@ -33,7 +33,7 @@ public class ConversationQueryRepositoryImpl implements ConversationQueryReposit
     private final ConversationEntityMapper conversationEntityMapper;
 
     @Override
-    public CursorResponse<ConversationModel> findAllConversation(UUID userId, ConversationQueryRequest request) {
+    public CursorResponse<ConversationModel> findAll(UUID userId, ConversationQueryRequest request) {
         ConversationSortFieldJpa sortFieldJpa = ConversationSortFieldJpa.from(request.sortBy());
 
         JPAQuery<ConversationEntity> query = baseQuery(userId)

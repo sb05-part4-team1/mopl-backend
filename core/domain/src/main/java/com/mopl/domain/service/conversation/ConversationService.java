@@ -19,7 +19,7 @@ public class ConversationService {
     private final ConversationRepository conversationRepository;
 
     public CursorResponse<ConversationModel> getAll(UUID userId, ConversationQueryRequest request) {
-        return conversationQueryRepository.findAllConversation(userId, request);
+        return conversationQueryRepository.findAll(userId, request);
     }
 
     public ConversationModel getById(UUID conversationId) {

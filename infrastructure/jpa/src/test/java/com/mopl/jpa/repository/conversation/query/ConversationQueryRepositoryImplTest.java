@@ -122,7 +122,7 @@ class ConversationQueryRepositoryImplTest {
     }
 
     @Nested
-    @DisplayName("findAllConversation() - 필터링")
+    @DisplayName("findAll() - 필터링")
     class FilteringTest {
 
         @Test
@@ -134,7 +134,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(userId, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAll(userId, request);
 
             // then
             assertThat(response.data()).hasSize(3);
@@ -151,7 +151,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(otherUser1Id, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAll(otherUser1Id, request);
 
             // then
             assertThat(response.data()).hasSize(2); // user와의 대화 + otherUser2와의 대화
@@ -167,7 +167,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(userId, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAll(userId, request);
 
             // then
             assertThat(response.data()).hasSize(1);
@@ -183,7 +183,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(userId, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAll(userId, request);
 
             // then
             assertThat(response.data()).hasSize(1);
@@ -198,7 +198,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(userId, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAll(userId, request);
 
             // then
             assertThat(response.data()).isEmpty();
@@ -216,7 +216,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(nonParticipatingUserId, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAll(nonParticipatingUserId, request);
 
             // then
             assertThat(response.data()).isEmpty();
@@ -225,7 +225,7 @@ class ConversationQueryRepositoryImplTest {
     }
 
     @Nested
-    @DisplayName("findAllConversation() - 정렬")
+    @DisplayName("findAll() - 정렬")
     class SortingTest {
 
         @Test
@@ -237,7 +237,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(userId, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAll(userId, request);
 
             // then
             assertThat(response.data()).hasSize(3);
@@ -260,7 +260,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(userId, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAll(userId, request);
 
             // then
             assertThat(response.data()).hasSize(3);
@@ -274,7 +274,7 @@ class ConversationQueryRepositoryImplTest {
     }
 
     @Nested
-    @DisplayName("findAllConversation() - 커서 페이지네이션")
+    @DisplayName("findAll() - 커서 페이지네이션")
     class PaginationTest {
 
         @Test
@@ -286,7 +286,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(userId, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAll(userId, request);
 
             // then
             assertThat(response.data()).hasSize(2);
@@ -303,7 +303,7 @@ class ConversationQueryRepositoryImplTest {
             ConversationQueryRequest firstRequest = new ConversationQueryRequest(
                 null, null, null, 2, SortDirection.DESCENDING, ConversationSortField.createdAt
             );
-            CursorResponse<ConversationModel> firstResponse = conversationQueryRepository.findAllConversation(userId, firstRequest);
+            CursorResponse<ConversationModel> firstResponse = conversationQueryRepository.findAll(userId, firstRequest);
 
             ConversationQueryRequest secondRequest = new ConversationQueryRequest(
                 null,
@@ -313,7 +313,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> secondResponse = conversationQueryRepository.findAllConversation(userId, secondRequest);
+            CursorResponse<ConversationModel> secondResponse = conversationQueryRepository.findAll(userId, secondRequest);
 
             // then
             assertThat(secondResponse.data()).hasSize(1);
@@ -328,7 +328,7 @@ class ConversationQueryRepositoryImplTest {
             ConversationQueryRequest firstRequest = new ConversationQueryRequest(
                 null, null, null, 2, SortDirection.ASCENDING, ConversationSortField.createdAt
             );
-            CursorResponse<ConversationModel> firstResponse = conversationQueryRepository.findAllConversation(userId, firstRequest);
+            CursorResponse<ConversationModel> firstResponse = conversationQueryRepository.findAll(userId, firstRequest);
 
             ConversationQueryRequest secondRequest = new ConversationQueryRequest(
                 null,
@@ -338,7 +338,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> secondResponse = conversationQueryRepository.findAllConversation(userId, secondRequest);
+            CursorResponse<ConversationModel> secondResponse = conversationQueryRepository.findAll(userId, secondRequest);
 
             // then
             assertThat(firstResponse.data()).hasSize(2);
@@ -358,7 +358,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(userId, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAll(userId, request);
 
             // then
             assertThat(response.data()).hasSize(1);
@@ -368,7 +368,7 @@ class ConversationQueryRepositoryImplTest {
     }
 
     @Nested
-    @DisplayName("findAllConversation() - 기본값")
+    @DisplayName("findAll() - 기본값")
     class DefaultValueTest {
 
         @Test
@@ -380,7 +380,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(userId, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAll(userId, request);
 
             // then
             assertThat(response.data()).hasSize(3);
