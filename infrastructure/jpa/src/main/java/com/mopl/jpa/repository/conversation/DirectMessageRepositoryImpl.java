@@ -37,6 +37,6 @@ public class DirectMessageRepositoryImpl implements DirectMessageRepository {
     public DirectMessageModel save(DirectMessageModel directMessageModel) {
         DirectMessageEntity directMessageEntity = directMessageEntityMapper.toEntity(directMessageModel);
         DirectMessageEntity savedDirectMessageEntity = jpaDirectMessageRepository.save(directMessageEntity);
-        return directMessageEntityMapper.toModel(savedDirectMessageEntity);
+        return directMessageEntityMapper.toModelWithSender(savedDirectMessageEntity);
     }
 }
