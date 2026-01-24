@@ -97,7 +97,8 @@ public class ContentModel extends BaseUpdatableModel {
 
     public ContentModel addReview(double rating) {
         int newCount = this.reviewCount + 1;
-        double newAverage = ((this.averageRating * this.reviewCount) + rating) / newCount;
+        double total = this.averageRating * this.reviewCount;
+        double newAverage = (total + rating) / newCount;
 
         return this.toBuilder()
             .reviewCount(newCount)
