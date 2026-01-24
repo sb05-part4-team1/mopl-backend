@@ -31,8 +31,7 @@ public class WatchingSessionFacade {
         return sessionOpt.map(session -> watchingSessionResponseMapper.toDto(
             session,
             session.getWatcher(),
-            session.getContent(),
-            List.of()
+            session.getContent()
         ));
     }
 
@@ -44,8 +43,7 @@ public class WatchingSessionFacade {
             .map(session -> watchingSessionResponseMapper.toDto(
                 session,
                 session.getWatcher(),
-                session.getContent(),
-                List.of()
+                session.getContent()
             ));
     }
 }

@@ -45,7 +45,7 @@ public class ContentWebSocketFacade {
             webSocketWatchingSessionService.delete(session);
         }
 
-        WatchingSessionResponse dto = watchingSessionResponseMapper.toDto(dtoTarget, watcher, content, List.of());
+        WatchingSessionResponse dto = watchingSessionResponseMapper.toDto(dtoTarget, watcher, content);
         long watcherCount = webSocketWatchingSessionService.getWatcherCount(contentId);
 
         return new WatchingSessionChange(type, dto, watcherCount);
