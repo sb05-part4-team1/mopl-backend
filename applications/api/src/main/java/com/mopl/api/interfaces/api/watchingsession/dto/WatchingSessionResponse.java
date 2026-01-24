@@ -5,7 +5,7 @@ import com.mopl.api.interfaces.api.user.dto.UserSummary;
 import java.time.Instant;
 import java.util.UUID;
 
-public record WatchingSessionDto(
+public record WatchingSessionResponse(
     UUID id,
     Instant createdAt,
     UserSummary watcher,

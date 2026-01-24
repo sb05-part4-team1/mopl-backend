@@ -1,6 +1,6 @@
 package com.mopl.api.interfaces.api.watchingsession.mapper;
 
-import com.mopl.api.interfaces.api.watchingsession.dto.WatchingSessionDto;
+import com.mopl.api.interfaces.api.watchingsession.dto.WatchingSessionResponse;
 import org.springframework.stereotype.Component;
 
 import com.mopl.api.interfaces.api.content.mapper.ContentSummaryMapper;
@@ -20,13 +20,13 @@ public class WatchingSessionResponseMapper {
     private final UserSummaryMapper userSummaryMapper;
     private final ContentSummaryMapper contentSummaryMapper;
 
-    public WatchingSessionDto toDto(
+    public WatchingSessionResponse toDto(
         WatchingSessionModel session,
         UserModel watcher,
         ContentModel content,
         List<String> tags
     ) {
-        return new WatchingSessionDto(
+        return new WatchingSessionResponse(
             session.getId(),
             session.getCreatedAt(),
             userSummaryMapper.toSummary(watcher),

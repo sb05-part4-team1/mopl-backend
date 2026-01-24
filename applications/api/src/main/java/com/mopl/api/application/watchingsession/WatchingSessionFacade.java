@@ -1,6 +1,6 @@
 package com.mopl.api.application.watchingsession;
 
-import com.mopl.api.interfaces.api.watchingsession.dto.WatchingSessionDto;
+import com.mopl.api.interfaces.api.watchingsession.dto.WatchingSessionResponse;
 import com.mopl.api.interfaces.api.watchingsession.mapper.WatchingSessionResponseMapper;
 import com.mopl.domain.model.watchingsession.WatchingSessionModel;
 import com.mopl.domain.repository.watchingsession.WatchingSessionQueryRequest;
@@ -18,15 +18,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class WatchingSessionFacade {
 
+    private final WatchingSessionService watchingSessionService;
     private final UserService userService;
     private final WatchingSessionResponseMapper watchingSessionResponseMapper;
-    private final WatchingSessionService watchingSessionService;
 
-    public Optional<WatchingSessionDto> getWatchingSession(
-        UUID requesterId,
-        UUID watcherId
-    ) {
-        userService.getById(requesterId);
+    public Optional<WatchingSessionResponse> getWatchingSession(UUID watcherId) {
         userService.getById(watcherId);
 
         Optional<WatchingSessionModel> sessionOpt = watchingSessionService
@@ -40,7 +36,7 @@ public class WatchingSessionFacade {
         ));
     }
 
-    public CursorResponse<WatchingSessionDto> getWatchingSessions(
+    public CursorResponse<WatchingSessionResponse> getWatchingSessions(
         UUID contentId,
         WatchingSessionQueryRequest request
     ) {

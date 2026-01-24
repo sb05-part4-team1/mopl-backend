@@ -1,13 +1,10 @@
 package com.mopl.api.interfaces.api.watchingsession;
 
 import com.mopl.api.application.watchingsession.WatchingSessionFacade;
-import com.mopl.api.interfaces.api.watchingsession.dto.WatchingSessionDto;
+import com.mopl.api.interfaces.api.watchingsession.dto.WatchingSessionResponse;
 import com.mopl.domain.repository.watchingsession.WatchingSessionQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
-import com.mopl.security.userdetails.MoplUserDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,25 +19,18 @@ public class WatchingSessionController implements WatchingSessionApiSpec {
 
     private final WatchingSessionFacade watchingSessionFacade;
 
+    @Override
     @GetMapping("/contents/{contentId}/watching-sessions")
-    public CursorResponse<WatchingSessionDto> getWatchingSessions(
-        @AuthenticationPrincipal MoplUserDetails userDetails,
+    public CursorResponse<WatchingSessionResponse> getWatchingSessions(
         @PathVariable UUID contentId,
         WatchingSessionQueryRequest request
     ) {
-        return watchingSessionFacade.getWatchingSessions(
-            contentId,
-            request
-        );
+        return watchingSessionFacade.getWatchingSessions(contentId, request);
     }
 
+    @Override
     @GetMapping("/users/{watcherId}/watching-sessions")
-    public ResponseEntity<WatchingSessionDto> getWatchingSession(
-        @AuthenticationPrincipal MoplUserDetails userDetails,
-        @PathVariable UUID watcherId
-    ) {
-        return watchingSessionFacade.getWatchingSession(userDetails.userId(), watcherId)
-            .map(ResponseEntity::ok)
-            .orElseGet(() -> ResponseEntity.noContent().build());
+    public WatchingSessionResponse getWatchingSession(@PathVariable UUID watcherId) {
+        return watchingSessionFacade.getWatchingSession(watcherId).orElse(null);
     }
 }
