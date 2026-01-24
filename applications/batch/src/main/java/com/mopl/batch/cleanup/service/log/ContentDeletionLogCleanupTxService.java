@@ -15,6 +15,6 @@ public class ContentDeletionLogCleanupTxService {
 
     @Transactional
     public int cleanupBatch(List<UUID> logIds) {
-        return contentDeletionLogRepository.deleteAllByIds(logIds);
+        return contentDeletionLogRepository.deleteAllByIdIn(logIds);
     }
 }

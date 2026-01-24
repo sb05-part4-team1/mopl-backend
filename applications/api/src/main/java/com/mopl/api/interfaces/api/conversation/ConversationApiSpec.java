@@ -1,9 +1,17 @@
 package com.mopl.api.interfaces.api.conversation;
 
+import com.mopl.api.interfaces.api.conversation.dto.ConversationCreateRequest;
+import com.mopl.api.interfaces.api.conversation.dto.ConversationCursorResponse;
+import com.mopl.api.interfaces.api.conversation.dto.ConversationResponse;
+import com.mopl.api.interfaces.api.conversation.dto.DirectMessageCursorResponse;
+import com.mopl.api.interfaces.api.conversation.dto.DirectMessageResponse;
 import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.domain.repository.conversation.ConversationQueryRequest;
+import com.mopl.domain.repository.conversation.ConversationSortField;
 import com.mopl.domain.repository.conversation.DirectMessageQueryRequest;
+import com.mopl.domain.repository.conversation.DirectMessageSortField;
 import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.domain.support.cursor.SortDirection;
 import com.mopl.security.userdetails.MoplUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -36,7 +44,6 @@ public interface ConversationApiSpec {
             responseCode = "200",
             description = "성공",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(
                     implementation = ConversationCursorResponse.class
                 )
@@ -46,7 +53,6 @@ public interface ConversationApiSpec {
             responseCode = "400",
             description = "잘못된 요청",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -54,7 +60,6 @@ public interface ConversationApiSpec {
             responseCode = "401",
             description = "인증 오류",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -62,7 +67,6 @@ public interface ConversationApiSpec {
             responseCode = "500",
             description = "서버 오류",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         )
@@ -72,46 +76,37 @@ public interface ConversationApiSpec {
             name = "keywordLike",
             description = "검색 키워드",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string")
+            schema = @Schema(implementation = String.class)
         ),
         @Parameter(
             name = "cursor",
             description = "커서",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string")
+            schema = @Schema(implementation = String.class)
         ),
         @Parameter(
             name = "idAfter",
             description = "보조 커서",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string", format = "uuid")
+            schema = @Schema(implementation = UUID.class)
         ),
         @Parameter(
             name = "limit",
             description = "한 번에 가져올 개수",
-            required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "integer", format = "int32")
+            schema = @Schema(implementation = Integer.class, defaultValue = "100")
         ),
         @Parameter(
             name = "sortDirection",
             description = "정렬 방향",
-            required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string",
-                allowableValues = {"ASCENDING", "DESCENDING"}
-            )
+            schema = @Schema(implementation = SortDirection.class, defaultValue = "ASCENDING")
         ),
         @Parameter(
             name = "sortBy",
             description = "정렬 기준",
-            required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string",
-                allowableValues = {"createdAt"}
-            )
+            schema = @Schema(implementation = ConversationSortField.class, defaultValue = "createdAt")
         )
     })
     CursorResponse<ConversationResponse> getConversations(
@@ -132,7 +127,6 @@ public interface ConversationApiSpec {
             responseCode = "200",
             description = "성공",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(
                     implementation = DirectMessageCursorResponse.class
                 )
@@ -142,7 +136,6 @@ public interface ConversationApiSpec {
             responseCode = "400",
             description = "잘못된 요청",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -150,7 +143,6 @@ public interface ConversationApiSpec {
             responseCode = "401",
             description = "인증 오류",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -158,7 +150,6 @@ public interface ConversationApiSpec {
             responseCode = "500",
             description = "서버 오류",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         )
@@ -168,46 +159,37 @@ public interface ConversationApiSpec {
             name = "conversationId",
             required = true,
             in = ParameterIn.PATH,
-            schema = @Schema(type = "string", format = "uuid")
+            schema = @Schema(implementation = UUID.class)
         ),
         @Parameter(
             name = "cursor",
             description = "커서",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string")
+            schema = @Schema(implementation = String.class)
         ),
         @Parameter(
             name = "idAfter",
             description = "보조 커서",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string", format = "uuid")
+            schema = @Schema(implementation = UUID.class)
         ),
         @Parameter(
             name = "limit",
             description = "한 번에 가져올 개수",
-            required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "integer", format = "int32")
+            schema = @Schema(implementation = Integer.class, defaultValue = "100")
         ),
         @Parameter(
             name = "sortDirection",
             description = "정렬 방향",
-            required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string",
-                allowableValues = {"ASCENDING", "DESCENDING"}
-            )
+            schema = @Schema(implementation = SortDirection.class, defaultValue = "ASCENDING")
         ),
         @Parameter(
             name = "sortBy",
             description = "정렬 기준",
-            required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string",
-                allowableValues = {"createdAt"}
-            )
+            schema = @Schema(implementation = DirectMessageSortField.class, defaultValue = "createdAt")
         )
     })
     CursorResponse<DirectMessageResponse> getDirectMessages(
@@ -232,7 +214,6 @@ public interface ConversationApiSpec {
             responseCode = "200",
             description = "성공",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(
                     implementation = ConversationResponse.class
                 )
@@ -242,7 +223,6 @@ public interface ConversationApiSpec {
             responseCode = "400",
             description = "잘못된 요청",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -250,14 +230,12 @@ public interface ConversationApiSpec {
             responseCode = "401",
             description = "인증 오류",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ), @ApiResponse(
             responseCode = "404",
             description = "해당 리소스 없음",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -265,7 +243,6 @@ public interface ConversationApiSpec {
             responseCode = "500",
             description = "서버 오류",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         )
@@ -276,7 +253,7 @@ public interface ConversationApiSpec {
         @Parameter(
             description = "상대 사용자 ID",
             required = true,
-            schema = @Schema(format = "uuid")
+            schema = @Schema(implementation = UUID.class)
         ) @RequestParam UUID userId
     );
 
@@ -300,7 +277,6 @@ public interface ConversationApiSpec {
             responseCode = "400",
             description = "잘못된 요청",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -308,7 +284,6 @@ public interface ConversationApiSpec {
             responseCode = "401",
             description = "인증 오류",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -316,7 +291,6 @@ public interface ConversationApiSpec {
             responseCode = "500",
             description = "서버 오류",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         )
@@ -340,7 +314,6 @@ public interface ConversationApiSpec {
             responseCode = "200",
             description = "성공",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ConversationResponse.class)
             )
         ),
@@ -348,7 +321,6 @@ public interface ConversationApiSpec {
             responseCode = "400",
             description = "잘못된 요청",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -356,7 +328,6 @@ public interface ConversationApiSpec {
             responseCode = "401",
             description = "인증 오류",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -364,7 +335,6 @@ public interface ConversationApiSpec {
             responseCode = "404",
             description = "해당 리소스 없음",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -372,7 +342,6 @@ public interface ConversationApiSpec {
             responseCode = "500",
             description = "서버 오류",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         )
@@ -394,7 +363,6 @@ public interface ConversationApiSpec {
             responseCode = "200",
             description = "성공",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(
                     implementation = ConversationResponse.class
                 )
@@ -404,7 +372,6 @@ public interface ConversationApiSpec {
             responseCode = "400",
             description = "잘못된 요청",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -412,7 +379,6 @@ public interface ConversationApiSpec {
             responseCode = "401",
             description = "인증 오류",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -420,7 +386,6 @@ public interface ConversationApiSpec {
             responseCode = "500",
             description = "서버 오류",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         )

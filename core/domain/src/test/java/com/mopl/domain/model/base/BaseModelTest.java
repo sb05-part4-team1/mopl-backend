@@ -20,12 +20,12 @@ class BaseModelTest {
     static class TestModel extends BaseModel {
     }
 
-    @DisplayName("delete()")
     @Nested
+    @DisplayName("delete()")
     class DeleteTest {
 
-        @DisplayName("삭제되지 않은 모델을 삭제하면 deletedAt이 설정됨")
         @Test
+        @DisplayName("삭제되지 않은 모델을 삭제하면 deletedAt이 설정됨")
         void withNotDeletedModel_setsDeletedAt() {
             // given
             TestModel model = TestModel.builder()
@@ -43,8 +43,8 @@ class BaseModelTest {
             assertThat(model.getDeletedAt()).isNotNull();
         }
 
-        @DisplayName("이미 삭제된 모델을 삭제해도 deletedAt이 변경되지 않음")
         @Test
+        @DisplayName("이미 삭제된 모델을 삭제해도 deletedAt이 변경되지 않음")
         void withAlreadyDeletedModel_doesNotChangeDeletedAt() {
             // given
             Instant originalDeletedAt = Instant.now().minusSeconds(100);
@@ -62,12 +62,12 @@ class BaseModelTest {
         }
     }
 
-    @DisplayName("restore()")
     @Nested
+    @DisplayName("restore()")
     class RestoreTest {
 
-        @DisplayName("삭제된 모델을 복원하면 deletedAt이 null이 됨")
         @Test
+        @DisplayName("삭제된 모델을 복원하면 deletedAt이 null이 됨")
         void withDeletedModel_setsDeletedAtToNull() {
             // given
             TestModel model = TestModel.builder()
@@ -85,8 +85,8 @@ class BaseModelTest {
             assertThat(model.getDeletedAt()).isNull();
         }
 
-        @DisplayName("삭제되지 않은 모델을 복원해도 아무 일도 일어나지 않음")
         @Test
+        @DisplayName("삭제되지 않은 모델을 복원해도 아무 일도 일어나지 않음")
         void withNotDeletedModel_doesNothing() {
             // given
             TestModel model = TestModel.builder()
@@ -103,12 +103,12 @@ class BaseModelTest {
         }
     }
 
-    @DisplayName("isDeleted()")
     @Nested
+    @DisplayName("isDeleted()")
     class IsDeletedTest {
 
-        @DisplayName("deletedAt이 null이면 false 반환")
         @Test
+        @DisplayName("deletedAt이 null이면 false 반환")
         void withDeletedAtNull_returnsFalse() {
             // given
             TestModel model = TestModel.builder()
@@ -121,8 +121,8 @@ class BaseModelTest {
             assertThat(model.isDeleted()).isFalse();
         }
 
-        @DisplayName("deletedAt이 설정되어 있으면 true 반환")
         @Test
+        @DisplayName("deletedAt이 설정되어 있으면 true 반환")
         void withDeletedAtSet_returnsTrue() {
             // given
             TestModel model = TestModel.builder()

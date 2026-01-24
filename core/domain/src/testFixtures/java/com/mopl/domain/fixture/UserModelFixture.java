@@ -19,7 +19,7 @@ public final class UserModelFixture {
             .set("authProvider", UserModel.AuthProvider.EMAIL)
             .set("email", Arbitraries.strings().alpha().ofLength(8)
                 .map(s -> s.toLowerCase(Locale.ROOT) + "@testfixture.com"))
-            .setNull("profileImageUrl")
+            .setNull("profileImagePath")
             .set("role", UserModel.Role.USER)
             .set("locked", false);
     }

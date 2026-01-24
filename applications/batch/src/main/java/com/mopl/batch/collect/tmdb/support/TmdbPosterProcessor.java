@@ -3,11 +3,13 @@ package com.mopl.batch.collect.tmdb.support;
 import com.mopl.domain.model.content.ContentModel.ContentType;
 import com.mopl.external.tmdb.client.TmdbClient;
 import com.mopl.external.tmdb.exception.TmdbImageDownloadException;
-import com.mopl.storage.provider.FileStorageProvider;
-import java.io.InputStream;
+import com.mopl.storage.provider.StorageProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 
 @Slf4j
 @Component
@@ -15,37 +17,43 @@ import org.springframework.stereotype.Component;
 public class TmdbPosterProcessor {
 
     private final TmdbClient tmdbClient;
-    private final FileStorageProvider fileStorageProvider;
+    private final StorageProvider storageProvider;
 
     public String uploadPosterIfPresent(ContentType type, Long externalId, String posterPath) {
         if (posterPath == null || posterPath.isBlank()) {
             return null;
         }
 
-        try (InputStream imageStream = tmdbClient.downloadImageStream(posterPath)) {
-            if (imageStream == null) {
+        try {
+            Resource resource = tmdbClient.downloadImage(posterPath);
+            if (resource == null) {
                 return null;
             }
 
             String extension = extractExtension(posterPath);
             String filePath = buildFilePath(type, externalId, extension);
 
-            return fileStorageProvider.upload(imageStream, filePath);
-
+            storageProvider.upload(resource.getInputStream(), resource.contentLength(), filePath);
+            return filePath;
         } catch (TmdbImageDownloadException e) {
             log.warn(
                 "TMDB poster download failed: type={}, externalId={}, path={}",
                 type, externalId, e.getPosterPath()
             );
-            return null;
+
+        } catch (IOException e) {
+            log.error(
+                "Failed to read image stream: type={}, externalId={}",
+                type, externalId, e
+            );
 
         } catch (Exception e) {
             log.error(
                 "Unexpected error while processing TMDB poster: type={}, externalId={}",
                 type, externalId, e
             );
-            return null;
         }
+        return null;
     }
 
     private String extractExtension(String posterPath) {

@@ -1,7 +1,7 @@
 package com.mopl.api.application.watchingsession;
 
-import com.mopl.api.interfaces.api.watchingsession.WatchingSessionDto;
-import com.mopl.api.interfaces.api.watchingsession.WatchingSessionResponseMapper;
+import com.mopl.api.interfaces.api.watchingsession.dto.WatchingSessionResponse;
+import com.mopl.api.interfaces.api.watchingsession.mapper.WatchingSessionResponseMapper;
 import com.mopl.domain.model.watchingsession.WatchingSessionModel;
 import com.mopl.domain.repository.watchingsession.WatchingSessionQueryRequest;
 import com.mopl.domain.service.user.UserService;
@@ -10,6 +10,7 @@ import com.mopl.domain.support.cursor.CursorResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,16 +18,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class WatchingSessionFacade {
 
+    private final WatchingSessionService watchingSessionService;
     private final UserService userService;
     private final WatchingSessionResponseMapper watchingSessionResponseMapper;
-    private final WatchingSessionService watchingSessionService;
 
-    public Optional<WatchingSessionDto> getWatchingSession(
-        UUID requesterId,
-        UUID watcherId
-    ) {
-        // (기존 정책 유지) 인증/존재 보장 - 여기서 DB 탐
-        userService.getById(requesterId);
+    public Optional<WatchingSessionResponse> getWatchingSession(UUID watcherId) {
         userService.getById(watcherId);
 
         Optional<WatchingSessionModel> sessionOpt = watchingSessionService
@@ -35,11 +31,12 @@ public class WatchingSessionFacade {
         return sessionOpt.map(session -> watchingSessionResponseMapper.toDto(
             session,
             session.getWatcher(),
-            session.getContent()
+            session.getContent(),
+            List.of()
         ));
     }
 
-    public CursorResponse<WatchingSessionDto> getWatchingSessions(
+    public CursorResponse<WatchingSessionResponse> getWatchingSessions(
         UUID contentId,
         WatchingSessionQueryRequest request
     ) {
@@ -47,7 +44,8 @@ public class WatchingSessionFacade {
             .map(session -> watchingSessionResponseMapper.toDto(
                 session,
                 session.getWatcher(),
-                session.getContent()
+                session.getContent(),
+                List.of()
             ));
     }
 }

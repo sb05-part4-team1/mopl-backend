@@ -1,8 +1,8 @@
 package com.mopl.batch.cleanup.service.storage;
 
 import com.mopl.domain.repository.content.ContentDeletionLogRepository;
-import com.mopl.domain.repository.content.dto.ContentDeletionLogItem;
-import com.mopl.storage.provider.FileStorageProvider;
+import com.mopl.domain.repository.content.ContentDeletionLogItem;
+import com.mopl.storage.provider.StorageProvider;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class StorageCleanupTxService {
 
-    private final FileStorageProvider fileStorageProvider;
+    private final StorageProvider storageProvider;
     private final ContentDeletionLogRepository contentDeletionLogRepository;
 
     @Transactional
@@ -30,7 +30,7 @@ public class StorageCleanupTxService {
             String path = target.thumbnailPath();
 
             try {
-                fileStorageProvider.delete(path);
+                storageProvider.delete(path);
                 successLogIds.add(target.logId());
             } catch (Exception e) {
                 log.warn(

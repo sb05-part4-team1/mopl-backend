@@ -78,7 +78,7 @@ class PlaylistCacheServiceTest {
     @Nested
     class GetContentsByPlaylistIdTest {
 
-        @DisplayName("플레이리스트의 컨텐츠 목록 반환")
+        @DisplayName("플레이리스트의 콘텐츠 목록 반환")
         @Test
         void returnsContentList() {
             // given
@@ -100,7 +100,7 @@ class PlaylistCacheServiceTest {
             then(playlistContentRepository).should().findContentsByPlaylistId(playlistId);
         }
 
-        @DisplayName("컨텐츠가 없으면 빈 목록 반환")
+        @DisplayName("콘텐츠가 없으면 빈 목록 반환")
         @Test
         void withNoContents_returnsEmptyList() {
             // given

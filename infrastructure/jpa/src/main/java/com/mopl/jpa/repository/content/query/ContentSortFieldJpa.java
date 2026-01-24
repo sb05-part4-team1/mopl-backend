@@ -17,14 +17,6 @@ import static com.mopl.jpa.entity.content.QContentEntity.contentEntity;
 @RequiredArgsConstructor
 public enum ContentSortFieldJpa implements SortField<Comparable<?>> {
 
-    CREATED_AT(
-        ContentSortField.createdAt,
-        cast(contentEntity.createdAt),
-        ContentEntity::getCreatedAt,
-        Object::toString,
-        Instant::parse
-    ),
-
     WATCHER_COUNT(
         ContentSortField.watcherCount,
         Expressions.comparableTemplate(
@@ -35,6 +27,14 @@ public enum ContentSortFieldJpa implements SortField<Comparable<?>> {
         ContentEntity::getReviewCount,
         Object::toString,
         Integer::parseInt
+    ),
+
+    CREATED_AT(
+        ContentSortField.createdAt,
+        cast(contentEntity.createdAt),
+        ContentEntity::getCreatedAt,
+        Object::toString,
+        Instant::parse
     ),
 
     RATE(

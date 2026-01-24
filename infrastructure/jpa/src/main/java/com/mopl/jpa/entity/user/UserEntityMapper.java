@@ -20,7 +20,7 @@ public class UserEntityMapper {
             .email(userEntity.getEmail())
             .name(userEntity.getName())
             .password(userEntity.getPassword())
-            .profileImageUrl(userEntity.getProfileImageUrl())
+            .profileImagePath(userEntity.getProfileImagePath())
             .role(userEntity.getRole())
             .locked(userEntity.isLocked())
             .build();
@@ -40,7 +40,7 @@ public class UserEntityMapper {
             .email(userModel.getEmail())
             .name(userModel.getName())
             .password(userModel.getPassword())
-            .profileImageUrl(userModel.getProfileImageUrl())
+            .profileImagePath(userModel.getProfileImagePath())
             .role(userModel.getRole())
             .locked(userModel.isLocked())
             .build();

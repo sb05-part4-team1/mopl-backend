@@ -18,8 +18,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
-@DisplayName("RedisTemporaryPasswordRepository 단위 테스트")
 @ExtendWith(MockitoExtension.class)
+@DisplayName("RedisTemporaryPasswordRepository 단위 테스트")
 class RedisTemporaryPasswordRepositoryTest {
 
     @Mock
@@ -31,12 +31,12 @@ class RedisTemporaryPasswordRepositoryTest {
     @InjectMocks
     private RedisTemporaryPasswordRepository repository;
 
-    @DisplayName("findByEmail()")
     @Nested
+    @DisplayName("findByEmail()")
     class FindByEmailTest {
 
-        @DisplayName("저장된 비밀번호가 있으면 반환")
         @Test
+        @DisplayName("저장된 비밀번호가 있으면 반환")
         void withExistingPassword_returnsPassword() {
             // given
             String email = "test@example.com";
@@ -52,8 +52,8 @@ class RedisTemporaryPasswordRepositoryTest {
             assertThat(result).hasValue(encodedPassword);
         }
 
-        @DisplayName("저장된 비밀번호가 없으면 빈 Optional 반환")
         @Test
+        @DisplayName("저장된 비밀번호가 없으면 빈 Optional 반환")
         void withNonExistingPassword_returnsEmpty() {
             // given
             String email = "nonexistent@example.com";
@@ -69,12 +69,12 @@ class RedisTemporaryPasswordRepositoryTest {
         }
     }
 
-    @DisplayName("save()")
     @Nested
+    @DisplayName("save()")
     class SaveTest {
 
-        @DisplayName("이메일과 비밀번호를 TTL과 함께 저장")
         @Test
+        @DisplayName("이메일과 비밀번호를 TTL과 함께 저장")
         void withEmailAndPassword_savesWithTTL() {
             // given
             String email = "test@example.com";
@@ -90,12 +90,12 @@ class RedisTemporaryPasswordRepositoryTest {
         }
     }
 
-    @DisplayName("deleteByEmail()")
     @Nested
+    @DisplayName("deleteByEmail()")
     class DeleteByEmailTest {
 
-        @DisplayName("이메일로 임시 비밀번호 삭제")
         @Test
+        @DisplayName("이메일로 임시 비밀번호 삭제")
         void withEmail_deletesPassword() {
             // given
             String email = "test@example.com";

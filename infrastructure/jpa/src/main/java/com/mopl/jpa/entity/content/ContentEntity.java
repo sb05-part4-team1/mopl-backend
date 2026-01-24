@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLRestriction;
 
-import static com.mopl.domain.model.content.ContentModel.THUMBNAIL_URL_MAX_LENGTH;
+import static com.mopl.domain.model.content.ContentModel.CONTENT_TYPE_MAX_LENGTH;
+import static com.mopl.domain.model.content.ContentModel.THUMBNAIL_PATH_MAX_LENGTH;
 
 @Entity
 @Table(name = "contents")
@@ -24,7 +25,7 @@ import static com.mopl.domain.model.content.ContentModel.THUMBNAIL_URL_MAX_LENGT
 public class ContentEntity extends BaseUpdatableEntity {
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = CONTENT_TYPE_MAX_LENGTH)
     private ContentType type;
 
     @Column(nullable = false)
@@ -33,12 +34,12 @@ public class ContentEntity extends BaseUpdatableEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @Column(nullable = false, length = THUMBNAIL_URL_MAX_LENGTH)
-    private String thumbnailUrl;
-
-    @Column(nullable = false)
-    private double averageRating;
+    @Column(nullable = false, length = THUMBNAIL_PATH_MAX_LENGTH)
+    private String thumbnailPath;
 
     @Column(nullable = false)
     private int reviewCount;
+
+    @Column(nullable = false)
+    private double averageRating;
 }

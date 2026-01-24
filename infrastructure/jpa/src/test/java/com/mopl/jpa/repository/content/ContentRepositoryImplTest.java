@@ -33,65 +33,39 @@ class ContentRepositoryImplTest {
     class FindByIdTest {
 
         @Test
-        @DisplayName("저장된 콘텐츠를 ID로 조회하면 해당 모델을 반환한다")
-        void findById_returnsContentModel() {
+        @DisplayName("존재하는 콘텐츠 ID로 조회하면 ContentModel 반환")
+        void withExistingContentId_returnsContentModel() {
             // given
-            ContentModel original = ContentModel.create(
-                ContentModel.ContentType.movie,
-                "인셉션",
-                "꿈속의 꿈",
-                "https://mopl.com/inception.png"
-            );
-            ContentModel saved = contentRepository.save(original);
-
-            // when
-            Optional<ContentModel> found = contentRepository.findById(saved.getId());
-
-            // then
-            assertThat(found).isPresent();
-            assertThat(found.get().getId()).isEqualTo(saved.getId());
-            assertThat(found.get().getTitle()).isEqualTo("인셉션");
-            assertThat(found.get().getTags()).isEmpty(); // Repository는 순수하게 Content 정보만 조회하므로 태그는 비어있음
-        }
-
-        @Test
-        @DisplayName("존재하지 않는 ID로 조회하면 빈 Optional을 반환한다")
-        void findById_withNonExistentId_returnsEmpty() {
-            // when
-            Optional<ContentModel> found = contentRepository.findById(UUID.randomUUID());
-
-            // then
-            assertThat(found).isEmpty();
-        }
-    }
-
-    @Nested
-    @DisplayName("existsById()")
-    class ExistsByIdTest {
-
-        @Test
-        @DisplayName("존재하는 콘텐츠 ID면 true를 반환한다")
-        void exists_returnsTrue() {
-            // given
-            ContentModel saved = contentRepository.save(
-                ContentModel.create(ContentModel.ContentType.movie, "인셉션", "꿈속의 꿈", "url")
+            ContentModel savedContent = contentRepository.save(
+                ContentModel.create(
+                    ContentModel.ContentType.movie,
+                    "인셉션",
+                    "꿈속의 꿈",
+                    "contents/inception.png"
+                )
             );
 
             // when
-            boolean exists = contentRepository.existsById(saved.getId());
+            Optional<ContentModel> foundContent = contentRepository.findById(savedContent.getId());
 
             // then
-            assertThat(exists).isTrue();
+            assertThat(foundContent).isPresent();
+            assertThat(foundContent.get().getId()).isEqualTo(savedContent.getId());
+            assertThat(foundContent.get().getTitle()).isEqualTo("인셉션");
+            assertThat(foundContent.get().getDescription()).isEqualTo("꿈속의 꿈");
         }
 
         @Test
-        @DisplayName("존재하지 않는 콘텐츠 ID면 false를 반환한다")
-        void notExists_returnsFalse() {
+        @DisplayName("존재하지 않는 콘텐츠 ID로 조회하면 빈 Optional 반환")
+        void withNonExistingContentId_returnsEmptyOptional() {
+            // given
+            UUID nonExistingId = UUID.randomUUID();
+
             // when
-            boolean exists = contentRepository.existsById(UUID.randomUUID());
+            Optional<ContentModel> foundContent = contentRepository.findById(nonExistingId);
 
             // then
-            assertThat(exists).isFalse();
+            assertThat(foundContent).isEmpty();
         }
     }
 
@@ -100,14 +74,14 @@ class ContentRepositoryImplTest {
     class SaveTest {
 
         @Test
-        @DisplayName("콘텐츠만 저장한다")
-        void saveContent_only() {
+        @DisplayName("새 콘텐츠 저장")
+        void withNewContent_savesAndReturnsContent() {
             // given
             ContentModel contentModel = ContentModel.create(
                 ContentModel.ContentType.movie,
                 "인셉션",
                 "꿈속의 꿈",
-                "https://mopl.com/inception.png"
+                "contents/inception.png"
             );
 
             // when
@@ -118,11 +92,32 @@ class ContentRepositoryImplTest {
             assertThat(savedContent.getType()).isEqualTo(ContentModel.ContentType.movie);
             assertThat(savedContent.getTitle()).isEqualTo("인셉션");
             assertThat(savedContent.getDescription()).isEqualTo("꿈속의 꿈");
-            assertThat(savedContent.getThumbnailUrl()).isEqualTo("https://mopl.com/inception.png");
-            assertThat(savedContent.getTags()).isEmpty();
+            assertThat(savedContent.getThumbnailPath()).isEqualTo("contents/inception.png");
             assertThat(savedContent.getCreatedAt()).isNotNull();
-            assertThat(savedContent.getUpdatedAt()).isNotNull();
-            assertThat(savedContent.getDeletedAt()).isNull();
+        }
+
+        @Test
+        @DisplayName("기존 콘텐츠 업데이트")
+        void withExistingContent_updatesAndReturnsContent() {
+            // given
+            ContentModel contentModel = ContentModel.create(
+                ContentModel.ContentType.movie,
+                "인셉션",
+                "꿈속의 꿈",
+                "contents/inception.png"
+            );
+            ContentModel savedContent = contentRepository.save(contentModel);
+
+            // when
+            ContentModel updatedContent = contentRepository.save(
+                savedContent.update("인셉션 2", "더 깊은 꿈", null)
+            );
+
+            // then
+            assertThat(updatedContent.getId()).isEqualTo(savedContent.getId());
+            assertThat(updatedContent.getTitle()).isEqualTo("인셉션 2");
+            assertThat(updatedContent.getDescription()).isEqualTo("더 깊은 꿈");
+            assertThat(updatedContent.getThumbnailPath()).isEqualTo("contents/inception.png");
         }
     }
 }

@@ -1,8 +1,13 @@
 package com.mopl.api.interfaces.api.review;
 
+import com.mopl.api.interfaces.api.review.dto.ReviewCreateRequest;
+import com.mopl.api.interfaces.api.review.dto.ReviewResponse;
+import com.mopl.api.interfaces.api.review.dto.ReviewUpdateRequest;
 import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.domain.repository.review.ReviewQueryRequest;
+import com.mopl.domain.repository.review.ReviewSortField;
 import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.domain.support.cursor.SortDirection;
 import com.mopl.security.userdetails.MoplUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -53,46 +58,37 @@ public interface ReviewApiSpec {
             name = "contentId",
             description = "콘텐츠 ID",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string", format = "uuid")
+            schema = @Schema(implementation = UUID.class)
         ),
         @Parameter(
             name = "cursor",
             description = "커서",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string")
+            schema = @Schema(implementation = String.class)
         ),
         @Parameter(
             name = "idAfter",
             description = "보조 커서",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string", format = "uuid")
+            schema = @Schema(implementation = UUID.class)
         ),
         @Parameter(
             name = "limit",
             description = "한 번에 가져올 개수",
-            required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "integer", format = "int32")
+            schema = @Schema(implementation = Integer.class, defaultValue = "100")
         ),
         @Parameter(
             name = "sortDirection",
             description = "정렬 방향",
-            required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string",
-                allowableValues = {"ASCENDING", "DESCENDING"}
-            )
+            schema = @Schema(implementation = SortDirection.class, defaultValue = "ASCENDING")
         ),
         @Parameter(
             name = "sortBy",
             description = "정렬 기준",
-            required = true,
             in = ParameterIn.QUERY,
-            schema = @Schema(
-                type = "string",
-                allowableValues = {"createdAt", "rating"}
-            )
+            schema = @Schema(implementation = ReviewSortField.class, defaultValue = "createdAt")
         )
     })
     CursorResponse<ReviewResponse> getReviews(
@@ -111,7 +107,6 @@ public interface ReviewApiSpec {
         responseCode = "201",
         description = "성공",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ReviewResponse.class)
         )
     )
@@ -119,7 +114,6 @@ public interface ReviewApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -127,7 +121,6 @@ public interface ReviewApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -135,7 +128,6 @@ public interface ReviewApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -157,7 +149,6 @@ public interface ReviewApiSpec {
         responseCode = "200",
         description = "성공",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ReviewResponse.class)
         )
     )
@@ -165,7 +156,6 @@ public interface ReviewApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -173,7 +163,6 @@ public interface ReviewApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -181,7 +170,6 @@ public interface ReviewApiSpec {
         responseCode = "403",
         description = "권한 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -189,7 +177,6 @@ public interface ReviewApiSpec {
         responseCode = "404",
         description = "리뷰를 찾을 수 없음",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -197,7 +184,6 @@ public interface ReviewApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -220,7 +206,6 @@ public interface ReviewApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -228,7 +213,6 @@ public interface ReviewApiSpec {
         responseCode = "401",
         description = "인증 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -236,7 +220,6 @@ public interface ReviewApiSpec {
         responseCode = "403",
         description = "권한 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -244,7 +227,6 @@ public interface ReviewApiSpec {
         responseCode = "404",
         description = "리뷰를 찾을 수 없음",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -252,7 +234,6 @@ public interface ReviewApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )

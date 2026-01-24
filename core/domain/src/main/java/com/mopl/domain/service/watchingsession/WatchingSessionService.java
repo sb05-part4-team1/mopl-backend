@@ -7,6 +7,8 @@ import com.mopl.domain.repository.watchingsession.WatchingSessionRepository;
 import com.mopl.domain.support.cursor.CursorResponse;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -38,5 +40,13 @@ public class WatchingSessionService {
         WatchingSessionQueryRequest request
     ) {
         return watchingSessionQueryRepository.findByContentId(contentId, request);
+    }
+
+    public long countByContentId(UUID contentId) {
+        return watchingSessionRepository.countByContentId(contentId);
+    }
+
+    public Map<UUID, Long> countByContentIdIn(List<UUID> contentIds) {
+        return watchingSessionRepository.countByContentIdIn(contentIds);
     }
 }

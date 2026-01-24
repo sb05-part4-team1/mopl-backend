@@ -34,7 +34,7 @@ public class ReviewService {
         ReviewModel reviewModel = ReviewModel.create(content, author, text, rating);
         ReviewModel savedReviewModel = reviewRepository.save(reviewModel);
 
-        ContentModel updatedContent = content.applyReview(rating);
+        ContentModel updatedContent = content.addReview(rating);
         contentRepository.save(updatedContent);
 
         return savedReviewModel;

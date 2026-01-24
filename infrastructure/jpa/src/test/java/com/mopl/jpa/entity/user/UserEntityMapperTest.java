@@ -28,7 +28,7 @@ class UserEntityMapperTest {
             String email = "test@example.com";
             String name = "test";
             String password = "encodedPassword";
-            String profileImageUrl = "https://example.com/image.png";
+            String profileImagePath = "https://example.com/image.png";
 
             UserEntity userEntity = UserEntity.builder()
                 .id(id)
@@ -39,7 +39,7 @@ class UserEntityMapperTest {
                 .email(email)
                 .name(name)
                 .password(password)
-                .profileImageUrl(profileImageUrl)
+                .profileImagePath(profileImagePath)
                 .role(UserModel.Role.USER)
                 .locked(false)
                 .build();
@@ -56,7 +56,7 @@ class UserEntityMapperTest {
             assertThat(result.getEmail()).isEqualTo(email);
             assertThat(result.getName()).isEqualTo(name);
             assertThat(result.getPassword()).isEqualTo(password);
-            assertThat(result.getProfileImageUrl()).isEqualTo(profileImageUrl);
+            assertThat(result.getProfileImagePath()).isEqualTo(profileImagePath);
             assertThat(result.getRole()).isEqualTo(UserModel.Role.USER);
             assertThat(result.isLocked()).isFalse();
         }
@@ -85,7 +85,7 @@ class UserEntityMapperTest {
             String email = "test@example.com";
             String name = "test";
             String password = "encodedPassword";
-            String profileImageUrl = "https://example.com/image.png";
+            String profileImagePath = "https://example.com/image.png";
 
             UserModel userModel = UserModel.builder()
                 .id(id)
@@ -96,7 +96,7 @@ class UserEntityMapperTest {
                 .email(email)
                 .name(name)
                 .password(password)
-                .profileImageUrl(profileImageUrl)
+                .profileImagePath(profileImagePath)
                 .role(UserModel.Role.USER)
                 .locked(false)
                 .build();
@@ -113,7 +113,7 @@ class UserEntityMapperTest {
             assertThat(result.getEmail()).isEqualTo(email);
             assertThat(result.getName()).isEqualTo(name);
             assertThat(result.getPassword()).isEqualTo(password);
-            assertThat(result.getProfileImageUrl()).isEqualTo(profileImageUrl);
+            assertThat(result.getProfileImagePath()).isEqualTo(profileImagePath);
             assertThat(result.getRole()).isEqualTo(UserModel.Role.USER);
             assertThat(result.isLocked()).isFalse();
         }
@@ -144,7 +144,7 @@ class UserEntityMapperTest {
                 .email("test@example.com")
                 .name("test")
                 .password("encodedPassword")
-                .profileImageUrl("https://example.com/image.png")
+                .profileImagePath("https://example.com/image.png")
                 .role(UserModel.Role.ADMIN)
                 .locked(true)
                 .build();
@@ -162,8 +162,8 @@ class UserEntityMapperTest {
             assertThat(resultModel.getEmail()).isEqualTo(originalModel.getEmail());
             assertThat(resultModel.getName()).isEqualTo(originalModel.getName());
             assertThat(resultModel.getPassword()).isEqualTo(originalModel.getPassword());
-            assertThat(resultModel.getProfileImageUrl()).isEqualTo(originalModel
-                .getProfileImageUrl());
+            assertThat(resultModel.getProfileImagePath()).isEqualTo(originalModel
+                .getProfileImagePath());
             assertThat(resultModel.getRole()).isEqualTo(originalModel.getRole());
             assertThat(resultModel.isLocked()).isEqualTo(originalModel.isLocked());
         }

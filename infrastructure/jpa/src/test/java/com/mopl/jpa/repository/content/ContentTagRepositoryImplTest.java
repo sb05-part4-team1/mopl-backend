@@ -108,7 +108,7 @@ class ContentTagRepositoryImplTest {
             contentTagRepository.saveAll(content1.getId(), List.of(tagSf, tagAction));
             contentTagRepository.saveAll(content2.getId(), List.of(tagAction, tagDrama));
 
-            Map<UUID, List<TagModel>> result = contentTagRepository.findTagsByContentIds(
+            Map<UUID, List<TagModel>> result = contentTagRepository.findTagsByContentIdIn(
                 List.of(content1.getId(), content2.getId())
             );
 
@@ -124,7 +124,7 @@ class ContentTagRepositoryImplTest {
         @Test
         @DisplayName("null을 입력하면 빈 Map을 반환한다")
         void findTagsByContentIds_nullInput_returnsEmptyMap() {
-            Map<UUID, List<TagModel>> result = contentTagRepository.findTagsByContentIds(null);
+            Map<UUID, List<TagModel>> result = contentTagRepository.findTagsByContentIdIn(null);
 
             assertThat(result).isEmpty();
         }
@@ -132,7 +132,7 @@ class ContentTagRepositoryImplTest {
         @Test
         @DisplayName("빈 리스트를 입력하면 빈 Map을 반환한다")
         void findTagsByContentIds_emptyList_returnsEmptyMap() {
-            Map<UUID, List<TagModel>> result = contentTagRepository.findTagsByContentIds(List.of());
+            Map<UUID, List<TagModel>> result = contentTagRepository.findTagsByContentIdIn(List.of());
 
             assertThat(result).isEmpty();
         }
@@ -150,7 +150,7 @@ class ContentTagRepositoryImplTest {
             TagModel tag = tagRepository.save(TagModel.create("SF"));
             contentTagRepository.saveAll(contentWithTags.getId(), List.of(tag));
 
-            Map<UUID, List<TagModel>> result = contentTagRepository.findTagsByContentIds(
+            Map<UUID, List<TagModel>> result = contentTagRepository.findTagsByContentIdIn(
                 List.of(contentWithTags.getId(), contentWithoutTags.getId())
             );
 

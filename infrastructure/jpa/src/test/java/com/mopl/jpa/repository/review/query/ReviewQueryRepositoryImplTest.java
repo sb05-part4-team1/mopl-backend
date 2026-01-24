@@ -100,7 +100,7 @@ class ReviewQueryRepositoryImplTest {
             .type(ContentModel.ContentType.movie)
             .title(title)
             .description("Description")
-            .thumbnailUrl("contents/test-thumbnail.png")
+            .thumbnailPath("contents/test-thumbnail.png")
             .averageRating(0.0)
             .reviewCount(0)
             .build();

@@ -63,7 +63,7 @@ public final class CursorPaginationHelper {
             );
         }
 
-        T lastRow = resultRows.get(resultRows.size() - 1);
+        T lastRow = resultRows.getLast();
         String nextCursor = sortField.serializeCursor(cursorValueExtractor.apply(lastRow));
         UUID nextIdAfter = idExtractor.apply(lastRow);
 

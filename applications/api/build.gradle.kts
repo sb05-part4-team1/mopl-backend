@@ -1,13 +1,13 @@
 dependencies {
     // project modules
     implementation(project(":core:domain"))
-    implementation(project(":infrastructure:jpa"))
-    implementation(project(":infrastructure:security"))
-    implementation(project(":infrastructure:storage"))
     implementation(project(":infrastructure:cache"))
-    implementation(project(":infrastructure:redis"))
+    implementation(project(":infrastructure:jpa"))
     implementation(project(":infrastructure:kafka"))
     implementation(project(":infrastructure:mail"))
+    implementation(project(":infrastructure:redis"))
+    implementation(project(":infrastructure:security"))
+    implementation(project(":infrastructure:storage"))
     implementation(project(":shared:jackson"))
     implementation(project(":shared:logging"))
     implementation(project(":shared:monitoring"))

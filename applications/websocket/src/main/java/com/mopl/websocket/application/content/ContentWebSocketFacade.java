@@ -1,12 +1,13 @@
 package com.mopl.websocket.application.content;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
-import com.mopl.api.interfaces.api.user.UserSummaryMapper;
-import com.mopl.api.interfaces.api.watchingsession.WatchingSessionDto;
-import com.mopl.api.interfaces.api.watchingsession.WatchingSessionResponseMapper;
+import com.mopl.api.interfaces.api.user.mapper.UserSummaryMapper;
+import com.mopl.api.interfaces.api.watchingsession.dto.WatchingSessionResponse;
+import com.mopl.api.interfaces.api.watchingsession.mapper.WatchingSessionResponseMapper;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.model.watchingsession.WatchingSessionModel;
@@ -44,7 +45,7 @@ public class ContentWebSocketFacade {
             webSocketWatchingSessionService.delete(session);
         }
 
-        WatchingSessionDto dto = watchingSessionResponseMapper.toDto(dtoTarget, watcher, content);
+        WatchingSessionResponse dto = watchingSessionResponseMapper.toDto(dtoTarget, watcher, content, List.of());
         long watcherCount = webSocketWatchingSessionService.getWatcherCount(contentId);
 
         return new WatchingSessionChange(type, dto, watcherCount);

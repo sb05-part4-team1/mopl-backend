@@ -19,7 +19,7 @@ public record MoplUserDetails(
     String password,
     String email,
     String name,
-    String profileImageUrl,
+    String profileImagePath,
     Boolean locked
 ) implements UserDetails {
 
@@ -31,7 +31,7 @@ public record MoplUserDetails(
             .password(user.getPassword())
             .email(user.getEmail())
             .name(user.getName())
-            .profileImageUrl(user.getProfileImageUrl())
+            .profileImagePath(user.getProfileImagePath())
             .locked(user.isLocked())
             .build();
     }

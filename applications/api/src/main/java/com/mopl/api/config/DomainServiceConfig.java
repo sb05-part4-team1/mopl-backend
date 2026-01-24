@@ -24,8 +24,8 @@ import com.mopl.domain.repository.user.UserQueryRepository;
 import com.mopl.domain.repository.user.UserRepository;
 import com.mopl.domain.repository.watchingsession.WatchingSessionQueryRepository;
 import com.mopl.domain.repository.watchingsession.WatchingSessionRepository;
-import com.mopl.domain.service.content.ContentCacheService;
 import com.mopl.domain.service.content.ContentService;
+import com.mopl.domain.service.content.ContentTagService;
 import com.mopl.domain.service.conversation.ConversationService;
 import com.mopl.domain.service.follow.FollowService;
 import com.mopl.domain.service.notification.NotificationService;
@@ -34,7 +34,6 @@ import com.mopl.domain.service.playlist.PlaylistCacheService;
 import com.mopl.domain.service.playlist.PlaylistService;
 import com.mopl.domain.service.playlist.PlaylistSubscriptionService;
 import com.mopl.domain.service.review.ReviewService;
-import com.mopl.domain.service.tag.TagService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.service.watchingsession.WatchingSessionService;
 import org.springframework.context.annotation.Bean;
@@ -58,34 +57,18 @@ public class DomainServiceConfig {
 
     @Bean
     public ContentService contentService(
-        ContentCacheService contentCacheService,
-        TagService tagService,
         ContentRepository contentRepository,
-        ContentQueryRepository contentQueryRepository,
-        ContentTagRepository contentTagRepository
+        ContentQueryRepository contentQueryRepository
     ) {
-        return new ContentService(
-            contentCacheService,
-            tagService,
-            contentRepository,
-            contentQueryRepository,
-            contentTagRepository
-        );
-    }
-
-    @Bean ContentCacheService contentCacheService(
-        ContentRepository contentRepository,
-        ContentTagRepository contentTagRepository
-    ) {
-        return new ContentCacheService(
-            contentRepository,
-            contentTagRepository
-        );
+        return new ContentService(contentQueryRepository, contentRepository);
     }
 
     @Bean
-    public TagService tagService(TagRepository tagRepository) {
-        return new TagService(tagRepository);
+    public ContentTagService contentTagService(
+        ContentTagRepository contentTagRepository,
+        TagRepository tagRepository
+    ) {
+        return new ContentTagService(contentTagRepository, tagRepository);
     }
 
     @Bean

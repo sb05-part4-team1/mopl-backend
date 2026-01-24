@@ -1,5 +1,6 @@
 package com.mopl.api.interfaces.api.auth;
 
+import com.mopl.api.interfaces.api.auth.dto.ResetPasswordRequest;
 import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.security.jwt.dto.JwtResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +29,6 @@ public interface AuthApiSpec {
         responseCode = "400",
         description = "잘못된 요청",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -36,7 +36,6 @@ public interface AuthApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -54,7 +53,6 @@ public interface AuthApiSpec {
         responseCode = "400",
         description = "리프레시 토큰 쿠키 누락",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
     )
@@ -62,7 +60,6 @@ public interface AuthApiSpec {
         responseCode = "401",
         description = "유효하지 않은 리프레시 토큰",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
 
@@ -71,7 +68,6 @@ public interface AuthApiSpec {
         responseCode = "500",
         description = "서버 오류",
         content = @Content(
-            mediaType = "*/*",
             schema = @Schema(implementation = ErrorResponse.class)
         )
 
@@ -82,7 +78,7 @@ public interface AuthApiSpec {
             description = "Refresh Token (쿠키 방식)",
             required = true,
             in = ParameterIn.COOKIE,
-            schema = @Schema(type = "string")
+            schema = @Schema(implementation = String.class)
         ) String refreshToken,
         @Parameter(hidden = true) HttpServletResponse response
     );
@@ -100,7 +96,6 @@ public interface AuthApiSpec {
             responseCode = "400",
             description = "잘못된 요청",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -108,7 +103,6 @@ public interface AuthApiSpec {
             responseCode = "404",
             description = "사용자를 찾을 수 없음",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         ),
@@ -116,7 +110,6 @@ public interface AuthApiSpec {
             responseCode = "500",
             description = "서버 오류",
             content = @Content(
-                mediaType = "*/*",
                 schema = @Schema(implementation = ErrorResponse.class)
             )
         )

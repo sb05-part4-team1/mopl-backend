@@ -1,6 +1,13 @@
 package com.mopl.api.interfaces.api.user;
 
 import com.mopl.api.application.user.UserFacade;
+import com.mopl.api.interfaces.api.user.dto.ChangePasswordRequest;
+import com.mopl.api.interfaces.api.user.dto.UserCreateRequest;
+import com.mopl.api.interfaces.api.user.dto.UserLockUpdateRequest;
+import com.mopl.api.interfaces.api.user.dto.UserResponse;
+import com.mopl.api.interfaces.api.user.dto.UserRoleUpdateRequest;
+import com.mopl.api.interfaces.api.user.dto.UserUpdateRequest;
+import com.mopl.api.interfaces.api.user.mapper.UserResponseMapper;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.user.UserQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
@@ -33,17 +40,10 @@ public class UserController implements UserApiSpec {
     private final UserFacade userFacade;
     private final UserResponseMapper userResponseMapper;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse signUp(@RequestBody @Valid UserCreateRequest request) {
-        UserModel userModel = userFacade.signUp(request);
-        return userResponseMapper.toResponse(userModel);
-    }
-
-    @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping
     public CursorResponse<UserResponse> getUsers(@ModelAttribute UserQueryRequest request) {
-        return userFacade.getUsers(request);
+        return userFacade.getUsers(request).map(userResponseMapper::toResponse);
     }
 
     @GetMapping("/{userId}")
@@ -52,6 +52,24 @@ public class UserController implements UserApiSpec {
         return userResponseMapper.toResponse(userModel);
     }
 
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponse signUp(@RequestBody @Valid UserCreateRequest request) {
+        UserModel userModel = userFacade.signUp(request);
+        return userResponseMapper.toResponse(userModel);
+    }
+
+    @PreAuthorize("#userId == authentication.principal.userId")
+    @PatchMapping("/{userId}/password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updatePassword(
+        @PathVariable UUID userId,
+        @RequestBody @Valid ChangePasswordRequest request
+    ) {
+        userFacade.updatePassword(userId, request.password());
+    }
+
+    @PreAuthorize("#userId == authentication.principal.userId")
     @PatchMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public UserResponse updateProfile(
         @PathVariable UUID userId,
@@ -62,8 +80,8 @@ public class UserController implements UserApiSpec {
         return userResponseMapper.toResponse(userModel);
     }
 
-    @PatchMapping("/{userId}/role")
     @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{userId}/role")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateRole(
         @AuthenticationPrincipal MoplUserDetails userDetails,
@@ -73,8 +91,8 @@ public class UserController implements UserApiSpec {
         userFacade.updateRole(userDetails.userId(), request, userId);
     }
 
-    @PatchMapping("/{userId}/locked")
     @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{userId}/locked")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateLocked(
         @AuthenticationPrincipal MoplUserDetails userDetails,
@@ -82,14 +100,5 @@ public class UserController implements UserApiSpec {
         @RequestBody @Valid UserLockUpdateRequest request
     ) {
         userFacade.updateLocked(userDetails.userId(), userId, request);
-    }
-
-    @PatchMapping("/{userId}/password")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updatePassword(
-        @PathVariable UUID userId,
-        @RequestBody @Valid ChangePasswordRequest request
-    ) {
-        userFacade.updatePassword(userId, request.password());
     }
 }

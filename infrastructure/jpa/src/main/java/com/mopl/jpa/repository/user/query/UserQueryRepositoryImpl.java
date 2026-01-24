@@ -45,6 +45,14 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
         );
 
         List<UserEntity> rows = jpaQuery.fetch();
+
+        if (rows.isEmpty()) {
+            return CursorResponse.empty(
+                sortFieldJpa.getFieldName(),
+                request.sortDirection()
+            );
+        }
+
         long totalCount = countTotal(request);
 
         return CursorPaginationHelper.buildResponse(

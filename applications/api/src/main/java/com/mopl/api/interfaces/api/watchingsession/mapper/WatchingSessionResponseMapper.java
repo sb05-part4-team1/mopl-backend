@@ -1,0 +1,36 @@
+package com.mopl.api.interfaces.api.watchingsession.mapper;
+
+import com.mopl.api.interfaces.api.watchingsession.dto.WatchingSessionResponse;
+import org.springframework.stereotype.Component;
+
+import com.mopl.api.interfaces.api.content.mapper.ContentSummaryMapper;
+import com.mopl.api.interfaces.api.user.mapper.UserSummaryMapper;
+import com.mopl.domain.model.content.ContentModel;
+import com.mopl.domain.model.user.UserModel;
+import com.mopl.domain.model.watchingsession.WatchingSessionModel;
+
+import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
+@Component
+@RequiredArgsConstructor
+public class WatchingSessionResponseMapper {
+
+    private final UserSummaryMapper userSummaryMapper;
+    private final ContentSummaryMapper contentSummaryMapper;
+
+    public WatchingSessionResponse toDto(
+        WatchingSessionModel session,
+        UserModel watcher,
+        ContentModel content,
+        List<String> tags
+    ) {
+        return new WatchingSessionResponse(
+            session.getId(),
+            session.getCreatedAt(),
+            userSummaryMapper.toSummary(watcher),
+            contentSummaryMapper.toSummary(content, tags)
+        );
+    }
+}

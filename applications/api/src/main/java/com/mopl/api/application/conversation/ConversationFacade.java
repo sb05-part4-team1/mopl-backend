@@ -1,10 +1,10 @@
 package com.mopl.api.application.conversation;
 
-import com.mopl.api.interfaces.api.conversation.ConversationCreateRequest;
-import com.mopl.api.interfaces.api.conversation.ConversationResponse;
-import com.mopl.api.interfaces.api.conversation.ConversationResponseMapper;
-import com.mopl.api.interfaces.api.conversation.DirectMessageMapper;
-import com.mopl.api.interfaces.api.conversation.DirectMessageResponse;
+import com.mopl.api.interfaces.api.conversation.dto.ConversationCreateRequest;
+import com.mopl.api.interfaces.api.conversation.dto.ConversationResponse;
+import com.mopl.api.interfaces.api.conversation.mapper.ConversationResponseMapper;
+import com.mopl.api.interfaces.api.conversation.mapper.DirectMessageMapper;
+import com.mopl.api.interfaces.api.conversation.dto.DirectMessageResponse;
 import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.model.conversation.DirectMessageModel;
 import com.mopl.domain.model.conversation.ReadStatusModel;

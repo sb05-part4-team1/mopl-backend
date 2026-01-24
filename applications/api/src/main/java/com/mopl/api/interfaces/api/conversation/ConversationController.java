@@ -1,6 +1,10 @@
 package com.mopl.api.interfaces.api.conversation;
 
 import com.mopl.api.application.conversation.ConversationFacade;
+import com.mopl.api.interfaces.api.conversation.dto.ConversationCreateRequest;
+import com.mopl.api.interfaces.api.conversation.dto.ConversationResponse;
+import com.mopl.api.interfaces.api.conversation.dto.DirectMessageResponse;
+import com.mopl.api.interfaces.api.conversation.mapper.ConversationResponseMapper;
 import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.repository.conversation.ConversationQueryRequest;
 import com.mopl.domain.repository.conversation.DirectMessageQueryRequest;
