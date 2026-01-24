@@ -74,22 +74,6 @@ public class ConversationFacade {
         });
     }
 
-    public CursorResponse<DirectMessageResponse> getDirectMessages(
-        UUID userId,
-        UUID conversationId,
-        DirectMessageQueryRequest request
-    ) {
-        UserModel requester = userService.getById(userId);
-        readStatusService.validateParticipant(conversationId, requester.getId());
-        ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatusWithParticipant(userId, conversationId);
-        UserModel otherParticipant = otherReadStatus != null ? otherReadStatus.getParticipant() : null;
-
-        CursorResponse<DirectMessageModel> directMessages = directMessageService.getAllDirectMessages(userId, conversationId, request);
-        return directMessages.map(directMessage ->
-            directMessageResponseMapper.toResponse(directMessage, otherParticipant)
-        );
-    }
-
     public ConversationResponse getConversation(UUID requesterId, UUID conversationId) {
         ConversationModel conversation = conversationService.getByIdWithAccessCheck(conversationId, requesterId);
 
@@ -134,6 +118,27 @@ public class ConversationFacade {
         return conversationResponseMapper.toResponse(conversation, withUser, null, false);
     }
 
+    public CursorResponse<DirectMessageResponse> getDirectMessages(
+        UUID userId,
+        UUID conversationId,
+        DirectMessageQueryRequest request
+    ) {
+        UserModel requester = userService.getById(userId);
+        UUID requesterId = requester.getId();
+        readStatusService.validateParticipant(conversationId, requesterId);
+
+        ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatusWithParticipant(requesterId, conversationId);
+        UserModel otherParticipant = otherReadStatus != null ? otherReadStatus.getParticipant() : null;
+
+        CursorResponse<DirectMessageModel> directMessages = directMessageService.getAll(requesterId, conversationId, request);
+        return directMessages.map(directMessage -> {
+            UserModel receiver = directMessage.getSender().getId().equals(requesterId)
+                ? otherParticipant
+                : requester;
+            return directMessageResponseMapper.toResponse(directMessage, receiver);
+        });
+    }
+
     @Transactional
     public void directMessageRead(UUID requesterId, UUID conversationId, UUID directMessageId) {
         readStatusService.validateParticipant(conversationId, requesterId);
@@ -152,7 +157,8 @@ public class ConversationFacade {
         DirectMessageModel lastMessage,
         ReadStatusModel myReadStatus
     ) {
-        return lastMessage != null && myReadStatus != null
+        return lastMessage != null
+            && myReadStatus != null
             && !lastMessage.getSender().getId().equals(requesterId)
             && lastMessage.getCreatedAt().isAfter(myReadStatus.getLastReadAt());
     }

@@ -17,12 +17,11 @@ public class DirectMessageService {
     private final DirectMessageQueryRepository directMessageQueryRepository;
     private final DirectMessageRepository directMessageRepository;
 
-    public CursorResponse<DirectMessageModel> getAllDirectMessages(
+    public CursorResponse<DirectMessageModel> getAll(
         UUID requesterId,
         UUID conversationId,
         DirectMessageQueryRequest request
     ) {
-        // TODO: validateAccess(conversationId, requesterId);
         return directMessageQueryRepository.findAllByConversationId(conversationId, request, requesterId);
     }
 
