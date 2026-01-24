@@ -12,11 +12,6 @@ public interface JpaDirectMessageRepository extends JpaRepository<DirectMessageE
 
     Optional<DirectMessageEntity> findTopByConversationIdOrderByCreatedAtDesc(UUID conversationId);
 
-    DirectMessageEntity findTopByConversationIdAndSenderIdOrderByCreatedAtDesc(
-        UUID conversationId,
-        UUID senderId
-    );
-
     @Query("""
         SELECT dm
         FROM DirectMessageEntity dm

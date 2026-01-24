@@ -35,5 +35,4 @@ public class ReadStatusModel extends BaseModel {
         }
         return this;
     }
-
 }

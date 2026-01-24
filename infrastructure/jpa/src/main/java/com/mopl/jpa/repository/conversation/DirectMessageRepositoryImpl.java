@@ -7,9 +7,6 @@ import com.mopl.jpa.entity.conversation.DirectMessageEntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,26 +16,6 @@ public class DirectMessageRepositoryImpl implements DirectMessageRepository {
 
     private final JpaDirectMessageRepository jpaDirectMessageRepository;
     private final DirectMessageEntityMapper directMessageEntityMapper;
-
-    @Override
-    public DirectMessageModel save(DirectMessageModel directMessageModel) {
-        DirectMessageEntity directMessageEntity = directMessageEntityMapper.toEntity(directMessageModel);
-        DirectMessageEntity savedDirectMessageEntity = jpaDirectMessageRepository.save(directMessageEntity);
-        return directMessageEntityMapper.toModel(savedDirectMessageEntity);
-    }
-
-    @Override
-    public Optional<DirectMessageModel> findById(UUID directMessageId) {
-        return jpaDirectMessageRepository.findById(directMessageId)
-            .map(directMessageEntityMapper::toModel);
-    }
-
-    @Override
-    public DirectMessageModel findByConversationIdAndSenderId(UUID conversationId, UUID senderId) {
-        DirectMessageEntity directMessageEntity = jpaDirectMessageRepository
-            .findTopByConversationIdAndSenderIdOrderByCreatedAtDesc(conversationId, senderId);
-        return directMessageEntityMapper.toModel(directMessageEntity);
-    }
 
     @Override
     public Optional<DirectMessageModel> findOtherDirectMessage(
@@ -57,17 +34,9 @@ public class DirectMessageRepositoryImpl implements DirectMessageRepository {
     }
 
     @Override
-    public Map<UUID, DirectMessageModel> findLastMessagesByConversationIdIn(Collection<UUID> conversationIds) {
-        if (conversationIds.isEmpty()) {
-            return Map.of();
-        }
-
-        Map<UUID, DirectMessageModel> result = new HashMap<>();
-        for (UUID conversationId : conversationIds) {
-            jpaDirectMessageRepository.findTopByConversationIdOrderByCreatedAtDesc(conversationId)
-                .ifPresent(entity -> result.put(conversationId, directMessageEntityMapper.toModel(entity)));
-        }
-
-        return result;
+    public DirectMessageModel save(DirectMessageModel directMessageModel) {
+        DirectMessageEntity directMessageEntity = directMessageEntityMapper.toEntity(directMessageModel);
+        DirectMessageEntity savedDirectMessageEntity = jpaDirectMessageRepository.save(directMessageEntity);
+        return directMessageEntityMapper.toModel(savedDirectMessageEntity);
     }
 }

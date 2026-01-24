@@ -1,6 +1,5 @@
 package com.mopl.domain.service.conversation;
 
-import com.mopl.domain.exception.conversation.ReadStatusNotFoundException;
 import com.mopl.domain.model.conversation.DirectMessageModel;
 import com.mopl.domain.model.conversation.ReadStatusModel;
 import com.mopl.domain.repository.conversation.ReadStatusRepository;
@@ -18,13 +17,10 @@ public class ReadStatusService {
     private final ReadStatusRepository readStatusRepository;
 
     public Map<UUID, ReadStatusModel> getOtherReadStatusWithUserByConversationIdIn(
-        Collection<UUID> conversationIds,
-        UUID requesterId
+        UUID requesterId,
+        Collection<UUID> conversationIds
     ) {
-        if (conversationIds == null || conversationIds.isEmpty()) {
-            return Map.of();
-        }
-        return readStatusRepository.findOthersByConversationIds(List.copyOf(conversationIds), requesterId);
+        return readStatusRepository.findOtherReadStatusWithUserByConversationIdIn(requesterId, conversationIds);
     }
 
     public Map<UUID, ReadStatusModel> getMyReadStatusByConversationIdIn(
@@ -43,11 +39,6 @@ public class ReadStatusService {
 
     public ReadStatusModel getMyReadStatus(UUID conversationId, UUID requesterId) {
         return readStatusRepository.findByConversationIdAndUserId(conversationId, requesterId);
-    }
-
-    public ReadStatusModel getReadStatusById(UUID readStatusId) {
-        return readStatusRepository.findById(readStatusId)
-            .orElseThrow(() -> ReadStatusNotFoundException.withId(readStatusId));
     }
 
     public void markAsRead(DirectMessageModel directMessageModel, ReadStatusModel readStatusModel) {

@@ -10,12 +10,17 @@ import com.mopl.jpa.entity.conversation.QConversationEntity;
 import com.mopl.jpa.entity.conversation.QDirectMessageEntity;
 import com.mopl.jpa.entity.conversation.QReadStatusEntity;
 import com.mopl.jpa.support.cursor.CursorPaginationHelper;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -86,5 +91,38 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
             sortField::extractValue,
             DirectMessageEntity::getId
         );
+    }
+
+    @Override
+    public Map<UUID, DirectMessageModel> findLastMessagesByConversationIdIn(Collection<UUID> conversationIds) {
+        if (conversationIds.isEmpty()) {
+            return Map.of();
+        }
+
+        QDirectMessageEntity directMessage = QDirectMessageEntity.directMessageEntity;
+        QDirectMessageEntity subMessage = new QDirectMessageEntity("subMessage");
+
+        List<DirectMessageEntity> lastMessages = queryFactory
+            .selectFrom(directMessage)
+            .where(
+                directMessage.conversation.id.in(conversationIds),
+                directMessage.deletedAt.isNull(),
+                directMessage.createdAt.eq(
+                    JPAExpressions
+                        .select(subMessage.createdAt.max())
+                        .from(subMessage)
+                        .where(
+                            subMessage.conversation.id.eq(directMessage.conversation.id),
+                            subMessage.deletedAt.isNull()
+                        )
+                )
+            )
+            .fetch();
+
+        return lastMessages.stream()
+            .collect(Collectors.toMap(
+                entity -> entity.getConversation().getId(),
+                directMessageEntityMapper::toModel
+            ));
     }
 }

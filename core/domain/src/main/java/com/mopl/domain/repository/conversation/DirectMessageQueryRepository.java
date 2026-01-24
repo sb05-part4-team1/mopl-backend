@@ -2,11 +2,19 @@ package com.mopl.domain.repository.conversation;
 
 import com.mopl.domain.model.conversation.DirectMessageModel;
 import com.mopl.domain.support.cursor.CursorResponse;
+
+import java.util.Collection;
+import java.util.Map;
 import java.util.UUID;
 
 public interface DirectMessageQueryRepository {
 
     CursorResponse<DirectMessageModel> findAllByConversationId(
-        UUID conversationId, DirectMessageQueryRequest request, UUID userId);
+        UUID conversationId,
+        DirectMessageQueryRequest request,
+        UUID userId
+    );
+
+    Map<UUID, DirectMessageModel> findLastMessagesByConversationIdIn(Collection<UUID> conversationIds);
 
 }

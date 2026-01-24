@@ -1,6 +1,5 @@
 package com.mopl.domain.service.conversation;
 
-import com.mopl.domain.exception.conversation.DirectMessageNotFoundException;
 import com.mopl.domain.model.conversation.DirectMessageModel;
 import com.mopl.domain.repository.conversation.DirectMessageQueryRepository;
 import com.mopl.domain.repository.conversation.DirectMessageQueryRequest;
@@ -28,24 +27,19 @@ public class DirectMessageService {
         return directMessageQueryRepository.findAllByConversationId(conversationId, request, requesterId);
     }
 
-    public Map<UUID, DirectMessageModel> getLastMessagesByConversationIdIn(Collection<UUID> conversationIds) {
-        return directMessageRepository.findLastMessagesByConversationIdIn(conversationIds);
-    }
-
-    public Optional<DirectMessageModel> getLastMessageByConversationId(UUID conversationId) {
-        return directMessageRepository.findLastMessageByConversationId(conversationId);
-    }
-
-    public DirectMessageModel getDirectMessageById(UUID directMessageId) {
-        return directMessageRepository.findById(directMessageId)
-            .orElseThrow(() -> DirectMessageNotFoundException.withId(directMessageId));
-    }
-
-    public Optional<DirectMessageModel> findOtherDirectMessage(
+    public DirectMessageModel getOtherDirectMessage(
         UUID conversationId,
         UUID directMessageId,
         UUID userId
     ) {
-        return directMessageRepository.findOtherDirectMessage(conversationId, directMessageId, userId);
+        return directMessageRepository.findOtherDirectMessage(conversationId, directMessageId, userId).orElse(null);
+    }
+
+    public Map<UUID, DirectMessageModel> getLastMessagesByConversationIdIn(Collection<UUID> conversationIds) {
+        return directMessageQueryRepository.findLastMessagesByConversationIdIn(conversationIds);
+    }
+
+    public Optional<DirectMessageModel> getLastMessageByConversationId(UUID conversationId) {
+        return directMessageRepository.findLastMessageByConversationId(conversationId);
     }
 }

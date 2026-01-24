@@ -24,11 +24,9 @@ public class ReadStatusEntityMapper {
             .conversation(conversationEntityMapper.toEntity(readStatusModel.getConversation()))
             .participant(userEntityMapper.toEntity(readStatusModel.getUser()))
             .build();
-
     }
 
     public ReadStatusModel toModel(ReadStatusEntity readStatusEntity) {
-
         if (readStatusEntity == null) {
             return null;
         }

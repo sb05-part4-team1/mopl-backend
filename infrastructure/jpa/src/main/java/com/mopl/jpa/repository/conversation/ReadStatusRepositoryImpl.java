@@ -4,6 +4,8 @@ import com.mopl.domain.model.conversation.ReadStatusModel;
 import com.mopl.domain.repository.conversation.ReadStatusRepository;
 import com.mopl.jpa.entity.conversation.ReadStatusEntity;
 import com.mopl.jpa.entity.conversation.ReadStatusEntityMapper;
+
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -17,54 +19,8 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class ReadStatusRepositoryImpl implements ReadStatusRepository {
 
-    private final ReadStatusEntityMapper readStatusEntityMapper;
     private final JpaReadStatusRepository jpaReadStatusRepository;
-
-    @Override
-    public ReadStatusModel save(ReadStatusModel readStatusModel) {
-        ReadStatusEntity readStatusEntity = readStatusEntityMapper.toEntity(readStatusModel);
-        ReadStatusEntity savedReadStatusEntity = jpaReadStatusRepository.save(readStatusEntity);
-
-        return readStatusEntityMapper.toModel(savedReadStatusEntity);
-    }
-
-    @Override
-    public Optional<ReadStatusModel> findById(UUID readStatusId) {
-
-        return jpaReadStatusRepository.findById(readStatusId)
-            .map(readStatusEntityMapper::toModel);
-    }
-
-    @Override
-    public List<ReadStatusModel> findByConversationId(UUID conversationId) {
-        List<ReadStatusEntity> readStatusEntities = jpaReadStatusRepository.findByConversationId(
-            conversationId);
-
-        return readStatusEntities.stream()
-            .map(readStatusEntityMapper::toModel)
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public ReadStatusModel findByConversationIdAndParticipantId(
-        UUID conversationId,
-        UUID participantId
-    ) {
-        ReadStatusEntity readStatusEntity = jpaReadStatusRepository
-            .findByConversationIdAndParticipantId(conversationId, participantId);
-
-        return readStatusEntityMapper.toModel(readStatusEntity);
-    }
-
-    @Override
-    public List<ReadStatusModel> findByParticipantId(UUID participantId) {
-        List<ReadStatusEntity> readStatusEntities = jpaReadStatusRepository.findByParticipantId(
-            participantId);
-
-        return readStatusEntities.stream()
-            .map(readStatusEntityMapper::toModel)
-            .collect(Collectors.toList());
-    }
+    private final ReadStatusEntityMapper readStatusEntityMapper;
 
     @Override
     public ReadStatusModel findByConversationIdAndUserId(UUID conversationId, UUID userId) {
@@ -83,10 +39,12 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
     }
 
     @Override
-    public Map<UUID, ReadStatusModel> findOthersByConversationIds(List<UUID> conversationIds,
-        UUID userId) {
+    public Map<UUID, ReadStatusModel> findOtherReadStatusWithUserByConversationIdIn(
+        UUID userId,
+        Collection<UUID> conversationIds
+    ) {
         return jpaReadStatusRepository
-            .findOthersByConversationIds(conversationIds, userId)
+            .findOthersByConversationIds(userId, conversationIds)
             .stream()
             .map(readStatusEntityMapper::toModel)
             .collect(Collectors.toMap(
@@ -97,7 +55,7 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
 
     @Override
     public Map<UUID, ReadStatusModel> findMineByConversationIds(List<UUID> conversationIds,
-        UUID userId) {
+                                                                UUID userId) {
         return jpaReadStatusRepository
             .findMineByConversationIds(conversationIds, userId)
             .stream()
@@ -108,4 +66,11 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
             ));
     }
 
+    @Override
+    public ReadStatusModel save(ReadStatusModel readStatusModel) {
+        ReadStatusEntity readStatusEntity = readStatusEntityMapper.toEntity(readStatusModel);
+        ReadStatusEntity savedReadStatusEntity = jpaReadStatusRepository.save(readStatusEntity);
+
+        return readStatusEntityMapper.toModel(savedReadStatusEntity);
+    }
 }
