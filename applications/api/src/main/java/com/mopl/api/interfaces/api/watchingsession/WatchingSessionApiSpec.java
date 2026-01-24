@@ -146,5 +146,4 @@ public interface WatchingSessionApiSpec {
         @Parameter(hidden = true) @PathVariable UUID contentId,
         @Parameter(hidden = true) WatchingSessionQueryRequest request
     );
-
 }
