@@ -93,7 +93,7 @@ class WatchingSessionControllerTest {
     class GetWatchingSessionsTest {
 
         @Test
-        @DisplayName("Returns 200 OK with watching session list")
+        @DisplayName("유효한 요청 시 200 OK와 시청 세션 목록 반환")
         void withValidRequest_returns200OKWithSessionList() throws Exception {
             // given
             UUID contentId = UUID.randomUUID();
@@ -137,7 +137,7 @@ class WatchingSessionControllerTest {
         }
 
         @Test
-        @DisplayName("Applies watcherNameLike filter correctly")
+        @DisplayName("watcherNameLike 필터 정상 적용")
         void withWatcherNameLikeFilter_appliesFilter() throws Exception {
             // given
             UUID contentId = UUID.randomUUID();
@@ -161,7 +161,7 @@ class WatchingSessionControllerTest {
         }
 
         @Test
-        @DisplayName("Handles cursor-based pagination")
+        @DisplayName("커서 기반 페이지네이션 처리")
         void withCursorParams_handlesPagination() throws Exception {
             // given
             UUID contentId = UUID.randomUUID();
@@ -199,7 +199,7 @@ class WatchingSessionControllerTest {
         }
 
         @Test
-        @DisplayName("Returns empty list when no sessions")
+        @DisplayName("세션이 없을 시 빈 목록 반환")
         void withNoResults_returnsEmptyList() throws Exception {
             // given
             UUID contentId = UUID.randomUUID();
@@ -228,7 +228,7 @@ class WatchingSessionControllerTest {
     class GetWatchingSessionTest {
 
         @Test
-        @DisplayName("Returns 200 OK with watching session for valid watcher")
+        @DisplayName("유효한 시청자 ID로 조회 시 200 OK 반환")
         void withValidWatcherId_returns200OK() throws Exception {
             // given
             UUID watcherId = UUID.randomUUID();
@@ -252,7 +252,7 @@ class WatchingSessionControllerTest {
         }
 
         @Test
-        @DisplayName("Returns 204 No Content when watcher has no active session")
+        @DisplayName("활성 세션이 없을 시 204 No Content 반환")
         void withNoActiveSession_returns204NoContent() throws Exception {
             // given
             UUID watcherId = UUID.randomUUID();
@@ -268,7 +268,7 @@ class WatchingSessionControllerTest {
         }
 
         @Test
-        @DisplayName("Returns 404 Not Found for non-existing watcher")
+        @DisplayName("존재하지 않는 시청자로 조회 시 404 Not Found 반환")
         void withNonExistingWatcher_returns404NotFound() throws Exception {
             // given
             UUID nonExistingWatcherId = UUID.randomUUID();

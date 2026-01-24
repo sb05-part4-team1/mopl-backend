@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class ConversationResponseMapper {
 
     private final UserSummaryMapper userSummaryMapper;
-    private final DirectMessageMapper directMessageMapper;
+    private final DirectMessageResponseMapper directMessageResponseMapper;
 
     public ConversationResponse toResponse(
         ConversationModel conversationModel
@@ -19,7 +19,7 @@ public class ConversationResponseMapper {
         return new ConversationResponse(
             conversationModel.getId(),
             userSummaryMapper.toSummary(conversationModel.getWithUser()),
-            directMessageMapper.toResponse(conversationModel.getLastMessage()),
+            directMessageResponseMapper.toResponse(conversationModel.getLastMessage()),
             conversationModel.isHasUnread()
         );
     }

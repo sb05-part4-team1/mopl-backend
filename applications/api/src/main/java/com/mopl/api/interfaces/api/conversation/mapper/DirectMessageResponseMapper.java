@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class DirectMessageMapper {
+public class DirectMessageResponseMapper {
 
     private final UserSummaryMapper userSummaryMapper;
 
@@ -18,6 +18,7 @@ public class DirectMessageMapper {
         if (directMessageModel == null) {
             return null;
         }
+
         return new DirectMessageResponse(
             directMessageModel.getId(),
             directMessageModel.getConversation().getId(),

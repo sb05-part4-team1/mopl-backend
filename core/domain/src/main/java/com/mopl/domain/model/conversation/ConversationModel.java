@@ -58,5 +58,4 @@ public class ConversationModel extends BaseUpdatableModel {
 
         return this;
     }
-
 }

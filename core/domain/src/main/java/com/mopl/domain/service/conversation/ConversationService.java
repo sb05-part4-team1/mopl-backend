@@ -53,24 +53,24 @@ public class ConversationService {
     }
 
     public CursorResponse<DirectMessageModel> getAllDirectMessage(
+        UUID requesterId,
         UUID conversationId,
-        DirectMessageQueryRequest request,
-        UUID userId
+        DirectMessageQueryRequest request
     ) {
         CursorResponse<DirectMessageModel> directMessageModels = directMessageQueryRepository
             .findAllByConversationId(
-                conversationId, request, userId
+                conversationId, request, requesterId
             );
-        if (!conversationQueryRepository.existsParticipant(conversationId, userId)) {
+        if (!conversationQueryRepository.existsParticipant(conversationId, requesterId)) {
             throw ConversationAccessDeniedException.withConversationIdAndUserId(
                 conversationId,
-                userId
+                requesterId
             );
         }
         ReadStatusModel otherReadStatusModel = readStatusRepository
-            .findOtherReadStatus(conversationId, userId);
-        UserModel userModel = userRepository.findById(userId)
-            .orElseThrow(() -> UserNotFoundException.withId(userId));
+            .findOtherReadStatus(conversationId, requesterId);
+        UserModel userModel = userRepository.findById(requesterId)
+            .orElseThrow(() -> UserNotFoundException.withId(requesterId));
         for (DirectMessageModel directMessageModel : directMessageModels.data()) {
             if (directMessageModel.getSender().getId().equals(userModel.getId())) {
                 directMessageModel.setReceiver(otherReadStatusModel.getUser()); // 예외 발생 지점
@@ -227,7 +227,7 @@ public class ConversationService {
         return conversationModel;
     }
 
-    public ConversationModel getConversation(UUID conversationId, UUID userId) {
+    public ConversationModel getConversation(UUID userId, UUID conversationId) {
         if (!conversationQueryRepository.existsParticipant(conversationId, userId)) {
             throw ConversationAccessDeniedException.withConversationIdAndUserId(
                 conversationId,
