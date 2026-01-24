@@ -4,8 +4,10 @@ import com.mopl.api.interfaces.api.conversation.dto.DirectMessageResponse;
 import com.mopl.api.interfaces.api.user.dto.UserSummary;
 import com.mopl.api.interfaces.api.user.mapper.UserSummaryMapper;
 import com.mopl.domain.fixture.DirectMessageModelFixture;
+import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.model.conversation.DirectMessageModel;
+import com.mopl.domain.model.user.UserModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -46,22 +48,24 @@ class DirectMessageResponseMapperTest {
                 .set("conversation", conversationModel)
                 .sample();
 
+            UserModel receiver = UserModelFixture.create();
+
             UserSummary senderSummary = new UserSummary(
                 directMessageModel.getSender().getId(),
                 directMessageModel.getSender().getName(),
                 "https://cdn.example.com/sender.jpg"
             );
             UserSummary receiverSummary = new UserSummary(
-                directMessageModel.getReceiver().getId(),
-                directMessageModel.getReceiver().getName(),
+                receiver.getId(),
+                receiver.getName(),
                 "https://cdn.example.com/receiver.jpg"
             );
 
             given(userSummaryMapper.toSummary(directMessageModel.getSender())).willReturn(senderSummary);
-            given(userSummaryMapper.toSummary(directMessageModel.getReceiver())).willReturn(receiverSummary);
+            given(userSummaryMapper.toSummary(receiver)).willReturn(receiverSummary);
 
             // when
-            DirectMessageResponse result = mapper.toResponse(directMessageModel);
+            DirectMessageResponse result = mapper.toResponse(directMessageModel, receiver);
 
             // then
             assertThat(result.id()).isEqualTo(directMessageModel.getId());
@@ -76,7 +80,7 @@ class DirectMessageResponseMapperTest {
         @DisplayName("null 입력 시 null 반환")
         void withNull_returnsNull() {
             // when
-            DirectMessageResponse result = mapper.toResponse(null);
+            DirectMessageResponse result = mapper.toResponse(null, null);
 
             // then
             assertThat(result).isNull();

@@ -3,6 +3,7 @@ package com.mopl.api.interfaces.api.conversation.mapper;
 import com.mopl.api.interfaces.api.conversation.dto.DirectMessageResponse;
 import com.mopl.api.interfaces.api.user.mapper.UserSummaryMapper;
 import com.mopl.domain.model.conversation.DirectMessageModel;
+import com.mopl.domain.model.user.UserModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,9 +13,7 @@ public class DirectMessageResponseMapper {
 
     private final UserSummaryMapper userSummaryMapper;
 
-    public DirectMessageResponse toResponse(
-        DirectMessageModel directMessageModel
-    ) {
+    public DirectMessageResponse toResponse(DirectMessageModel directMessageModel, UserModel receiver) {
         if (directMessageModel == null) {
             return null;
         }
@@ -24,7 +23,7 @@ public class DirectMessageResponseMapper {
             directMessageModel.getConversation().getId(),
             directMessageModel.getCreatedAt(),
             userSummaryMapper.toSummary(directMessageModel.getSender()),
-            userSummaryMapper.toSummary(directMessageModel.getReceiver()),
+            userSummaryMapper.toSummary(receiver),
             directMessageModel.getContent()
         );
     }

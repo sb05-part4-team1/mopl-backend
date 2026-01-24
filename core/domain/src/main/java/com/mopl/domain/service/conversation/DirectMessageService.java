@@ -39,7 +39,7 @@ public class DirectMessageService {
         return directMessageQueryRepository.findLastMessagesByConversationIdIn(conversationIds);
     }
 
-    public Optional<DirectMessageModel> getLastMessageByConversationId(UUID conversationId) {
-        return directMessageRepository.findLastMessageByConversationId(conversationId);
+    public DirectMessageModel getLastMessageByConversationId(UUID conversationId) {
+        return directMessageRepository.findLastMessageByConversationId(conversationId).orElse(null);
     }
 }

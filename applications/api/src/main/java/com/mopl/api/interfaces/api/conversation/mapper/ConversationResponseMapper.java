@@ -28,7 +28,7 @@ public class ConversationResponseMapper {
         return new ConversationResponse(
             conversationModel.getId(),
             userSummaryMapper.toSummary(withUser),
-            directMessageResponseMapper.toResponse(lastMessage),
+            directMessageResponseMapper.toResponse(lastMessage, withUser),
             hasUnread
         );
     }

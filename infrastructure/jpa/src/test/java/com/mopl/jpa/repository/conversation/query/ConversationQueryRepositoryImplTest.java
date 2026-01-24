@@ -134,8 +134,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response =
-                conversationQueryRepository.findAllConversation(userId, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(userId, request);
 
             // then
             assertThat(response.data()).hasSize(3);
@@ -152,8 +151,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response =
-                conversationQueryRepository.findAllConversation(otherUser1Id, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(otherUser1Id, request);
 
             // then
             assertThat(response.data()).hasSize(2); // user와의 대화 + otherUser2와의 대화
@@ -169,8 +167,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response =
-                conversationQueryRepository.findAllConversation(userId, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(userId, request);
 
             // then
             assertThat(response.data()).hasSize(1);
@@ -186,8 +183,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response =
-                conversationQueryRepository.findAllConversation(userId, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(userId, request);
 
             // then
             assertThat(response.data()).hasSize(1);
@@ -202,8 +198,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response =
-                conversationQueryRepository.findAllConversation(userId, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(userId, request);
 
             // then
             assertThat(response.data()).isEmpty();
@@ -221,8 +216,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response =
-                conversationQueryRepository.findAllConversation(nonParticipatingUserId, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(nonParticipatingUserId, request);
 
             // then
             assertThat(response.data()).isEmpty();
@@ -243,8 +237,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response =
-                conversationQueryRepository.findAllConversation(userId, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(userId, request);
 
             // then
             assertThat(response.data()).hasSize(3);
@@ -267,8 +260,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response =
-                conversationQueryRepository.findAllConversation(userId, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(userId, request);
 
             // then
             assertThat(response.data()).hasSize(3);
@@ -294,8 +286,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response =
-                conversationQueryRepository.findAllConversation(userId, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(userId, request);
 
             // then
             assertThat(response.data()).hasSize(2);
@@ -312,8 +303,7 @@ class ConversationQueryRepositoryImplTest {
             ConversationQueryRequest firstRequest = new ConversationQueryRequest(
                 null, null, null, 2, SortDirection.DESCENDING, ConversationSortField.createdAt
             );
-            CursorResponse<ConversationModel> firstResponse =
-                conversationQueryRepository.findAllConversation(userId, firstRequest);
+            CursorResponse<ConversationModel> firstResponse = conversationQueryRepository.findAllConversation(userId, firstRequest);
 
             ConversationQueryRequest secondRequest = new ConversationQueryRequest(
                 null,
@@ -323,8 +313,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> secondResponse =
-                conversationQueryRepository.findAllConversation(userId, secondRequest);
+            CursorResponse<ConversationModel> secondResponse = conversationQueryRepository.findAllConversation(userId, secondRequest);
 
             // then
             assertThat(secondResponse.data()).hasSize(1);
@@ -339,8 +328,7 @@ class ConversationQueryRepositoryImplTest {
             ConversationQueryRequest firstRequest = new ConversationQueryRequest(
                 null, null, null, 2, SortDirection.ASCENDING, ConversationSortField.createdAt
             );
-            CursorResponse<ConversationModel> firstResponse =
-                conversationQueryRepository.findAllConversation(userId, firstRequest);
+            CursorResponse<ConversationModel> firstResponse = conversationQueryRepository.findAllConversation(userId, firstRequest);
 
             ConversationQueryRequest secondRequest = new ConversationQueryRequest(
                 null,
@@ -350,8 +338,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> secondResponse =
-                conversationQueryRepository.findAllConversation(userId, secondRequest);
+            CursorResponse<ConversationModel> secondResponse = conversationQueryRepository.findAllConversation(userId, secondRequest);
 
             // then
             assertThat(firstResponse.data()).hasSize(2);
@@ -371,8 +358,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response =
-                conversationQueryRepository.findAllConversation(userId, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(userId, request);
 
             // then
             assertThat(response.data()).hasSize(1);
@@ -394,8 +380,7 @@ class ConversationQueryRepositoryImplTest {
             );
 
             // when
-            CursorResponse<ConversationModel> response =
-                conversationQueryRepository.findAllConversation(userId, request);
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAllConversation(userId, request);
 
             // then
             assertThat(response.data()).hasSize(3);

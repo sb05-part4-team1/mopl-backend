@@ -6,6 +6,7 @@ import com.mopl.domain.model.conversation.ReadStatusModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.conversation.DirectMessageRepository;
 import com.mopl.domain.service.conversation.ConversationService;
+import com.mopl.domain.service.conversation.ReadStatusService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.websocket.interfaces.api.conversation.dto.DirectMessageResponse;
 import com.mopl.websocket.interfaces.api.conversation.mapper.DirectMessageMapper;
@@ -21,6 +22,7 @@ public class DirectMessageFacade {
 
     private final UserService userService;
     private final ConversationService conversationService;
+    private final ReadStatusService readStatusService;
     private final DirectMessageRepository directMessageRepository;
     private final DirectMessageMapper directMessageMapper;
 
@@ -29,19 +31,13 @@ public class DirectMessageFacade {
         UserModel sender = userService.getById(senderId);
         ConversationModel conversation = conversationService.getByIdWithAccessCheck(conversationId, senderId);
 
-        // 상대방 조회
-        ReadStatusModel otherReadStatus = conversationService.getOtherReadStatus(conversationId, senderId);
+        ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatus(conversationId, senderId);
         UserModel receiver = otherReadStatus.getUser();
 
-        DirectMessageModel directMessageModel = DirectMessageModel.builder()
-            .conversation(conversation)
-            .sender(sender)
-            .receiver(receiver)
-            .content(message)
-            .build();
+        DirectMessageModel directMessageModel = DirectMessageModel.create(message, conversation, sender);
 
         DirectMessageModel savedMessage = directMessageRepository.save(directMessageModel);
 
-        return directMessageMapper.toResponse(savedMessage);
+        return directMessageMapper.toResponse(savedMessage, receiver);
     }
 }

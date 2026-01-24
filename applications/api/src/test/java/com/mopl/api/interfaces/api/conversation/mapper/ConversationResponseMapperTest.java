@@ -66,7 +66,7 @@ class ConversationResponseMapperTest {
             );
 
             given(userSummaryMapper.toSummary(withUser)).willReturn(withUserSummary);
-            given(directMessageResponseMapper.toResponse(lastMessage)).willReturn(lastMessageResponse);
+            given(directMessageResponseMapper.toResponse(lastMessage, withUser)).willReturn(lastMessageResponse);
 
             // when
             ConversationResponse result = mapper.toResponse(
@@ -97,7 +97,7 @@ class ConversationResponseMapperTest {
             );
 
             given(userSummaryMapper.toSummary(withUser)).willReturn(withUserSummary);
-            given(directMessageResponseMapper.toResponse(null)).willReturn(null);
+            given(directMessageResponseMapper.toResponse(null, withUser)).willReturn(null);
 
             // when
             ConversationResponse result = mapper.toResponse(
@@ -121,7 +121,7 @@ class ConversationResponseMapperTest {
             ConversationModel conversationModel = ConversationModelFixture.create();
 
             given(userSummaryMapper.toSummary(null)).willReturn(null);
-            given(directMessageResponseMapper.toResponse(null)).willReturn(null);
+            given(directMessageResponseMapper.toResponse(null, null)).willReturn(null);
 
             // when
             ConversationResponse result = mapper.toResponse(conversationModel);

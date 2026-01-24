@@ -51,9 +51,7 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
                 // 특정 대화방
                 conversation.id.eq(conversationId),
                 // 내가 해당 대화방의 참여자인지 검증
-                readStatus.participant.id.eq(userId),
-                // soft delete
-                directMessage.deletedAt.isNull()
+                readStatus.participant.id.eq(userId)
             );
 
         // cursor pagination 적용
@@ -75,8 +73,7 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
             .on(readStatus.conversation.eq(conversation))
             .where(
                 conversation.id.eq(conversationId),
-                readStatus.participant.id.eq(userId),
-                directMessage.deletedAt.isNull()
+                readStatus.participant.id.eq(userId)
             )
             .fetchOne();
 
@@ -87,7 +84,7 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
             request,
             sortField,
             totalCount,
-            directMessageEntityMapper::toModel,
+            directMessageEntityMapper::toModelWithSender,
             sortField::extractValue,
             DirectMessageEntity::getId
         );
@@ -104,16 +101,16 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
 
         List<DirectMessageEntity> lastMessages = queryFactory
             .selectFrom(directMessage)
+            .join(directMessage.sender).fetchJoin()
             .where(
                 directMessage.conversation.id.in(conversationIds),
                 directMessage.deletedAt.isNull(),
-                directMessage.createdAt.eq(
+                directMessage.id.eq(
                     JPAExpressions
-                        .select(subMessage.createdAt.max())
+                        .select(subMessage.id.max())
                         .from(subMessage)
                         .where(
-                            subMessage.conversation.id.eq(directMessage.conversation.id),
-                            subMessage.deletedAt.isNull()
+                            subMessage.conversation.id.eq(directMessage.conversation.id)
                         )
                 )
             )
@@ -122,7 +119,7 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
         return lastMessages.stream()
             .collect(Collectors.toMap(
                 entity -> entity.getConversation().getId(),
-                directMessageEntityMapper::toModel
+                directMessageEntityMapper::toModelWithSender
             ));
     }
 }

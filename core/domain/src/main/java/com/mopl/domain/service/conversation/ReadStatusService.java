@@ -5,7 +5,6 @@ import com.mopl.domain.model.conversation.ReadStatusModel;
 import com.mopl.domain.repository.conversation.ReadStatusRepository;
 import lombok.RequiredArgsConstructor;
 
-import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -43,8 +42,8 @@ public class ReadStatusService {
 
     public void markAsRead(DirectMessageModel directMessageModel, ReadStatusModel readStatusModel) {
         if (directMessageModel != null) {
-            readStatusModel.updateLastRead(Instant.now());
-            readStatusRepository.save(readStatusModel);
+            ReadStatusModel updated = readStatusModel.markAsRead();
+            readStatusRepository.save(updated);
         }
     }
 }

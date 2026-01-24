@@ -1,6 +1,7 @@
 package com.mopl.websocket.interfaces.api.conversation.mapper;
 
 import com.mopl.domain.model.conversation.DirectMessageModel;
+import com.mopl.domain.model.user.UserModel;
 import com.mopl.websocket.interfaces.api.conversation.dto.DirectMessageResponse;
 import com.mopl.websocket.interfaces.api.user.mapper.UserSummaryMapper;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,7 @@ public class DirectMessageMapper {
 
     private final UserSummaryMapper userSummaryMapper;
 
-    public DirectMessageResponse toResponse(DirectMessageModel directMessageModel) {
+    public DirectMessageResponse toResponse(DirectMessageModel directMessageModel, UserModel receiver) {
         if (directMessageModel == null) {
             return null;
         }
@@ -21,7 +22,7 @@ public class DirectMessageMapper {
             directMessageModel.getConversation().getId(),
             directMessageModel.getCreatedAt(),
             userSummaryMapper.toSummary(directMessageModel.getSender()),
-            userSummaryMapper.toSummary(directMessageModel.getReceiver()),
+            userSummaryMapper.toSummary(receiver),
             directMessageModel.getContent()
         );
     }

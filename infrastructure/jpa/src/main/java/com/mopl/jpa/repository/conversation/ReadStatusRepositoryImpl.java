@@ -34,7 +34,7 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
         ReadStatusEntity readStatusEntity = jpaReadStatusRepository
             .findOtherReadStatus(conversationId, userId);
 
-        return readStatusEntityMapper.toModel(readStatusEntity);
+        return readStatusEntityMapper.toModelWithUser(readStatusEntity);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
         return jpaReadStatusRepository
             .findOthersByConversationIds(userId, conversationIds)
             .stream()
-            .map(readStatusEntityMapper::toModel)
+            .map(readStatusEntityMapper::toModelWithUser)
             .collect(Collectors.toMap(
                 rs -> rs.getConversation().getId(),
                 Function.identity()
@@ -54,7 +54,7 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
 
     @Override
     public Map<UUID, ReadStatusModel> findMineByConversationIds(List<UUID> conversationIds,
-                                                                UUID userId) {
+        UUID userId) {
         return jpaReadStatusRepository
             .findMineByConversationIds(conversationIds, userId)
             .stream()
