@@ -1,20 +1,19 @@
 package com.mopl.websocket.application.conversation;
 
-import java.util.UUID;
-
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.mopl.websocket.interfaces.api.conversation.dto.DirectMessageResponse;
-import com.mopl.websocket.interfaces.api.conversation.mapper.DirectMessageMapper;
-import com.mopl.domain.model.conversation.DirectMessageModel;
-import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.model.conversation.ConversationModel;
+import com.mopl.domain.model.conversation.DirectMessageModel;
+import com.mopl.domain.model.conversation.ReadStatusModel;
+import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.conversation.DirectMessageRepository;
 import com.mopl.domain.service.conversation.ConversationService;
 import com.mopl.domain.service.user.UserService;
-
+import com.mopl.websocket.interfaces.api.conversation.dto.DirectMessageResponse;
+import com.mopl.websocket.interfaces.api.conversation.mapper.DirectMessageMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -26,13 +25,13 @@ public class DirectMessageFacade {
     private final DirectMessageMapper directMessageMapper;
 
     @Transactional
-    public DirectMessageResponse sendDirectMessage(UUID conversationId, UUID userId,
-        String message) {
+    public DirectMessageResponse sendDirectMessage(UUID conversationId, UUID senderId, String message) {
+        UserModel sender = userService.getById(senderId);
+        ConversationModel conversation = conversationService.getByIdWithAccessCheck(conversationId, senderId);
 
-        UserModel sender = userService.getById(userId);
-        ConversationModel conversation = conversationService.getConversation(conversationId,
-            userId);
-        UserModel receiver = conversation.getWithUser();
+        // 상대방 조회
+        ReadStatusModel otherReadStatus = conversationService.getOtherReadStatus(conversationId, senderId);
+        UserModel receiver = otherReadStatus.getUser();
 
         DirectMessageModel directMessageModel = DirectMessageModel.builder()
             .conversation(conversation)

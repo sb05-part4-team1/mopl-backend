@@ -3,6 +3,8 @@ package com.mopl.api.interfaces.api.conversation.mapper;
 import com.mopl.api.interfaces.api.conversation.dto.ConversationResponse;
 import com.mopl.api.interfaces.api.user.mapper.UserSummaryMapper;
 import com.mopl.domain.model.conversation.ConversationModel;
+import com.mopl.domain.model.conversation.DirectMessageModel;
+import com.mopl.domain.model.user.UserModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -13,14 +15,21 @@ public class ConversationResponseMapper {
     private final UserSummaryMapper userSummaryMapper;
     private final DirectMessageResponseMapper directMessageResponseMapper;
 
+    public ConversationResponse toResponse(ConversationModel conversationModel) {
+        return toResponse(conversationModel, null, null, false);
+    }
+
     public ConversationResponse toResponse(
-        ConversationModel conversationModel
+        ConversationModel conversationModel,
+        UserModel withUser,
+        DirectMessageModel lastMessage,
+        boolean hasUnread
     ) {
         return new ConversationResponse(
             conversationModel.getId(),
-            userSummaryMapper.toSummary(conversationModel.getWithUser()),
-            directMessageResponseMapper.toResponse(conversationModel.getLastMessage()),
-            conversationModel.isHasUnread()
+            userSummaryMapper.toSummary(withUser),
+            directMessageResponseMapper.toResponse(lastMessage),
+            hasUnread
         );
     }
 }

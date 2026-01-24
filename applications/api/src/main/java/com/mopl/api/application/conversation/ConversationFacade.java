@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Component
@@ -29,63 +31,128 @@ public class ConversationFacade {
     private final ConversationResponseMapper conversationResponseMapper;
     private final DirectMessageResponseMapper directMessageResponseMapper;
 
-    @Transactional
     public CursorResponse<ConversationResponse> getConversations(
-        UUID userId,
+        UUID requesterId,
         ConversationQueryRequest request
     ) {
-        return conversationService.getAllConversation(request, userId)
-            .map(conversationResponseMapper::toResponse);
+        CursorResponse<ConversationModel> response = conversationService.getAll(requesterId, request);
+        List<ConversationModel> conversations = response.data();
+
+        if (conversations.isEmpty()) {
+            return CursorResponse.empty(response.sortBy(), response.sortDirection());
+        }
+
+        List<UUID> conversationIds = conversations.stream()
+            .map(ConversationModel::getId)
+            .toList();
+
+        Map<UUID, DirectMessageModel> lastMessageMap = conversationService.getLastMessagesByConversationIdIn(conversationIds);
+        Map<UUID, ReadStatusModel> otherReadStatusMap =
+            conversationService.getOtherReadStatusWithUserByConversationIdIn(conversationIds, requesterId);
+        Map<UUID, ReadStatusModel> myReadStatusMap =
+            conversationService.getMyReadStatusByConversationIdIn(conversationIds, requesterId);
+
+        return response.map(conversation -> {
+            UUID conversationId = conversation.getId();
+
+            ReadStatusModel otherReadStatus = otherReadStatusMap.get(conversationId);
+            DirectMessageModel lastMessage = lastMessageMap.get(conversationId);
+            ReadStatusModel myReadStatus = myReadStatusMap.get(conversationId);
+
+            UserModel withUser = otherReadStatus != null ? otherReadStatus.getUser() : null;
+            boolean hasUnread = calculateHasUnread(lastMessage, myReadStatus, requesterId);
+
+            return conversationResponseMapper.toResponse(
+                conversation,
+                withUser,
+                lastMessage,
+                hasUnread
+            );
+        });
     }
 
-    @Transactional
     public CursorResponse<DirectMessageResponse> getDirectMessages(
         UUID requesterId,
         UUID conversationId,
         DirectMessageQueryRequest request
     ) {
-        return conversationService.getAllDirectMessage(requesterId, conversationId, request)
+        return conversationService.getAllDirectMessages(conversationId, request, requesterId)
             .map(directMessageResponseMapper::toResponse);
     }
 
-    @Transactional
     public ConversationResponse getConversation(UUID requesterId, UUID conversationId) {
-        ConversationModel conversationModel = conversationService.getConversation(requesterId, conversationId);
-        return conversationResponseMapper.toResponse(conversationModel);
+        ConversationModel conversation = conversationService.getByIdWithAccessCheck(conversationId, requesterId);
+
+        ReadStatusModel otherReadStatus = conversationService.getOtherReadStatus(conversationId, requesterId);
+        DirectMessageModel lastMessage = conversationService.getLastMessageByConversationId(conversationId)
+            .orElse(null);
+        ReadStatusModel myReadStatus = conversationService.getMyReadStatus(conversationId, requesterId);
+
+        UserModel withUser = otherReadStatus != null ? otherReadStatus.getUser() : null;
+        boolean hasUnread = calculateHasUnread(lastMessage, myReadStatus, requesterId);
+
+        return conversationResponseMapper.toResponse(conversation, withUser, lastMessage, hasUnread);
     }
 
-    @Transactional
-    public ConversationResponse getConversationByWith(UUID requesterId, UUID withId) {
-        ConversationModel conversationModel = conversationService.getConversationByWith(requesterId, withId);
-        return conversationResponseMapper.toResponse(conversationModel);
+    public ConversationResponse getConversationByWith(UUID requesterId, UUID withUserId) {
+        UserModel withUser = userService.getById(withUserId);
+
+        ConversationModel conversation = conversationService.findByParticipants(requesterId, withUserId)
+            .orElseGet(() -> {
+                UserModel requester = userService.getById(requesterId);
+                return conversationService.create(ConversationModel.create(), requester, withUser);
+            });
+
+        DirectMessageModel lastMessage = conversationService.getLastMessageByConversationId(conversation.getId())
+            .orElse(null);
+        ReadStatusModel myReadStatus = conversationService.getMyReadStatus(conversation.getId(), requesterId);
+
+        boolean hasUnread = calculateHasUnread(lastMessage, myReadStatus, requesterId);
+
+        return conversationResponseMapper.toResponse(conversation, withUser, lastMessage, hasUnread);
     }
 
     @Transactional
     public ConversationResponse createConversation(UUID requesterId, ConversationCreateRequest request) {
+        UserModel withUser = userService.getById(request.withUserId());
+        UserModel requester = userService.getById(requesterId);
 
-        UserModel withUserModel = userService.getById(request.withUserId());
-        UserModel requesterUserModel = userService.getById(requesterId);
-        ConversationModel conversationModel = ConversationModel.create();
+        ConversationModel conversation = conversationService.create(
+            ConversationModel.create(),
+            requester,
+            withUser
+        );
 
-        ConversationModel createdConversationModel =
-            conversationService.create(conversationModel, requesterUserModel, withUserModel);
-
-        return conversationResponseMapper.toResponse(createdConversationModel);
+        return conversationResponseMapper.toResponse(conversation, withUser, null, false);
     }
 
     @Transactional
-    public void directMessageRead(
-        UUID requesterId,
-        UUID conversationId,
-        UUID directMessageId
+    public void directMessageRead(UUID requesterId, UUID conversationId, UUID directMessageId) {
+        conversationService.validateAccess(conversationId, requesterId);
+
+        DirectMessageModel directMessage = conversationService.findOtherDirectMessage(
+            conversationId, directMessageId, requesterId
+        ).orElse(null);
+
+        ReadStatusModel myReadStatus = conversationService.getMyReadStatus(conversationId, requesterId);
+
+        conversationService.markAsRead(directMessage, myReadStatus);
+    }
+
+    private boolean calculateHasUnread(
+        DirectMessageModel lastMessage,
+        ReadStatusModel myReadStatus,
+        UUID requesterId
     ) {
-        DirectMessageModel directMessageModel = conversationService.getOtherDirectMessage(
-            conversationId, directMessageId, requesterId);
-
-        ReadStatusModel readStatusModels = conversationService
-            .getReadStatusByConversationIdAndUserId(
-                conversationId, requesterId);
-
-        conversationService.directMessageRead(directMessageModel, readStatusModels);
+        if (lastMessage == null) {
+            return false;
+        }
+        if (lastMessage.getSender().getId().equals(requesterId)) {
+            return false;
+        }
+        if (myReadStatus == null) {
+            return true;
+        }
+        return lastMessage.getCreatedAt().isAfter(myReadStatus.getLastRead());
     }
 }

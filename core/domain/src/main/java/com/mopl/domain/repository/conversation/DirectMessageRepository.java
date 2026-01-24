@@ -1,6 +1,8 @@
 package com.mopl.domain.repository.conversation;
 
 import com.mopl.domain.model.conversation.DirectMessageModel;
+
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,5 +21,5 @@ public interface DirectMessageRepository {
 
     Optional<DirectMessageModel> findLastMessageByConversationId(UUID conversationId);
 
-    Map<UUID, DirectMessageModel> findLastMessagesByConversationIds(List<UUID> conversationIds);
+    Map<UUID, DirectMessageModel> findLastMessagesByConversationIdIn(Collection<UUID> conversationIds);
 }

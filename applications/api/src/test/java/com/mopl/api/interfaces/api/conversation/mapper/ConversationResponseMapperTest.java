@@ -5,7 +5,11 @@ import com.mopl.api.interfaces.api.conversation.dto.DirectMessageResponse;
 import com.mopl.api.interfaces.api.user.dto.UserSummary;
 import com.mopl.api.interfaces.api.user.mapper.UserSummaryMapper;
 import com.mopl.domain.fixture.ConversationModelFixture;
+import com.mopl.domain.fixture.DirectMessageModelFixture;
+import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.conversation.ConversationModel;
+import com.mopl.domain.model.conversation.DirectMessageModel;
+import com.mopl.domain.model.user.UserModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -38,53 +42,85 @@ class ConversationResponseMapperTest {
     class ToResponseTest {
 
         @Test
-        @DisplayName("ConversationModel을 ConversationResponse로 변환")
-        void withConversationModel_returnsConversationResponse() {
+        @DisplayName("ConversationModel과 연관 데이터를 ConversationResponse로 변환")
+        void withConversationModelAndRelatedData_returnsConversationResponse() {
             // given
             ConversationModel conversationModel = ConversationModelFixture.create();
+            UserModel withUser = UserModelFixture.create();
+            DirectMessageModel lastMessage = DirectMessageModelFixture.create();
+            boolean hasUnread = true;
 
             UserSummary withUserSummary = new UserSummary(
-                conversationModel.getWithUser().getId(),
-                conversationModel.getWithUser().getName(),
+                withUser.getId(),
+                withUser.getName(),
                 "https://cdn.example.com/profile.jpg"
             );
 
             DirectMessageResponse lastMessageResponse = new DirectMessageResponse(
-                conversationModel.getLastMessage().getId(),
+                lastMessage.getId(),
                 UUID.randomUUID(),
                 Instant.now(),
                 withUserSummary,
                 withUserSummary,
-                conversationModel.getLastMessage().getContent()
+                lastMessage.getContent()
             );
 
-            given(userSummaryMapper.toSummary(conversationModel.getWithUser())).willReturn(withUserSummary);
-            given(directMessageResponseMapper.toResponse(conversationModel.getLastMessage()))
-                .willReturn(lastMessageResponse);
+            given(userSummaryMapper.toSummary(withUser)).willReturn(withUserSummary);
+            given(directMessageResponseMapper.toResponse(lastMessage)).willReturn(lastMessageResponse);
 
             // when
-            ConversationResponse result = mapper.toResponse(conversationModel);
+            ConversationResponse result = mapper.toResponse(
+                conversationModel,
+                withUser,
+                lastMessage,
+                hasUnread
+            );
 
             // then
             assertThat(result.id()).isEqualTo(conversationModel.getId());
             assertThat(result.with()).isEqualTo(withUserSummary);
             assertThat(result.lastMessage()).isEqualTo(lastMessageResponse);
-            assertThat(result.hasUnread()).isEqualTo(conversationModel.isHasUnread());
+            assertThat(result.hasUnread()).isTrue();
         }
 
         @Test
         @DisplayName("lastMessage가 null인 경우에도 정상 변환")
         void withNullLastMessage_returnsConversationResponse() {
             // given
-            ConversationModel conversationModel = ConversationModelFixture.createWithoutLastMessage();
+            ConversationModel conversationModel = ConversationModelFixture.create();
+            UserModel withUser = UserModelFixture.create();
 
             UserSummary withUserSummary = new UserSummary(
-                conversationModel.getWithUser().getId(),
-                conversationModel.getWithUser().getName(),
+                withUser.getId(),
+                withUser.getName(),
                 "https://cdn.example.com/profile.jpg"
             );
 
-            given(userSummaryMapper.toSummary(conversationModel.getWithUser())).willReturn(withUserSummary);
+            given(userSummaryMapper.toSummary(withUser)).willReturn(withUserSummary);
+            given(directMessageResponseMapper.toResponse(null)).willReturn(null);
+
+            // when
+            ConversationResponse result = mapper.toResponse(
+                conversationModel,
+                withUser,
+                null,
+                false
+            );
+
+            // then
+            assertThat(result.id()).isEqualTo(conversationModel.getId());
+            assertThat(result.with()).isEqualTo(withUserSummary);
+            assertThat(result.lastMessage()).isNull();
+            assertThat(result.hasUnread()).isFalse();
+        }
+
+        @Test
+        @DisplayName("기본 toResponse 메서드는 연관 데이터 없이 변환")
+        void withOnlyConversationModel_returnsConversationResponseWithNulls() {
+            // given
+            ConversationModel conversationModel = ConversationModelFixture.create();
+
+            given(userSummaryMapper.toSummary(null)).willReturn(null);
             given(directMessageResponseMapper.toResponse(null)).willReturn(null);
 
             // when
@@ -92,9 +128,9 @@ class ConversationResponseMapperTest {
 
             // then
             assertThat(result.id()).isEqualTo(conversationModel.getId());
-            assertThat(result.with()).isEqualTo(withUserSummary);
+            assertThat(result.with()).isNull();
             assertThat(result.lastMessage()).isNull();
-            assertThat(result.hasUnread()).isEqualTo(conversationModel.isHasUnread());
+            assertThat(result.hasUnread()).isFalse();
         }
     }
 }
