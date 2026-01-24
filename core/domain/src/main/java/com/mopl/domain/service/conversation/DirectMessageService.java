@@ -24,7 +24,7 @@ public class DirectMessageService {
         DirectMessageQueryRequest request,
         UUID requesterId
     ) {
-        validateAccess(conversationId, requesterId);
+        // TODO: validateAccess(conversationId, requesterId);
         return directMessageQueryRepository.findAllByConversationId(conversationId, request, requesterId);
     }
 

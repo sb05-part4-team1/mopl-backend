@@ -39,7 +39,7 @@ public class ConversationFacade {
         UUID userId,
         ConversationQueryRequest request
     ) {
-        CursorResponse<ConversationModel> response = conversationService.getAll(request);
+        CursorResponse<ConversationModel> response = conversationService.getAll(userId, request);
         List<ConversationModel> conversations = response.data();
 
         if (conversations.isEmpty()) {
