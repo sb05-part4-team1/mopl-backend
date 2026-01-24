@@ -21,11 +21,11 @@ public class ReadStatusService {
         return readStatusRepository.findOtherReadStatusWithParticipantByConversationIdIn(userId, conversationIds);
     }
 
-    public Map<UUID, ReadStatusModel> getMyReadStatusWithParticipantByConversationIdIn(
+    public Map<UUID, ReadStatusModel> getMyReadStatusByConversationIdIn(
         UUID userId,
         Collection<UUID> conversationIds
     ) {
-        return readStatusRepository.findMyReadStatusWithParticipantByConversationIdIn(userId, conversationIds);
+        return readStatusRepository.findMyReadStatusByConversationIdIn(userId, conversationIds);
     }
 
     public ReadStatusModel getOtherReadStatus(UUID conversationId, UUID requesterId) {

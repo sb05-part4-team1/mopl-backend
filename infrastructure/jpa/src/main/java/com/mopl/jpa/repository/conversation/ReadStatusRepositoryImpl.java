@@ -52,14 +52,14 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
     }
 
     @Override
-    public Map<UUID, ReadStatusModel> findMyReadStatusWithParticipantByConversationIdIn(
+    public Map<UUID, ReadStatusModel> findMyReadStatusByConversationIdIn(
         UUID userId,
         Collection<UUID> conversationIds
     ) {
         return jpaReadStatusRepository
-            .findWithParticipantByParticipantIdAndConversationIdIn(userId, conversationIds)
+            .findByParticipantIdAndConversationIdIn(userId, conversationIds)
             .stream()
-            .map(readStatusEntityMapper::toModelWithUser)
+            .map(readStatusEntityMapper::toModel)
             .collect(Collectors.toMap(
                 rs -> rs.getConversation().getId(),
                 Function.identity()

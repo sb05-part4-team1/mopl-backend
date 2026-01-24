@@ -52,7 +52,7 @@ public class ConversationFacade {
 
         Map<UUID, DirectMessageModel> lastMessageMap = directMessageService.getLastMessagesWithSenderByConversationIdIn(conversationIds);
         Map<UUID, ReadStatusModel> otherReadStatusMap = readStatusService.getOtherReadStatusWithParticipantByConversationIdIn(userId, conversationIds);
-        Map<UUID, ReadStatusModel> myReadStatusMap = readStatusService.getMyReadStatusWithParticipantByConversationIdIn(userId, conversationIds);
+        Map<UUID, ReadStatusModel> myReadStatusMap = readStatusService.getMyReadStatusByConversationIdIn(userId, conversationIds);
 
         return response.map(conversation -> {
             UUID conversationId = conversation.getId();

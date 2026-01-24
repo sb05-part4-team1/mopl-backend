@@ -14,7 +14,7 @@ public interface ReadStatusRepository {
 
     Map<UUID, ReadStatusModel> findOtherReadStatusWithParticipantByConversationIdIn(UUID userId, Collection<UUID> conversationIds);
 
-    Map<UUID, ReadStatusModel> findMyReadStatusWithParticipantByConversationIdIn(UUID userId, Collection<UUID> conversationIds);
+    Map<UUID, ReadStatusModel> findMyReadStatusByConversationIdIn(UUID userId, Collection<UUID> conversationIds);
 
     ReadStatusModel save(ReadStatusModel readStatusModel);
 }

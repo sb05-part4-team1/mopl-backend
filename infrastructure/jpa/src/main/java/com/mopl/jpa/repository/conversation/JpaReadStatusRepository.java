@@ -35,8 +35,7 @@ public interface JpaReadStatusRepository extends JpaRepository<ReadStatusEntity,
         Collection<UUID> conversationId
     );
 
-    @EntityGraph(attributePaths = {"participant"})
-    List<ReadStatusEntity> findWithParticipantByParticipantIdAndConversationIdIn(
+    List<ReadStatusEntity> findByParticipantIdAndConversationIdIn(
         UUID participantId,
         Collection<UUID> conversationId
     );
