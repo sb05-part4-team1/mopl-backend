@@ -4,70 +4,35 @@ import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.repository.conversation.ConversationRepository;
 import com.mopl.jpa.entity.conversation.ConversationEntity;
 import com.mopl.jpa.entity.conversation.ConversationEntityMapper;
-import com.mopl.jpa.entity.conversation.DirectMessageEntity;
-import com.mopl.jpa.entity.conversation.DirectMessageEntityMapper;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
 public class ConversationRepositoryImpl implements ConversationRepository {
 
     private final JpaConversationRepository jpaConversationRepository;
-    private final JpaDirectMessageRepository jpaDirectMessageRepository;
     private final ConversationEntityMapper conversationEntityMapper;
-    private final DirectMessageEntityMapper directMessageEntityMapper;
 
     @Override
     public ConversationModel save(ConversationModel conversationModel) {
-        ConversationEntity conversationEntity = conversationEntityMapper.toEntity(
-            conversationModel);
-        ConversationEntity savedConversationEntity = jpaConversationRepository.save(
-            conversationEntity);
+        ConversationEntity conversationEntity = conversationEntityMapper.toEntity(conversationModel);
+        ConversationEntity savedConversationEntity = jpaConversationRepository.save(conversationEntity);
         return conversationEntityMapper.toModel(savedConversationEntity);
     }
 
     @Override
-    public Optional<ConversationModel> find(UUID conversationId) {
-        Optional<ConversationEntity> conversationEntity = jpaConversationRepository.findById(
-            conversationId);
-
-        Optional<DirectMessageEntity> directMessageEntity = jpaDirectMessageRepository
-            .findTopByConversationIdOrderByCreatedAtDesc(conversationId);
-
-        return conversationEntity.map(entity -> conversationEntityMapper.toModel(
-            entity,
-            directMessageEntity.map(directMessageEntityMapper::toModel))
-        );
-
-    }
-
-    @Override
     public Optional<ConversationModel> findById(UUID conversationId) {
-
         return jpaConversationRepository.findById(conversationId)
             .map(conversationEntityMapper::toModel);
-
     }
 
     @Override
     public Optional<ConversationModel> findByParticipants(UUID userId, UUID withId) {
-        return jpaConversationRepository
-            .findConversationIdByParticipants(userId, withId)
-            .map(conversationEntity -> {
-
-                Optional<DirectMessageEntity> directMessageEntity = jpaDirectMessageRepository
-                    .findTopByConversationIdOrderByCreatedAtDesc(
-                        conversationEntity.getId()
-                    );
-
-                return conversationEntityMapper.toModel(
-                    conversationEntity,
-                    directMessageEntity.map(directMessageEntityMapper::toModel)
-                );
-            });
+        return jpaConversationRepository.findConversationIdByParticipants(userId, withId)
+            .map(conversationEntityMapper::toModel);
     }
-
 }

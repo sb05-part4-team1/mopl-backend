@@ -12,19 +12,10 @@ public final class ConversationModelFixture {
 
     public static ArbitraryBuilder<ConversationModel> builder() {
         return fixtureMonkey().giveMeBuilder(ConversationModel.class)
-            .setNull("deletedAt")
-            .set("withUser", UserModelFixture.create())
-            .set("lastMessage", DirectMessageModelFixture.create())
-            .set("hasUnread", false);
+            .setNull("deletedAt");
     }
 
     public static ConversationModel create() {
         return builder().sample();
-    }
-
-    public static ConversationModel createWithoutLastMessage() {
-        return builder()
-            .setNull("lastMessage")
-            .sample();
     }
 }
