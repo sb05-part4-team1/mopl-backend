@@ -21,8 +21,8 @@ import static com.mopl.domain.model.user.UserModel.ROLE_MAX_LENGTH;
 @Entity
 @Table(name = "users")
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 @SQLRestriction("deleted_at IS NULL")
 public class UserEntity extends BaseUpdatableEntity {
 

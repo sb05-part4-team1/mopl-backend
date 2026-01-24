@@ -18,16 +18,19 @@ public class ContentSummaryMapper {
 
     private final StorageProvider storageProvider;
 
-    public ContentSummary toSummary(ContentModel model, List<String> tags) {
+    public ContentSummary toSummary(
+        ContentModel contentModel,
+        List<String> tags
+    ) {
         return new ContentSummary(
-            model.getId(),
-            model.getType(),
-            model.getTitle(),
-            model.getDescription(),
-            storageProvider.getUrl(model.getThumbnailPath()),
+            contentModel.getId(),
+            contentModel.getType(),
+            contentModel.getTitle(),
+            contentModel.getDescription(),
+            storageProvider.getUrl(contentModel.getThumbnailPath()),
             tags,
-            model.getAverageRating(),
-            model.getReviewCount()
+            contentModel.getAverageRating(),
+            contentModel.getReviewCount()
         );
     }
 

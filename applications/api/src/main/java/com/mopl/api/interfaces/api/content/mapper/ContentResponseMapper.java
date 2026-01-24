@@ -12,7 +12,7 @@ public class ContentResponseMapper {
     public ContentResponse toResponse(
         ContentModel contentModel,
         String thumbnailUrl,
-        List<String> tagNames,
+        List<String> tags,
         long watcherCount
     ) {
         return new ContentResponse(
@@ -21,7 +21,7 @@ public class ContentResponseMapper {
             contentModel.getTitle(),
             contentModel.getDescription(),
             thumbnailUrl,
-            tagNames,
+            tags,
             contentModel.getAverageRating(),
             contentModel.getReviewCount(),
             watcherCount
