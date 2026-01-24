@@ -1,7 +1,5 @@
 package com.mopl.jpa.repository.conversation.query;
 
-import static org.springframework.util.StringUtils.hasText;
-
 import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.repository.conversation.ConversationQueryRepository;
 import com.mopl.domain.repository.conversation.ConversationQueryRequest;
@@ -14,10 +12,13 @@ import com.mopl.jpa.entity.user.QUserEntity;
 import com.mopl.jpa.support.cursor.CursorPaginationHelper;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.UUID;
+
+import static org.springframework.util.StringUtils.hasText;
 
 @Repository
 @RequiredArgsConstructor
@@ -28,8 +29,8 @@ public class ConversationQueryRepositoryImpl implements ConversationQueryReposit
 
     @Override
     public CursorResponse<ConversationModel> findAllConversation(
-        ConversationQueryRequest request,
-        UUID userId
+        UUID requesterId,
+        ConversationQueryRequest request
     ) {
         QConversationEntity conversation = QConversationEntity.conversationEntity;
         QReadStatusEntity readStatusMe = new QReadStatusEntity("readStatusMe");
@@ -48,9 +49,9 @@ public class ConversationQueryRepositoryImpl implements ConversationQueryReposit
             .join(readStatusOther.participant, otherUser)
             .where(
                 // 내가 참여한 대화
-                readStatusMe.participant.id.eq(userId),
+                readStatusMe.participant.id.eq(requesterId),
                 // 상대방만
-                readStatusOther.participant.id.ne(userId),
+                readStatusOther.participant.id.ne(requesterId),
                 // soft delete
                 conversation.deletedAt.isNull(),
                 // keyword 검색
@@ -77,8 +78,8 @@ public class ConversationQueryRepositoryImpl implements ConversationQueryReposit
             .on(readStatusOther.conversation.eq(conversation))
             .join(readStatusOther.participant, otherUser)
             .where(
-                readStatusMe.participant.id.eq(userId),
-                readStatusOther.participant.id.ne(userId),
+                readStatusMe.participant.id.eq(requesterId),
+                readStatusOther.participant.id.ne(requesterId),
                 conversation.deletedAt.isNull(),
                 hasText(request.keywordLike())
                     ? otherUser.name.containsIgnoreCase(request.keywordLike())
@@ -114,5 +115,4 @@ public class ConversationQueryRepositoryImpl implements ConversationQueryReposit
 
         return fetchOne != null;
     }
-
 }

@@ -12,6 +12,8 @@ import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.conversation.ConversationQueryRequest;
 import com.mopl.domain.repository.conversation.DirectMessageQueryRequest;
 import com.mopl.domain.service.conversation.ConversationService;
+import com.mopl.domain.service.conversation.DirectMessageService;
+import com.mopl.domain.service.conversation.ReadStatusService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.support.cursor.CursorResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,8 @@ import java.util.UUID;
 public class ConversationFacade {
 
     private final ConversationService conversationService;
+    private final DirectMessageService directMessageService;
+    private final ReadStatusService readStatusService;
     private final UserService userService;
     private final ConversationResponseMapper conversationResponseMapper;
     private final DirectMessageResponseMapper directMessageResponseMapper;

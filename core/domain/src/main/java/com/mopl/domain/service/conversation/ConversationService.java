@@ -31,7 +31,7 @@ public class ConversationService {
         UUID requesterId,
         ConversationQueryRequest request
     ) {
-        return conversationQueryRepository.findAllConversation(request, requesterId);
+        return conversationQueryRepository.findAllConversation(requesterId, request);
     }
 
     public ConversationModel getById(UUID conversationId) {
