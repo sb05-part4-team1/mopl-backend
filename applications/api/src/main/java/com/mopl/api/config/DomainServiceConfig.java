@@ -26,6 +26,8 @@ import com.mopl.domain.repository.watchingsession.WatchingSessionRepository;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.content.ContentTagService;
 import com.mopl.domain.service.conversation.ConversationService;
+import com.mopl.domain.service.conversation.DirectMessageService;
+import com.mopl.domain.service.conversation.ReadStatusService;
 import com.mopl.domain.service.follow.FollowService;
 import com.mopl.domain.service.notification.NotificationService;
 import com.mopl.domain.service.outbox.OutboxService;
@@ -60,25 +62,30 @@ public class DomainServiceConfig {
     @Bean
     public ConversationService conversationService(
         ConversationQueryRepository conversationQueryRepository,
-        ConversationRepository conversationRepository,
-        DirectMessageQueryRepository directMessageQueryRepository,
-        DirectMessageRepository directMessageRepository,
-        ReadStatusRepository readStatusRepository,
-        UserRepository userRepository
+        ConversationRepository conversationRepository
     ) {
         return new ConversationService(
             conversationQueryRepository,
-            conversationRepository,
-            directMessageQueryRepository,
-            directMessageRepository,
-            readStatusRepository,
-            userRepository
+            conversationRepository
         );
     }
 
     @Bean
-    public FollowService followService(FollowRepository followRepository) {
-        return new FollowService(followRepository);
+    public DirectMessageService directMessageService(
+        DirectMessageQueryRepository directMessageQueryRepository,
+        DirectMessageRepository directMessageRepository
+    ) {
+        return new DirectMessageService(
+            directMessageQueryRepository,
+            directMessageRepository
+        );
+    }
+
+    @Bean
+    public ReadStatusService readStatusService(
+        ReadStatusRepository readStatusRepository
+    ) {
+        return new ReadStatusService(readStatusRepository);
     }
 
     @Bean
@@ -87,11 +94,6 @@ public class DomainServiceConfig {
         NotificationRepository notificationRepository
     ) {
         return new NotificationService(notificationQueryRepository, notificationRepository);
-    }
-
-    @Bean
-    public OutboxService outboxService(OutboxRepository outboxRepository) {
-        return new OutboxService(outboxRepository);
     }
 
     @Bean
@@ -141,6 +143,11 @@ public class DomainServiceConfig {
     }
 
     @Bean
+    public FollowService followService(FollowRepository followRepository) {
+        return new FollowService(followRepository);
+    }
+
+    @Bean
     public WatchingSessionService watchingSessionService(
         WatchingSessionQueryRepository watchingSessionQueryRepository,
         WatchingSessionRepository watchingSessionRepository
@@ -149,5 +156,10 @@ public class DomainServiceConfig {
             watchingSessionQueryRepository,
             watchingSessionRepository
         );
+    }
+
+    @Bean
+    public OutboxService outboxService(OutboxRepository outboxRepository) {
+        return new OutboxService(outboxRepository);
     }
 }

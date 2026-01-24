@@ -14,6 +14,8 @@ import com.mopl.domain.repository.user.UserRepository;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.content.ContentTagService;
 import com.mopl.domain.service.conversation.ConversationService;
+import com.mopl.domain.service.conversation.DirectMessageService;
+import com.mopl.domain.service.conversation.ReadStatusService;
 import com.mopl.domain.service.user.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,20 +42,30 @@ public class DomainServiceConfig {
     @Bean
     public ConversationService conversationService(
         ConversationQueryRepository conversationQueryRepository,
-        ConversationRepository conversationRepository,
-        DirectMessageQueryRepository directMessageQueryRepository,
-        DirectMessageRepository directMessageRepository,
-        ReadStatusRepository readStatusRepository,
-        UserRepository userRepository
+        ConversationRepository conversationRepository
     ) {
         return new ConversationService(
             conversationQueryRepository,
-            conversationRepository,
-            directMessageQueryRepository,
-            directMessageRepository,
-            readStatusRepository,
-            userRepository
+            conversationRepository
         );
+    }
+
+    @Bean
+    public DirectMessageService directMessageService(
+        DirectMessageQueryRepository directMessageQueryRepository,
+        DirectMessageRepository directMessageRepository
+    ) {
+        return new DirectMessageService(
+            directMessageQueryRepository,
+            directMessageRepository
+        );
+    }
+
+    @Bean
+    public ReadStatusService readStatusService(
+        ReadStatusRepository readStatusRepository
+    ) {
+        return new ReadStatusService(readStatusRepository);
     }
 
     @Bean
