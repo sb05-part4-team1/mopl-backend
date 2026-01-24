@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
+import com.mopl.domain.exception.watchingsession.WatchingSessionNotFoundException;
 import com.mopl.websocket.interfaces.api.user.mapper.UserSummaryMapper;
 import com.mopl.websocket.interfaces.api.watchingsession.dto.WatchingSessionResponse;
 import com.mopl.websocket.interfaces.api.watchingsession.mapper.WatchingSessionResponseMapper;
@@ -30,27 +31,26 @@ public class ContentWebSocketFacade {
     private final UserSummaryMapper userSummaryMapper;
 
     public WatchingSessionChange updateSession(UUID contentId, UUID userId, ChangeType type) {
-        UserModel watcher = userService.getById(userId);
-        ContentModel content = contentService.getById(contentId);
+        WatchingSessionModel session;
 
-        WatchingSessionModel session = WatchingSessionModel.create(
-            watcher.getId(),
-            watcher.getName(),
-            watcher.getProfileImagePath(),
-            content.getId(),
-            content.getTitle()
-        );
-
-        WatchingSessionModel dtoTarget;
         if (type == ChangeType.JOIN) {
-            dtoTarget = watchingSessionWebSocketFacade.create(session);
+            UserModel watcher = userService.getById(userId);
+            ContentModel content = contentService.getById(contentId);
+            session = WatchingSessionModel.create(
+                watcher.getId(),
+                watcher.getName(),
+                watcher.getProfileImagePath(),
+                content.getId(),
+                content.getTitle()
+            );
+            session = watchingSessionWebSocketFacade.create(session);
         } else {
-            dtoTarget = watchingSessionWebSocketFacade.findCurrentByWatcherId(userId)
-                .orElse(session);
+            session = watchingSessionWebSocketFacade.findCurrentByWatcherId(userId)
+                .orElseThrow(() -> WatchingSessionNotFoundException.withUserIdAndContentId(userId, contentId));
             watchingSessionWebSocketFacade.delete(session);
         }
 
-        WatchingSessionResponse dto = watchingSessionResponseMapper.toDto(dtoTarget);
+        WatchingSessionResponse dto = watchingSessionResponseMapper.toDto(session);
         long watcherCount = watchingSessionWebSocketFacade.getWatcherCount(contentId);
 
         return new WatchingSessionChange(type, dto, watcherCount);
