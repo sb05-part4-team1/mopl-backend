@@ -3,7 +3,6 @@ package com.mopl.api.interfaces.api.user;
 import com.mopl.api.interfaces.api.common.CommonApiResponse;
 import com.mopl.api.interfaces.api.user.dto.ChangePasswordRequest;
 import com.mopl.api.interfaces.api.user.dto.UserCreateRequest;
-import com.mopl.api.interfaces.api.user.dto.UserCursorResponse;
 import com.mopl.api.interfaces.api.user.dto.UserLockUpdateRequest;
 import com.mopl.api.interfaces.api.user.dto.UserResponse;
 import com.mopl.api.interfaces.api.user.dto.UserRoleUpdateRequest;
@@ -82,7 +81,7 @@ public interface UserApiSpec {
     })
     @ApiResponse(
         responseCode = "200",
-        content = @Content(schema = @Schema(implementation = UserCursorResponse.class))
+        content = @Content(schema = @Schema(implementation = CursorResponse.class))
     )
     @CommonApiResponse.Default
     @CommonApiResponse.Forbidden

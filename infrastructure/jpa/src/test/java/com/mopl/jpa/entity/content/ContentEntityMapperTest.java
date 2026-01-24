@@ -95,6 +95,16 @@ class ContentEntityMapperTest {
             assertThat(result.getCreatedAt()).isEqualTo(now);
             assertThat(result.getUpdatedAt()).isEqualTo(now);
         }
+
+        @Test
+        @DisplayName("null 입력 시 null 반환")
+        void withNull_returnsNull() {
+            // when
+            ContentEntity result = mapper.toEntity(null);
+
+            // then
+            assertThat(result).isNull();
+        }
     }
 
     @Nested
