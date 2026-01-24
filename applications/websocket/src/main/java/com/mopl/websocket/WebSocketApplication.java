@@ -5,8 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(scanBasePackages = {
     "com.mopl.websocket",
-    "com.mopl.api",
-    "com.mopl.security",
+    "com.mopl.jpa",
     "com.mopl.domain",
     "com.mopl.redis",
     "com.mopl.cache"

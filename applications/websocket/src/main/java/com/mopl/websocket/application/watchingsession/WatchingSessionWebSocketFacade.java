@@ -1,4 +1,4 @@
-package com.mopl.websocket.service.content;
+package com.mopl.websocket.application.watchingsession;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class WebSocketWatchingSessionService {
+public class WatchingSessionWebSocketFacade {
 
     private final WatchingSessionRepository watchingSessionRepository;
 

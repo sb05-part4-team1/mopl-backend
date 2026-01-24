@@ -2,6 +2,7 @@ dependencies {
     // project modules
     implementation(project(":core:domain"))
     implementation(project(":infrastructure:cache"))
+    implementation(project(":infrastructure:jpa"))
     implementation(project(":infrastructure:redis"))
     implementation(project(":infrastructure:security"))
     implementation(project(":infrastructure:storage"))

@@ -15,7 +15,7 @@ import com.mopl.domain.service.user.UserService;
 import com.mopl.websocket.interfaces.api.content.ChangeType;
 import com.mopl.websocket.interfaces.api.content.ContentChatDto;
 import com.mopl.websocket.interfaces.api.content.WatchingSessionChange;
-import com.mopl.websocket.service.content.WebSocketWatchingSessionService;
+import com.mopl.websocket.application.watchingsession.WatchingSessionWebSocketFacade;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ContentWebSocketFacade {
 
-    private final WebSocketWatchingSessionService webSocketWatchingSessionService;
+    private final WatchingSessionWebSocketFacade watchingSessionWebSocketFacade;
     private final UserService userService;
     private final ContentService contentService;
     private final WatchingSessionResponseMapper watchingSessionResponseMapper;
@@ -43,15 +43,15 @@ public class ContentWebSocketFacade {
 
         WatchingSessionModel dtoTarget;
         if (type == ChangeType.JOIN) {
-            dtoTarget = webSocketWatchingSessionService.create(session);
+            dtoTarget = watchingSessionWebSocketFacade.create(session);
         } else {
-            dtoTarget = webSocketWatchingSessionService.findCurrentByWatcherId(userId)
+            dtoTarget = watchingSessionWebSocketFacade.findCurrentByWatcherId(userId)
                 .orElse(session);
-            webSocketWatchingSessionService.delete(session);
+            watchingSessionWebSocketFacade.delete(session);
         }
 
         WatchingSessionResponse dto = watchingSessionResponseMapper.toDto(dtoTarget);
-        long watcherCount = webSocketWatchingSessionService.getWatcherCount(contentId);
+        long watcherCount = watchingSessionWebSocketFacade.getWatcherCount(contentId);
 
         return new WatchingSessionChange(type, dto, watcherCount);
     }
