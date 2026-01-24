@@ -47,6 +47,14 @@ public class ReviewQueryRepositoryImpl implements ReviewQueryRepository {
         );
 
         List<ReviewEntity> rows = jpaQuery.fetch();
+
+        if (rows.isEmpty()) {
+            return CursorResponse.empty(
+                sortFieldJpa.getFieldName(),
+                request.sortDirection()
+            );
+        }
+
         long totalCount = countTotal(request.contentId());
 
         return CursorPaginationHelper.buildResponse(

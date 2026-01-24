@@ -49,6 +49,14 @@ public class PlaylistQueryRepositoryImpl implements PlaylistQueryRepository {
         );
 
         List<PlaylistEntity> rows = jpaQuery.fetch();
+
+        if (rows.isEmpty()) {
+            return CursorResponse.empty(
+                sortFieldJpa.getFieldName(),
+                request.sortDirection()
+            );
+        }
+
         long totalCount = countTotal(request);
 
         return CursorPaginationHelper.buildResponse(

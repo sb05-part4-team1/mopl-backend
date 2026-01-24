@@ -47,6 +47,14 @@ public class NotificationQueryRepositoryImpl implements NotificationQueryReposit
         );
 
         List<NotificationEntity> rows = jpaQuery.fetch();
+
+        if (rows.isEmpty()) {
+            return CursorResponse.empty(
+                sortFieldJpa.getFieldName(),
+                request.sortDirection()
+            );
+        }
+
         long totalCount = countTotal(receiverId);
 
         return CursorPaginationHelper.buildResponse(
