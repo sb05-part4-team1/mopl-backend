@@ -26,7 +26,7 @@ public class RedisWatchingSessionQueryRepositoryImpl implements WatchingSessionQ
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    public CursorResponse<WatchingSessionModel> findByContentId(
+    public CursorResponse<WatchingSessionModel> findAllByContentId(
         UUID contentId,
         WatchingSessionQueryRequest request
     ) {
@@ -47,7 +47,7 @@ public class RedisWatchingSessionQueryRepositoryImpl implements WatchingSessionQ
             request,
             sortField,
             sortField::extractValue,
-            model -> model.getWatcher().getId()
+            WatchingSessionModel::getWatcherId
         );
 
         return RedisCursorPaginationHelper.buildResponse(
@@ -56,7 +56,7 @@ public class RedisWatchingSessionQueryRepositoryImpl implements WatchingSessionQ
             sortField,
             total,
             sortField::extractValue,
-            model -> model.getWatcher().getId()
+            WatchingSessionModel::getWatcherId
         );
     }
 
@@ -104,7 +104,7 @@ public class RedisWatchingSessionQueryRepositoryImpl implements WatchingSessionQ
             .sorted((a, b) -> RedisCursorPaginationHelper.compareByFieldThenId(
                 a, b,
                 sortField::extractValue,
-                model -> model.getWatcher().getId(),
+                WatchingSessionModel::getWatcherId,
                 direction
             ))
             .toList();

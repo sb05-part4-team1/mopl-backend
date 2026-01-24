@@ -1,6 +1,5 @@
 package com.mopl.websocket.application.content;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
@@ -33,19 +32,25 @@ public class ContentWebSocketFacade {
     public WatchingSessionChange updateSession(UUID contentId, UUID userId, ChangeType type) {
         UserModel watcher = userService.getById(userId);
         ContentModel content = contentService.getById(contentId);
-        WatchingSessionModel session = WatchingSessionModel.create(watcher, content);
-        WatchingSessionModel dtoTarget;
 
+        WatchingSessionModel session = WatchingSessionModel.create(
+            watcher.getId(),
+            watcher.getName(),
+            watcher.getProfileImagePath(),
+            content.getId(),
+            content.getTitle()
+        );
+
+        WatchingSessionModel dtoTarget;
         if (type == ChangeType.JOIN) {
             dtoTarget = webSocketWatchingSessionService.create(session);
         } else {
             dtoTarget = webSocketWatchingSessionService.findCurrentByWatcherId(userId)
-                .orElse(session); // 혹시 없으면 fallback(없으면 id/createdAt null일 수 있음)
-
+                .orElse(session);
             webSocketWatchingSessionService.delete(session);
         }
 
-        WatchingSessionResponse dto = watchingSessionResponseMapper.toDto(dtoTarget, watcher, content);
+        WatchingSessionResponse dto = watchingSessionResponseMapper.toDto(dtoTarget);
         long watcherCount = webSocketWatchingSessionService.getWatcherCount(contentId);
 
         return new WatchingSessionChange(type, dto, watcherCount);
@@ -53,10 +58,6 @@ public class ContentWebSocketFacade {
 
     public ContentChatDto sendChatMessage(UUID contentId, UUID userId, String message) {
         UserModel sender = userService.getById(userId);
-
-        return new ContentChatDto(
-            userSummaryMapper.toSummary(sender),
-            message
-        );
+        return new ContentChatDto(userSummaryMapper.toSummary(sender), message);
     }
 }

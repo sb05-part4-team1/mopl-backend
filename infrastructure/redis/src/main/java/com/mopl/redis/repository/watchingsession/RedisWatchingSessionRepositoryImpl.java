@@ -8,7 +8,6 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,44 +22,38 @@ public class RedisWatchingSessionRepositoryImpl implements WatchingSessionReposi
 
     @Override
     public WatchingSessionModel save(WatchingSessionModel model) {
-        WatchingSessionModel savedModel = ensureCreatedAt(model);
-
-        UUID contentId = savedModel.getContent().getId();
-        UUID watcherId = savedModel.getWatcher().getId();
+        UUID watcherId = model.getWatcherId();
+        UUID contentId = model.getContentId();
 
         redisTemplate.opsForValue().set(
             WatchingSessionRedisKeys.watcherSessionKey(watcherId),
-            savedModel
+            model
         );
 
-        long score = savedModel.getCreatedAt().toEpochMilli();
+        long score = model.getCreatedAt().toEpochMilli();
         redisTemplate.opsForZSet().add(
             WatchingSessionRedisKeys.contentWatchersKey(contentId),
             watcherId.toString(),
             score
         );
 
-        return savedModel;
+        return model;
     }
 
     @Override
     public void delete(WatchingSessionModel model) {
-        if (model == null || model.getWatcher() == null || model.getWatcher().getId() == null) {
+        if (model == null || model.getWatcherId() == null) {
             return;
         }
 
-        UUID watcherId = model.getWatcher().getId();
+        UUID watcherId = model.getWatcherId();
         String sessionKey = WatchingSessionRedisKeys.watcherSessionKey(watcherId);
 
-        UUID contentId = null;
-        if (model.getContent() != null) {
-            contentId = model.getContent().getId();
-        }
-
+        UUID contentId = model.getContentId();
         if (contentId == null) {
             Object stored = redisTemplate.opsForValue().get(sessionKey);
-            if (stored instanceof WatchingSessionModel storedModel && storedModel.getContent() != null) {
-                contentId = storedModel.getContent().getId();
+            if (stored instanceof WatchingSessionModel storedModel) {
+                contentId = storedModel.getContentId();
             }
         }
 
@@ -115,19 +108,5 @@ public class RedisWatchingSessionRepositoryImpl implements WatchingSessionReposi
             result.put(contentIds.get(i), count != null ? count : 0L);
         }
         return result;
-    }
-
-    private WatchingSessionModel ensureCreatedAt(WatchingSessionModel model) {
-        if (model.getCreatedAt() != null) {
-            return model;
-        }
-
-        return WatchingSessionModel.builder()
-            .id(model.getId())
-            .createdAt(Instant.now())
-            .deletedAt(model.getDeletedAt())
-            .watcher(model.getWatcher())
-            .content(model.getContent())
-            .build();
     }
 }

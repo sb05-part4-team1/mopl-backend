@@ -18,15 +18,15 @@ public class WatchingSessionService {
     private final WatchingSessionQueryRepository watchingSessionQueryRepository;
     private final WatchingSessionRepository watchingSessionRepository;
 
-    public Optional<WatchingSessionModel> getWatchingSessionByWatcherId(UUID watcherId) {
-        return watchingSessionRepository.findByWatcherId(watcherId);
-    }
-
     public CursorResponse<WatchingSessionModel> getWatchingSessions(
         UUID contentId,
         WatchingSessionQueryRequest request
     ) {
-        return watchingSessionQueryRepository.findByContentId(contentId, request);
+        return watchingSessionQueryRepository.findAllByContentId(contentId, request);
+    }
+
+    public Optional<WatchingSessionModel> getWatchingSessionByWatcherId(UUID watcherId) {
+        return watchingSessionRepository.findByWatcherId(watcherId);
     }
 
     public long countByContentId(UUID contentId) {
