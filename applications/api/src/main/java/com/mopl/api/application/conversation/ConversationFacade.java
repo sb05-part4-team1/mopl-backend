@@ -35,6 +35,7 @@ public class ConversationFacade {
     private final ConversationResponseMapper conversationResponseMapper;
     private final DirectMessageResponseMapper directMessageResponseMapper;
 
+    @Transactional(readOnly = true)
     public CursorResponse<ConversationResponse> getConversations(
         UUID userId,
         ConversationQueryRequest request
@@ -147,7 +148,7 @@ public class ConversationFacade {
         DirectMessageModel lastMessage,
         ReadStatusModel myReadStatus
     ) {
-        return lastMessage != null
+        return lastMessage != null && myReadStatus != null
             && !lastMessage.getSender().getId().equals(requesterId)
             && lastMessage.getCreatedAt().isAfter(myReadStatus.getLastReadAt());
     }

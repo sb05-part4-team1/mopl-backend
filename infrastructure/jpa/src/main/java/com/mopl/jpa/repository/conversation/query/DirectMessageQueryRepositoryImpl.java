@@ -106,7 +106,6 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
             .join(directMessage.sender).fetchJoin()
             .where(
                 directMessage.conversation.id.in(conversationIds),
-                directMessage.deletedAt.isNull(),
                 directMessage.id.eq(
                     JPAExpressions
                         .select(subMessage.id.max())
