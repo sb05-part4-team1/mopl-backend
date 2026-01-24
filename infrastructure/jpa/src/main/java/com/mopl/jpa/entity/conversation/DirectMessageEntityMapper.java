@@ -22,8 +22,8 @@ public class DirectMessageEntityMapper {
 
         return buildDirectMessageModel(
             entity,
-            toConversationIdOnly(entity.getConversation()),
-            toSenderIdOnly(entity.getSender())
+            toSenderIdOnly(entity.getSender()),
+            toConversationIdOnly(entity.getConversation())
         );
     }
 
@@ -34,8 +34,8 @@ public class DirectMessageEntityMapper {
 
         return buildDirectMessageModel(
             entity,
-            toConversationIdOnly(entity.getConversation()),
-            userEntityMapper.toModel(entity.getSender())
+            userEntityMapper.toModel(entity.getSender()),
+            toConversationIdOnly(entity.getConversation())
         );
     }
 
@@ -46,37 +46,37 @@ public class DirectMessageEntityMapper {
 
         return DirectMessageEntity.builder()
             .id(model.getId())
-            .conversation(conversationEntityMapper.toEntity(model.getConversation()))
-            .sender(userEntityMapper.toEntity(model.getSender()))
             .createdAt(model.getCreatedAt())
             .content(model.getContent())
+            .sender(userEntityMapper.toEntity(model.getSender()))
+            .conversation(conversationEntityMapper.toEntity(model.getConversation()))
             .build();
     }
 
     private DirectMessageModel buildDirectMessageModel(
         DirectMessageEntity entity,
-        ConversationModel conversation,
-        UserModel sender
+        UserModel sender,
+        ConversationModel conversation
     ) {
         return DirectMessageModel.builder()
             .id(entity.getId())
             .createdAt(entity.getCreatedAt())
             .deletedAt(entity.getDeletedAt())
-            .conversation(conversation)
             .sender(sender)
+            .conversation(conversation)
             .content(entity.getContent())
             .build();
-    }
-
-    private ConversationModel toConversationIdOnly(ConversationEntity entity) {
-        return entity != null
-            ? ConversationModel.builder().id(entity.getId()).build()
-            : null;
     }
 
     private UserModel toSenderIdOnly(UserEntity entity) {
         return entity != null
             ? UserModel.builder().id(entity.getId()).build()
+            : null;
+    }
+
+    private ConversationModel toConversationIdOnly(ConversationEntity entity) {
+        return entity != null
+            ? ConversationModel.builder().id(entity.getId()).build()
             : null;
     }
 }

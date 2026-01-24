@@ -6,9 +6,7 @@ import com.mopl.domain.repository.conversation.DirectMessageQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.jpa.entity.conversation.DirectMessageEntity;
 import com.mopl.jpa.entity.conversation.DirectMessageEntityMapper;
-import com.mopl.jpa.entity.conversation.QConversationEntity;
 import com.mopl.jpa.entity.conversation.QDirectMessageEntity;
-import com.mopl.jpa.entity.conversation.QReadStatusEntity;
 import com.mopl.jpa.support.cursor.CursorPaginationHelper;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -39,9 +37,9 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
         UUID conversationId,
         DirectMessageQueryRequest request
     ) {
-        DirectMessageSortFieldJpa sortField = DirectMessageSortFieldJpa.from(request.sortBy());
+        DirectMessageSortFieldJpa sortFieldJpa = DirectMessageSortFieldJpa.from(request.sortBy());
 
-        JPAQuery<DirectMessageEntity> query = queryFactory
+        JPAQuery<DirectMessageEntity> jpaQuery = queryFactory
             .select(directMessageEntity)
             .from(directMessageEntity)
             .join(directMessageEntity.conversation, conversationEntity)
@@ -52,17 +50,22 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
                 readStatusEntity.participant.id.eq(userId)
             );
 
-        // cursor pagination 적용
         CursorPaginationHelper.applyCursorPagination(
             request,
-            sortField,
-            query,
+            sortFieldJpa,
+            jpaQuery,
             directMessageEntity.id
         );
 
-        List<DirectMessageEntity> rows = query.fetch();
+        List<DirectMessageEntity> rows = jpaQuery.fetch();
 
-        // total count
+        if (rows.isEmpty()) {
+            return CursorResponse.empty(
+                sortFieldJpa.getFieldName(),
+                request.sortDirection()
+            );
+        }
+
         Long totalCountValue = queryFactory
             .select(directMessageEntity.count())
             .from(directMessageEntity)
@@ -80,10 +83,10 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
         return CursorPaginationHelper.buildResponse(
             rows,
             request,
-            sortField,
+            sortFieldJpa,
             totalCount,
             directMessageEntityMapper::toModelWithSender,
-            sortField::extractValue,
+            sortFieldJpa::extractValue,
             DirectMessageEntity::getId
         );
     }
@@ -96,20 +99,19 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
             return Map.of();
         }
 
-        QDirectMessageEntity directMessage = directMessageEntity;
         QDirectMessageEntity subMessage = new QDirectMessageEntity("subMessage");
 
         List<DirectMessageEntity> lastMessages = queryFactory
-            .selectFrom(directMessage)
-            .join(directMessage.sender).fetchJoin()
+            .selectFrom(directMessageEntity)
+            .join(directMessageEntity.sender).fetchJoin()
             .where(
-                directMessage.conversation.id.in(conversationIds),
-                directMessage.id.eq(
+                directMessageEntity.conversation.id.in(conversationIds),
+                directMessageEntity.id.eq(
                     JPAExpressions
                         .select(subMessage.id.max())
                         .from(subMessage)
                         .where(
-                            subMessage.conversation.id.eq(directMessage.conversation.id)
+                            subMessage.conversation.id.eq(directMessageEntity.conversation.id)
                         )
                 )
             )
