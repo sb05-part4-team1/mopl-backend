@@ -10,4 +10,5 @@ public record WatchingSessionDto(
     Instant createdAt,
     UserSummary watcher,
     ContentSummary content
-) {}
+) {
+}

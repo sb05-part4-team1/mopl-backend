@@ -1,6 +1,5 @@
 package com.mopl.domain.repository.content;
 
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;

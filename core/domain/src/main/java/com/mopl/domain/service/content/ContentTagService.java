@@ -11,6 +11,7 @@ import org.springframework.cache.annotation.Cacheable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,13 +40,17 @@ public class ContentTagService {
             return;
         }
 
-        List<String> normalizedNames = normalizeTagNames(tagNames);
+        Set<String> normalizedNames = normalizeTagNames(tagNames);
         if (normalizedNames.isEmpty()) {
             return;
         }
 
-        List<TagModel> existingTags = tagRepository.findByNameIn(normalizedNames);
-        List<TagModel> tagsToSave = resolveOrCreateTags(normalizedNames, existingTags);
+        Map<String, TagModel> existingByName = tagRepository.findByNameIn(normalizedNames).stream()
+            .collect(Collectors.toMap(TagModel::getName, Function.identity()));
+
+        List<TagModel> tagsToSave = normalizedNames.stream()
+            .map(name -> existingByName.getOrDefault(name, TagModel.create(name)))
+            .toList();
 
         List<TagModel> savedTags = tagRepository.saveAll(tagsToSave);
         contentTagRepository.saveAll(contentId, savedTags);
@@ -56,30 +61,11 @@ public class ContentTagService {
         contentTagRepository.deleteAllByContentId(contentId);
     }
 
-    private List<String> normalizeTagNames(List<String> tagNames) {
+    private Set<String> normalizeTagNames(List<String> tagNames) {
         return tagNames.stream()
             .filter(Objects::nonNull)
             .map(String::strip)
             .filter(name -> !name.isEmpty())
-            .distinct()
-            .toList();
-    }
-
-    private List<TagModel> resolveOrCreateTags(List<String> names, List<TagModel> existingTags) {
-        Map<String, TagModel> existingByName = existingTags.stream()
-            .collect(Collectors.toMap(TagModel::getName, Function.identity()));
-
-        return names.stream()
-            .map(name -> {
-                TagModel existing = existingByName.get(name);
-                if (existing != null) {
-                    if (existing.isDeleted()) {
-                        existing.restore();
-                    }
-                    return existing;
-                }
-                return TagModel.create(name);
-            })
-            .toList();
+            .collect(Collectors.toSet());
     }
 }

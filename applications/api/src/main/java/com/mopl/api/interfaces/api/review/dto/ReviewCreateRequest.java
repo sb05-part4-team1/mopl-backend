@@ -21,4 +21,5 @@ public record ReviewCreateRequest(
     @NotNull UUID contentId,
     @NotBlank @Size(max = TEXT_MAX_LENGTH) String text,
     @NotNull @DecimalMin("0.0") @DecimalMax("5.0") Double rating
-) {}
+) {
+}

@@ -11,4 +11,5 @@ public record NotificationResponse(
     String title,
     String content,
     NotificationModel.NotificationLevel level
-) {}
+) {
+}

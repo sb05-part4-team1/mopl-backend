@@ -8,4 +8,5 @@ public record ConversationResponse(
     UserSummary with,
     DirectMessageResponse lastMessage,
     boolean hasUnread
-) {}
+) {
+}

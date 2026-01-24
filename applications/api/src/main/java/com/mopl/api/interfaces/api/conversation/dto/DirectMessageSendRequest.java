@@ -10,4 +10,5 @@ import jakarta.validation.constraints.NotBlank;
     """)
 public record DirectMessageSendRequest(
     @NotBlank String content
-) {}
+) {
+}

@@ -507,5 +507,16 @@ class ContentModelTest {
             assertThat(result.getReviewCount()).isZero();
             assertThat(result.getAverageRating()).isZero();
         }
+
+        @Test
+        @DisplayName("리뷰가 없을 때 삭제하면 예외 발생")
+        void removeReview_withNoReviews_throwsException() {
+            // given
+            ContentModel content = createDefaultContent();
+
+            // when & then
+            assertThatThrownBy(() -> content.removeReview(5.0))
+                .isInstanceOf(InvalidContentDataException.class);
+        }
     }
 }

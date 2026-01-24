@@ -120,6 +120,7 @@ public class ContentFacade {
         ContentModel contentModel = contentService.getById(contentId);
         contentModel.delete();
         contentService.delete(contentModel);
+        contentTagService.deleteAllByContentId(contentId);
     }
 
     private String uploadToStorage(MultipartFile file) {

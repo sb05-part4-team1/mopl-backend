@@ -12,4 +12,5 @@ public record DirectMessageCursorResponse(
     long totalCount,
     String sortBy,
     SortDirection sortDirection
-) {}
+) {
+}

@@ -26,8 +26,8 @@ public class WatchingSessionController implements WatchingSessionApiSpec {
 
     @GetMapping("/users/{watcherId}/watching-sessions")
     public ResponseEntity<WatchingSessionDto> getWatchingSession( // 여기만 예외로 ResponseEntity를 사용 (응답이 2개여서)
-                                                                  @AuthenticationPrincipal MoplUserDetails userDetails,
-                                                                  @PathVariable UUID watcherId
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @PathVariable UUID watcherId
     ) {
 
         UUID requesterId = userDetails.userId();

@@ -141,10 +141,10 @@ class ContentControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/contents")
-                    .with(user(mockUserDetails))
-                    .param("limit", "20")
-                    .param("sortDirection", "DESCENDING")
-                    .param("sortBy", "watcherCount"))
+                .with(user(mockUserDetails))
+                .param("limit", "20")
+                .param("sortDirection", "DESCENDING")
+                .param("sortBy", "watcherCount"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(2))
@@ -172,10 +172,10 @@ class ContentControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/contents")
-                    .with(user(mockUserDetails))
-                    .param("typeEqual", "movie")
-                    .param("keywordLike", "인셉션")
-                    .param("tagsIn", "SF,Action"))
+                .with(user(mockUserDetails))
+                .param("typeEqual", "movie")
+                .param("keywordLike", "인셉션")
+                .param("tagsIn", "SF,Action"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(0))
@@ -206,10 +206,10 @@ class ContentControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/contents")
-                    .with(user(mockUserDetails))
-                    .param("cursor", "100")
-                    .param("idAfter", idAfter.toString())
-                    .param("limit", "20"))
+                .with(user(mockUserDetails))
+                .param("cursor", "100")
+                .param("idAfter", idAfter.toString())
+                .param("limit", "20"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(1))
                 .andExpect(jsonPath("$.hasNext").value(false))
@@ -230,7 +230,7 @@ class ContentControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/contents")
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(0))
@@ -256,7 +256,7 @@ class ContentControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/contents/{contentId}", contentId)
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(contentId.toString()))
                 .andExpect(jsonPath("$.type").value("movie"))
@@ -283,7 +283,7 @@ class ContentControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/contents/{contentId}", nonExistingContentId)
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isNotFound());
 
             then(contentFacade).should().getContent(nonExistingContentId);
@@ -327,9 +327,9 @@ class ContentControllerTest {
 
             // when & then
             mockMvc.perform(multipart(HttpMethod.POST, "/api/contents")
-                    .file(requestPart)
-                    .file(thumbnail)
-                    .with(user(mockAdminDetails)))
+                .file(requestPart)
+                .file(thumbnail)
+                .with(user(mockAdminDetails)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(contentId.toString()))
                 .andExpect(jsonPath("$.type").value("movie"))
@@ -367,9 +367,9 @@ class ContentControllerTest {
 
             // when & then
             mockMvc.perform(multipart(HttpMethod.POST, "/api/contents")
-                    .file(requestPart)
-                    .file(thumbnail)
-                    .with(user(mockUserDetails)))
+                .file(requestPart)
+                .file(thumbnail)
+                .with(user(mockUserDetails)))
                 .andExpect(status().isForbidden());
 
             then(contentFacade).should(never()).upload(any(), any());
@@ -402,8 +402,8 @@ class ContentControllerTest {
 
             // when & then
             mockMvc.perform(multipart(HttpMethod.POST, "/api/contents")
-                    .file(requestPart)
-                    .file(thumbnail))
+                .file(requestPart)
+                .file(thumbnail))
                 .andExpect(status().isForbidden());
 
             then(contentFacade).should(never()).upload(any(), any());
@@ -439,9 +439,9 @@ class ContentControllerTest {
 
             // when & then
             mockMvc.perform(multipart(HttpMethod.POST, "/api/contents")
-                    .file(requestPart)
-                    .file(thumbnail)
-                    .with(user(mockAdminDetails)))
+                .file(requestPart)
+                .file(thumbnail)
+                .with(user(mockAdminDetails)))
                 .andExpect(status().isBadRequest());
         }
     }
@@ -492,9 +492,9 @@ class ContentControllerTest {
 
             // when & then
             mockMvc.perform(multipart(HttpMethod.PATCH, "/api/contents/{contentId}", contentId)
-                    .file(requestPart)
-                    .file(thumbnail)
-                    .with(user(mockAdminDetails)))
+                .file(requestPart)
+                .file(thumbnail)
+                .with(user(mockAdminDetails)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(contentId.toString()))
                 .andExpect(jsonPath("$.title").value("Updated Title"))
@@ -539,8 +539,8 @@ class ContentControllerTest {
 
             // when & then
             mockMvc.perform(multipart(HttpMethod.PATCH, "/api/contents/{contentId}", contentId)
-                    .file(requestPart)
-                    .with(user(mockAdminDetails)))
+                .file(requestPart)
+                .with(user(mockAdminDetails)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(contentId.toString()))
                 .andExpect(jsonPath("$.title").value("Updated Title"));
@@ -568,8 +568,8 @@ class ContentControllerTest {
 
             // when & then
             mockMvc.perform(multipart(HttpMethod.PATCH, "/api/contents/{contentId}", contentId)
-                    .file(requestPart)
-                    .with(user(mockUserDetails)))
+                .file(requestPart)
+                .with(user(mockUserDetails)))
                 .andExpect(status().isForbidden());
 
             then(contentFacade).should(never()).update(any(), any(), any());
@@ -598,8 +598,8 @@ class ContentControllerTest {
 
             // when & then
             mockMvc.perform(multipart(HttpMethod.PATCH, "/api/contents/{contentId}", nonExistingContentId)
-                    .file(requestPart)
-                    .with(user(mockAdminDetails)))
+                .file(requestPart)
+                .with(user(mockAdminDetails)))
                 .andExpect(status().isNotFound());
         }
     }
@@ -618,7 +618,7 @@ class ContentControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/contents/{contentId}", contentId)
-                    .with(user(mockAdminDetails)))
+                .with(user(mockAdminDetails)))
                 .andExpect(status().isNoContent());
 
             then(contentFacade).should().delete(contentId);
@@ -632,7 +632,7 @@ class ContentControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/contents/{contentId}", contentId)
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isForbidden());
 
             then(contentFacade).should(never()).delete(any());
@@ -662,7 +662,7 @@ class ContentControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/contents/{contentId}", nonExistingContentId)
-                    .with(user(mockAdminDetails)))
+                .with(user(mockAdminDetails)))
                 .andExpect(status().isNotFound());
 
             then(contentFacade).should().delete(nonExistingContentId);

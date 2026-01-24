@@ -15,4 +15,5 @@ public record PlaylistResponse(
     long subscriberCount,
     boolean subscribedByMe,
     List<ContentSummary> contents
-) {}
+) {
+}

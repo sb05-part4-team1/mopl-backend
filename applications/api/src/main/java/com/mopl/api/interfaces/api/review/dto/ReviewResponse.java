@@ -9,4 +9,5 @@ public record ReviewResponse(
     UserSummary author,
     String text,
     double rating
-) {}
+) {
+}

@@ -6,4 +6,5 @@ public record FollowResponse(
     UUID id,
     UUID followeeId,
     UUID followerId
-) {}
+) {
+}

@@ -11,4 +11,5 @@ public record DirectMessageResponse(
     UserSummary sender,
     UserSummary receiver,
     String content
-) {}
+) {
+}

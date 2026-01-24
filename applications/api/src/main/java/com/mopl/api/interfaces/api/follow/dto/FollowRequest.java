@@ -11,4 +11,5 @@ import java.util.UUID;
     """)
 public record FollowRequest(
     @NotNull UUID followeeId
-) {}
+) {
+}

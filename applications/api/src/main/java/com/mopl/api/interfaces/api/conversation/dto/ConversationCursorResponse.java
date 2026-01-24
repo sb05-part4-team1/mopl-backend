@@ -12,4 +12,5 @@ public record ConversationCursorResponse(
     long totalCount,
     String sortBy,
     SortDirection sortDirection
-) {}
+) {
+}

@@ -85,7 +85,7 @@ public class ContentQueryRepositoryImpl implements ContentQueryRepository {
     private BooleanExpression keywordLike(String keyword) {
         return hasText(keyword)
             ? contentEntity.title.containsIgnoreCase(keyword)
-            .or(contentEntity.description.containsIgnoreCase(keyword))
+                .or(contentEntity.description.containsIgnoreCase(keyword))
             : null;
     }
 }

@@ -7,6 +7,7 @@ import com.mopl.jpa.entity.tag.TagEntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,7 +24,7 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    public List<TagModel> findByNameIn(List<String> tagNames) {
+    public List<TagModel> findByNameIn(Collection<String> tagNames) {
         if (tagNames == null || tagNames.isEmpty()) {
             return List.of();
         }
