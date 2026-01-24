@@ -32,7 +32,7 @@ public class DirectMessageFacade {
         ConversationModel conversation = conversationService.getByIdWithAccessCheck(conversationId, senderId);
 
         ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatus(conversationId, senderId);
-        UserModel receiver = otherReadStatus.getUser();
+        UserModel receiver = otherReadStatus.getParticipant();
 
         DirectMessageModel directMessageModel = DirectMessageModel.create(message, conversation, sender);
 

@@ -38,12 +38,12 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
     }
 
     @Override
-    public Map<UUID, ReadStatusModel> findOtherReadStatusWithUserByConversationIdIn(
+    public Map<UUID, ReadStatusModel> findOtherReadStatusWithParticipantByConversationIdIn(
         UUID userId,
         Collection<UUID> conversationIds
     ) {
         return jpaReadStatusRepository
-            .findOthersByConversationIds(userId, conversationIds)
+            .findWithParticipantByParticipantIdNotAndConversationIdIn(userId, conversationIds)
             .stream()
             .map(readStatusEntityMapper::toModelWithUser)
             .collect(Collectors.toMap(
@@ -53,12 +53,14 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
     }
 
     @Override
-    public Map<UUID, ReadStatusModel> findMineByConversationIds(List<UUID> conversationIds,
-        UUID userId) {
+    public Map<UUID, ReadStatusModel> findMyReadStatusWithParticipantByConversationIdIn(
+        UUID userId,
+        Collection<UUID> conversationIds
+    ) {
         return jpaReadStatusRepository
-            .findMineByConversationIds(conversationIds, userId)
+            .findWithParticipantByParticipantIdAndConversationIdIn(userId, conversationIds)
             .stream()
-            .map(readStatusEntityMapper::toModel)
+            .map(readStatusEntityMapper::toModelWithUser)
             .collect(Collectors.toMap(
                 rs -> rs.getConversation().getId(),
                 Function.identity()

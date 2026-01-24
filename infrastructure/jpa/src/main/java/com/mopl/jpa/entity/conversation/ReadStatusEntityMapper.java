@@ -49,7 +49,7 @@ public class ReadStatusEntityMapper {
             .createdAt(model.getCreatedAt())
             .lastReadAt(model.getLastReadAt())
             .conversation(conversationEntityMapper.toEntity(model.getConversation()))
-            .participant(userEntityMapper.toEntity(model.getUser()))
+            .participant(userEntityMapper.toEntity(model.getParticipant()))
             .build();
     }
 
@@ -63,7 +63,7 @@ public class ReadStatusEntityMapper {
             .createdAt(entity.getCreatedAt())
             .lastReadAt(entity.getLastReadAt())
             .conversation(conversation)
-            .user(user)
+            .participant(user)
             .build();
     }
 

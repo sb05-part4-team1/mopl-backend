@@ -80,7 +80,7 @@ class ReadStatusEntityMapperTest {
             assertThat(result.getLastReadAt()).isEqualTo(lastReadAt);
             assertThat(result.getCreatedAt()).isEqualTo(now);
             assertThat(result.getConversation().getId()).isEqualTo(conversationId);
-            assertThat(result.getUser().getId()).isEqualTo(userId);
+            assertThat(result.getParticipant().getId()).isEqualTo(userId);
 
             verifyNoInteractions(conversationMapper);
             verifyNoInteractions(userMapper);
@@ -121,7 +121,7 @@ class ReadStatusEntityMapperTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getUser()).isNull();
+            assertThat(result.getParticipant()).isNull();
         }
     }
 
@@ -171,7 +171,7 @@ class ReadStatusEntityMapperTest {
             assertThat(result.getId()).isEqualTo(readStatusId);
             assertThat(result.getLastReadAt()).isEqualTo(lastReadAt);
             assertThat(result.getConversation().getId()).isEqualTo(conversationId);
-            assertThat(result.getUser()).isEqualTo(expectedUser);
+            assertThat(result.getParticipant()).isEqualTo(expectedUser);
 
             verify(userMapper).toModel(userEntity);
             verifyNoInteractions(conversationMapper);
@@ -195,7 +195,7 @@ class ReadStatusEntityMapperTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getUser()).isNull();
+            assertThat(result.getParticipant()).isNull();
         }
     }
 
@@ -230,7 +230,7 @@ class ReadStatusEntityMapperTest {
             ReadStatusModel model = ReadStatusModel.builder()
                 .id(readStatusId)
                 .conversation(conversationModel)
-                .user(userModel)
+                .participant(userModel)
                 .lastReadAt(lastReadAt)
                 .createdAt(now)
                 .build();
@@ -260,12 +260,12 @@ class ReadStatusEntityMapperTest {
             ReadStatusModel model = ReadStatusModel.builder()
                 .id(UUID.randomUUID())
                 .conversation(null)
-                .user(mock(UserModel.class))
+                .participant(mock(UserModel.class))
                 .lastReadAt(Instant.now())
                 .build();
 
             given(conversationMapper.toEntity(null)).willReturn(null);
-            given(userMapper.toEntity(model.getUser())).willReturn(mock(UserEntity.class));
+            given(userMapper.toEntity(model.getParticipant())).willReturn(mock(UserEntity.class));
 
             // when
             ReadStatusEntity result = readStatusEntityMapper.toEntity(model);
@@ -282,7 +282,7 @@ class ReadStatusEntityMapperTest {
             ReadStatusModel model = ReadStatusModel.builder()
                 .id(UUID.randomUUID())
                 .conversation(mock(ConversationModel.class))
-                .user(null)
+                .participant(null)
                 .lastReadAt(Instant.now())
                 .build();
 

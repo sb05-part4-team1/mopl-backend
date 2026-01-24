@@ -34,8 +34,8 @@ public class DirectMessageService {
         return directMessageRepository.findOtherDirectMessage(conversationId, directMessageId, userId).orElse(null);
     }
 
-    public Map<UUID, DirectMessageModel> getLastMessagesByConversationIdIn(Collection<UUID> conversationIds) {
-        return directMessageQueryRepository.findLastMessagesByConversationIdIn(conversationIds);
+    public Map<UUID, DirectMessageModel> getLastMessagesWithSenderByConversationIdIn(Collection<UUID> conversationIds) {
+        return directMessageQueryRepository.findLastMessagesWithSenderByConversationIdIn(conversationIds);
     }
 
     public DirectMessageModel getLastMessageByConversationId(UUID conversationId) {

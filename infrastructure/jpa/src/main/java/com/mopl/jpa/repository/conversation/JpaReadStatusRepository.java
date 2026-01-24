@@ -1,6 +1,7 @@
 package com.mopl.jpa.repository.conversation;
 
 import com.mopl.jpa.entity.conversation.ReadStatusEntity;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -29,16 +30,16 @@ public interface JpaReadStatusRepository extends JpaRepository<ReadStatusEntity,
         """)
     ReadStatusEntity findOtherReadStatus(UUID conversationId, UUID userId);
 
-    @Query("""
-            SELECT rs
-            FROM ReadStatusEntity rs
-            JOIN FETCH rs.participant
-            WHERE rs.conversation.id IN :conversationIds
-              AND rs.participant.id <> :userId
-        """)
-    List<ReadStatusEntity> findOthersByConversationIds(
-        UUID userId,
-        Collection<UUID> conversationIds
+    @EntityGraph(attributePaths = {"participant"})
+    List<ReadStatusEntity> findWithParticipantByParticipantIdNotAndConversationIdIn(
+        UUID participantId,
+        Collection<UUID> conversationId
+    );
+
+    @EntityGraph(attributePaths = {"participant"})
+    List<ReadStatusEntity> findWithParticipantByParticipantIdAndConversationIdIn(
+        UUID participantId,
+        Collection<UUID> conversationId
     );
 
     @Query("""

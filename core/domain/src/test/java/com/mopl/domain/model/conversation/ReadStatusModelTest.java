@@ -24,23 +24,23 @@ class ReadStatusModelTest {
         void withValidData_createsReadStatus() {
             // given
             UUID conversationId = UUID.randomUUID();
-            UUID userId = UUID.randomUUID();
+            UUID participantId = UUID.randomUUID();
 
             ConversationModel conversation = mock(ConversationModel.class);
             given(conversation.getId()).willReturn(conversationId);
 
-            UserModel user = mock(UserModel.class);
-            given(user.getId()).willReturn(userId);
+            UserModel participant = mock(UserModel.class);
+            given(participant.getId()).willReturn(participantId);
 
             Instant before = Instant.now();
 
             // when
-            ReadStatusModel readStatus = ReadStatusModel.create(conversation, user);
+            ReadStatusModel readStatus = ReadStatusModel.create(conversation, participant);
 
             // then
             Instant after = Instant.now();
             assertThat(readStatus.getConversation()).isEqualTo(conversation);
-            assertThat(readStatus.getUser()).isEqualTo(user);
+            assertThat(readStatus.getParticipant()).isEqualTo(participant);
             assertThat(readStatus.getLastReadAt()).isBetween(before, after);
         }
 
@@ -56,7 +56,7 @@ class ReadStatusModelTest {
             // then
             Instant after = Instant.now();
             assertThat(readStatus.getConversation()).isNull();
-            assertThat(readStatus.getUser()).isNull();
+            assertThat(readStatus.getParticipant()).isNull();
             assertThat(readStatus.getLastReadAt()).isBetween(before, after);
         }
     }
@@ -72,7 +72,7 @@ class ReadStatusModelTest {
             Instant pastTime = Instant.now().minusSeconds(3600);
             ReadStatusModel readStatus = ReadStatusModel.builder()
                 .conversation(mock(ConversationModel.class))
-                .user(mock(UserModel.class))
+                .participant(mock(UserModel.class))
                 .lastReadAt(pastTime)
                 .build();
 
@@ -93,7 +93,7 @@ class ReadStatusModelTest {
             // given
             ReadStatusModel readStatus = ReadStatusModel.builder()
                 .conversation(mock(ConversationModel.class))
-                .user(mock(UserModel.class))
+                .participant(mock(UserModel.class))
                 .lastReadAt(Instant.now().minusSeconds(3600))
                 .build();
 
@@ -109,14 +109,14 @@ class ReadStatusModelTest {
         void markAsRead_preservesOtherFields() {
             // given
             ConversationModel conversation = mock(ConversationModel.class);
-            UserModel user = mock(UserModel.class);
+            UserModel participant = mock(UserModel.class);
             UUID id = UUID.randomUUID();
             Instant createdAt = Instant.now().minusSeconds(7200);
 
             ReadStatusModel readStatus = ReadStatusModel.builder()
                 .id(id)
                 .conversation(conversation)
-                .user(user)
+                .participant(participant)
                 .lastReadAt(Instant.now().minusSeconds(3600))
                 .createdAt(createdAt)
                 .build();
@@ -127,7 +127,7 @@ class ReadStatusModelTest {
             // then
             assertThat(updated.getId()).isEqualTo(id);
             assertThat(updated.getConversation()).isEqualTo(conversation);
-            assertThat(updated.getUser()).isEqualTo(user);
+            assertThat(updated.getParticipant()).isEqualTo(participant);
             assertThat(updated.getCreatedAt()).isEqualTo(createdAt);
         }
     }

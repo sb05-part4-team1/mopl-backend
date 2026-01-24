@@ -15,21 +15,18 @@ public class ReadStatusService {
 
     private final ReadStatusRepository readStatusRepository;
 
-    public Map<UUID, ReadStatusModel> getOtherReadStatusWithUserByConversationIdIn(
-        UUID requesterId,
+    public Map<UUID, ReadStatusModel> getOtherReadStatusWithParticipantByConversationIdIn(
+        UUID userId,
         Collection<UUID> conversationIds
     ) {
-        return readStatusRepository.findOtherReadStatusWithUserByConversationIdIn(requesterId, conversationIds);
+        return readStatusRepository.findOtherReadStatusWithParticipantByConversationIdIn(userId, conversationIds);
     }
 
-    public Map<UUID, ReadStatusModel> getMyReadStatusByConversationIdIn(
-        Collection<UUID> conversationIds,
-        UUID requesterId
+    public Map<UUID, ReadStatusModel> getMyReadStatusWithParticipantByConversationIdIn(
+        UUID userId,
+        Collection<UUID> conversationIds
     ) {
-        if (conversationIds == null || conversationIds.isEmpty()) {
-            return Map.of();
-        }
-        return readStatusRepository.findMineByConversationIds(List.copyOf(conversationIds), requesterId);
+        return readStatusRepository.findMyReadStatusWithParticipantByConversationIdIn(userId, conversationIds);
     }
 
     public ReadStatusModel getOtherReadStatus(UUID conversationId, UUID requesterId) {

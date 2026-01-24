@@ -50,9 +50,9 @@ public class ConversationFacade {
             .map(ConversationModel::getId)
             .toList();
 
-        Map<UUID, DirectMessageModel> lastMessageMap = directMessageService.getLastMessagesByConversationIdIn(conversationIds);
-        Map<UUID, ReadStatusModel> otherReadStatusMap = readStatusService.getOtherReadStatusWithUserByConversationIdIn(userId, conversationIds);
-        Map<UUID, ReadStatusModel> myReadStatusMap = readStatusService.getMyReadStatusByConversationIdIn(conversationIds, userId);
+        Map<UUID, DirectMessageModel> lastMessageMap = directMessageService.getLastMessagesWithSenderByConversationIdIn(conversationIds);
+        Map<UUID, ReadStatusModel> otherReadStatusMap = readStatusService.getOtherReadStatusWithParticipantByConversationIdIn(userId, conversationIds);
+        Map<UUID, ReadStatusModel> myReadStatusMap = readStatusService.getMyReadStatusWithParticipantByConversationIdIn(userId, conversationIds);
 
         return response.map(conversation -> {
             UUID conversationId = conversation.getId();
@@ -61,8 +61,8 @@ public class ConversationFacade {
             DirectMessageModel lastMessage = lastMessageMap.get(conversationId);
             ReadStatusModel myReadStatus = myReadStatusMap.get(conversationId);
 
-            UserModel withUser = otherReadStatus != null ? otherReadStatus.getUser() : null;
-            boolean hasUnread = calculateHasUnread(lastMessage, myReadStatus, userId);
+            UserModel withUser = otherReadStatus != null ? otherReadStatus.getParticipant() : null;
+            boolean hasUnread = calculateHasUnread(userId, lastMessage, myReadStatus);
 
             return conversationResponseMapper.toResponse(
                 conversation,
@@ -79,7 +79,7 @@ public class ConversationFacade {
         DirectMessageQueryRequest request
     ) {
         ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatus(conversationId, requesterId);
-        UserModel receiver = otherReadStatus != null ? otherReadStatus.getUser() : null;
+        UserModel receiver = otherReadStatus != null ? otherReadStatus.getParticipant() : null;
 
         return directMessageService.getAllDirectMessages(conversationId, request, requesterId)
             .map(dm -> directMessageResponseMapper.toResponse(dm, receiver));
@@ -92,8 +92,8 @@ public class ConversationFacade {
         DirectMessageModel lastMessage = directMessageService.getLastMessageByConversationId(conversationId);
         ReadStatusModel myReadStatus = readStatusService.getMyReadStatus(conversationId, requesterId);
 
-        UserModel withUser = otherReadStatus != null ? otherReadStatus.getUser() : null;
-        boolean hasUnread = calculateHasUnread(lastMessage, myReadStatus, requesterId);
+        UserModel withUser = otherReadStatus != null ? otherReadStatus.getParticipant() : null;
+        boolean hasUnread = calculateHasUnread(requesterId, lastMessage, myReadStatus);
 
         return conversationResponseMapper.toResponse(conversation, withUser, lastMessage, hasUnread);
     }
@@ -110,7 +110,7 @@ public class ConversationFacade {
         DirectMessageModel lastMessage = directMessageService.getLastMessageByConversationId(conversation.getId());
         ReadStatusModel myReadStatus = readStatusService.getMyReadStatus(conversation.getId(), requesterId);
 
-        boolean hasUnread = calculateHasUnread(lastMessage, myReadStatus, requesterId);
+        boolean hasUnread = calculateHasUnread(requesterId, lastMessage, myReadStatus);
 
         return conversationResponseMapper.toResponse(conversation, withUser, lastMessage, hasUnread);
     }
@@ -143,19 +143,12 @@ public class ConversationFacade {
     }
 
     private boolean calculateHasUnread(
+        UUID requesterId,
         DirectMessageModel lastMessage,
-        ReadStatusModel myReadStatus,
-        UUID requesterId
+        ReadStatusModel myReadStatus
     ) {
-        if (lastMessage == null) {
-            return false;
-        }
-        if (lastMessage.getSender().getId().equals(requesterId)) {
-            return false;
-        }
-        if (myReadStatus == null) {
-            return true;
-        }
-        return lastMessage.getCreatedAt().isAfter(myReadStatus.getLastReadAt());
+        return lastMessage != null
+            && !lastMessage.getSender().getId().equals(requesterId)
+            && lastMessage.getCreatedAt().isAfter(myReadStatus.getLastReadAt());
     }
 }

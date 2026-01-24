@@ -91,7 +91,9 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
     }
 
     @Override
-    public Map<UUID, DirectMessageModel> findLastMessagesByConversationIdIn(Collection<UUID> conversationIds) {
+    public Map<UUID, DirectMessageModel> findLastMessagesWithSenderByConversationIdIn(
+        Collection<UUID> conversationIds
+    ) {
         if (conversationIds.isEmpty()) {
             return Map.of();
         }

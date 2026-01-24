@@ -16,16 +16,16 @@ public class ReadStatusModel extends BaseModel {
 
     private Instant lastReadAt;
     private ConversationModel conversation;
-    private UserModel user;
+    private UserModel participant;
 
     public static ReadStatusModel create(
         ConversationModel conversation,
-        UserModel user
+        UserModel participant
     ) {
         return ReadStatusModel.builder()
             .lastReadAt(Instant.now())
             .conversation(conversation)
-            .user(user)
+            .participant(participant)
             .build();
     }
 
