@@ -29,6 +29,13 @@ public class ContentService {
         return contentRepository.save(content);
     }
 
+    @CacheEvict(cacheNames = CacheName.CONTENTS, key = "#result.id")
+    public ContentModel create(ContentModel content, List<String> tagNames) {
+        ContentModel saved = contentRepository.save(content);
+        contentTagService.applyTags(saved.getId(), tagNames);
+        return saved;
+    }
+
     public ContentModel getById(UUID contentId) {
         return contentCacheService.getById(contentId);
     }

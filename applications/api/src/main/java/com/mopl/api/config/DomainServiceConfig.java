@@ -35,7 +35,6 @@ import com.mopl.domain.service.playlist.PlaylistCacheService;
 import com.mopl.domain.service.playlist.PlaylistService;
 import com.mopl.domain.service.playlist.PlaylistSubscriptionService;
 import com.mopl.domain.service.review.ReviewService;
-import com.mopl.domain.service.tag.TagService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.service.watchingsession.WatchingSessionService;
 import org.springframework.context.annotation.Bean;
@@ -75,9 +74,9 @@ public class DomainServiceConfig {
     @Bean
     public ContentTagService contentTagService(
         ContentTagRepository contentTagRepository,
-        TagService tagService
+        TagRepository tagRepository
     ) {
-        return new ContentTagService(contentTagRepository, tagService);
+        return new ContentTagService(contentTagRepository, tagRepository);
     }
 
     @Bean
@@ -89,11 +88,6 @@ public class DomainServiceConfig {
             contentRepository,
             contentTagRepository
         );
-    }
-
-    @Bean
-    public TagService tagService(TagRepository tagRepository) {
-        return new TagService(tagRepository);
     }
 
     @Bean
