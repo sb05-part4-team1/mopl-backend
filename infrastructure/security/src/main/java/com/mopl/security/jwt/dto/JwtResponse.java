@@ -17,7 +17,7 @@ public record JwtResponse(UserDetailsDto userDto, String accessToken) {
         Instant createdAt,
         String email,
         String name,
-        String profileImageUrl,
+        String profileImagePath,
         UserModel.Role role,
         Boolean locked
     ) {
@@ -28,7 +28,7 @@ public record JwtResponse(UserDetailsDto userDto, String accessToken) {
                 userDetails.createdAt(),
                 userDetails.email(),
                 userDetails.name(),
-                userDetails.profileImageUrl(),
+                userDetails.profileImagePath(),
                 userDetails.role(),
                 userDetails.locked()
             );

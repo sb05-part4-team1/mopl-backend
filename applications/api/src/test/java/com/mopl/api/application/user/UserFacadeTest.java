@@ -330,31 +330,23 @@ class UserFacadeTest {
         void withValidProfileImage_updateProfileSuccess() throws IOException {
             // given
             UserModel userModel = UserModelFixture.create();
-            String profileImageUrl = "http://localhost/api/v1/files/display?path=users/test.png";
 
             MultipartFile image = mock(MultipartFile.class);
             given(image.isEmpty()).willReturn(false);
             given(image.getInputStream()).willReturn(new ByteArrayInputStream("test".getBytes()));
             given(image.getOriginalFilename()).willReturn("test.png");
 
-            UserModel updatedUserModel = UserModelFixture.builder()
-                .set("id", userModel.getId())
-                .set("profileImageUrl", profileImageUrl)
-                .sample();
-
             given(userService.getById(userModel.getId())).willReturn(userModel);
-            given(storageProvider.getUrl(anyString())).willReturn(profileImageUrl);
-            given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
+            given(userService.update(any(UserModel.class))).willAnswer(inv -> inv.getArgument(0));
 
             // when
             UserModel result = userFacade.updateProfile(userModel.getId(), null, image);
 
             // then
-            assertThat(result.getProfileImageUrl()).isEqualTo(profileImageUrl);
+            assertThat(result.getProfileImagePath()).startsWith("users/" + userModel.getId() + "/");
 
             then(userService).should().getById(userModel.getId());
             then(storageProvider).should().upload(any(), anyLong(), anyString());
-            then(storageProvider).should().getUrl(anyString());
             then(userService).should().update(any(UserModel.class));
         }
 
@@ -392,7 +384,6 @@ class UserFacadeTest {
             // given
             UserModel userModel = UserModelFixture.create();
             String newName = "newName";
-            String profileImageUrl = "http://localhost/api/v1/files/display?path=users/test.png";
 
             UserUpdateRequest request = new UserUpdateRequest(newName);
 
@@ -401,26 +392,18 @@ class UserFacadeTest {
             given(image.getInputStream()).willReturn(new ByteArrayInputStream("test".getBytes()));
             given(image.getOriginalFilename()).willReturn("test.png");
 
-            UserModel updatedUserModel = UserModelFixture.builder()
-                .set("id", userModel.getId())
-                .set("name", newName)
-                .set("profileImageUrl", profileImageUrl)
-                .sample();
-
             given(userService.getById(userModel.getId())).willReturn(userModel);
-            given(storageProvider.getUrl(anyString())).willReturn(profileImageUrl);
-            given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
+            given(userService.update(any(UserModel.class))).willAnswer(inv -> inv.getArgument(0));
 
             // when
             UserModel result = userFacade.updateProfile(userModel.getId(), request, image);
 
             // then
             assertThat(result.getName()).isEqualTo(newName);
-            assertThat(result.getProfileImageUrl()).isEqualTo(profileImageUrl);
+            assertThat(result.getProfileImagePath()).startsWith("users/" + userModel.getId() + "/");
 
             then(userService).should().getById(userModel.getId());
             then(storageProvider).should().upload(any(), anyLong(), anyString());
-            then(storageProvider).should().getUrl(anyString());
             then(userService).should().update(any(UserModel.class));
         }
 

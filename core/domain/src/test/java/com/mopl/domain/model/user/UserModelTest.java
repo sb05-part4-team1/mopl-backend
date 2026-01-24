@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 import static com.mopl.domain.model.user.UserModel.EMAIL_MAX_LENGTH;
 import static com.mopl.domain.model.user.UserModel.ENCODED_PASSWORD_MAX_LENGTH;
 import static com.mopl.domain.model.user.UserModel.NAME_MAX_LENGTH;
-import static com.mopl.domain.model.user.UserModel.PROFILE_IMAGE_URL_MAX_LENGTH;
+import static com.mopl.domain.model.user.UserModel.PROFILE_IMAGE_PATH_MAX_LENGTH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -60,7 +60,7 @@ class UserModelTest {
             assertThat(user.getPassword()).isEqualTo("encodedPassword123");
             assertThat(user.getRole()).isEqualTo(UserModel.Role.USER);
             assertThat(user.isLocked()).isFalse();
-            assertThat(user.getProfileImageUrl()).isNull();
+            assertThat(user.getProfileImagePath()).isNull();
         }
 
         @ParameterizedTest(name = "{0}")
@@ -349,67 +349,67 @@ class UserModelTest {
     }
 
     @Nested
-    @DisplayName("updateProfileImageUrl()")
-    class UpdateProfileImageUrlTest {
+    @DisplayName("updateProfileImagePath()")
+    class UpdateProfileImagePathTest {
 
         @Test
-        @DisplayName("유효한 URL로 변경하면 새 객체 반환")
-        void withValidUrl_returnsNewInstance() {
+        @DisplayName("유효한 경로로 변경하면 새 객체 반환")
+        void withValidPath_returnsNewInstance() {
             // given
             UserModel user = createDefaultUser();
 
             // when
-            UserModel result = user.updateProfileImageUrl("https://example.com/profile.jpg");
+            UserModel result = user.updateProfileImagePath("users/123/profile.jpg");
 
             // then
-            assertThat(result.getProfileImageUrl()).isEqualTo("https://example.com/profile.jpg");
+            assertThat(result.getProfileImagePath()).isEqualTo("users/123/profile.jpg");
             assertThat(result).isNotSameAs(user);
         }
 
         @Test
         @DisplayName("빈 문자열로 변경하면 새 객체 반환")
-        void withEmptyUrl_returnsNewInstance() {
+        void withEmptyPath_returnsNewInstance() {
             // given
             UserModel user = createUserWithProfileImage();
 
             // when
-            UserModel result = user.updateProfileImageUrl("");
+            UserModel result = user.updateProfileImagePath("");
 
             // then
-            assertThat(result.getProfileImageUrl()).isEmpty();
+            assertThat(result.getProfileImagePath()).isEmpty();
             assertThat(result).isNotSameAs(user);
         }
 
         @Test
         @DisplayName("null이면 변경하지 않음")
-        void withNullUrl_returnsThis() {
+        void withNullPath_returnsThis() {
             // given
             UserModel user = createUserWithProfileImage();
 
             // when
-            UserModel result = user.updateProfileImageUrl(null);
+            UserModel result = user.updateProfileImagePath(null);
 
             // then
-            assertThat(result.getProfileImageUrl()).isEqualTo("https://example.com/original.jpg");
+            assertThat(result.getProfileImagePath()).isEqualTo("users/123/original.jpg");
             assertThat(result).isSameAs(user);
         }
 
         @Test
         @DisplayName("최대 길이 초과하면 예외 발생")
-        void withUrlExceedingMaxLength_throwsException() {
+        void withPathExceedingMaxLength_throwsException() {
             // given
             UserModel user = createDefaultUser();
-            String longUrl = "a".repeat(PROFILE_IMAGE_URL_MAX_LENGTH + 1);
+            String longPath = "a".repeat(PROFILE_IMAGE_PATH_MAX_LENGTH + 1);
 
             // when & then
-            assertThatThrownBy(() -> user.updateProfileImageUrl(longUrl))
+            assertThatThrownBy(() -> user.updateProfileImagePath(longPath))
                 .isInstanceOf(InvalidUserDataException.class);
         }
 
         private UserModel createUserWithProfileImage() {
             return createDefaultUser()
                 .toBuilder()
-                .profileImageUrl("https://example.com/original.jpg")
+                .profileImagePath("users/123/original.jpg")
                 .build();
         }
     }

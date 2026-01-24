@@ -104,12 +104,8 @@ public class UserFacade {
             throw SelfLockChangeException.withUserId(requesterId);
         }
         UserModel userModel = userService.getById(targetUserId);
-        if (request.locked()) {
-            userModel.lock();
-        } else {
-            userModel.unlock();
-        }
-        userService.update(userModel);
+        UserModel updatedUserModel = request.locked() ? userModel.lock() : userModel.unlock();
+        userService.update(updatedUserModel);
         jwtRegistry.revokeAllByUserId(targetUserId);
     }
 
@@ -117,27 +113,12 @@ public class UserFacade {
         UserModel userModel = userService.getById(userId);
 
         if (request != null && request.name() != null && !request.name().isBlank()) {
-            userModel.updateName(request.name().strip());
+            userModel = userModel.updateName(request.name().strip());
         }
 
         if (image != null && !image.isEmpty()) {
-            try {
-                String fileName = "users/"
-                    + userId
-                    + "/"
-                    + UUID.randomUUID()
-                    + "_"
-                    + image.getOriginalFilename();
-                storageProvider.upload(
-                    image.getInputStream(),
-                    image.getSize(),
-                    fileName
-                );
-                String profileImageUrl = storageProvider.getUrl(fileName);
-                userModel.updateProfileImageUrl(profileImageUrl);
-            } catch (IOException exception) {
-                throw new UncheckedIOException("파일 스트림 읽기 실패", exception);
-            }
+            String profileImagePath = uploadProfileImage(userId, image);
+            userModel = userModel.updateProfileImagePath(profileImagePath);
         }
 
         return userService.update(userModel);
@@ -146,9 +127,19 @@ public class UserFacade {
     public void updatePassword(UUID userId, String newPassword) {
         UserModel userModel = userService.getById(userId);
         String encodedPassword = passwordEncoder.encode(newPassword);
-        userModel.updatePassword(encodedPassword);
-        userService.update(userModel);
+        UserModel updatedUserModel = userModel.updatePassword(encodedPassword);
+        userService.update(updatedUserModel);
 
         temporaryPasswordRepository.deleteByEmail(userModel.getEmail());
+    }
+
+    private String uploadProfileImage(UUID userId, MultipartFile image) {
+        try {
+            String path = "users/" + userId + "/" + UUID.randomUUID() + "_" + image.getOriginalFilename();
+            storageProvider.upload(image.getInputStream(), image.getSize(), path);
+            return path;
+        } catch (IOException e) {
+            throw new UncheckedIOException("파일 스트림 읽기 실패", e);
+        }
     }
 }

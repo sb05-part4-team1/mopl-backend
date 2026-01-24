@@ -8,6 +8,7 @@ import com.mopl.api.interfaces.api.user.dto.ChangePasswordRequest;
 import com.mopl.api.interfaces.api.user.dto.UserCreateRequest;
 import com.mopl.api.interfaces.api.user.dto.UserLockUpdateRequest;
 import com.mopl.api.interfaces.api.user.dto.UserRoleUpdateRequest;
+import com.mopl.api.interfaces.api.user.dto.UserResponse;
 import com.mopl.api.interfaces.api.user.dto.UserUpdateRequest;
 import com.mopl.api.interfaces.api.user.mapper.UserResponseMapper;
 import com.mopl.domain.exception.user.DuplicateEmailException;
@@ -21,6 +22,7 @@ import com.mopl.domain.repository.user.UserQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
 import com.mopl.security.userdetails.MoplUserDetails;
+import com.mopl.storage.provider.StorageProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -67,7 +69,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = UserController.class)
 @Import({
     ApiControllerAdvice.class,
-    UserResponseMapper.class,
     TestSecurityConfig.class
 })
 @DisplayName("UserController 슬라이스 테스트")
@@ -81,6 +82,12 @@ class UserControllerTest {
 
     @MockBean
     private UserFacade userFacade;
+
+    @MockBean
+    private StorageProvider storageProvider;
+
+    @MockBean
+    private UserResponseMapper userResponseMapper;
 
     private MoplUserDetails mockAdminDetails;
     private MoplUserDetails mockUserDetails;
@@ -105,6 +112,20 @@ class UserControllerTest {
         given(mockUserDetails.getAuthorities()).willReturn(
             (Collection) List.of(new SimpleGrantedAuthority("ROLE_USER"))
         );
+
+        // UserResponseMapper mock 설정
+        given(userResponseMapper.toResponse(any(UserModel.class))).willAnswer(invocation -> {
+            UserModel model = invocation.getArgument(0);
+            return new UserResponse(
+                model.getId(),
+                model.getCreatedAt(),
+                model.getEmail(),
+                model.getName(),
+                "https://cdn.example.com/" + model.getProfileImagePath(),
+                model.getRole(),
+                model.isLocked()
+            );
+        });
     }
 
     @Nested
@@ -268,9 +289,9 @@ class UserControllerTest {
         @DisplayName("유효한 프로필 이미지로 수정 시 200 OK 응답")
         void withValidProfileImage_returns200OK() throws Exception {
             // given
-            String profileImageUrl = "http://localhost/api/v1/files/display?path=users/test.png";
+            String profileImagePath = "users/test.png";
             UserModel userModel = UserModelFixture.builder()
-                .set("profileImageUrl", profileImageUrl)
+                .set("profileImagePath", profileImagePath)
                 .sample();
 
             MockMultipartFile image = new MockMultipartFile(
@@ -293,7 +314,7 @@ class UserControllerTest {
                 .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(userModel.getId().toString()))
-                .andExpect(jsonPath("$.profileImageUrl").value(profileImageUrl));
+                .andExpect(jsonPath("$.profileImageUrl").value("https://cdn.example.com/" + profileImagePath));
 
             then(userFacade).should().updateProfile(
                 eq(userModel.getId()),
@@ -344,10 +365,10 @@ class UserControllerTest {
         void withNameAndImage_returns200OK() throws Exception {
             // given
             String newName = "newName";
-            String profileImageUrl = "http://localhost/api/v1/files/display?path=users/test.png";
+            String profileImagePath = "users/test.png";
             UserModel userModel = UserModelFixture.builder()
                 .set("name", newName)
-                .set("profileImageUrl", profileImageUrl)
+                .set("profileImagePath", profileImagePath)
                 .sample();
 
             UserUpdateRequest request = new UserUpdateRequest(newName);
@@ -380,7 +401,7 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(userModel.getId().toString()))
                 .andExpect(jsonPath("$.name").value(newName))
-                .andExpect(jsonPath("$.profileImageUrl").value(profileImageUrl));
+                .andExpect(jsonPath("$.profileImageUrl").value("https://cdn.example.com/" + profileImagePath));
 
             then(userFacade).should().updateProfile(
                 eq(userModel.getId()),

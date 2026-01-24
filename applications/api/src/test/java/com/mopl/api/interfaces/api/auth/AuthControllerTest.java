@@ -89,7 +89,7 @@ class AuthControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/auth/refresh")
-                .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, oldRefreshToken)))
+                    .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, oldRefreshToken)))
                 .andExpect(status().isOk())
                 .andExpect(cookie().value(REFRESH_TOKEN_COOKIE_NAME, newRefreshToken))
                 .andExpect(jsonPath("$.accessToken").value(newAccessToken))
@@ -114,7 +114,7 @@ class AuthControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/auth/refresh")
-                .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, invalidToken)))
+                    .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, invalidToken)))
                 .andExpect(status().isUnauthorized());
         }
 
@@ -129,7 +129,7 @@ class AuthControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/auth/refresh")
-                .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken)))
+                    .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken)))
                 .andExpect(status().isForbidden());
         }
     }
@@ -149,8 +149,8 @@ class AuthControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/auth/reset-password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNoContent());
 
             then(authFacade).should().resetPassword(email);
@@ -168,8 +168,8 @@ class AuthControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/auth/reset-password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
         }
 
@@ -181,8 +181,8 @@ class AuthControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/auth/reset-password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
 
             then(authFacade).shouldHaveNoInteractions();
@@ -196,8 +196,8 @@ class AuthControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/auth/reset-password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody))
                 .andExpect(status().isBadRequest());
 
             then(authFacade).shouldHaveNoInteractions();

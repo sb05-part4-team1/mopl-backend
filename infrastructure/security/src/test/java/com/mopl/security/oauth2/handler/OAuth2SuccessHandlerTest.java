@@ -185,7 +185,7 @@ class OAuth2SuccessHandlerTest {
             .password("{oauth2}")
             .email("test@example.com")
             .name("Test User")
-            .profileImageUrl(null)
+            .profileImagePath(null)
             .locked(false)
             .build();
     }

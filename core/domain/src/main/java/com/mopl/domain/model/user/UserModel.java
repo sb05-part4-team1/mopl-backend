@@ -17,7 +17,7 @@ public class UserModel extends BaseUpdatableModel {
     public static final int NAME_MAX_LENGTH = 50;
     public static final int ENCODED_PASSWORD_MAX_LENGTH = 255;
     public static final int RAW_PASSWORD_MAX_LENGTH = 50;
-    public static final int PROFILE_IMAGE_URL_MAX_LENGTH = 1024;
+    public static final int PROFILE_IMAGE_PATH_MAX_LENGTH = 1024;
     public static final int ROLE_MAX_LENGTH = 20;
 
     public enum AuthProvider {
@@ -32,7 +32,7 @@ public class UserModel extends BaseUpdatableModel {
     private String email;
     private String name;
     private String password;
-    private String profileImageUrl;
+    private String profileImagePath;
     private Role role;
     private boolean locked;
 
@@ -88,7 +88,7 @@ public class UserModel extends BaseUpdatableModel {
             .email(email)
             .name(name)
             .password(null)
-            .profileImageUrl(null)
+            .profileImagePath(null)
             .role(Role.USER)
             .locked(false)
             .build();
@@ -114,13 +114,13 @@ public class UserModel extends BaseUpdatableModel {
             .build();
     }
 
-    public UserModel updateProfileImageUrl(String newProfileImageUrl) {
-        if (newProfileImageUrl == null) {
+    public UserModel updateProfileImagePath(String newProfileImagePath) {
+        if (newProfileImagePath == null) {
             return this;
         }
-        validateProfileImageUrl(newProfileImageUrl);
+        validateProfileImagePath(newProfileImagePath);
         return this.toBuilder()
-            .profileImageUrl(newProfileImageUrl)
+            .profileImagePath(newProfileImagePath)
             .build();
     }
 
@@ -166,10 +166,10 @@ public class UserModel extends BaseUpdatableModel {
         }
     }
 
-    private static void validateProfileImageUrl(String profileImageUrl) {
-        if (profileImageUrl.length() > PROFILE_IMAGE_URL_MAX_LENGTH) {
+    private static void validateProfileImagePath(String profileImagePath) {
+        if (profileImagePath.length() > PROFILE_IMAGE_PATH_MAX_LENGTH) {
             throw InvalidUserDataException.withDetailMessage(
-                "프로필 이미지 URL은 " + PROFILE_IMAGE_URL_MAX_LENGTH + "자를 초과할 수 없습니다.");
+                "프로필 이미지 경로는 " + PROFILE_IMAGE_PATH_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 }

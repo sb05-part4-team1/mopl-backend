@@ -15,7 +15,7 @@ import org.hibernate.annotations.SQLRestriction;
 
 import static com.mopl.domain.model.user.UserModel.AUTH_PROVIDER_MAX_LENGTH;
 import static com.mopl.domain.model.user.UserModel.NAME_MAX_LENGTH;
-import static com.mopl.domain.model.user.UserModel.PROFILE_IMAGE_URL_MAX_LENGTH;
+import static com.mopl.domain.model.user.UserModel.PROFILE_IMAGE_PATH_MAX_LENGTH;
 import static com.mopl.domain.model.user.UserModel.ROLE_MAX_LENGTH;
 
 @Entity
@@ -39,8 +39,8 @@ public class UserEntity extends BaseUpdatableEntity {
     @Column
     private String password;
 
-    @Column(length = PROFILE_IMAGE_URL_MAX_LENGTH)
-    private String profileImageUrl;
+    @Column(length = PROFILE_IMAGE_PATH_MAX_LENGTH)
+    private String profileImagePath;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = ROLE_MAX_LENGTH)

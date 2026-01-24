@@ -122,10 +122,10 @@ class WatchingSessionControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/contents/{contentId}/watching-sessions", contentId)
-                    .with(user(mockUserDetails))
-                    .param("limit", "20")
-                    .param("sortDirection", "DESCENDING")
-                    .param("sortBy", "createdAt"))
+                .with(user(mockUserDetails))
+                .param("limit", "20")
+                .param("sortDirection", "DESCENDING")
+                .param("sortBy", "createdAt"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(2))
@@ -154,8 +154,8 @@ class WatchingSessionControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/contents/{contentId}/watching-sessions", contentId)
-                    .with(user(mockUserDetails))
-                    .param("watcherNameLike", "Test"))
+                .with(user(mockUserDetails))
+                .param("watcherNameLike", "Test"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(0))
@@ -190,11 +190,11 @@ class WatchingSessionControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/contents/{contentId}/watching-sessions", contentId)
-                    .with(user(mockUserDetails))
-                    .param("cursor", Instant.now().toString())
-                    .param("idAfter", idAfter.toString())
-                    .param("limit", "20")
-                    .param("sortDirection", "ASCENDING"))
+                .with(user(mockUserDetails))
+                .param("cursor", Instant.now().toString())
+                .param("idAfter", idAfter.toString())
+                .param("limit", "20")
+                .param("sortDirection", "ASCENDING"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(1))
                 .andExpect(jsonPath("$.hasNext").value(false))
@@ -217,7 +217,7 @@ class WatchingSessionControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/contents/{contentId}/watching-sessions", contentId)
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(0))
@@ -246,7 +246,7 @@ class WatchingSessionControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/users/{watcherId}/watching-sessions", watcherId)
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(sessionId.toString()))
                 .andExpect(jsonPath("$.watcher.userId").value(watcherId.toString()))
@@ -267,7 +267,7 @@ class WatchingSessionControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/users/{watcherId}/watching-sessions", watcherId)
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").doesNotExist());
 
@@ -285,7 +285,7 @@ class WatchingSessionControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/users/{watcherId}/watching-sessions", nonExistingWatcherId)
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isNotFound());
 
             then(watchingSessionFacade).should().getWatchingSession(nonExistingWatcherId);
