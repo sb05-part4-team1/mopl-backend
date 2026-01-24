@@ -42,22 +42,9 @@ import org.springframework.context.annotation.Configuration;
 public class DomainServiceConfig {
 
     @Bean
-    public UserService userService(
-        UserQueryRepository userQueryRepository,
-        UserRepository userRepository
-    ) {
-        return new UserService(userQueryRepository, userRepository);
-    }
-
-    @Bean
-    public FollowService followService(FollowRepository followRepository) {
-        return new FollowService(followRepository);
-    }
-
-    @Bean
     public ContentService contentService(
-        ContentRepository contentRepository,
-        ContentQueryRepository contentQueryRepository
+        ContentQueryRepository contentQueryRepository,
+        ContentRepository contentRepository
     ) {
         return new ContentService(contentQueryRepository, contentRepository);
     }
@@ -71,16 +58,40 @@ public class DomainServiceConfig {
     }
 
     @Bean
-    public ReviewService reviewService(
-        ReviewRepository reviewRepository,
-        ReviewQueryRepository reviewQueryRepository,
-        ContentRepository contentRepository
+    public ConversationService conversationService(
+        ConversationQueryRepository conversationQueryRepository,
+        ConversationRepository conversationRepository,
+        DirectMessageQueryRepository directMessageQueryRepository,
+        DirectMessageRepository directMessageRepository,
+        ReadStatusRepository readStatusRepository,
+        UserRepository userRepository
     ) {
-        return new ReviewService(
-            reviewRepository,
-            reviewQueryRepository,
-            contentRepository
+        return new ConversationService(
+            conversationQueryRepository,
+            conversationRepository,
+            directMessageQueryRepository,
+            directMessageRepository,
+            readStatusRepository,
+            userRepository
         );
+    }
+
+    @Bean
+    public FollowService followService(FollowRepository followRepository) {
+        return new FollowService(followRepository);
+    }
+
+    @Bean
+    public NotificationService notificationService(
+        NotificationQueryRepository notificationQueryRepository,
+        NotificationRepository notificationRepository
+    ) {
+        return new NotificationService(notificationQueryRepository, notificationRepository);
+    }
+
+    @Bean
+    public OutboxService outboxService(OutboxRepository outboxRepository) {
+        return new OutboxService(outboxRepository);
     }
 
     @Bean
@@ -88,10 +99,7 @@ public class DomainServiceConfig {
         PlaylistRepository playlistRepository,
         PlaylistContentRepository playlistContentRepository
     ) {
-        return new PlaylistCacheService(
-            playlistRepository,
-            playlistContentRepository
-        );
+        return new PlaylistCacheService(playlistRepository, playlistContentRepository);
     }
 
     @Bean
@@ -112,21 +120,24 @@ public class DomainServiceConfig {
         PlaylistSubscriberRepository playlistSubscriberRepository,
         PlaylistRepository playlistRepository
     ) {
-        return new PlaylistSubscriptionService(
-            playlistSubscriberRepository,
-            playlistRepository
-        );
+        return new PlaylistSubscriptionService(playlistSubscriberRepository, playlistRepository);
     }
 
     @Bean
-    public NotificationService notificationService(
-        NotificationRepository notificationRepository,
-        NotificationQueryRepository notificationQueryRepository
+    public ReviewService reviewService(
+        ReviewQueryRepository reviewQueryRepository,
+        ReviewRepository reviewRepository,
+        ContentRepository contentRepository
     ) {
-        return new NotificationService(
-            notificationRepository,
-            notificationQueryRepository
-        );
+        return new ReviewService(reviewQueryRepository, reviewRepository, contentRepository);
+    }
+
+    @Bean
+    public UserService userService(
+        UserQueryRepository userQueryRepository,
+        UserRepository userRepository
+    ) {
+        return new UserService(userQueryRepository, userRepository);
     }
 
     @Bean
@@ -138,31 +149,5 @@ public class DomainServiceConfig {
             watchingSessionQueryRepository,
             watchingSessionRepository
         );
-    }
-
-    @Bean
-    public ConversationService conversationService(
-        ConversationRepository conversationRepository,
-        ReadStatusRepository readStatusRepository,
-        DirectMessageRepository directMessageRepository,
-        UserRepository userRepository,
-        ConversationQueryRepository conversationQueryRepository,
-        DirectMessageQueryRepository directMessageQueryRepository
-    ) {
-        return new ConversationService(
-            conversationRepository,
-            readStatusRepository,
-            directMessageRepository,
-            userRepository,
-            conversationQueryRepository,
-            directMessageQueryRepository
-        );
-    }
-
-    @Bean
-    public OutboxService outboxService(
-        OutboxRepository outboxRepository
-    ) {
-        return new OutboxService(outboxRepository);
     }
 }

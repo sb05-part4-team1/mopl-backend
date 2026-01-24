@@ -14,8 +14,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class NotificationService {
 
-    private final NotificationRepository notificationRepository;
     private final NotificationQueryRepository notificationQueryRepository;
+    private final NotificationRepository notificationRepository;
 
     public CursorResponse<NotificationModel> getAll(
         UUID receiverId,

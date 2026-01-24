@@ -17,8 +17,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ReviewService {
 
-    private final ReviewRepository reviewRepository;
     private final ReviewQueryRepository reviewQueryRepository;
+    private final ReviewRepository reviewRepository;
     private final ContentRepository contentRepository;
 
     public CursorResponse<ReviewModel> getAll(ReviewQueryRequest request) {

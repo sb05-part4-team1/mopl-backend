@@ -14,8 +14,8 @@ public class DomainServiceConfig {
 
     @Bean
     public ContentService contentService(
-        ContentRepository contentRepository,
-        ContentQueryRepository contentQueryRepository
+        ContentQueryRepository contentQueryRepository,
+        ContentRepository contentRepository
     ) {
         return new ContentService(contentQueryRepository, contentRepository);
     }

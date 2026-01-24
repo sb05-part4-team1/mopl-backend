@@ -28,12 +28,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ConversationService {
 
-    private final ConversationRepository conversationRepository;
-    private final ReadStatusRepository readStatusRepository;
-    private final DirectMessageRepository directMessageRepository;
-    private final UserRepository userRepository;
     private final ConversationQueryRepository conversationQueryRepository;
+    private final ConversationRepository conversationRepository;
     private final DirectMessageQueryRepository directMessageQueryRepository;
+    private final DirectMessageRepository directMessageRepository;
+    private final ReadStatusRepository readStatusRepository;
+    private final UserRepository userRepository;
 
     public ConversationModel create(
         ConversationModel conversationModel,

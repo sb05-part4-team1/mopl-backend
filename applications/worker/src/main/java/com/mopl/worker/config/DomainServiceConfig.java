@@ -15,16 +15,16 @@ import org.springframework.context.annotation.Configuration;
 public class DomainServiceConfig {
 
     @Bean
-    public NotificationService notificationService(
-        NotificationRepository notificationRepository,
-        NotificationQueryRepository notificationQueryRepository
-    ) {
-        return new NotificationService(notificationRepository, notificationQueryRepository);
+    public FollowService followService(FollowRepository followRepository) {
+        return new FollowService(followRepository);
     }
 
     @Bean
-    public FollowService followService(FollowRepository followRepository) {
-        return new FollowService(followRepository);
+    public NotificationService notificationService(
+        NotificationQueryRepository notificationQueryRepository,
+        NotificationRepository notificationRepository
+    ) {
+        return new NotificationService(notificationQueryRepository, notificationRepository);
     }
 
     @Bean
@@ -32,9 +32,6 @@ public class DomainServiceConfig {
         PlaylistSubscriberRepository playlistSubscriberRepository,
         PlaylistRepository playlistRepository
     ) {
-        return new PlaylistSubscriptionService(
-            playlistSubscriberRepository,
-            playlistRepository
-        );
+        return new PlaylistSubscriptionService(playlistSubscriberRepository, playlistRepository);
     }
 }
