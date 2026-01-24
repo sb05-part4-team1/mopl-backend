@@ -1,5 +1,6 @@
 package com.mopl.mail.service;
 
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,8 +16,10 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
@@ -75,6 +78,27 @@ class EmailServiceTest {
             ArgumentCaptor<MimeMessage> messageCaptor = ArgumentCaptor.forClass(MimeMessage.class);
             then(mailSender).should().send(messageCaptor.capture());
             assertThat(messageCaptor.getValue()).isEqualTo(mimeMessage);
+        }
+
+        @Test
+        @DisplayName("MessagingException 발생 시 RuntimeException으로 래핑하여 던진다")
+        void whenMessagingExceptionOccurs_throwsRuntimeException() throws MessagingException {
+            // given
+            String to = "test@example.com";
+            String temporaryPassword = "tempPass123!";
+            LocalDateTime expiresAt = LocalDateTime.of(2024, 1, 15, 10, 30, 0);
+
+            MimeMessage mimeMessage = mock(MimeMessage.class);
+            given(mailSender.createMimeMessage()).willReturn(mimeMessage);
+            willThrow(new MessagingException("메일 발송 실패")).given(mimeMessage)
+                .setRecipient(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+
+            // when & then
+            assertThatThrownBy(
+                () -> emailService.sendTemporaryPassword(to, temporaryPassword, expiresAt))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("이메일 발송에 실패했습니다.")
+                .hasCauseInstanceOf(MessagingException.class);
         }
     }
 }
