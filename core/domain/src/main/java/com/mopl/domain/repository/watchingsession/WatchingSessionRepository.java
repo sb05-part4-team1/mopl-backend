@@ -9,13 +9,13 @@ import java.util.UUID;
 
 public interface WatchingSessionRepository {
 
-    WatchingSessionModel save(WatchingSessionModel model);
-
-    void delete(WatchingSessionModel model);
-
     Optional<WatchingSessionModel> findByWatcherId(UUID watcherId);
 
     long countByContentId(UUID contentId);
 
     Map<UUID, Long> countByContentIdIn(List<UUID> contentIds);
+
+    WatchingSessionModel save(WatchingSessionModel model);
+
+    void delete(WatchingSessionModel model);
 }

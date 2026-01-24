@@ -21,6 +21,49 @@ public class RedisWatchingSessionRepositoryImpl implements WatchingSessionReposi
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
+    public Optional<WatchingSessionModel> findByWatcherId(UUID watcherId) {
+        Object stored = redisTemplate.opsForValue().get(
+            WatchingSessionRedisKeys.watcherSessionKey(watcherId)
+        );
+
+        if (stored instanceof WatchingSessionModel model) {
+            return Optional.of(model);
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public long countByContentId(UUID contentId) {
+        Long size = redisTemplate.opsForZSet().zCard(
+            WatchingSessionRedisKeys.contentWatchersKey(contentId)
+        );
+        return size != null ? size : 0L;
+    }
+
+    @Override
+    public Map<UUID, Long> countByContentIdIn(List<UUID> contentIds) {
+        if (contentIds.isEmpty()) {
+            return Map.of();
+        }
+
+        List<Object> results = redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+            for (UUID contentId : contentIds) {
+                byte[] key = WatchingSessionRedisKeys.contentWatchersKey(contentId).getBytes();
+                connection.zSetCommands().zCard(key);
+            }
+            return null;
+        });
+
+        Map<UUID, Long> result = new HashMap<>();
+        for (int i = 0; i < contentIds.size(); i++) {
+            Long count = (Long) results.get(i);
+            result.put(contentIds.get(i), count != null ? count : 0L);
+        }
+        return result;
+    }
+
+    @Override
     public WatchingSessionModel save(WatchingSessionModel model) {
         UUID watcherId = model.getWatcherId();
         UUID contentId = model.getContentId();
@@ -65,48 +108,5 @@ public class RedisWatchingSessionRepositoryImpl implements WatchingSessionReposi
                 watcherId.toString()
             );
         }
-    }
-
-    @Override
-    public Optional<WatchingSessionModel> findByWatcherId(UUID watcherId) {
-        Object stored = redisTemplate.opsForValue().get(
-            WatchingSessionRedisKeys.watcherSessionKey(watcherId)
-        );
-
-        if (stored instanceof WatchingSessionModel model) {
-            return Optional.of(model);
-        }
-
-        return Optional.empty();
-    }
-
-    @Override
-    public long countByContentId(UUID contentId) {
-        Long size = redisTemplate.opsForZSet().zCard(
-            WatchingSessionRedisKeys.contentWatchersKey(contentId)
-        );
-        return size != null ? size : 0L;
-    }
-
-    @Override
-    public Map<UUID, Long> countByContentIdIn(List<UUID> contentIds) {
-        if (contentIds.isEmpty()) {
-            return Map.of();
-        }
-
-        List<Object> results = redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
-            for (UUID contentId : contentIds) {
-                byte[] key = WatchingSessionRedisKeys.contentWatchersKey(contentId).getBytes();
-                connection.zSetCommands().zCard(key);
-            }
-            return null;
-        });
-
-        Map<UUID, Long> result = new HashMap<>();
-        for (int i = 0; i < contentIds.size(); i++) {
-            Long count = (Long) results.get(i);
-            result.put(contentIds.get(i), count != null ? count : 0L);
-        }
-        return result;
     }
 }
