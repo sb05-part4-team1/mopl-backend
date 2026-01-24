@@ -157,9 +157,7 @@ class S3StorageProviderTest {
             // given
             String path = "images/test.png";
 
-            @SuppressWarnings("unchecked")
-            ResponseInputStream<GetObjectResponse> responseInputStream =
-                mock(ResponseInputStream.class);
+            @SuppressWarnings("unchecked") ResponseInputStream<GetObjectResponse> responseInputStream = mock(ResponseInputStream.class);
 
             given(s3Client.getObject(any(GetObjectRequest.class)))
                 .willReturn(responseInputStream);

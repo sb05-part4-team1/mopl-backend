@@ -41,7 +41,7 @@ class LocalStorageProviderTest {
 
         @Test
         @DisplayName("루트 디렉토리가 없으면 생성")
-        void createsRootDirectoryIfNotExists() throws IOException {
+        void createsRootDirectoryIfNotExists() {
             // given
             Path newRootPath = tempDir.resolve("new-root");
             StorageProperties.Local localProperties = new StorageProperties.Local(newRootPath, BASE_URL);
@@ -115,6 +115,7 @@ class LocalStorageProviderTest {
         void throwsExceptionOnStreamError() {
             // given
             InputStream exceptionStream = new InputStream() {
+
                 @Override
                 public int read() throws IOException {
                     throw new IOException("강제 에러");

@@ -40,13 +40,11 @@ class SseEmitterManagerTest {
     @Mock
     private NotificationQueryRepository notificationQueryRepository;
 
-    private MeterRegistry meterRegistry;
-
     private SseEmitterManager sseEmitterManager;
 
     @BeforeEach
     void setUp() {
-        meterRegistry = new SimpleMeterRegistry();
+        MeterRegistry meterRegistry = new SimpleMeterRegistry();
         sseEmitterManager = new SseEmitterManager(
             emitterRepository,
             notificationQueryRepository,
@@ -183,8 +181,7 @@ class SseEmitterManagerTest {
             SseEmitter emitter = mock(SseEmitter.class);
 
             UUID cachedEventId = UUID.fromString("01934567-89ab-7def-0123-456789abcdf0");
-            RedisEmitterRepository.CachedEvent cachedEvent =
-                new RedisEmitterRepository.CachedEvent(cachedEventId, "cached data");
+            RedisEmitterRepository.CachedEvent cachedEvent = new RedisEmitterRepository.CachedEvent(cachedEventId, "cached data");
 
             given(emitterRepository.getEventsAfter(userId, lastEventId))
                 .willReturn(List.of(cachedEvent));

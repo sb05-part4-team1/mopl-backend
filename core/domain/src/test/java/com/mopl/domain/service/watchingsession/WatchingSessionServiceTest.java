@@ -62,8 +62,7 @@ class WatchingSessionServiceTest {
                 .willReturn(expectedResponse);
 
             // when
-            CursorResponse<WatchingSessionModel> result =
-                watchingSessionService.getWatchingSessions(contentId, request);
+            CursorResponse<WatchingSessionModel> result = watchingSessionService.getWatchingSessions(contentId, request);
 
             // then
             assertThat(result).isEqualTo(expectedResponse);
@@ -93,8 +92,7 @@ class WatchingSessionServiceTest {
                 .willReturn(Optional.of(watchingSessionModel));
 
             // when
-            Optional<WatchingSessionModel> result =
-                watchingSessionService.getWatchingSessionByWatcherId(watcherId);
+            Optional<WatchingSessionModel> result = watchingSessionService.getWatchingSessionByWatcherId(watcherId);
 
             // then
             assertThat(result).isPresent();
@@ -112,8 +110,7 @@ class WatchingSessionServiceTest {
                 .willReturn(Optional.empty());
 
             // when
-            Optional<WatchingSessionModel> result =
-                watchingSessionService.getWatchingSessionByWatcherId(watcherId);
+            Optional<WatchingSessionModel> result = watchingSessionService.getWatchingSessionByWatcherId(watcherId);
 
             // then
             assertThat(result).isEmpty();

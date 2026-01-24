@@ -64,8 +64,7 @@ class StorageAutoConfigTest {
             StorageAutoConfig config = new StorageAutoConfig(properties);
 
             // when & then
-            try (S3Client s3Client = config.s3Client();
-                 S3Presigner s3Presigner = config.s3Presigner()) {
+            try (S3Client s3Client = config.s3Client(); S3Presigner s3Presigner = config.s3Presigner()) {
                 StorageProvider provider = config.s3StorageProvider(s3Client, s3Presigner);
                 assertThat(provider).isInstanceOf(S3StorageProvider.class);
             }

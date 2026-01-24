@@ -202,20 +202,18 @@ class RedisEmitterRepositoryTest {
             UUID userId = UUID.randomUUID();
             UUID lastEventId = UUID.fromString("01934567-89ab-7def-0123-456789abcdef");
             UUID cachedEventId = UUID.fromString("01934567-89ab-7def-0123-456789abcdf0");
-            RedisEmitterRepository.CachedEvent cachedEvent =
-                new RedisEmitterRepository.CachedEvent(cachedEventId, "cached data");
+            RedisEmitterRepository.CachedEvent cachedEvent = new RedisEmitterRepository.CachedEvent(cachedEventId, "cached data");
 
             given(redisTemplate.opsForZSet()).willReturn(zSetOperations);
             given(zSetOperations.rangeByScoreWithScores(anyString(), anyDouble(), anyDouble()))
                 .willReturn(Set.of(ZSetOperations.TypedTuple.of(cachedEvent, 1.0)));
 
             // when
-            List<RedisEmitterRepository.CachedEvent> result =
-                redisEmitterRepository.getEventsAfter(userId, lastEventId);
+            List<RedisEmitterRepository.CachedEvent> result = redisEmitterRepository.getEventsAfter(userId, lastEventId);
 
             // then
             assertThat(result).hasSize(1);
-            assertThat(result.get(0).eventId()).isEqualTo(cachedEventId);
+            assertThat(result.getFirst().eventId()).isEqualTo(cachedEventId);
         }
 
         @Test
@@ -230,8 +228,7 @@ class RedisEmitterRepositoryTest {
                 .willReturn(null);
 
             // when
-            List<RedisEmitterRepository.CachedEvent> result =
-                redisEmitterRepository.getEventsAfter(userId, lastEventId);
+            List<RedisEmitterRepository.CachedEvent> result = redisEmitterRepository.getEventsAfter(userId, lastEventId);
 
             // then
             assertThat(result).isEmpty();
