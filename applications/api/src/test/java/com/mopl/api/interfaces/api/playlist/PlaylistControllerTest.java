@@ -20,6 +20,7 @@ import com.mopl.domain.exception.playlist.PlaylistSubscriptionAlreadyExistsExcep
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
 import com.mopl.security.userdetails.MoplUserDetails;
+import com.mopl.storage.provider.StorageProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -79,6 +80,9 @@ class PlaylistControllerTest {
 
     @MockBean
     private PlaylistFacade playlistFacade;
+
+    @MockBean
+    private StorageProvider storageProvider;
 
     private MoplUserDetails mockUserDetails;
     private UUID userId;

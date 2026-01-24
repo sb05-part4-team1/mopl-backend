@@ -24,7 +24,6 @@ import com.mopl.domain.repository.user.UserQueryRepository;
 import com.mopl.domain.repository.user.UserRepository;
 import com.mopl.domain.repository.watchingsession.WatchingSessionQueryRepository;
 import com.mopl.domain.repository.watchingsession.WatchingSessionRepository;
-import com.mopl.domain.service.content.ContentCacheService;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.content.ContentTagService;
 import com.mopl.domain.service.conversation.ConversationService;
@@ -58,15 +57,10 @@ public class DomainServiceConfig {
 
     @Bean
     public ContentService contentService(
-        ContentCacheService contentCacheService,
         ContentRepository contentRepository,
         ContentQueryRepository contentQueryRepository
     ) {
-        return new ContentService(
-            contentCacheService,
-            contentQueryRepository,
-            contentRepository
-        );
+        return new ContentService(contentQueryRepository, contentRepository);
     }
 
     @Bean
@@ -75,17 +69,6 @@ public class DomainServiceConfig {
         TagRepository tagRepository
     ) {
         return new ContentTagService(contentTagRepository, tagRepository);
-    }
-
-    @Bean
-    ContentCacheService contentCacheService(
-        ContentRepository contentRepository,
-        ContentTagRepository contentTagRepository
-    ) {
-        return new ContentCacheService(
-            contentRepository,
-            contentTagRepository
-        );
     }
 
     @Bean
