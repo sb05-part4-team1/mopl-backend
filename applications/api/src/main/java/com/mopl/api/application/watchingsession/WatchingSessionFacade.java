@@ -21,8 +21,6 @@ public class WatchingSessionFacade {
     private final WatchingSessionResponseMapper watchingSessionResponseMapper;
 
     public Optional<WatchingSessionResponse> getWatchingSession(UUID watcherId) {
-        userService.getById(watcherId);
-
         return watchingSessionService.getWatchingSessionByWatcherId(watcherId)
             .map(watchingSessionResponseMapper::toDto);
     }
