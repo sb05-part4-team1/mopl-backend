@@ -32,7 +32,7 @@ public class WatchingSessionResponseMapper {
                 null,
                 null,
                 List.of(),
-                0L,
+                0.0,
                 0
             )
         );
