@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DirectMessageEntityMapper {
 
-    private final ConversationEntityMapper conversationMapper;
-    private final UserEntityMapper userMapper;
+    private final ConversationEntityMapper conversationEntityMapper;
+    private final UserEntityMapper userEntityMapper;
 
     public DirectMessageModel toModel(DirectMessageEntity entity) {
         if (entity == null) {
@@ -35,7 +35,7 @@ public class DirectMessageEntityMapper {
         return buildDirectMessageModel(
             entity,
             toConversationIdOnly(entity.getConversation()),
-            userMapper.toModel(entity.getSender())
+            userEntityMapper.toModel(entity.getSender())
         );
     }
 
@@ -46,8 +46,8 @@ public class DirectMessageEntityMapper {
 
         return DirectMessageEntity.builder()
             .id(model.getId())
-            .conversation(conversationMapper.toEntity(model.getConversation()))
-            .sender(userMapper.toEntity(model.getSender()))
+            .conversation(conversationEntityMapper.toEntity(model.getConversation()))
+            .sender(userEntityMapper.toEntity(model.getSender()))
             .createdAt(model.getCreatedAt())
             .content(model.getContent())
             .build();

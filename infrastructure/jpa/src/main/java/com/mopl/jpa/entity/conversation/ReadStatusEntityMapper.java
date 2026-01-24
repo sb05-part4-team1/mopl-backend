@@ -15,20 +15,6 @@ public class ReadStatusEntityMapper {
     private final ConversationEntityMapper conversationEntityMapper;
     private final UserEntityMapper userEntityMapper;
 
-    public ReadStatusEntity toEntity(ReadStatusModel readStatusModel) {
-        if (readStatusModel == null) {
-            return null;
-        }
-
-        return ReadStatusEntity.builder()
-            .id(readStatusModel.getId())
-            .createdAt(readStatusModel.getCreatedAt())
-            .lastReadAt(readStatusModel.getLastReadAt())
-            .conversation(conversationEntityMapper.toEntity(readStatusModel.getConversation()))
-            .participant(userEntityMapper.toEntity(readStatusModel.getUser()))
-            .build();
-    }
-
     public ReadStatusModel toModel(ReadStatusEntity entity) {
         if (entity == null) {
             return null;
@@ -53,6 +39,20 @@ public class ReadStatusEntityMapper {
         );
     }
 
+    public ReadStatusEntity toEntity(ReadStatusModel model) {
+        if (model == null) {
+            return null;
+        }
+
+        return ReadStatusEntity.builder()
+            .id(model.getId())
+            .createdAt(model.getCreatedAt())
+            .lastReadAt(model.getLastReadAt())
+            .conversation(conversationEntityMapper.toEntity(model.getConversation()))
+            .participant(userEntityMapper.toEntity(model.getUser()))
+            .build();
+    }
+
     private ReadStatusModel buildReadStatusModel(
         ReadStatusEntity entity,
         ConversationModel conversation,
@@ -68,20 +68,14 @@ public class ReadStatusEntityMapper {
     }
 
     private ConversationModel toConversationIdOnly(ConversationEntity entity) {
-        if (entity == null) {
-            return null;
-        }
-        return ConversationModel.builder()
-            .id(entity.getId())
-            .build();
+        return entity != null
+            ? ConversationModel.builder().id(entity.getId()).build()
+            : null;
     }
 
     private UserModel toUserIdOnly(UserEntity entity) {
-        if (entity == null) {
-            return null;
-        }
-        return UserModel.builder()
-            .id(entity.getId())
-            .build();
+        return entity != null
+            ? UserModel.builder().id(entity.getId()).build()
+            : null;
     }
 }
