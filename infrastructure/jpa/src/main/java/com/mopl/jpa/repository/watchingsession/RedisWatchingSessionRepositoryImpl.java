@@ -9,6 +9,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -57,5 +60,14 @@ public class RedisWatchingSessionRepositoryImpl implements WatchingSessionReposi
     public long countByContentId(UUID contentId) {
         Long size = redisTemplate.opsForZSet().zCard(WatchingSessionRedisKeys.contentSessionsZsetKey(contentId));
         return size != null ? size : 0L;
+    }
+
+    @Override
+    public Map<UUID, Long> countByContentIdIn(List<UUID> contentIds) {
+        Map<UUID, Long> result = new HashMap<>();
+        for (UUID contentId : contentIds) {
+            result.put(contentId, countByContentId(contentId));
+        }
+        return result;
     }
 }

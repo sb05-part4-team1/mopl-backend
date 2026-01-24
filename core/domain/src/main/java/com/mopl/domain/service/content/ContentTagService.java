@@ -20,7 +20,7 @@ public class ContentTagService {
         return toTagNames(contentTagRepository.findTagsByContentId(contentId));
     }
 
-    public Map<UUID, List<String>> getTagNamesByContentIds(List<UUID> contentIds) {
+    public Map<UUID, List<String>> getTagNamesByContentIdIn(List<UUID> contentIds) {
         if (contentIds == null || contentIds.isEmpty()) {
             return Map.of();
         }

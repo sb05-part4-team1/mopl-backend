@@ -27,7 +27,6 @@ public class ContentQueryRepositoryImpl implements ContentQueryRepository {
 
     @Override
     public CursorResponse<ContentModel> findAll(ContentQueryRequest request) {
-
         ContentSortFieldJpa sortFieldJpa = ContentSortFieldJpa.from(request.sortBy());
 
         JPAQuery<ContentEntity> jpaQuery = queryFactory
@@ -45,7 +44,6 @@ public class ContentQueryRepositoryImpl implements ContentQueryRepository {
         );
 
         List<ContentEntity> rows = jpaQuery.fetch();
-        long totalCount = countTotal(request);
 
         if (rows.isEmpty()) {
             return CursorResponse.empty(
@@ -53,6 +51,8 @@ public class ContentQueryRepositoryImpl implements ContentQueryRepository {
                 request.sortDirection()
             );
         }
+
+        long totalCount = countTotal(request);
 
         return CursorPaginationHelper.buildResponse(
             rows,
