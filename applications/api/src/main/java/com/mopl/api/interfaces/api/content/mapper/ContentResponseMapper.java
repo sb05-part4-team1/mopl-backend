@@ -2,16 +2,20 @@ package com.mopl.api.interfaces.api.content.mapper;
 
 import com.mopl.api.interfaces.api.content.dto.ContentResponse;
 import com.mopl.domain.model.content.ContentModel;
+import com.mopl.storage.provider.StorageProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class ContentResponseMapper {
+
+    private final StorageProvider storageProvider;
 
     public ContentResponse toResponse(
         ContentModel contentModel,
-        String thumbnailUrl,
         List<String> tags,
         long watcherCount
     ) {
@@ -20,7 +24,7 @@ public class ContentResponseMapper {
             contentModel.getType(),
             contentModel.getTitle(),
             contentModel.getDescription(),
-            thumbnailUrl,
+            storageProvider.getUrl(contentModel.getThumbnailPath()),
             tags,
             contentModel.getAverageRating(),
             contentModel.getReviewCount(),

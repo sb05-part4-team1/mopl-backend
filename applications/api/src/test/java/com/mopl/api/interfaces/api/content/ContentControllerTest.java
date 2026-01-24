@@ -15,6 +15,7 @@ import com.mopl.domain.repository.content.ContentQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
 import com.mopl.security.userdetails.MoplUserDetails;
+import com.mopl.storage.provider.StorageProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -56,7 +57,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     ContentResponseMapper.class,
     TestSecurityConfig.class
 })
-@DisplayName("ContentController Slice Test")
+@DisplayName("ContentController 슬라이스 테스트")
 class ContentControllerTest {
 
     @Autowired
@@ -68,11 +69,14 @@ class ContentControllerTest {
     @MockBean
     private ContentFacade contentFacade;
 
+    @MockBean
+    private StorageProvider storageProvider;
+
     private MoplUserDetails mockAdminDetails;
     private MoplUserDetails mockUserDetails;
 
-    private static final String DEFAULT_TITLE = "Inception";
-    private static final String DEFAULT_DESCRIPTION = "A mind-bending SF movie about dreams";
+    private static final String DEFAULT_TITLE = "인셉션";
+    private static final String DEFAULT_DESCRIPTION = "꿈속의 꿈을 다룬 SF 영화";
     private static final String DEFAULT_THUMBNAIL_URL = "https://cdn.example.com/contents/thumbnail.jpg";
 
     @BeforeEach
@@ -170,7 +174,7 @@ class ContentControllerTest {
             mockMvc.perform(get("/api/contents")
                     .with(user(mockUserDetails))
                     .param("typeEqual", "movie")
-                    .param("keywordLike", "inception")
+                    .param("keywordLike", "인셉션")
                     .param("tagsIn", "SF,Action"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())

@@ -174,10 +174,8 @@ class ContentFacadeTest {
             given(contentService.getAll(request)).willReturn(contentResponse);
             given(contentTagService.getTagsByContentIdIn(List.of(contentId))).willReturn(tagsByContentId);
             given(watchingSessionService.countByContentIdIn(List.of(contentId))).willReturn(watcherCountByContentId);
-            given(storageProvider.getUrl(DEFAULT_THUMBNAIL_PATH)).willReturn(DEFAULT_THUMBNAIL_URL);
             given(contentResponseMapper.toResponse(
                 eq(contentModel),
-                eq(DEFAULT_THUMBNAIL_URL),
                 eq(List.of("SF")),
                 eq(100L)
             )).willReturn(expectedResponse);
@@ -219,10 +217,8 @@ class ContentFacadeTest {
             given(contentService.getAll(request)).willReturn(contentResponse);
             given(contentTagService.getTagsByContentIdIn(List.of(contentId))).willReturn(emptyTagsByContentId);
             given(watchingSessionService.countByContentIdIn(List.of(contentId))).willReturn(watcherCountByContentId);
-            given(storageProvider.getUrl(DEFAULT_THUMBNAIL_PATH)).willReturn(DEFAULT_THUMBNAIL_URL);
             given(contentResponseMapper.toResponse(
                 eq(contentModel),
-                eq(DEFAULT_THUMBNAIL_URL),
                 eq(List.of()),
                 eq(50L)
             )).willReturn(expectedResponse);
@@ -262,10 +258,8 @@ class ContentFacadeTest {
             given(contentService.getAll(request)).willReturn(contentResponse);
             given(contentTagService.getTagsByContentIdIn(List.of(contentId))).willReturn(tagsByContentId);
             given(watchingSessionService.countByContentIdIn(List.of(contentId))).willReturn(emptyWatcherCountByContentId);
-            given(storageProvider.getUrl(DEFAULT_THUMBNAIL_PATH)).willReturn(DEFAULT_THUMBNAIL_URL);
             given(contentResponseMapper.toResponse(
                 eq(contentModel),
-                eq(DEFAULT_THUMBNAIL_URL),
                 eq(List.of()),
                 eq(0L)
             )).willReturn(expectedResponse);
@@ -310,10 +304,8 @@ class ContentFacadeTest {
             given(contentService.getAll(request)).willReturn(contentResponse);
             given(contentTagService.getTagsByContentIdIn(List.of(contentId))).willReturn(tagsByContentId);
             given(watchingSessionService.countByContentIdIn(List.of(contentId))).willReturn(watcherCountByContentId);
-            given(storageProvider.getUrl(DEFAULT_THUMBNAIL_PATH)).willReturn(DEFAULT_THUMBNAIL_URL);
             given(contentResponseMapper.toResponse(
                 eq(contentModel),
-                eq(DEFAULT_THUMBNAIL_URL),
                 eq(List.of("SF", "Action", "Thriller")),
                 eq(200L)
             )).willReturn(expectedResponse);
@@ -341,12 +333,10 @@ class ContentFacadeTest {
             ContentResponse expectedResponse = createContentResponse(contentId, List.of("Action"), 200L);
 
             given(contentService.getById(contentId)).willReturn(contentModel);
-            given(storageProvider.getUrl(DEFAULT_THUMBNAIL_PATH)).willReturn(DEFAULT_THUMBNAIL_URL);
             given(contentTagService.getTagsByContentId(contentId)).willReturn(List.of(tagModel));
             given(watchingSessionService.countByContentId(contentId)).willReturn(200L);
             given(contentResponseMapper.toResponse(
                 eq(contentModel),
-                eq(DEFAULT_THUMBNAIL_URL),
                 eq(List.of("Action")),
                 eq(200L)
             )).willReturn(expectedResponse);
@@ -428,10 +418,9 @@ class ContentFacadeTest {
             given(multipartFile.getOriginalFilename()).willReturn("thumbnail.jpg");
 
             given(contentService.create(any(ContentModel.class))).willReturn(savedContent);
-            given(storageProvider.getUrl(any())).willReturn(DEFAULT_THUMBNAIL_URL);
             given(contentTagService.getTagsByContentId(contentId)).willReturn(List.of());
             given(watchingSessionService.countByContentId(contentId)).willReturn(0L);
-            given(contentResponseMapper.toResponse(any(), any(), any(), anyLong())).willReturn(expectedResponse);
+            given(contentResponseMapper.toResponse(any(), anyList(), anyLong())).willReturn(expectedResponse);
 
             setupTransactionTemplate();
 
@@ -498,10 +487,9 @@ class ContentFacadeTest {
 
             given(contentService.getById(contentId)).willReturn(existingContent);
             given(contentService.update(any(ContentModel.class))).willReturn(existingContent);
-            given(storageProvider.getUrl(any())).willReturn(DEFAULT_THUMBNAIL_URL);
             given(contentTagService.getTagsByContentId(contentId)).willReturn(List.of());
             given(watchingSessionService.countByContentId(contentId)).willReturn(0L);
-            given(contentResponseMapper.toResponse(any(), any(), any(), anyLong())).willReturn(expectedResponse);
+            given(contentResponseMapper.toResponse(any(), anyList(), anyLong())).willReturn(expectedResponse);
 
             setupTransactionTemplate();
 
@@ -532,10 +520,9 @@ class ContentFacadeTest {
             given(contentService.getById(contentId)).willReturn(existingContent);
             given(multipartFile.isEmpty()).willReturn(true);
             given(contentService.update(any(ContentModel.class))).willReturn(existingContent);
-            given(storageProvider.getUrl(any())).willReturn(DEFAULT_THUMBNAIL_URL);
             given(contentTagService.getTagsByContentId(contentId)).willReturn(List.of());
             given(watchingSessionService.countByContentId(contentId)).willReturn(0L);
-            given(contentResponseMapper.toResponse(any(), any(), any(), anyLong())).willReturn(expectedResponse);
+            given(contentResponseMapper.toResponse(any(), anyList(), anyLong())).willReturn(expectedResponse);
 
             setupTransactionTemplate();
 
@@ -578,10 +565,9 @@ class ContentFacadeTest {
             given(multipartFile.getSize()).willReturn(2048L);
             given(multipartFile.getOriginalFilename()).willReturn("new-thumbnail.jpg");
             given(contentService.update(any(ContentModel.class))).willReturn(existingContent);
-            given(storageProvider.getUrl(any())).willReturn("https://cdn.example.com/new-thumbnail.jpg");
             given(contentTagService.getTagsByContentId(contentId)).willReturn(List.of());
             given(watchingSessionService.countByContentId(contentId)).willReturn(0L);
-            given(contentResponseMapper.toResponse(any(), any(), any(), anyLong())).willReturn(expectedResponse);
+            given(contentResponseMapper.toResponse(any(), anyList(), anyLong())).willReturn(expectedResponse);
 
             setupTransactionTemplate();
 
@@ -612,10 +598,9 @@ class ContentFacadeTest {
 
             given(contentService.getById(contentId)).willReturn(existingContent);
             given(contentService.update(any(ContentModel.class))).willReturn(existingContent);
-            given(storageProvider.getUrl(any())).willReturn(DEFAULT_THUMBNAIL_URL);
             given(contentTagService.getTagsByContentId(contentId)).willReturn(List.of(existingTag));
             given(watchingSessionService.countByContentId(contentId)).willReturn(0L);
-            given(contentResponseMapper.toResponse(any(), any(), eq(List.of("SF")), anyLong()))
+            given(contentResponseMapper.toResponse(any(), eq(List.of("SF")), anyLong()))
                 .willReturn(expectedResponse);
 
             setupTransactionTemplate();
@@ -648,10 +633,9 @@ class ContentFacadeTest {
 
             given(contentService.getById(contentId)).willReturn(existingContent);
             given(contentService.update(any(ContentModel.class))).willReturn(existingContent);
-            given(storageProvider.getUrl(any())).willReturn(DEFAULT_THUMBNAIL_URL);
             given(contentTagService.getTagsByContentId(contentId)).willReturn(List.of(newTag1, newTag2));
             given(watchingSessionService.countByContentId(contentId)).willReturn(0L);
-            given(contentResponseMapper.toResponse(any(), any(), eq(List.of("Drama", "Romance")), anyLong()))
+            given(contentResponseMapper.toResponse(any(), eq(List.of("Drama", "Romance")), anyLong()))
                 .willReturn(expectedResponse);
 
             setupTransactionTemplate();

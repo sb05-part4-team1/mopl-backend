@@ -2,7 +2,6 @@ package com.mopl.api.interfaces.api.content;
 
 import com.mopl.api.interfaces.api.common.CommonApiResponse;
 import com.mopl.api.interfaces.api.content.dto.ContentCreateRequest;
-import com.mopl.api.interfaces.api.content.dto.ContentCursorResponse;
 import com.mopl.api.interfaces.api.content.dto.ContentResponse;
 import com.mopl.api.interfaces.api.content.dto.ContentUpdateRequest;
 import com.mopl.domain.model.content.ContentModel;
@@ -81,7 +80,7 @@ public interface ContentApiSpec {
     })
     @ApiResponse(
         responseCode = "200",
-        content = @Content(schema = @Schema(implementation = ContentCursorResponse.class))
+        content = @Content(schema = @Schema(implementation = CursorResponse.class))
     )
     @CommonApiResponse.Default
     CursorResponse<ContentResponse> getContents(@Parameter(hidden = true) ContentQueryRequest request);

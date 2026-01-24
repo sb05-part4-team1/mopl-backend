@@ -35,14 +35,14 @@ public class ContentSummaryMapper {
     }
 
     public List<ContentSummary> toSummaries(
-        Collection<ContentModel> models,
+        Collection<ContentModel> contentModels,
         Map<UUID, List<String>> tagsByContentId
     ) {
-        if (models == null || models.isEmpty()) {
+        if (contentModels == null || contentModels.isEmpty()) {
             return Collections.emptyList();
         }
 
-        return models.stream()
+        return contentModels.stream()
             .map(model -> toSummary(
                 model,
                 tagsByContentId.getOrDefault(model.getId(), List.of())

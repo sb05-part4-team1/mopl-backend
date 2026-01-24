@@ -54,11 +54,10 @@ public class ContentFacade {
         Map<UUID, Long> watcherCountByContentId = watchingSessionService.countByContentIdIn(contentIds);
 
         return response.map(content -> {
-            String thumbnailUrl = storageProvider.getUrl(content.getThumbnailPath());
             List<String> tagNames = toTagNames(tagsByContentId.getOrDefault(content.getId(), List.of()));
             long watcherCount = watcherCountByContentId.getOrDefault(content.getId(), 0L);
 
-            return contentResponseMapper.toResponse(content, thumbnailUrl, tagNames, watcherCount);
+            return contentResponseMapper.toResponse(content, tagNames, watcherCount);
         });
     }
 
@@ -134,11 +133,10 @@ public class ContentFacade {
     }
 
     private ContentResponse toContentResponse(ContentModel content) {
-        String thumbnailUrl = storageProvider.getUrl(content.getThumbnailPath());
         List<String> tagNames = toTagNames(contentTagService.getTagsByContentId(content.getId()));
         long watcherCount = watchingSessionService.countByContentId(content.getId());
 
-        return contentResponseMapper.toResponse(content, thumbnailUrl, tagNames, watcherCount);
+        return contentResponseMapper.toResponse(content, tagNames, watcherCount);
     }
 
     private List<String> toTagNames(List<TagModel> tags) {
