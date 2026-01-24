@@ -76,7 +76,7 @@ public class UserFacade {
     public UserModel updateRoleInternal(UUID userId, UserModel.Role role) {
         UserModel userModel = userService.getById(userId);
         String oldRole = userModel.getRole().name();
-        userModel.updateRole(role);
+        UserModel updatedUserModel = userModel.updateRole(role);
 
         UserRoleChangedEvent event = UserRoleChangedEvent.builder()
             .userId(userId)
@@ -85,7 +85,7 @@ public class UserFacade {
             .build();
 
         UserModel updatedUser = transactionTemplate.execute(status -> {
-            UserModel saved = userService.update(userModel);
+            UserModel saved = userService.update(updatedUserModel);
             outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
             return saved;
         });
