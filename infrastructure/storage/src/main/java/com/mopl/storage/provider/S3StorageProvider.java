@@ -49,7 +49,11 @@ public class S3StorageProvider implements StorageProvider {
     }
 
     @Override
-    @Cacheable(value = CacheName.PRESIGNED_URLS, key = "#path", unless = "#result == null")
+    @Cacheable(
+        cacheNames = CacheName.PRESIGNED_URLS,
+        key = "#root.args[0]",
+        condition = "#root.args[0] != null && !#root.args[0].isBlank()"
+    )
     public String getUrl(String path) {
         if (path == null || path.isBlank()) {
             return null;
