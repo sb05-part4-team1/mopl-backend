@@ -19,19 +19,9 @@ spring:
   threads:
     virtual:
       enabled: true
-  #더미
-  mail:
-    username: dummy
-    password: dummy
-    host: localhost
-    port: 25
-
-
-
   cache:
     type: redis
 
-#===============================
 management:
   endpoints:
     web:

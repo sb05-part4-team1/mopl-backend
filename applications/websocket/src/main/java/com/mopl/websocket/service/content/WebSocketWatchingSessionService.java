@@ -16,19 +16,19 @@ public class WebSocketWatchingSessionService {
 
     private final WatchingSessionRepository watchingSessionRepository;
 
-    public WatchingSessionModel create(WatchingSessionModel model) {
-        return watchingSessionRepository.save(model);
-    }
-
-    public void delete(WatchingSessionModel model) {
-        watchingSessionRepository.delete(model);
+    public Optional<WatchingSessionModel> findCurrentByWatcherId(UUID watcherId) {
+        return watchingSessionRepository.findByWatcherId(watcherId);
     }
 
     public long getWatcherCount(UUID contentId) {
         return watchingSessionRepository.countByContentId(contentId);
     }
 
-    public Optional<WatchingSessionModel> findCurrentByWatcherId(UUID watcherId) {
-        return watchingSessionRepository.findByWatcherId(watcherId);
+    public WatchingSessionModel create(WatchingSessionModel model) {
+        return watchingSessionRepository.save(model);
+    }
+
+    public void delete(WatchingSessionModel model) {
+        watchingSessionRepository.delete(model);
     }
 }

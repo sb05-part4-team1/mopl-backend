@@ -5,8 +5,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.mopl.api.interfaces.api.conversation.mapper.DirectMessageMapper;
-import com.mopl.api.interfaces.api.conversation.dto.DirectMessageResponse;
+import com.mopl.websocket.interfaces.api.conversation.dto.DirectMessageResponse;
+import com.mopl.websocket.interfaces.api.conversation.mapper.DirectMessageMapper;
 import com.mopl.domain.model.conversation.DirectMessageModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.model.conversation.ConversationModel;

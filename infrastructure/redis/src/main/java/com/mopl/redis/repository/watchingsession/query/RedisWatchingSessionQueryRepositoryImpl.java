@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -32,7 +33,8 @@ public class RedisWatchingSessionQueryRepositoryImpl implements WatchingSessionQ
     ) {
         String zsetKey = WatchingSessionRedisKeys.contentWatchersKey(contentId);
         WatchingSessionSortFieldSupport sortField = WatchingSessionSortFieldSupport.from(
-            request.sortBy());
+            request.sortBy()
+        );
 
         Long totalCount = redisTemplate.opsForZSet().zCard(zsetKey);
         long total = totalCount != null ? totalCount : 0L;
@@ -80,23 +82,28 @@ public class RedisWatchingSessionQueryRepositoryImpl implements WatchingSessionQ
             return List.of();
         }
 
-        List<WatchingSessionModel> models = new ArrayList<>(tuples.size());
+        List<UUID> watcherIds = tuples.stream()
+            .filter(tuple -> tuple != null && tuple.getValue() != null)
+            .map(tuple -> parseUuid(tuple.getValue().toString()))
+            .filter(Objects::nonNull)
+            .toList();
 
-        for (ZSetOperations.TypedTuple<Object> tuple : tuples) {
-            if (tuple == null || tuple.getValue() == null) {
-                continue;
-            }
+        if (watcherIds.isEmpty()) {
+            return List.of();
+        }
 
-            UUID watcherId = parseUuid(tuple.getValue().toString());
-            if (watcherId == null) {
-                continue;
-            }
+        List<String> sessionKeys = watcherIds.stream()
+            .map(WatchingSessionRedisKeys::watcherSessionKey)
+            .toList();
 
-            Object stored = redisTemplate.opsForValue().get(
-                WatchingSessionRedisKeys.watcherSessionKey(watcherId)
-            );
-            if (stored instanceof WatchingSessionModel model) {
-                models.add(model);
+        List<Object> storedSessions = redisTemplate.opsForValue().multiGet(sessionKeys);
+
+        List<WatchingSessionModel> models = new ArrayList<>(watcherIds.size());
+        if (storedSessions != null) {
+            for (Object stored : storedSessions) {
+                if (stored instanceof WatchingSessionModel model) {
+                    models.add(model);
+                }
             }
         }
 
@@ -141,8 +148,8 @@ public class RedisWatchingSessionQueryRepositoryImpl implements WatchingSessionQ
 
         return redisTemplate.opsForZSet().reverseRangeByScoreWithScores(
             zsetKey,
-            cursorScore,
             Double.NEGATIVE_INFINITY,
+            cursorScore,
             0,
             fetchSize
         );

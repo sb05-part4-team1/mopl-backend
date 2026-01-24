@@ -4,9 +4,9 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
-import com.mopl.api.interfaces.api.user.mapper.UserSummaryMapper;
-import com.mopl.api.interfaces.api.watchingsession.dto.WatchingSessionResponse;
-import com.mopl.api.interfaces.api.watchingsession.mapper.WatchingSessionResponseMapper;
+import com.mopl.websocket.interfaces.api.user.mapper.UserSummaryMapper;
+import com.mopl.websocket.interfaces.api.watchingsession.dto.WatchingSessionResponse;
+import com.mopl.websocket.interfaces.api.watchingsession.mapper.WatchingSessionResponseMapper;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.model.watchingsession.WatchingSessionModel;
