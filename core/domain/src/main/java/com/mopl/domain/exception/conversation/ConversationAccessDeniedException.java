@@ -13,14 +13,14 @@ public class ConversationAccessDeniedException extends ConversationException {
         super(ERROR_CODE, details);
     }
 
-    public static ConversationAccessDeniedException withConversationIdAndUserId(
-        UUID conversationId,
-        UUID userId
+    public static ConversationAccessDeniedException withUserIdAndConversationId(
+        UUID userId,
+        UUID conversationId
     ) {
         return new ConversationAccessDeniedException(
             Map.of(
-                "conversationId", conversationId,
-                "userId", userId
+                "userId", userId,
+                "conversationId", conversationId
             )
         );
     }

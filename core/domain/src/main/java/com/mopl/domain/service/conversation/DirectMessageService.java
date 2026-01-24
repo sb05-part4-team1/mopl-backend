@@ -22,7 +22,7 @@ public class DirectMessageService {
         UUID conversationId,
         DirectMessageQueryRequest request
     ) {
-        return directMessageQueryRepository.findAllByConversationId(conversationId, request, requesterId);
+        return directMessageQueryRepository.findAll(requesterId, conversationId, request);
     }
 
     public DirectMessageModel getOtherDirectMessage(

@@ -30,10 +30,9 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
     private final DirectMessageEntityMapper directMessageEntityMapper;
 
     @Override
-    public CursorResponse<DirectMessageModel> findAllByConversationId(
-        UUID conversationId,
-        DirectMessageQueryRequest request,
-        UUID userId) {
+    public CursorResponse<DirectMessageModel> findAll(
+        UUID userId, UUID conversationId,
+        DirectMessageQueryRequest request) {
         QDirectMessageEntity directMessage = QDirectMessageEntity.directMessageEntity;
         QConversationEntity conversation = QConversationEntity.conversationEntity;
         QReadStatusEntity readStatus = QReadStatusEntity.readStatusEntity;

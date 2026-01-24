@@ -125,7 +125,7 @@ public class ConversationFacade {
     ) {
         UserModel requester = userService.getById(userId);
         UUID requesterId = requester.getId();
-        readStatusService.validateParticipant(conversationId, requesterId);
+        readStatusService.validateParticipant(requesterId, conversationId);
 
         ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatusWithParticipant(requesterId, conversationId);
         UserModel otherParticipant = otherReadStatus != null ? otherReadStatus.getParticipant() : null;
@@ -141,7 +141,7 @@ public class ConversationFacade {
 
     @Transactional
     public void directMessageRead(UUID requesterId, UUID conversationId, UUID directMessageId) {
-        readStatusService.validateParticipant(conversationId, requesterId);
+        readStatusService.validateParticipant(requesterId, conversationId);
 
         DirectMessageModel directMessage = directMessageService.getOtherDirectMessage(
             requesterId, conversationId, directMessageId

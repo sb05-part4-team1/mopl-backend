@@ -24,7 +24,6 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
     public ReadStatusModel findByConversationIdAndUserId(UUID conversationId, UUID userId) {
         ReadStatusEntity readStatusEntity = jpaReadStatusRepository
             .findByConversationIdAndParticipantId(conversationId, userId);
-
         return readStatusEntityMapper.toModel(readStatusEntity);
     }
 
@@ -32,7 +31,6 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
     public ReadStatusModel findWithParticipantByParticipantIdNotAndConversationId(UUID participantId, UUID conversationId) {
         ReadStatusEntity readStatusEntity = jpaReadStatusRepository
             .findWithParticipantByParticipantIdNotAndConversationId(participantId, conversationId);
-
         return readStatusEntityMapper.toModelWithUser(readStatusEntity);
     }
 
@@ -67,8 +65,8 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
     }
 
     @Override
-    public boolean existsByConversationIdAndParticipantId(UUID conversationId, UUID participantId) {
-        return jpaReadStatusRepository.existsByConversationIdAndParticipantId(conversationId, participantId);
+    public boolean existsByParticipantIdAndConversationId(UUID participantId, UUID conversationId) {
+        return jpaReadStatusRepository.existsByParticipantIdAndConversationId(participantId, conversationId);
     }
 
     @Override

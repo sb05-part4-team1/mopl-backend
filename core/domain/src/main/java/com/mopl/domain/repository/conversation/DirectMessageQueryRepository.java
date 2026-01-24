@@ -9,10 +9,10 @@ import java.util.UUID;
 
 public interface DirectMessageQueryRepository {
 
-    CursorResponse<DirectMessageModel> findAllByConversationId(
+    CursorResponse<DirectMessageModel> findAll(
+        UUID userId,
         UUID conversationId,
-        DirectMessageQueryRequest request,
-        UUID userId
+        DirectMessageQueryRequest request
     );
 
     Map<UUID, DirectMessageModel> findLastMessagesWithSenderByConversationIdIn(Collection<UUID> conversationIds);

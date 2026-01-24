@@ -215,7 +215,7 @@ class ConversationControllerTest {
             UUID conversationId = UUID.randomUUID();
 
             given(conversationFacade.getConversation(userId, conversationId))
-                .willThrow(ConversationAccessDeniedException.withConversationIdAndUserId(conversationId, userId));
+                .willThrow(ConversationAccessDeniedException.withUserIdAndConversationId(conversationId, userId));
 
             // when & then
             mockMvc.perform(get("/api/conversations/{conversationId}", conversationId)
@@ -346,7 +346,7 @@ class ConversationControllerTest {
             UUID conversationId = UUID.randomUUID();
 
             given(conversationFacade.getDirectMessages(eq(userId), eq(conversationId), any()))
-                .willThrow(ConversationAccessDeniedException.withConversationIdAndUserId(conversationId, userId));
+                .willThrow(ConversationAccessDeniedException.withUserIdAndConversationId(conversationId, userId));
 
             // when & then
             mockMvc.perform(get("/api/conversations/{conversationId}/direct-messages", conversationId)
@@ -492,7 +492,7 @@ class ConversationControllerTest {
             UUID conversationId = UUID.randomUUID();
             UUID directMessageId = UUID.randomUUID();
 
-            willThrow(ConversationAccessDeniedException.withConversationIdAndUserId(conversationId, userId))
+            willThrow(ConversationAccessDeniedException.withUserIdAndConversationId(conversationId, userId))
                 .given(conversationFacade).directMessageRead(userId, conversationId, directMessageId);
 
             // when & then

@@ -44,14 +44,14 @@ public class ReadStatusService {
         }
     }
 
-    public void validateParticipant(UUID conversationId, UUID participantId) {
-        if (!readStatusRepository.existsByConversationIdAndParticipantId(
-            conversationId,
-            participantId
+    public void validateParticipant(UUID participantId, UUID conversationId) {
+        if (!readStatusRepository.existsByParticipantIdAndConversationId(
+            participantId,
+            conversationId
         )) {
-            throw ConversationAccessDeniedException.withConversationIdAndUserId(
-                conversationId,
-                participantId
+            throw ConversationAccessDeniedException.withUserIdAndConversationId(
+                participantId,
+                conversationId
             );
         }
     }

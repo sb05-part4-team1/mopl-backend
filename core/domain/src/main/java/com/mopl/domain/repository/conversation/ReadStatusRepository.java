@@ -16,7 +16,7 @@ public interface ReadStatusRepository {
 
     Map<UUID, ReadStatusModel> findMyReadStatusByConversationIdIn(UUID userId, Collection<UUID> conversationIds);
 
-    boolean existsByConversationIdAndParticipantId(UUID conversationId, UUID participantId);
+    boolean existsByParticipantIdAndConversationId(UUID participantId, UUID conversationId);
 
     ReadStatusModel save(ReadStatusModel readStatusModel);
 }
