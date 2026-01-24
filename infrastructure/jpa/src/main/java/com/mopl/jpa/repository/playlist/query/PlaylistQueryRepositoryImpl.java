@@ -32,14 +32,9 @@ public class PlaylistQueryRepositoryImpl implements PlaylistQueryRepository {
     public CursorResponse<PlaylistModel> findAll(PlaylistQueryRequest request) {
         PlaylistSortFieldJpa sortFieldJpa = PlaylistSortFieldJpa.from(request.sortBy());
 
-        JPAQuery<PlaylistEntity> jpaQuery = queryFactory
-            .selectFrom(playlistEntity)
-            .leftJoin(playlistEntity.owner).fetchJoin()
-            .where(
-                keywordLike(request.keywordLike()),
-                ownerIdEqual(request.ownerIdEqual()),
-                subscriberIdEqual(request.subscriberIdEqual())
-            );
+        JPAQuery<PlaylistEntity> jpaQuery = baseQuery(request)
+            .select(playlistEntity)
+            .leftJoin(playlistEntity.owner).fetchJoin();
 
         CursorPaginationHelper.applyCursorPagination(
             request,
@@ -70,15 +65,19 @@ public class PlaylistQueryRepositoryImpl implements PlaylistQueryRepository {
         );
     }
 
-    private long countTotal(PlaylistQueryRequest request) {
-        Long total = queryFactory
-            .select(playlistEntity.count())
+    private JPAQuery<?> baseQuery(PlaylistQueryRequest request) {
+        return queryFactory
             .from(playlistEntity)
             .where(
                 keywordLike(request.keywordLike()),
                 ownerIdEqual(request.ownerIdEqual()),
                 subscriberIdEqual(request.subscriberIdEqual())
-            )
+            );
+    }
+
+    private long countTotal(PlaylistQueryRequest request) {
+        Long total = baseQuery(request)
+            .select(playlistEntity.count())
             .fetchOne();
         return total != null ? total : 0;
     }
