@@ -4,16 +4,15 @@ import com.mopl.domain.model.conversation.ReadStatusModel;
 import com.mopl.domain.repository.conversation.ReadStatusRepository;
 import com.mopl.jpa.entity.conversation.ReadStatusEntity;
 import com.mopl.jpa.entity.conversation.ReadStatusEntityMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor

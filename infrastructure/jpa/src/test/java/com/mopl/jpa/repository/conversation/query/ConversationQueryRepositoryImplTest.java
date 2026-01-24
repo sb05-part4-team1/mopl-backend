@@ -58,8 +58,6 @@ class ConversationQueryRepositoryImplTest {
 
         userId = user.getId();
         otherUser1Id = otherUser1.getId();
-        UUID otherUser2Id = otherUser2.getId();
-        UUID otherUser3Id = otherUser3.getId();
 
         // user와 otherUser1의 대화
         ConversationEntity conv1 = createAndPersistConversation(baseTime);
