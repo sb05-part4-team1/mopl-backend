@@ -14,8 +14,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ConversationSortFieldJpa implements SortField<Comparable<?>> {
 
-    CREATED_AT(ConversationSortField.createdAt, cast(conversationEntity.createdAt),
-        ConversationEntity::getCreatedAt, value -> ((Instant) value).toString(), Instant::parse);
+    CREATED_AT(
+        ConversationSortField.createdAt,
+        cast(conversationEntity.createdAt),
+        ConversationEntity::getCreatedAt,
+        Object::toString,
+        Instant::parse
+    );
 
     private final ConversationSortField domainField;
     private final ComparableExpression<Comparable<?>> expression;

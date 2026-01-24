@@ -22,6 +22,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.mopl.jpa.entity.conversation.QConversationEntity.conversationEntity;
+import static com.mopl.jpa.entity.conversation.QDirectMessageEntity.directMessageEntity;
+import static com.mopl.jpa.entity.conversation.QReadStatusEntity.readStatusEntity;
+
 @Repository
 @RequiredArgsConstructor
 public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepository {
@@ -31,26 +35,21 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
 
     @Override
     public CursorResponse<DirectMessageModel> findAll(
-        UUID userId, UUID conversationId,
-        DirectMessageQueryRequest request) {
-        QDirectMessageEntity directMessage = QDirectMessageEntity.directMessageEntity;
-        QConversationEntity conversation = QConversationEntity.conversationEntity;
-        QReadStatusEntity readStatus = QReadStatusEntity.readStatusEntity;
-
+        UUID userId,
+        UUID conversationId,
+        DirectMessageQueryRequest request
+    ) {
         DirectMessageSortFieldJpa sortField = DirectMessageSortFieldJpa.from(request.sortBy());
 
-        // base query
         JPAQuery<DirectMessageEntity> query = queryFactory
-            .select(directMessage)
-            .from(directMessage)
-            .join(directMessage.conversation, conversation)
-            .join(readStatus)
-            .on(readStatus.conversation.eq(conversation))
+            .select(directMessageEntity)
+            .from(directMessageEntity)
+            .join(directMessageEntity.conversation, conversationEntity)
+            .join(readStatusEntity)
+            .on(readStatusEntity.conversation.eq(conversationEntity))
             .where(
-                // 특정 대화방
-                conversation.id.eq(conversationId),
-                // 내가 해당 대화방의 참여자인지 검증
-                readStatus.participant.id.eq(userId)
+                conversationEntity.id.eq(conversationId),
+                readStatusEntity.participant.id.eq(userId)
             );
 
         // cursor pagination 적용
@@ -58,21 +57,21 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
             request,
             sortField,
             query,
-            directMessage.id
+            directMessageEntity.id
         );
 
         List<DirectMessageEntity> rows = query.fetch();
 
         // total count
         Long totalCountValue = queryFactory
-            .select(directMessage.count())
-            .from(directMessage)
-            .join(directMessage.conversation, conversation)
-            .join(readStatus)
-            .on(readStatus.conversation.eq(conversation))
+            .select(directMessageEntity.count())
+            .from(directMessageEntity)
+            .join(directMessageEntity.conversation, conversationEntity)
+            .join(readStatusEntity)
+            .on(readStatusEntity.conversation.eq(conversationEntity))
             .where(
-                conversation.id.eq(conversationId),
-                readStatus.participant.id.eq(userId)
+                conversationEntity.id.eq(conversationId),
+                readStatusEntity.participant.id.eq(userId)
             )
             .fetchOne();
 
@@ -97,7 +96,7 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
             return Map.of();
         }
 
-        QDirectMessageEntity directMessage = QDirectMessageEntity.directMessageEntity;
+        QDirectMessageEntity directMessage = directMessageEntity;
         QDirectMessageEntity subMessage = new QDirectMessageEntity("subMessage");
 
         List<DirectMessageEntity> lastMessages = queryFactory
