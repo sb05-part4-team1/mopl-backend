@@ -1,6 +1,9 @@
 package com.mopl.jpa.entity.conversation;
 
+import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.model.conversation.ReadStatusModel;
+import com.mopl.domain.model.user.UserModel;
+import com.mopl.jpa.entity.user.UserEntity;
 import com.mopl.jpa.entity.user.UserEntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -20,23 +23,65 @@ public class ReadStatusEntityMapper {
         return ReadStatusEntity.builder()
             .id(readStatusModel.getId())
             .createdAt(readStatusModel.getCreatedAt())
-            .lastReadAt(readStatusModel.getLastRead())
+            .lastReadAt(readStatusModel.getLastReadAt())
             .conversation(conversationEntityMapper.toEntity(readStatusModel.getConversation()))
             .participant(userEntityMapper.toEntity(readStatusModel.getUser()))
             .build();
     }
 
-    public ReadStatusModel toModel(ReadStatusEntity readStatusEntity) {
-        if (readStatusEntity == null) {
+    public ReadStatusModel toModel(ReadStatusEntity entity) {
+        if (entity == null) {
             return null;
         }
 
+        return buildReadStatusModel(
+            entity,
+            toConversationIdOnly(entity.getConversation()),
+            toUserIdOnly(entity.getParticipant())
+        );
+    }
+
+    public ReadStatusModel toModelWithUser(ReadStatusEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+
+        return buildReadStatusModel(
+            entity,
+            toConversationIdOnly(entity.getConversation()),
+            userEntityMapper.toModel(entity.getParticipant())
+        );
+    }
+
+    private ReadStatusModel buildReadStatusModel(
+        ReadStatusEntity entity,
+        ConversationModel conversation,
+        UserModel user
+    ) {
         return ReadStatusModel.builder()
-            .id(readStatusEntity.getId())
-            .createdAt(readStatusEntity.getCreatedAt())
-            .lastRead(readStatusEntity.getLastReadAt())
-            .conversation(conversationEntityMapper.toModel(readStatusEntity.getConversation()))
-            .user(userEntityMapper.toModel(readStatusEntity.getParticipant()))
+            .id(entity.getId())
+            .createdAt(entity.getCreatedAt())
+            .lastReadAt(entity.getLastReadAt())
+            .conversation(conversation)
+            .user(user)
+            .build();
+    }
+
+    private ConversationModel toConversationIdOnly(ConversationEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        return ConversationModel.builder()
+            .id(entity.getId())
+            .build();
+    }
+
+    private UserModel toUserIdOnly(UserEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        return UserModel.builder()
+            .id(entity.getId())
             .build();
     }
 }
