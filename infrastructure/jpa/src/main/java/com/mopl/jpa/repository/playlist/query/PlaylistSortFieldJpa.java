@@ -4,6 +4,7 @@ import com.mopl.domain.repository.playlist.PlaylistSortField;
 import com.mopl.jpa.entity.playlist.PlaylistEntity;
 import com.mopl.jpa.support.cursor.SortField;
 import com.querydsl.core.types.dsl.ComparableExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -26,10 +27,14 @@ public enum PlaylistSortFieldJpa implements SortField<Comparable<?>> {
 
     SUBSCRIBE_COUNT(
         PlaylistSortField.subscribeCount,
-        null,
-        null,
+        Expressions.comparableTemplate(
+            Integer.class,
+            "{0}",
+            playlistEntity.subscriberCount
+        ),
+        PlaylistEntity::getSubscriberCount,
         Object::toString,
-        Long::parseLong
+        Integer::parseInt
     );
 
     private final PlaylistSortField domainField;
@@ -60,11 +65,8 @@ public enum PlaylistSortFieldJpa implements SortField<Comparable<?>> {
         return deserializer.apply(cursor);
     }
 
-    public Object extractValue(PlaylistEntity entity, Long subscribeCount) {
-        if (this == SUBSCRIBE_COUNT) {
-            return subscribeCount;
-        }
-        return valueExtractor != null ? valueExtractor.apply(entity) : null;
+    public Object extractValue(PlaylistEntity entity) {
+        return valueExtractor.apply(entity);
     }
 
     @Override

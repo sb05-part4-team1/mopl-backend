@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.mopl.domain.model.watchingsession.WatchingSessionModel;
-import com.mopl.websocket.repository.WatchingSessionRepository;
+import com.mopl.domain.repository.watchingsession.WatchingSessionRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,7 +29,6 @@ public class WebSocketWatchingSessionService {
     }
 
     public Optional<WatchingSessionModel> findCurrentByWatcherId(UUID watcherId) {
-        return watchingSessionRepository.findCurrentByWatcherId(watcherId);
+        return watchingSessionRepository.findByWatcherId(watcherId);
     }
-
 }

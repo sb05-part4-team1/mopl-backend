@@ -33,4 +33,7 @@ public class PlaylistEntity extends BaseUpdatableEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "owner_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private UserEntity owner;
+
+    @Column(nullable = false)
+    private int subscriberCount;
 }

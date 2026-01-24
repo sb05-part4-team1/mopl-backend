@@ -3,7 +3,7 @@ package com.mopl.worker.config;
 import com.mopl.domain.repository.follow.FollowRepository;
 import com.mopl.domain.repository.notification.NotificationQueryRepository;
 import com.mopl.domain.repository.notification.NotificationRepository;
-import com.mopl.domain.repository.playlist.PlaylistSubscriberCountRepository;
+import com.mopl.domain.repository.playlist.PlaylistRepository;
 import com.mopl.domain.repository.playlist.PlaylistSubscriberRepository;
 import com.mopl.domain.service.follow.FollowService;
 import com.mopl.domain.service.notification.NotificationService;
@@ -30,11 +30,11 @@ public class DomainServiceConfig {
     @Bean
     public PlaylistSubscriptionService playlistSubscriptionService(
         PlaylistSubscriberRepository playlistSubscriberRepository,
-        PlaylistSubscriberCountRepository playlistSubscriberCountRepository
+        PlaylistRepository playlistRepository
     ) {
         return new PlaylistSubscriptionService(
             playlistSubscriberRepository,
-            playlistSubscriberCountRepository
+            playlistRepository
         );
     }
 }

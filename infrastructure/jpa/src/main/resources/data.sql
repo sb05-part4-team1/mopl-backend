@@ -71,11 +71,11 @@ VALUES
 -- =============================================
 -- 5. 플레이리스트 (Playlists)
 -- =============================================
-INSERT INTO playlists (id, created_at, deleted_at, updated_at, title, description, owner_id)
+INSERT INTO playlists (id, created_at, deleted_at, updated_at, title, description, owner_id, subscriber_count)
 VALUES
-    (CAST('019439e0-0001-7000-8000-000000000001' AS UUID), DATEADD('DAY', -55, NOW()), NULL, DATEADD('DAY', -10, NOW()), '아트하우스 영화 컬렉션', '예술적 감성이 담긴 영화들', CAST('019439a0-0002-7000-8000-000000000002' AS UUID)),
-    (CAST('019439e0-0002-7000-8000-000000000002' AS UUID), DATEADD('DAY', -50, NOW()), NULL, DATEADD('DAY', -8, NOW()), '왕가위 & 아시아 영화', '아시아 감독들의 명작 모음', CAST('019439a0-0002-7000-8000-000000000002' AS UUID)),
-    (CAST('019439e0-0003-7000-8000-000000000003' AS UUID), DATEADD('DAY', -40, NOW()), NULL, DATEADD('DAY', -5, NOW()), '로맨스 영화 명작', '가슴 뭉클한 로맨스 영화들', CAST('019439a0-0003-7000-8000-000000000003' AS UUID));
+    (CAST('019439e0-0001-7000-8000-000000000001' AS UUID), DATEADD('DAY', -55, NOW()), NULL, DATEADD('DAY', -10, NOW()), '아트하우스 영화 컬렉션', '예술적 감성이 담긴 영화들', CAST('019439a0-0002-7000-8000-000000000002' AS UUID), 2),
+    (CAST('019439e0-0002-7000-8000-000000000002' AS UUID), DATEADD('DAY', -50, NOW()), NULL, DATEADD('DAY', -8, NOW()), '왕가위 & 아시아 영화', '아시아 감독들의 명작 모음', CAST('019439a0-0002-7000-8000-000000000002' AS UUID), 1),
+    (CAST('019439e0-0003-7000-8000-000000000003' AS UUID), DATEADD('DAY', -40, NOW()), NULL, DATEADD('DAY', -5, NOW()), '로맨스 영화 명작', '가슴 뭉클한 로맨스 영화들', CAST('019439a0-0003-7000-8000-000000000003' AS UUID), 1);
 
 -- =============================================
 -- 6. 플레이리스트-콘텐츠 연결 (Playlist Contents)

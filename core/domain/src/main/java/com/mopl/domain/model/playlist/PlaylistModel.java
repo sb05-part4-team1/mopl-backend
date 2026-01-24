@@ -19,6 +19,7 @@ public class PlaylistModel extends BaseUpdatableModel {
     private String title;
     private String description;
     private UserModel owner;
+    private int subscriberCount;
 
     public static PlaylistModel create(
         String title,
@@ -67,6 +68,21 @@ public class PlaylistModel extends BaseUpdatableModel {
         return this.toBuilder()
             .title(updatedTitle)
             .description(updatedDescription)
+            .build();
+    }
+
+    public PlaylistModel addSubscriber() {
+        return this.toBuilder()
+            .subscriberCount(this.subscriberCount + 1)
+            .build();
+    }
+
+    public PlaylistModel removeSubscriber() {
+        if (this.subscriberCount <= 0) {
+            throw InvalidPlaylistDataException.withDetailMessage("구독자가 없는 플레이리스트의 구독자를 제거할 수 없습니다.");
+        }
+        return this.toBuilder()
+            .subscriberCount(this.subscriberCount - 1)
             .build();
     }
 

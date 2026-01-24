@@ -58,8 +58,6 @@ public class PlaylistFacade {
             .map(PlaylistModel::getId)
             .toList();
 
-        Map<UUID, Long> subscriberCounts = playlistSubscriptionService.getSubscriberCounts(
-            playlistIds);
         Set<UUID> subscribedPlaylistIds = playlistSubscriptionService.findSubscribedPlaylistIds(
             requesterId,
             playlistIds
@@ -69,7 +67,6 @@ public class PlaylistFacade {
 
         return playlistPage.map(playlist -> playlistResponseMapper.toResponse(
             playlist,
-            subscriberCounts.getOrDefault(playlist.getId(), 0L),
             subscribedPlaylistIds.contains(playlist.getId()),
             contentsMap.getOrDefault(playlist.getId(), Collections.emptyList()),
             Map.of()
@@ -79,7 +76,6 @@ public class PlaylistFacade {
     public PlaylistResponse getPlaylist(UUID requesterId, UUID playlistId) {
         UserModel requester = userService.getById(requesterId);
         PlaylistModel playlist = playlistService.getById(playlistId);
-        long subscriberCount = playlistSubscriptionService.getSubscriberCount(playlist.getId());
         boolean subscribedByMe = playlistSubscriptionService
             .isSubscribedByPlaylistIdAndSubscriberId(
                 playlist.getId(),
@@ -89,7 +85,6 @@ public class PlaylistFacade {
 
         return playlistResponseMapper.toResponse(
             playlist,
-            subscriberCount,
             subscribedByMe,
             contents,
             Map.of()

@@ -24,7 +24,6 @@ public class PlaylistResponseMapper {
     public PlaylistResponse toResponse(PlaylistModel playlistModel) {
         return toResponse(
             playlistModel,
-            0L,
             false,
             Collections.emptyList(),
             Map.of()
@@ -33,7 +32,6 @@ public class PlaylistResponseMapper {
 
     public PlaylistResponse toResponse(
         PlaylistModel playlistModel,
-        long subscriberCount,
         boolean subscribedByMe,
         Collection<ContentModel> contentModels,
         Map<UUID, List<String>> tagsByContentId
@@ -44,7 +42,7 @@ public class PlaylistResponseMapper {
             playlistModel.getTitle(),
             playlistModel.getDescription(),
             playlistModel.getUpdatedAt(),
-            subscriberCount,
+            playlistModel.getSubscriberCount(),
             subscribedByMe,
             contentSummaryMapper.toSummaries(contentModels, tagsByContentId)
         );

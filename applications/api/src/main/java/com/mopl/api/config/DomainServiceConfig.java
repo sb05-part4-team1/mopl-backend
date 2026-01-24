@@ -15,7 +15,6 @@ import com.mopl.domain.repository.outbox.OutboxRepository;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.domain.repository.playlist.PlaylistQueryRepository;
 import com.mopl.domain.repository.playlist.PlaylistRepository;
-import com.mopl.domain.repository.playlist.PlaylistSubscriberCountRepository;
 import com.mopl.domain.repository.playlist.PlaylistSubscriberRepository;
 import com.mopl.domain.repository.review.ReviewQueryRepository;
 import com.mopl.domain.repository.review.ReviewRepository;
@@ -111,11 +110,11 @@ public class DomainServiceConfig {
     @Bean
     public PlaylistSubscriptionService playlistSubscriptionService(
         PlaylistSubscriberRepository playlistSubscriberRepository,
-        PlaylistSubscriberCountRepository playlistSubscriberCountRepository
+        PlaylistRepository playlistRepository
     ) {
         return new PlaylistSubscriptionService(
             playlistSubscriberRepository,
-            playlistSubscriberCountRepository
+            playlistRepository
         );
     }
 

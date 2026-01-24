@@ -71,11 +71,11 @@ VALUES
 -- =============================================
 -- 5. 플레이리스트 (Playlists)
 -- =============================================
-INSERT INTO playlists (id, created_at, deleted_at, updated_at, title, description, owner_id)
+INSERT INTO playlists (id, created_at, deleted_at, updated_at, title, description, owner_id, subscriber_count)
 VALUES
-    (UUID_TO_BIN('019439e0-0001-7000-8000-000000000001'), DATE_SUB(NOW(), INTERVAL 55 DAY), NULL, DATE_SUB(NOW(), INTERVAL 10 DAY), '아트하우스 영화 컬렉션', '예술적 감성이 담긴 영화들', UUID_TO_BIN('019439a0-0002-7000-8000-000000000002')),
-    (UUID_TO_BIN('019439e0-0002-7000-8000-000000000002'), DATE_SUB(NOW(), INTERVAL 50 DAY), NULL, DATE_SUB(NOW(), INTERVAL 8 DAY), '왕가위 & 아시아 영화', '아시아 감독들의 명작 모음', UUID_TO_BIN('019439a0-0002-7000-8000-000000000002')),
-    (UUID_TO_BIN('019439e0-0003-7000-8000-000000000003'), DATE_SUB(NOW(), INTERVAL 40 DAY), NULL, DATE_SUB(NOW(), INTERVAL 5 DAY), '로맨스 영화 명작', '가슴 뭉클한 로맨스 영화들', UUID_TO_BIN('019439a0-0003-7000-8000-000000000003'));
+    (UUID_TO_BIN('019439e0-0001-7000-8000-000000000001'), DATE_SUB(NOW(), INTERVAL 55 DAY), NULL, DATE_SUB(NOW(), INTERVAL 10 DAY), '아트하우스 영화 컬렉션', '예술적 감성이 담긴 영화들', UUID_TO_BIN('019439a0-0002-7000-8000-000000000002'), 2),
+    (UUID_TO_BIN('019439e0-0002-7000-8000-000000000002'), DATE_SUB(NOW(), INTERVAL 50 DAY), NULL, DATE_SUB(NOW(), INTERVAL 8 DAY), '왕가위 & 아시아 영화', '아시아 감독들의 명작 모음', UUID_TO_BIN('019439a0-0002-7000-8000-000000000002'), 1),
+    (UUID_TO_BIN('019439e0-0003-7000-8000-000000000003'), DATE_SUB(NOW(), INTERVAL 40 DAY), NULL, DATE_SUB(NOW(), INTERVAL 5 DAY), '로맨스 영화 명작', '가슴 뭉클한 로맨스 영화들', UUID_TO_BIN('019439a0-0003-7000-8000-000000000003'), 1);
 
 -- =============================================
 -- 6. 플레이리스트-콘텐츠 연결 (Playlist Contents)
