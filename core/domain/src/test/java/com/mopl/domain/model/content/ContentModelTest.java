@@ -460,16 +460,14 @@ class ContentModelTest {
         }
 
         @Test
-        @DisplayName("리뷰가 없을 때 수정하면 자기 자신 반환")
-        void updateReview_withNoReviews_returnsSameInstance() {
+        @DisplayName("리뷰가 없을 때 수정하면 예외 발생")
+        void updateReview_withNoReviews_throwsException() {
             // given
             ContentModel content = createDefaultContent();
 
-            // when
-            ContentModel result = content.updateReview(3.0, 5.0);
-
-            // then
-            assertThat(result).isSameAs(content);
+            // when & then
+            assertThatThrownBy(() -> content.updateReview(3.0, 5.0))
+                .isInstanceOf(InvalidContentDataException.class);
         }
     }
 

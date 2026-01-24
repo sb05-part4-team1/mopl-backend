@@ -7,9 +7,11 @@ import java.util.Optional;
 
 public interface TagRepository {
 
-    TagModel save(TagModel tagModel);
+    Optional<TagModel> findByName(String tagName);
+
+    List<TagModel> findByNameIn(List<String> tagNames);
 
     List<TagModel> saveAll(List<TagModel> tags);
 
-    Optional<TagModel> findByName(String tagName);
+    TagModel save(TagModel tagModel);
 }

@@ -59,13 +59,11 @@ public class DomainServiceConfig {
     @Bean
     public ContentService contentService(
         ContentCacheService contentCacheService,
-        ContentTagService contentTagService,
         ContentRepository contentRepository,
         ContentQueryRepository contentQueryRepository
     ) {
         return new ContentService(
             contentCacheService,
-            contentTagService,
             contentQueryRepository,
             contentRepository
         );

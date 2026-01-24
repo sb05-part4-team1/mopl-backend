@@ -6,6 +6,7 @@ import com.mopl.api.interfaces.api.content.dto.ContentUpdateRequest;
 import com.mopl.api.interfaces.api.content.mapper.ContentResponseMapper;
 import com.mopl.domain.exception.content.InvalidContentDataException;
 import com.mopl.domain.model.content.ContentModel;
+import com.mopl.domain.model.tag.TagModel;
 import com.mopl.domain.repository.content.ContentQueryRequest;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.content.ContentTagService;
@@ -14,7 +15,7 @@ import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.storage.provider.StorageProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -32,25 +33,29 @@ public class ContentFacade {
     private final WatchingSessionService watchingSessionService;
     private final StorageProvider storageProvider;
     private final ContentResponseMapper contentResponseMapper;
+    private final TransactionTemplate transactionTemplate;
 
     public CursorResponse<ContentResponse> getContents(ContentQueryRequest request) {
         CursorResponse<ContentModel> response = contentService.getAll(request);
         List<ContentModel> contents = response.data();
 
         if (contents.isEmpty()) {
-            return response.map(this::toContentResponse);
+            return CursorResponse.empty(
+                response.sortBy(),
+                response.sortDirection()
+            );
         }
 
         List<UUID> contentIds = contents.stream()
             .map(ContentModel::getId)
             .toList();
 
-        Map<UUID, List<String>> tagsByContentId = contentTagService.getTagNamesByContentIdIn(contentIds);
+        Map<UUID, List<TagModel>> tagsByContentId = contentTagService.getTagsByContentIdIn(contentIds);
         Map<UUID, Long> watcherCountByContentId = watchingSessionService.countByContentIdIn(contentIds);
 
         return response.map(content -> {
             String thumbnailUrl = storageProvider.getUrl(content.getThumbnailPath());
-            List<String> tagNames = tagsByContentId.getOrDefault(content.getId(), List.of());
+            List<String> tagNames = toTagNames(tagsByContentId.getOrDefault(content.getId(), List.of()));
             long watcherCount = watcherCountByContentId.getOrDefault(content.getId(), 0L);
 
             return contentResponseMapper.toResponse(content, thumbnailUrl, tagNames, watcherCount);
@@ -62,7 +67,6 @@ public class ContentFacade {
         return toContentResponse(content);
     }
 
-    @Transactional
     public ContentResponse upload(ContentCreateRequest request, MultipartFile thumbnail) {
         if (thumbnail == null || thumbnail.isEmpty()) {
             throw InvalidContentDataException.withDetailMessage("썸네일 파일은 필수입니다.");
@@ -77,33 +81,46 @@ public class ContentFacade {
             storedPath
         );
 
-        ContentModel savedContentModel = contentService.create(contentModel);
-        return toContentResponse(savedContentModel);
+        return transactionTemplate.execute(status -> {
+            ContentModel saved = contentService.create(contentModel);
+            contentTagService.applyTags(saved.getId(), request.tags());
+            return toContentResponse(saved);
+        });
     }
 
-    @Transactional
     public ContentResponse update(
         UUID contentId,
         ContentUpdateRequest request,
         MultipartFile thumbnail
     ) {
+        ContentModel contentModel = contentService.getById(contentId);
+
         String storedPath = (thumbnail != null && !thumbnail.isEmpty())
             ? uploadToStorage(thumbnail)
             : null;
 
-        ContentModel updated = contentService.update(
-            contentId,
+        ContentModel updatedContentModel = contentModel.update(
             request.title(),
             request.description(),
-            storedPath,
-            request.tags()
+            storedPath
         );
 
-        return toContentResponse(updated);
+        return transactionTemplate.execute(status -> {
+            ContentModel saved = contentService.update(updatedContentModel);
+
+            if (request.tags() != null) {
+                contentTagService.deleteAllByContentId(saved.getId());
+                contentTagService.applyTags(saved.getId(), request.tags());
+            }
+
+            return toContentResponse(saved);
+        });
     }
 
     public void delete(UUID contentId) {
-        contentService.delete(contentId);
+        ContentModel contentModel = contentService.getById(contentId);
+        contentModel.delete();
+        contentService.delete(contentModel);
     }
 
     private String uploadToStorage(MultipartFile file) {
@@ -118,9 +135,15 @@ public class ContentFacade {
 
     private ContentResponse toContentResponse(ContentModel content) {
         String thumbnailUrl = storageProvider.getUrl(content.getThumbnailPath());
-        List<String> tagNames = contentTagService.getTagNamesByContentId(content.getId());
+        List<String> tagNames = toTagNames(contentTagService.getTagsByContentId(content.getId()));
         long watcherCount = watchingSessionService.countByContentId(content.getId());
 
         return contentResponseMapper.toResponse(content, thumbnailUrl, tagNames, watcherCount);
+    }
+
+    private List<String> toTagNames(List<TagModel> tags) {
+        return tags.stream()
+            .map(TagModel::getName)
+            .toList();
     }
 }

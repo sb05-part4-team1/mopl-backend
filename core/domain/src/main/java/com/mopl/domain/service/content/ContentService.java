@@ -9,14 +9,12 @@ import com.mopl.domain.support.cursor.CursorResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 
-import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
 public class ContentService {
 
     private final ContentCacheService contentCacheService;
-    private final ContentTagService contentTagService;
     private final ContentQueryRepository contentQueryRepository;
     private final ContentRepository contentRepository;
 
@@ -24,50 +22,23 @@ public class ContentService {
         return contentQueryRepository.findAll(request);
     }
 
+    public ContentModel getById(UUID contentId) {
+        return contentCacheService.getById(contentId);
+    }
+
     @CacheEvict(cacheNames = CacheName.CONTENTS, key = "#result.id")
     public ContentModel create(ContentModel content) {
         return contentRepository.save(content);
     }
 
-    @CacheEvict(cacheNames = CacheName.CONTENTS, key = "#result.id")
-    public ContentModel create(ContentModel content, List<String> tagNames) {
-        ContentModel saved = contentRepository.save(content);
-        contentTagService.applyTags(saved.getId(), tagNames);
-        return saved;
-    }
-
-    public ContentModel getById(UUID contentId) {
-        return contentCacheService.getById(contentId);
-    }
-
-    public ContentModel update(
-        UUID contentId,
-        String title,
-        String description,
-        String thumbnailPath,
-        List<String> tagNames
-    ) {
-        ContentModel content = contentCacheService.getById(contentId);
-
-        ContentModel updated = content.update(title, description, thumbnailPath);
-        ContentModel saved = contentRepository.save(updated);
-
-        if (tagNames == null) {
-            contentCacheService.evict(saved.getId());
-            return saved;
-        }
-
-        contentTagService.deleteAllByContentId(saved.getId());
-        contentTagService.applyTags(saved.getId(), tagNames);
-
+    public ContentModel update(ContentModel contentModel) {
+        ContentModel saved = contentRepository.save(contentModel);
         contentCacheService.evict(saved.getId());
         return saved;
     }
 
-    public void delete(UUID contentId) {
-        ContentModel content = contentCacheService.getById(contentId);
-        content.delete();
-        contentRepository.save(content);
-        contentCacheService.evict(contentId);
+    @CacheEvict(cacheNames = CacheName.CONTENTS, key = "#contentModel.id")
+    public void delete(ContentModel contentModel) {
+        contentRepository.save(contentModel);
     }
 }

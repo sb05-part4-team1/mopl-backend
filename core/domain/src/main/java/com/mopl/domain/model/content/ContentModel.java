@@ -108,7 +108,9 @@ public class ContentModel extends BaseUpdatableModel {
 
     public ContentModel updateReview(double oldRating, double newRating) {
         if (this.reviewCount == 0) {
-            return this;
+            throw InvalidContentDataException.withDetailMessage(
+                "리뷰가 없는 콘텐츠의 리뷰를 수정할 수 없습니다."
+            );
         }
 
         double total = this.averageRating * this.reviewCount;
@@ -120,9 +122,13 @@ public class ContentModel extends BaseUpdatableModel {
     }
 
     public ContentModel removeReview(double rating) {
+        if (this.reviewCount <= 0) {
+            throw InvalidContentDataException.withDetailMessage("삭제할 리뷰가 없습니다.");
+        }
+
         int newCount = this.reviewCount - 1;
 
-        if (newCount <= 0) {
+        if (newCount == 0) {
             return this.toBuilder()
                 .reviewCount(0)
                 .averageRating(0.0)

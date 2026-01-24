@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -17,71 +18,62 @@ public class ContentTagService {
     private final ContentTagRepository contentTagRepository;
     private final TagRepository tagRepository;
 
-    // ===== 조회 (Query) =====
-
-    public List<String> getTagNamesByContentId(UUID contentId) {
-        return toTagNames(contentTagRepository.findTagsByContentId(contentId));
+    public List<TagModel> getTagsByContentId(UUID contentId) {
+        return contentTagRepository.findTagsByContentId(contentId);
     }
 
-    public Map<UUID, List<String>> getTagNamesByContentIdIn(List<UUID> contentIds) {
+    public Map<UUID, List<TagModel>> getTagsByContentIdIn(List<UUID> contentIds) {
         if (contentIds == null || contentIds.isEmpty()) {
             return Map.of();
         }
-
-        return contentTagRepository.findTagsByContentIdIn(contentIds)
-            .entrySet().stream()
-            .collect(Collectors.toMap(
-                Map.Entry::getKey,
-                entry -> toTagNames(entry.getValue())
-            ));
+        return contentTagRepository.findTagsByContentIdIn(contentIds);
     }
-
-    // ===== 명령 (Command) =====
 
     public void applyTags(UUID contentId, List<String> tagNames) {
         if (tagNames == null || tagNames.isEmpty()) {
             return;
         }
 
-        List<TagModel> tags = findOrCreateTags(tagNames);
-        contentTagRepository.saveAll(contentId, tags);
+        List<String> normalizedNames = normalizeTagNames(tagNames);
+        if (normalizedNames.isEmpty()) {
+            return;
+        }
+
+        List<TagModel> existingTags = tagRepository.findByNameIn(normalizedNames);
+        List<TagModel> tagsToSave = resolveOrCreateTags(normalizedNames, existingTags);
+
+        List<TagModel> savedTags = tagRepository.saveAll(tagsToSave);
+        contentTagRepository.saveAll(contentId, savedTags);
     }
 
     public void deleteAllByContentId(UUID contentId) {
         contentTagRepository.deleteAllByContentId(contentId);
     }
 
-    // ===== private =====
-
-    private List<TagModel> findOrCreateTags(List<String> tagNames) {
-        List<TagModel> tags = tagNames.stream()
+    private List<String> normalizeTagNames(List<String> tagNames) {
+        return tagNames.stream()
             .filter(Objects::nonNull)
             .map(String::strip)
             .filter(name -> !name.isEmpty())
             .distinct()
-            .map(this::findOrCreateTag)
             .toList();
-
-        return tagRepository.saveAll(tags);
     }
 
-    private TagModel findOrCreateTag(String name) {
-        return tagRepository.findByName(name)
-            .map(tag -> {
-                if (tag.isDeleted()) {
-                    tag.restore();
+    private List<TagModel> resolveOrCreateTags(List<String> names, List<TagModel> existingTags) {
+        Map<String, TagModel> existingByName = existingTags.stream()
+            .collect(Collectors.toMap(TagModel::getName, Function.identity()));
+
+        return names.stream()
+            .map(name -> {
+                TagModel existing = existingByName.get(name);
+                if (existing != null) {
+                    if (existing.isDeleted()) {
+                        existing.restore();
+                    }
+                    return existing;
                 }
-                return tag;
+                return TagModel.create(name);
             })
-            .orElseGet(() -> TagModel.create(name));
-    }
-
-    private List<String> toTagNames(List<TagModel> tags) {
-        if (tags == null) {
-            return List.of();
-        }
-        return tags.stream()
-            .map(TagModel::getName)
             .toList();
     }
 }
