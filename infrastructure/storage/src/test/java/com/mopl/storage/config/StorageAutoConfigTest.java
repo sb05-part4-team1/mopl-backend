@@ -63,18 +63,12 @@ class StorageAutoConfigTest {
             StorageProperties properties = new StorageProperties(StorageType.S3, null, s3);
             StorageAutoConfig config = new StorageAutoConfig(properties);
 
-            S3Client s3Client = config.s3Client();
-            S3Presigner s3Presigner = config.s3Presigner();
-
-            // when
-            StorageProvider provider = config.s3StorageProvider(s3Client, s3Presigner);
-
-            // then
-            assertThat(provider).isInstanceOf(S3StorageProvider.class);
-
-            // cleanup
-            s3Client.close();
-            s3Presigner.close();
+            // when & then
+            try (S3Client s3Client = config.s3Client();
+                 S3Presigner s3Presigner = config.s3Presigner()) {
+                StorageProvider provider = config.s3StorageProvider(s3Client, s3Presigner);
+                assertThat(provider).isInstanceOf(S3StorageProvider.class);
+            }
         }
     }
 
@@ -97,14 +91,10 @@ class StorageAutoConfigTest {
             StorageProperties properties = new StorageProperties(StorageType.S3, null, s3);
             StorageAutoConfig config = new StorageAutoConfig(properties);
 
-            // when
-            S3Client client = config.s3Client();
-
-            // then
-            assertThat(client).isNotNull();
-
-            // cleanup
-            client.close();
+            // when & then
+            try (S3Client client = config.s3Client()) {
+                assertThat(client).isNotNull();
+            }
         }
 
         @Test
@@ -122,14 +112,10 @@ class StorageAutoConfigTest {
             StorageProperties properties = new StorageProperties(StorageType.S3, null, s3);
             StorageAutoConfig config = new StorageAutoConfig(properties);
 
-            // when
-            S3Client client = config.s3Client();
-
-            // then
-            assertThat(client).isNotNull();
-
-            // cleanup
-            client.close();
+            // when & then
+            try (S3Client client = config.s3Client()) {
+                assertThat(client).isNotNull();
+            }
         }
     }
 
@@ -152,14 +138,10 @@ class StorageAutoConfigTest {
             StorageProperties properties = new StorageProperties(StorageType.S3, null, s3);
             StorageAutoConfig config = new StorageAutoConfig(properties);
 
-            // when
-            S3Presigner presigner = config.s3Presigner();
-
-            // then
-            assertThat(presigner).isNotNull();
-
-            // cleanup
-            presigner.close();
+            // when & then
+            try (S3Presigner presigner = config.s3Presigner()) {
+                assertThat(presigner).isNotNull();
+            }
         }
 
         @Test
@@ -177,14 +159,10 @@ class StorageAutoConfigTest {
             StorageProperties properties = new StorageProperties(StorageType.S3, null, s3);
             StorageAutoConfig config = new StorageAutoConfig(properties);
 
-            // when
-            S3Presigner presigner = config.s3Presigner();
-
-            // then
-            assertThat(presigner).isNotNull();
-
-            // cleanup
-            presigner.close();
+            // when & then
+            try (S3Presigner presigner = config.s3Presigner()) {
+                assertThat(presigner).isNotNull();
+            }
         }
     }
 }

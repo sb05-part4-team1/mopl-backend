@@ -80,11 +80,12 @@ class LocalStorageProviderTest {
         void uploadsFileSuccessfully() throws IOException {
             // given
             String content = "test content";
-            InputStream inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
             String path = "sub/test.txt";
 
             // when
-            storageProvider.upload(inputStream, content.length(), path);
+            try (InputStream inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))) {
+                storageProvider.upload(inputStream, content.length(), path);
+            }
 
             // then
             Path uploadedFile = tempDir.resolve(path);
@@ -97,11 +98,12 @@ class LocalStorageProviderTest {
         void uploadsToNestedDirectory() throws IOException {
             // given
             String content = "nested content";
-            InputStream inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
             String path = "a/b/c/deep.txt";
 
             // when
-            storageProvider.upload(inputStream, content.length(), path);
+            try (InputStream inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))) {
+                storageProvider.upload(inputStream, content.length(), path);
+            }
 
             // then
             Path uploadedFile = tempDir.resolve(path);
@@ -129,10 +131,13 @@ class LocalStorageProviderTest {
         void throwsExceptionOnPathTraversal() {
             // given
             String content = "malicious";
-            InputStream inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
 
             // when & then
-            assertThatThrownBy(() -> storageProvider.upload(inputStream, content.length(), "../escape.txt"))
+            assertThatThrownBy(() -> {
+                try (InputStream inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))) {
+                    storageProvider.upload(inputStream, content.length(), "../escape.txt");
+                }
+            })
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("잘못된 파일 경로");
         }
