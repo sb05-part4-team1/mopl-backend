@@ -11,8 +11,8 @@ import java.time.Instant;
 
 @MappedSuperclass
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 public abstract class BaseUpdatableEntity extends BaseEntity {
 
     @LastModifiedDate
