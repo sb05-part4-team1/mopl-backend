@@ -1,4 +1,4 @@
-package com.mopl.domain.support.redis;
+package com.mopl.redis.support;
 
 import java.util.UUID;
 

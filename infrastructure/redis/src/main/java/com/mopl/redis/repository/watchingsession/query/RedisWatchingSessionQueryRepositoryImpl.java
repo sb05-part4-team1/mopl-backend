@@ -5,7 +5,7 @@ import com.mopl.domain.repository.watchingsession.WatchingSessionQueryRepository
 import com.mopl.domain.repository.watchingsession.WatchingSessionQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
-import com.mopl.domain.support.redis.WatchingSessionRedisKeys;
+import com.mopl.redis.support.WatchingSessionRedisKeys;
 import com.mopl.redis.support.cursor.RedisCursorPaginationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;

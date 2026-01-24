@@ -2,7 +2,7 @@ package com.mopl.redis.repository.watchingsession;
 
 import com.mopl.domain.model.watchingsession.WatchingSessionModel;
 import com.mopl.domain.repository.watchingsession.WatchingSessionRepository;
-import com.mopl.domain.support.redis.WatchingSessionRedisKeys;
+import com.mopl.redis.support.WatchingSessionRedisKeys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
