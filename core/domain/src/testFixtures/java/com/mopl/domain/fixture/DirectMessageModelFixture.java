@@ -12,9 +12,9 @@ public final class DirectMessageModelFixture {
 
     public static ArbitraryBuilder<DirectMessageModel> builder() {
         return fixtureMonkey().giveMeBuilder(DirectMessageModel.class)
-            .setNull("conversation")
-            .set("sender", UserModelFixture.create())
-            .set("receiver", UserModelFixture.create());
+            .setNull("deletedAt")
+            .set("conversation", ConversationModelFixture.create())
+            .set("sender", UserModelFixture.create());
     }
 
     public static DirectMessageModel create() {

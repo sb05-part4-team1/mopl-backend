@@ -8,23 +8,23 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder(toBuilder = true)
 public class DirectMessageModel extends BaseModel {
 
+    private String content;
     private ConversationModel conversation;
     private UserModel sender;
-    private UserModel receiver;
-    private String content;
 
-    public DirectMessageModel setSender(UserModel sender) {
-        this.sender = sender;
-        return this;
+    public static DirectMessageModel create(
+        String content,
+        ConversationModel conversation,
+        UserModel sender
+    ) {
+        return DirectMessageModel.builder()
+            .content(content)
+            .conversation(conversation)
+            .sender(sender)
+            .build();
     }
-
-    public DirectMessageModel setReceiver(UserModel receiver) {
-        this.receiver = receiver;
-        return this;
-    }
-
 }

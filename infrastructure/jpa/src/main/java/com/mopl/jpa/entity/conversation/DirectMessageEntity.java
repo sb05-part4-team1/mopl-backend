@@ -18,8 +18,8 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Table(name = "direct_messages")
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 public class DirectMessageEntity extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")

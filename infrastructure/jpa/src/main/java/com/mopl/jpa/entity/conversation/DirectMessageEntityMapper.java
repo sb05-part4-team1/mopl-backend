@@ -1,6 +1,9 @@
 package com.mopl.jpa.entity.conversation;
 
+import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.model.conversation.DirectMessageModel;
+import com.mopl.domain.model.user.UserModel;
+import com.mopl.jpa.entity.user.UserEntity;
 import com.mopl.jpa.entity.user.UserEntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -12,34 +15,68 @@ public class DirectMessageEntityMapper {
     private final ConversationEntityMapper conversationMapper;
     private final UserEntityMapper userMapper;
 
-    public DirectMessageModel toModel(DirectMessageEntity directMessageEntity) {
-
-        if (directMessageEntity == null) {
+    public DirectMessageModel toModel(DirectMessageEntity entity) {
+        if (entity == null) {
             return null;
         }
 
-        return DirectMessageModel.builder()
-            .id(directMessageEntity.getId())
-            .conversation(conversationMapper.toModel(directMessageEntity.getConversation()))
-            .sender(userMapper.toModel(directMessageEntity.getSender()))
-            .createdAt(directMessageEntity.getCreatedAt())
-            .content(directMessageEntity.getContent())
-            .build();
+        return buildDirectMessageModel(
+            entity,
+            toConversationIdOnly(entity.getConversation()),
+            toSenderIdOnly(entity.getSender())
+        );
     }
 
-    public DirectMessageEntity toEntity(DirectMessageModel directMessageModel) {
-        if (directMessageModel == null) {
+    public DirectMessageModel toModelWithSender(DirectMessageEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+
+        return buildDirectMessageModel(
+            entity,
+            toConversationIdOnly(entity.getConversation()),
+            userMapper.toModel(entity.getSender())
+        );
+    }
+
+    public DirectMessageEntity toEntity(DirectMessageModel model) {
+        if (model == null) {
             return null;
         }
 
         return DirectMessageEntity.builder()
-            .id(directMessageModel.getId())
-            .conversation(conversationMapper.toEntity(directMessageModel.getConversation()))
-            .sender(userMapper.toEntity(directMessageModel.getSender()))
-            .createdAt(directMessageModel.getCreatedAt())
-            .content(directMessageModel.getContent())
+            .id(model.getId())
+            .conversation(conversationMapper.toEntity(model.getConversation()))
+            .sender(userMapper.toEntity(model.getSender()))
+            .createdAt(model.getCreatedAt())
+            .content(model.getContent())
             .build();
-
     }
 
+    private DirectMessageModel buildDirectMessageModel(
+        DirectMessageEntity entity,
+        ConversationModel conversation,
+        UserModel sender
+    ) {
+        return DirectMessageModel.builder()
+            .id(entity.getId())
+            .createdAt(entity.getCreatedAt())
+            .deletedAt(entity.getDeletedAt())
+            .conversation(conversation)
+            .sender(sender)
+            .content(entity.getContent())
+            .build();
+    }
+
+    private ConversationModel toConversationIdOnly(ConversationEntity entity) {
+        return entity != null
+            ? ConversationModel.builder().id(entity.getId()).build()
+            : null;
+    }
+
+    private UserModel toSenderIdOnly(UserEntity entity) {
+        return entity != null
+            ? UserModel.builder().id(entity.getId()).build()
+            : null;
+    }
 }
