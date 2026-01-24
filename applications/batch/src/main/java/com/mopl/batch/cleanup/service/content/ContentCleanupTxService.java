@@ -1,8 +1,8 @@
 package com.mopl.batch.cleanup.service.content;
 
 import com.mopl.batch.cleanup.strategy.content.ContentDeletionStrategy;
+import com.mopl.domain.repository.content.ContentCleanupRepository;
 import com.mopl.domain.repository.content.ContentExternalMappingRepository;
-import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.domain.repository.review.ReviewRepository;
@@ -22,7 +22,7 @@ public class ContentCleanupTxService {
 
     private final ContentTagRepository contentTagRepository;
     private final PlaylistContentRepository playlistContentRepository;
-    private final ContentRepository contentRepository;
+    private final ContentCleanupRepository contentCleanupRepository;
     private final ReviewRepository reviewRepository;
     private final ContentExternalMappingRepository externalMappingRepository;
     private final ContentDeletionStrategy deletionStrategy;
@@ -31,7 +31,7 @@ public class ContentCleanupTxService {
     public int cleanupBatch(List<UUID> contentIds) {
         Instant now = Instant.now();
 
-        Map<UUID, String> thumbnailPaths = contentRepository.findThumbnailPathsByIds(contentIds);
+        Map<UUID, String> thumbnailPaths = contentCleanupRepository.findThumbnailPathsByIdIn(contentIds);
 
         int deletedMappings = externalMappingRepository.deleteAllByContentIds(contentIds);
 
@@ -41,7 +41,7 @@ public class ContentCleanupTxService {
         int softDeletedReviews = reviewRepository.softDeleteByContentIds(contentIds, now);
         int affectedThumbnails = deletionStrategy.onDeleted(thumbnailPaths);
 
-        int deletedContents = contentRepository.deleteAllByIds(contentIds);
+        int deletedContents = contentCleanupRepository.deleteAllByIdIn(contentIds);
 
         if (deletedContents != contentIds.size()) {
             log.warn(

@@ -3,13 +3,12 @@ package com.mopl.api.application.playlist;
 import com.mopl.api.application.outbox.DomainEventOutboxMapper;
 import com.mopl.api.interfaces.api.playlist.dto.PlaylistCreateRequest;
 import com.mopl.api.interfaces.api.playlist.dto.PlaylistResponse;
-import com.mopl.api.interfaces.api.playlist.mapper.PlaylistResponseMapper;
 import com.mopl.api.interfaces.api.playlist.dto.PlaylistUpdateRequest;
+import com.mopl.api.interfaces.api.playlist.mapper.PlaylistResponseMapper;
 import com.mopl.domain.event.playlist.PlaylistContentAddedEvent;
 import com.mopl.domain.event.playlist.PlaylistCreatedEvent;
 import com.mopl.domain.event.playlist.PlaylistSubscribedEvent;
 import com.mopl.domain.event.playlist.PlaylistUpdatedEvent;
-import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.exception.playlist.PlaylistForbiddenException;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.playlist.PlaylistModel;
@@ -171,11 +170,8 @@ public class PlaylistFacade {
     ) {
         UserModel owner = userService.getById(requesterId);
         PlaylistModel playlist = playlistService.getById(playlistId);
-        validateOwner(playlist, requesterId);
-
-        if (!contentService.exists(contentId)) {
-            throw ContentNotFoundException.withId(contentId);
-        }
+        validateOwner(playlist, owner.getId());
+        contentService.getById(contentId);
 
         ContentModel content = contentService.getById(contentId);
 

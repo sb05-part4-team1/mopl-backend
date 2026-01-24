@@ -25,7 +25,7 @@ public class ContentTagService {
             return Map.of();
         }
 
-        Map<UUID, List<TagModel>> tagsByContentId = contentTagRepository.findTagsByContentIds(contentIds);
+        Map<UUID, List<TagModel>> tagsByContentId = contentTagRepository.findTagsByContentIdIn(contentIds);
 
         return tagsByContentId.entrySet().stream()
             .collect(Collectors.toMap(

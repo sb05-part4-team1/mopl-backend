@@ -29,10 +29,6 @@ public class ContentService {
         return contentRepository.save(content);
     }
 
-    public boolean exists(UUID contentId) {
-        return contentRepository.existsById(contentId);
-    }
-
     public ContentModel getById(UUID contentId) {
         return contentCacheService.getById(contentId);
     }

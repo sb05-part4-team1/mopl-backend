@@ -1,4 +1,4 @@
-package com.mopl.domain.repository.content.dto;
+package com.mopl.domain.repository.content;
 
 import java.util.UUID;
 

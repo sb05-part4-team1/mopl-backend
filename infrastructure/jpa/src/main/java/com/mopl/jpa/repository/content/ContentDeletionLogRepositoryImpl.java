@@ -1,7 +1,7 @@
 package com.mopl.jpa.repository.content;
 
 import com.mopl.domain.repository.content.ContentDeletionLogRepository;
-import com.mopl.domain.repository.content.dto.ContentDeletionLogItem;
+import com.mopl.domain.repository.content.ContentDeletionLogItem;
 import com.mopl.jpa.entity.content.ContentDeletionLogEntity;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -95,7 +95,7 @@ public class ContentDeletionLogRepositoryImpl implements ContentDeletionLogRepos
     }
 
     @Override
-    public int deleteAllByIds(List<UUID> logIds) {
+    public int deleteAllByIdIn(List<UUID> logIds) {
         if (logIds == null || logIds.isEmpty()) {
             return 0;
         }

@@ -2,7 +2,7 @@ package com.mopl.batch.cleanup.service.content;
 
 import com.mopl.batch.cleanup.properties.CleanupPolicyResolver;
 import com.mopl.batch.cleanup.properties.CleanupProperties;
-import com.mopl.domain.repository.content.ContentRepository;
+import com.mopl.domain.repository.content.ContentCleanupRepository;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class ContentCleanupService {
 
     private final ContentCleanupTxService executor;
-    private final ContentRepository contentRepository;
+    private final ContentCleanupRepository contentCleanupRepository;
     private final CleanupProperties cleanupProperties;
     private final CleanupPolicyResolver policyResolver;
 
@@ -27,7 +27,7 @@ public class ContentCleanupService {
         Instant threshold = Instant.now().minus(retentionDays, ChronoUnit.DAYS);
 
         while (true) {
-            List<UUID> contentIds = contentRepository.findCleanupTargets(threshold, chunkSize);
+            List<UUID> contentIds = contentCleanupRepository.findCleanupTargets(threshold, chunkSize);
 
             if (contentIds.isEmpty()) {
                 break;

@@ -65,36 +65,6 @@ class ContentRepositoryImplTest {
     }
 
     @Nested
-    @DisplayName("existsById()")
-    class ExistsByIdTest {
-
-        @Test
-        @DisplayName("존재하는 콘텐츠 ID면 true를 반환한다")
-        void exists_returnsTrue() {
-            // given
-            ContentModel saved = contentRepository.save(
-                ContentModel.create(ContentModel.ContentType.movie, "인셉션", "꿈속의 꿈", "url")
-            );
-
-            // when
-            boolean exists = contentRepository.existsById(saved.getId());
-
-            // then
-            assertThat(exists).isTrue();
-        }
-
-        @Test
-        @DisplayName("존재하지 않는 콘텐츠 ID면 false를 반환한다")
-        void notExists_returnsFalse() {
-            // when
-            boolean exists = contentRepository.existsById(UUID.randomUUID());
-
-            // then
-            assertThat(exists).isFalse();
-        }
-    }
-
-    @Nested
     @DisplayName("save()")
     class SaveTest {
 

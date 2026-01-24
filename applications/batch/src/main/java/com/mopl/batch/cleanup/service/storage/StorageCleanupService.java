@@ -3,7 +3,7 @@ package com.mopl.batch.cleanup.service.storage;
 import com.mopl.batch.cleanup.properties.CleanupPolicyResolver;
 import com.mopl.batch.cleanup.properties.CleanupProperties;
 import com.mopl.domain.repository.content.ContentDeletionLogRepository;
-import com.mopl.domain.repository.content.dto.ContentDeletionLogItem;
+import com.mopl.domain.repository.content.ContentDeletionLogItem;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
