@@ -28,7 +28,7 @@ public class ConversationService {
     }
 
     public ConversationModel getByIdWithAccessCheck(UUID conversationId, UUID requesterId) {
-        validateAccess(conversationId, requesterId);
+        // validateParticipant(conversationId, requesterId);
         return getById(conversationId);
     }
 
@@ -42,14 +42,5 @@ public class ConversationService {
 
     public Optional<ConversationModel> findByParticipants(UUID userId, UUID withUserId) {
         return conversationRepository.findByParticipants(userId, withUserId);
-    }
-
-    public void validateAccess(UUID conversationId, UUID requesterId) {
-        // if (!conversationQueryRepository.existsParticipant(conversationId, requesterId)) {
-        //     throw ConversationAccessDeniedException.withConversationIdAndUserId(
-        //         conversationId,
-        //         requesterId
-        //     );
-        // }
     }
 }

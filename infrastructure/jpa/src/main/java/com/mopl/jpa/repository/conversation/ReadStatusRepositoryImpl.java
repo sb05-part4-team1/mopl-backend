@@ -29,9 +29,9 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
     }
 
     @Override
-    public ReadStatusModel findOtherReadStatus(UUID conversationId, UUID userId) {
+    public ReadStatusModel findWithParticipantByParticipantIdNotAndConversationId(UUID participantId, UUID conversationId) {
         ReadStatusEntity readStatusEntity = jpaReadStatusRepository
-            .findOtherReadStatus(conversationId, userId);
+            .findWithParticipantByParticipantIdNotAndConversationId(participantId, conversationId);
 
         return readStatusEntityMapper.toModelWithUser(readStatusEntity);
     }
@@ -64,6 +64,11 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
                 rs -> rs.getConversation().getId(),
                 Function.identity()
             ));
+    }
+
+    @Override
+    public boolean existsByConversationIdAndParticipantId(UUID conversationId, UUID participantId) {
+        return jpaReadStatusRepository.existsByConversationIdAndParticipantId(conversationId, participantId);
     }
 
     @Override

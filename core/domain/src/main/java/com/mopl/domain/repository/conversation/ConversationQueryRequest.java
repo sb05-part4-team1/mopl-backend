@@ -2,6 +2,7 @@ package com.mopl.domain.repository.conversation;
 
 import com.mopl.domain.support.cursor.CursorRequest;
 import com.mopl.domain.support.cursor.SortDirection;
+
 import java.util.UUID;
 
 public record ConversationQueryRequest(
@@ -11,7 +12,6 @@ public record ConversationQueryRequest(
     Integer limit,
     SortDirection sortDirection,
     ConversationSortField sortBy
-
 ) implements CursorRequest<ConversationSortField> {
 
     private static final int DEFAULT_LIMIT = 20;
@@ -22,5 +22,4 @@ public record ConversationQueryRequest(
         sortDirection = sortDirection != null ? sortDirection : SortDirection.DESCENDING;
         sortBy = sortBy != null ? sortBy : ConversationSortField.createdAt;
     }
-
 }

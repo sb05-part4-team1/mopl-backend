@@ -18,9 +18,9 @@ public class DirectMessageService {
     private final DirectMessageRepository directMessageRepository;
 
     public CursorResponse<DirectMessageModel> getAllDirectMessages(
+        UUID requesterId,
         UUID conversationId,
-        DirectMessageQueryRequest request,
-        UUID requesterId
+        DirectMessageQueryRequest request
     ) {
         // TODO: validateAccess(conversationId, requesterId);
         return directMessageQueryRepository.findAllByConversationId(conversationId, request, requesterId);

@@ -1,5 +1,6 @@
 package com.mopl.domain.service.conversation;
 
+import com.mopl.domain.exception.conversation.ConversationAccessDeniedException;
 import com.mopl.domain.model.conversation.DirectMessageModel;
 import com.mopl.domain.model.conversation.ReadStatusModel;
 import com.mopl.domain.repository.conversation.ReadStatusRepository;
@@ -13,6 +14,14 @@ import java.util.UUID;
 public class ReadStatusService {
 
     private final ReadStatusRepository readStatusRepository;
+
+    public ReadStatusModel getOtherReadStatusWithParticipant(UUID userId, UUID conversationId) {
+        return readStatusRepository.findWithParticipantByParticipantIdNotAndConversationId(userId, conversationId);
+    }
+
+    public ReadStatusModel getMyReadStatus(UUID conversationId, UUID requesterId) {
+        return readStatusRepository.findByConversationIdAndUserId(conversationId, requesterId);
+    }
 
     public Map<UUID, ReadStatusModel> getOtherReadStatusWithParticipantByConversationIdIn(
         UUID userId,
@@ -28,18 +37,22 @@ public class ReadStatusService {
         return readStatusRepository.findMyReadStatusByConversationIdIn(userId, conversationIds);
     }
 
-    public ReadStatusModel getOtherReadStatus(UUID conversationId, UUID requesterId) {
-        return readStatusRepository.findOtherReadStatus(conversationId, requesterId);
-    }
-
-    public ReadStatusModel getMyReadStatus(UUID conversationId, UUID requesterId) {
-        return readStatusRepository.findByConversationIdAndUserId(conversationId, requesterId);
-    }
-
     public void markAsRead(DirectMessageModel directMessageModel, ReadStatusModel readStatusModel) {
         if (directMessageModel != null) {
             ReadStatusModel updated = readStatusModel.markAsRead();
             readStatusRepository.save(updated);
+        }
+    }
+
+    public void validateParticipant(UUID conversationId, UUID participantId) {
+        if (!readStatusRepository.existsByConversationIdAndParticipantId(
+            conversationId,
+            participantId
+        )) {
+            throw ConversationAccessDeniedException.withConversationIdAndUserId(
+                conversationId,
+                participantId
+            );
         }
     }
 }

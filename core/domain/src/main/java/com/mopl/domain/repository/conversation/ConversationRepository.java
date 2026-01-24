@@ -7,9 +7,9 @@ import java.util.UUID;
 
 public interface ConversationRepository {
 
-    ConversationModel save(ConversationModel conversationModel);
-
     Optional<ConversationModel> findById(UUID conversationId);
 
     Optional<ConversationModel> findByParticipants(UUID userId, UUID withId);
+
+    ConversationModel save(ConversationModel conversationModel);
 }

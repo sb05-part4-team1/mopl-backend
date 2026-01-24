@@ -10,11 +10,13 @@ public interface ReadStatusRepository {
 
     ReadStatusModel findByConversationIdAndUserId(UUID conversationId, UUID userId);
 
-    ReadStatusModel findOtherReadStatus(UUID conversationId, UUID userId);
+    ReadStatusModel findWithParticipantByParticipantIdNotAndConversationId(UUID userId, UUID conversationId);
 
     Map<UUID, ReadStatusModel> findOtherReadStatusWithParticipantByConversationIdIn(UUID userId, Collection<UUID> conversationIds);
 
     Map<UUID, ReadStatusModel> findMyReadStatusByConversationIdIn(UUID userId, Collection<UUID> conversationIds);
+
+    boolean existsByConversationIdAndParticipantId(UUID conversationId, UUID participantId);
 
     ReadStatusModel save(ReadStatusModel readStatusModel);
 }

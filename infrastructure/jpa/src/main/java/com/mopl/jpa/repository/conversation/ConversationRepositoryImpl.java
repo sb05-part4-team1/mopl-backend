@@ -18,13 +18,6 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     private final ConversationEntityMapper conversationEntityMapper;
 
     @Override
-    public ConversationModel save(ConversationModel conversationModel) {
-        ConversationEntity conversationEntity = conversationEntityMapper.toEntity(conversationModel);
-        ConversationEntity savedConversationEntity = jpaConversationRepository.save(conversationEntity);
-        return conversationEntityMapper.toModel(savedConversationEntity);
-    }
-
-    @Override
     public Optional<ConversationModel> findById(UUID conversationId) {
         return jpaConversationRepository.findById(conversationId)
             .map(conversationEntityMapper::toModel);
@@ -34,5 +27,12 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     public Optional<ConversationModel> findByParticipants(UUID userId, UUID withId) {
         return jpaConversationRepository.findConversationIdByParticipants(userId, withId)
             .map(conversationEntityMapper::toModel);
+    }
+
+    @Override
+    public ConversationModel save(ConversationModel conversationModel) {
+        ConversationEntity conversationEntity = conversationEntityMapper.toEntity(conversationModel);
+        ConversationEntity savedConversationEntity = jpaConversationRepository.save(conversationEntity);
+        return conversationEntityMapper.toModel(savedConversationEntity);
     }
 }

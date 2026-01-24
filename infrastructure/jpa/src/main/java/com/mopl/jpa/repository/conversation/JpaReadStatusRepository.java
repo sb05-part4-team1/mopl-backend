@@ -20,15 +20,6 @@ public interface JpaReadStatusRepository extends JpaRepository<ReadStatusEntity,
         """)
     ReadStatusEntity findByConversationIdAndParticipantId(UUID conversationId, UUID participantId);
 
-    @Query("""
-             SELECT rs
-             FROM ReadStatusEntity rs
-             JOIN FETCH rs.participant
-             WHERE rs.conversation.id = :conversationId
-               AND rs.participant.id <> :userId
-        """)
-    ReadStatusEntity findOtherReadStatus(UUID conversationId, UUID userId);
-
     @EntityGraph(attributePaths = {"participant"})
     List<ReadStatusEntity> findWithParticipantByParticipantIdNotAndConversationIdIn(
         UUID participantId,
@@ -39,4 +30,9 @@ public interface JpaReadStatusRepository extends JpaRepository<ReadStatusEntity,
         UUID participantId,
         Collection<UUID> conversationId
     );
+
+    @EntityGraph(attributePaths = {"participant"})
+    ReadStatusEntity findWithParticipantByParticipantIdNotAndConversationId(UUID participantId, UUID conversationId);
+
+    boolean existsByConversationIdAndParticipantId(UUID conversationId, UUID participantId);
 }

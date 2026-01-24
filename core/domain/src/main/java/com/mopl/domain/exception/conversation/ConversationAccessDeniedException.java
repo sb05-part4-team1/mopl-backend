@@ -20,7 +20,8 @@ public class ConversationAccessDeniedException extends ConversationException {
         return new ConversationAccessDeniedException(
             Map.of(
                 "conversationId", conversationId,
-                "userId", userId)
+                "userId", userId
+            )
         );
     }
 }

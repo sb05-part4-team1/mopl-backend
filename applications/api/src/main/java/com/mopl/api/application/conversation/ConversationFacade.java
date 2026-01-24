@@ -75,21 +75,25 @@ public class ConversationFacade {
     }
 
     public CursorResponse<DirectMessageResponse> getDirectMessages(
-        UUID requesterId,
+        UUID userId,
         UUID conversationId,
         DirectMessageQueryRequest request
     ) {
-        ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatus(conversationId, requesterId);
-        UserModel receiver = otherReadStatus != null ? otherReadStatus.getParticipant() : null;
+        UserModel requester = userService.getById(userId);
+        readStatusService.validateParticipant(conversationId, requester.getId());
+        ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatusWithParticipant(userId, conversationId);
+        UserModel otherParticipant = otherReadStatus != null ? otherReadStatus.getParticipant() : null;
 
-        return directMessageService.getAllDirectMessages(conversationId, request, requesterId)
-            .map(dm -> directMessageResponseMapper.toResponse(dm, receiver));
+        CursorResponse<DirectMessageModel> directMessages = directMessageService.getAllDirectMessages(userId, conversationId, request);
+        return directMessages.map(directMessage ->
+            directMessageResponseMapper.toResponse(directMessage, otherParticipant)
+        );
     }
 
     public ConversationResponse getConversation(UUID requesterId, UUID conversationId) {
         ConversationModel conversation = conversationService.getByIdWithAccessCheck(conversationId, requesterId);
 
-        ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatus(conversationId, requesterId);
+        ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatusWithParticipant(conversationId, requesterId);
         DirectMessageModel lastMessage = directMessageService.getLastMessageByConversationId(conversationId);
         ReadStatusModel myReadStatus = readStatusService.getMyReadStatus(conversationId, requesterId);
 
@@ -132,7 +136,7 @@ public class ConversationFacade {
 
     @Transactional
     public void directMessageRead(UUID requesterId, UUID conversationId, UUID directMessageId) {
-        conversationService.validateAccess(conversationId, requesterId);
+        readStatusService.validateParticipant(conversationId, requesterId);
 
         DirectMessageModel directMessage = directMessageService.getOtherDirectMessage(
             requesterId, conversationId, directMessageId

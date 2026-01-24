@@ -2,6 +2,7 @@ package com.mopl.domain.repository.conversation;
 
 import com.mopl.domain.support.cursor.CursorRequest;
 import com.mopl.domain.support.cursor.SortDirection;
+
 import java.util.UUID;
 
 public record DirectMessageQueryRequest(
@@ -10,7 +11,6 @@ public record DirectMessageQueryRequest(
     Integer limit,
     SortDirection sortDirection,
     DirectMessageSortField sortBy
-
 ) implements CursorRequest<DirectMessageSortField> {
 
     private static final int DEFAULT_LIMIT = 20;
