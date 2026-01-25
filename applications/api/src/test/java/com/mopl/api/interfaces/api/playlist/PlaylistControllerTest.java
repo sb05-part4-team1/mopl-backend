@@ -265,7 +265,9 @@ class PlaylistControllerTest {
             return Stream.of(
                 Arguments.of("제목이 비어있음", "", "설명"),
                 Arguments.of("제목이 null", null, "설명"),
-                Arguments.of("제목이 255자 초과", "a".repeat(256), "설명")
+                Arguments.of("제목이 255자 초과", "a".repeat(256), "설명"),
+                Arguments.of("설명이 비어있음", "제목", ""),
+                Arguments.of("설명이 null", "제목", null)
             );
         }
 
