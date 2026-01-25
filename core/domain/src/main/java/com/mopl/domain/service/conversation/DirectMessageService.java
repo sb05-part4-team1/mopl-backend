@@ -17,7 +17,7 @@ public class DirectMessageService {
     private final DirectMessageQueryRepository directMessageQueryRepository;
     private final DirectMessageRepository directMessageRepository;
 
-    public CursorResponse<DirectMessageModel> getAll(
+    public CursorResponse<DirectMessageModel> getDirectMessages(
         UUID requesterId,
         UUID conversationId,
         DirectMessageQueryRequest request

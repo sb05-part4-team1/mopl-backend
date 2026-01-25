@@ -19,7 +19,8 @@ public interface JpaReadStatusRepository extends JpaRepository<ReadStatusEntity,
     Optional<ReadStatusEntity> findByParticipantIdAndConversationId(UUID participantId, UUID conversationId);
 
     @EntityGraph(attributePaths = {"participant"})
-    Optional<ReadStatusEntity> findWithParticipantByParticipantIdNotAndConversationId(UUID participantId, UUID conversationId);
+    Optional<ReadStatusEntity> findWithParticipantByParticipantIdAndConversationId(UUID participantId, UUID conversationId);
 
-    boolean existsByParticipantIdAndConversationId(UUID participantId, UUID conversationId);
+    @EntityGraph(attributePaths = {"participant"})
+    Optional<ReadStatusEntity> findWithParticipantByParticipantIdNotAndConversationId(UUID participantId, UUID conversationId);
 }

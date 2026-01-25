@@ -51,6 +51,16 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
     }
 
     @Override
+    public Optional<ReadStatusModel> findWithParticipantByParticipantIdAndConversationId(
+        UUID participantId,
+        UUID conversationId
+    ) {
+        return jpaReadStatusRepository
+            .findWithParticipantByParticipantIdAndConversationId(participantId, conversationId)
+            .map(readStatusEntityMapper::toModelWithParticipant);
+    }
+
+    @Override
     public Optional<ReadStatusModel> findWithParticipantByParticipantIdNotAndConversationId(
         UUID participantId,
         UUID conversationId
@@ -58,11 +68,6 @@ public class ReadStatusRepositoryImpl implements ReadStatusRepository {
         return jpaReadStatusRepository
             .findWithParticipantByParticipantIdNotAndConversationId(participantId, conversationId)
             .map(readStatusEntityMapper::toModelWithParticipant);
-    }
-
-    @Override
-    public boolean existsByParticipantIdAndConversationId(UUID participantId, UUID conversationId) {
-        return jpaReadStatusRepository.existsByParticipantIdAndConversationId(participantId, conversationId);
     }
 
     @Override

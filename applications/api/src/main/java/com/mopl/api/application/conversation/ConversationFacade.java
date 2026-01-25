@@ -39,10 +39,10 @@ public class ConversationFacade {
 
     @Transactional(readOnly = true)
     public CursorResponse<ConversationResponse> getConversations(
-        UUID userId,
+        UUID requesterId,
         ConversationQueryRequest request
     ) {
-        CursorResponse<ConversationModel> response = conversationService.getAll(userId, request);
+        CursorResponse<ConversationModel> response = conversationService.getAll(requesterId, request);
         List<ConversationModel> conversations = response.data();
 
         if (conversations.isEmpty()) {
@@ -53,8 +53,8 @@ public class ConversationFacade {
             .map(ConversationModel::getId)
             .toList();
 
-        Map<UUID, ReadStatusModel> requesterReadStatusMap = readStatusService.getReadStatusMap(userId, conversationIds);
-        Map<UUID, ReadStatusModel> otherReadStatusMap = readStatusService.getOtherReadStatusMapWithParticipant(userId, conversationIds);
+        Map<UUID, ReadStatusModel> requesterReadStatusMap = readStatusService.getReadStatusMap(requesterId, conversationIds);
+        Map<UUID, ReadStatusModel> otherReadStatusMap = readStatusService.getOtherReadStatusMapWithParticipant(requesterId, conversationIds);
         Map<UUID, DirectMessageModel> lastMessageMap = directMessageService.getLastDirectMessageMapWithSender(conversationIds);
 
         return response.map(conversation -> {
@@ -65,7 +65,7 @@ public class ConversationFacade {
             ReadStatusModel requesterReadStatus = requesterReadStatusMap.get(conversationId);
 
             UserModel withUser = otherReadStatus != null ? otherReadStatus.getParticipant() : null;
-            boolean hasUnread = calculateHasUnread(userId, lastMessage, requesterReadStatus);
+            boolean hasUnread = calculateHasUnread(requesterId, lastMessage, requesterReadStatus);
 
             return conversationResponseMapper.toResponse(
                 conversation,
@@ -77,14 +77,10 @@ public class ConversationFacade {
     }
 
     @Transactional(readOnly = true)
-    public ConversationResponse getConversation(UUID userId, UUID conversationId) {
-        UserModel requester = userService.getById(userId);
-        UUID requesterId = requester.getId();
-        readStatusService.validateParticipant(requesterId, conversationId);
+    public ConversationResponse getConversation(UUID requesterId, UUID conversationId) {
+        ReadStatusModel requesterReadStatus = readStatusService.getReadStatus(requesterId, conversationId);
 
         ConversationModel conversation = conversationService.getById(conversationId);
-
-        ReadStatusModel requesterReadStatus = readStatusService.getReadStatus(requesterId, conversationId);
         ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatusWithParticipant(requesterId, conversationId);
         DirectMessageModel lastMessage = directMessageService.getLastDirectMessage(conversationId);
 
@@ -125,18 +121,17 @@ public class ConversationFacade {
     }
 
     public CursorResponse<DirectMessageResponse> getDirectMessages(
-        UUID userId,
+        UUID requesterId,
         UUID conversationId,
         DirectMessageQueryRequest request
     ) {
-        UserModel requester = userService.getById(userId);
-        UUID requesterId = requester.getId();
-        readStatusService.validateParticipant(requesterId, conversationId);
-
+        ReadStatusModel requesterReadStatus = readStatusService.getReadStatusWithParticipant(requesterId, conversationId);
         ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatusWithParticipant(requesterId, conversationId);
+
+        UserModel requester = requesterReadStatus.getParticipant();
         UserModel otherParticipant = otherReadStatus != null ? otherReadStatus.getParticipant() : null;
 
-        CursorResponse<DirectMessageModel> directMessages = directMessageService.getAll(requesterId, conversationId, request);
+        CursorResponse<DirectMessageModel> directMessages = directMessageService.getDirectMessages(requesterId, conversationId, request);
         return directMessages.map(directMessage -> {
             UserModel receiver = directMessage.getSender().getId().equals(requesterId)
                 ? otherParticipant
@@ -146,16 +141,15 @@ public class ConversationFacade {
     }
 
     public void markAsRead(UUID requesterId, UUID conversationId) {
-        readStatusService.validateParticipant(requesterId, conversationId);
+        ReadStatusModel readStatus = readStatusService.getReadStatus(requesterId, conversationId);
 
         DirectMessageModel lastMessage = directMessageService.getLastDirectMessage(conversationId);
         if (lastMessage == null || lastMessage.getSender().getId().equals(requesterId)) {
             return;
         }
 
-        ReadStatusModel readStatus = readStatusService.getReadStatus(requesterId, conversationId);
         ReadStatusModel updatedReadStatus = readStatus.updateLastReadAt(lastMessage.getCreatedAt());
-        if (updatedReadStatus.getLastReadAt() != readStatus.getLastReadAt()) {
+        if (updatedReadStatus != readStatus) {
             readStatusService.update(updatedReadStatus);
         }
     }

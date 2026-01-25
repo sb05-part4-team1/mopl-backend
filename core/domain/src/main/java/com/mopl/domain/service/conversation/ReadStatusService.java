@@ -1,6 +1,5 @@
 package com.mopl.domain.service.conversation;
 
-import com.mopl.domain.exception.conversation.ConversationAccessDeniedException;
 import com.mopl.domain.exception.conversation.ReadStatusNotFoundException;
 import com.mopl.domain.model.conversation.ReadStatusModel;
 import com.mopl.domain.repository.conversation.ReadStatusRepository;
@@ -51,6 +50,14 @@ public class ReadStatusService {
             ));
     }
 
+    public ReadStatusModel getReadStatusWithParticipant(UUID participantId, UUID conversationId) {
+        return readStatusRepository
+            .findWithParticipantByParticipantIdAndConversationId(participantId, conversationId)
+            .orElseThrow(() -> ReadStatusNotFoundException.withParticipantIdAndConversationId(
+                participantId, conversationId
+            ));
+    }
+
     public ReadStatusModel getOtherReadStatusWithParticipant(UUID participantId, UUID conversationId) {
         return readStatusRepository
             .findWithParticipantByParticipantIdNotAndConversationId(participantId, conversationId)
@@ -63,11 +70,5 @@ public class ReadStatusService {
 
     public ReadStatusModel update(ReadStatusModel readStatusModel) {
         return readStatusRepository.save(readStatusModel);
-    }
-
-    public void validateParticipant(UUID participantId, UUID conversationId) {
-        if (!readStatusRepository.existsByParticipantIdAndConversationId(participantId, conversationId)) {
-            throw ConversationAccessDeniedException.withUserIdAndConversationId(participantId, conversationId);
-        }
     }
 }

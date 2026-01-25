@@ -15,9 +15,9 @@ public interface ReadStatusRepository {
 
     Optional<ReadStatusModel> findByParticipantIdAndConversationId(UUID participantId, UUID conversationId);
 
-    Optional<ReadStatusModel> findWithParticipantByParticipantIdNotAndConversationId(UUID participantId, UUID conversationId);
+    Optional<ReadStatusModel> findWithParticipantByParticipantIdAndConversationId(UUID participantId, UUID conversationId);
 
-    boolean existsByParticipantIdAndConversationId(UUID participantId, UUID conversationId);
+    Optional<ReadStatusModel> findWithParticipantByParticipantIdNotAndConversationId(UUID participantId, UUID conversationId);
 
     ReadStatusModel save(ReadStatusModel readStatusModel);
 }

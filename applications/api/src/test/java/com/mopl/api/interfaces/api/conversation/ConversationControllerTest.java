@@ -11,8 +11,8 @@ import com.mopl.api.interfaces.api.conversation.mapper.ConversationResponseMappe
 import com.mopl.api.interfaces.api.conversation.mapper.DirectMessageResponseMapper;
 import com.mopl.api.interfaces.api.user.dto.UserSummary;
 import com.mopl.api.interfaces.api.user.mapper.UserSummaryMapper;
-import com.mopl.domain.exception.conversation.ConversationAccessDeniedException;
 import com.mopl.domain.exception.conversation.ConversationNotFoundException;
+import com.mopl.domain.exception.conversation.ReadStatusNotFoundException;
 import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
@@ -209,18 +209,18 @@ class ConversationControllerTest {
         }
 
         @Test
-        @DisplayName("권한이 없는 대화 조회 시 403 Forbidden 응답")
-        void withNoAccess_returns403Forbidden() throws Exception {
+        @DisplayName("참가자가 아닌 대화 조회 시 404 Not Found 응답")
+        void withNonParticipant_returns404NotFound() throws Exception {
             // given
             UUID conversationId = UUID.randomUUID();
 
             given(conversationFacade.getConversation(userId, conversationId))
-                .willThrow(ConversationAccessDeniedException.withUserIdAndConversationId(conversationId, userId));
+                .willThrow(ReadStatusNotFoundException.withParticipantIdAndConversationId(userId, conversationId));
 
             // when & then
             mockMvc.perform(get("/api/conversations/{conversationId}", conversationId)
                 .with(user(mockUserDetails)))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isNotFound());
         }
     }
 
@@ -340,18 +340,18 @@ class ConversationControllerTest {
         }
 
         @Test
-        @DisplayName("권한이 없는 대화의 DM 조회 시 403 Forbidden 응답")
-        void withNoAccess_returns403Forbidden() throws Exception {
+        @DisplayName("참가자가 아닌 대화의 DM 조회 시 404 Not Found 응답")
+        void withNonParticipant_returns404NotFound() throws Exception {
             // given
             UUID conversationId = UUID.randomUUID();
 
             given(conversationFacade.getDirectMessages(eq(userId), eq(conversationId), any()))
-                .willThrow(ConversationAccessDeniedException.withUserIdAndConversationId(conversationId, userId));
+                .willThrow(ReadStatusNotFoundException.withParticipantIdAndConversationId(userId, conversationId));
 
             // when & then
             mockMvc.perform(get("/api/conversations/{conversationId}/direct-messages", conversationId)
                 .with(user(mockUserDetails)))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isNotFound());
         }
 
         @Test
@@ -468,13 +468,13 @@ class ConversationControllerTest {
         }
 
         @Test
-        @DisplayName("권한이 없는 대화의 메시지 읽음 처리 시 403 Forbidden 응답")
-        void withNoAccess_returns403Forbidden() throws Exception {
+        @DisplayName("참가자가 아닌 대화의 메시지 읽음 처리 시 404 Not Found 응답")
+        void withNonParticipant_returns404NotFound() throws Exception {
             // given
             UUID conversationId = UUID.randomUUID();
             UUID directMessageId = UUID.randomUUID();
 
-            willThrow(ConversationAccessDeniedException.withUserIdAndConversationId(conversationId, userId))
+            willThrow(ReadStatusNotFoundException.withParticipantIdAndConversationId(userId, conversationId))
                 .given(conversationFacade).markAsRead(userId, conversationId);
 
             // when & then
@@ -482,7 +482,7 @@ class ConversationControllerTest {
                 conversationId, directMessageId)
                 .with(user(mockUserDetails))
                 .with(csrf()))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isNotFound());
         }
     }
 }
