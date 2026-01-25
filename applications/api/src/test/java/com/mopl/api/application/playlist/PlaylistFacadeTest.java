@@ -601,7 +601,7 @@ class PlaylistFacadeTest {
             given(userService.getById(requesterId)).willReturn(subscriber);
             given(playlistService.getById(playlistId)).willReturn(playlist);
             willDoNothing().given(playlistSubscriptionService).subscribe(playlistId, requesterId);
-            given(playlistService.update(any(PlaylistModel.class))).willReturn(playlist.addSubscriber());
+            given(playlistService.update(any(PlaylistModel.class))).willReturn(playlist.withSubscriberAdded());
             setupTransactionTemplateWithoutResult();
 
             // when & then
@@ -650,7 +650,7 @@ class PlaylistFacadeTest {
             given(userService.getById(requesterId)).willReturn(subscriber);
             given(playlistService.getById(playlistId)).willReturn(playlist);
             willDoNothing().given(playlistSubscriptionService).unsubscribe(playlistId, requesterId);
-            given(playlistService.update(any(PlaylistModel.class))).willReturn(playlist.removeSubscriber());
+            given(playlistService.update(any(PlaylistModel.class))).willReturn(playlist.withSubscriberRemoved());
             setupTransactionTemplateWithoutResult();
 
             // when & then

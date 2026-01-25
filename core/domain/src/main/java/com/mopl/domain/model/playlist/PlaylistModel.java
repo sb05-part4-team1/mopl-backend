@@ -71,13 +71,13 @@ public class PlaylistModel extends BaseUpdatableModel {
             .build();
     }
 
-    public PlaylistModel addSubscriber() {
+    public PlaylistModel withSubscriberAdded() {
         return this.toBuilder()
             .subscriberCount(this.subscriberCount + 1)
             .build();
     }
 
-    public PlaylistModel removeSubscriber() {
+    public PlaylistModel withSubscriberRemoved() {
         if (this.subscriberCount <= 0) {
             throw InvalidPlaylistDataException.withDetailMessage("구독자가 없는 플레이리스트의 구독자를 제거할 수 없습니다.");
         }

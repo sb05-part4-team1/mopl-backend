@@ -223,7 +223,7 @@ public class PlaylistFacade {
 
         transactionTemplate.executeWithoutResult(status -> {
             playlistSubscriptionService.subscribe(playlistId, requesterId);
-            playlistService.update(playlist.addSubscriber());
+            playlistService.update(playlist.withSubscriberAdded());
             outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
         });
     }
@@ -237,7 +237,7 @@ public class PlaylistFacade {
 
         transactionTemplate.executeWithoutResult(status -> {
             playlistSubscriptionService.unsubscribe(playlistId, requesterId);
-            playlistService.update(playlist.removeSubscriber());
+            playlistService.update(playlist.withSubscriberRemoved());
         });
     }
 
