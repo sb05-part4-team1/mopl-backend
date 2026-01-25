@@ -22,7 +22,6 @@ public class SecurityRegistryImpl implements SecurityRegistry {
                 "/api/auth/reset-password",
                 "/api/auth/refresh"
             ).permitAll()
-            .requestMatchers("/api/files/display/**").permitAll()
             .requestMatchers("/oauth2/**").permitAll()
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
             .requestMatchers(
@@ -31,15 +30,17 @@ public class SecurityRegistryImpl implements SecurityRegistry {
                 "/actuator/prometheus",
                 "/actuator/metrics",
                 "/actuator/metrics/**"
-            ).permitAll();
+            ).permitAll()
 
-        auth
-            .requestMatchers(HttpMethod.POST, "/api/contents").hasRole("ADMIN")
-            .requestMatchers(HttpMethod.PATCH, "/api/contents/{contentId}").hasRole("ADMIN")
-            .requestMatchers(HttpMethod.DELETE, "/api/contents/{contentId}").hasRole("ADMIN");
+            .requestMatchers(
+                new AntPathRequestMatcher("/api/contents", HttpMethod.POST.name()),
+                new AntPathRequestMatcher("/api/contents/{contentId}", HttpMethod.PATCH.name()),
+                new AntPathRequestMatcher("/api/contents/{contentId}", HttpMethod.DELETE.name())
+            ).hasRole("ADMIN")
 
-        auth
-            .requestMatchers(new NegatedRequestMatcher(new AntPathRequestMatcher("/api/**"))).permitAll()
+            .requestMatchers(new NegatedRequestMatcher(
+                new AntPathRequestMatcher("/api/**"))
+            ).permitAll()
             .anyRequest().authenticated();
     }
 }
