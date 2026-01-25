@@ -4,8 +4,6 @@ import com.mopl.security.config.SecurityRegistry;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,8 +13,6 @@ public class SecurityRegistryImpl implements SecurityRegistry {
     public void configure(
         AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
         auth
-            .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
-            .requestMatchers(new AntPathRequestMatcher("/api/v1/files/display")).permitAll()
             .requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
             .requestMatchers(HttpMethod.POST,
                 "/api/users",
@@ -24,18 +20,24 @@ public class SecurityRegistryImpl implements SecurityRegistry {
                 "/api/auth/reset-password",
                 "/api/auth/refresh"
             ).permitAll()
+            .requestMatchers("/api/files/display").permitAll()
             .requestMatchers("/oauth2/**").permitAll()
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-
             .requestMatchers(
-                new AntPathRequestMatcher("/api/contents", HttpMethod.POST.name()),
-                new AntPathRequestMatcher("/api/contents/{contentId}", HttpMethod.PATCH.name()),
-                new AntPathRequestMatcher("/api/contents/{contentId}", HttpMethod.DELETE.name())
-            ).hasRole("ADMIN")
+                "/actuator/health",
+                "/actuator/info",
+                "/actuator/prometheus",
+                "/actuator/metrics",
+                "/actuator/metrics/**"
+            ).permitAll();
 
-            .requestMatchers(new NegatedRequestMatcher(
-                new AntPathRequestMatcher("/api/**"))
-            ).permitAll()
-            .anyRequest().authenticated();
+        auth
+            .requestMatchers(HttpMethod.POST, "/api/contents").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.PATCH, "/api/contents/{contentId}").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.DELETE, "/api/contents/{contentId}").hasRole("ADMIN");
+
+        auth
+            .requestMatchers("/api/**").authenticated()
+            .anyRequest().denyAll();
     }
 }
