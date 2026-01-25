@@ -1,7 +1,6 @@
 package com.mopl.domain.service.conversation;
 
 import com.mopl.domain.exception.conversation.ConversationAccessDeniedException;
-import com.mopl.domain.model.conversation.DirectMessageModel;
 import com.mopl.domain.model.conversation.ReadStatusModel;
 import com.mopl.domain.repository.conversation.ReadStatusRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,7 @@ public class ReadStatusService {
 
     private final ReadStatusRepository readStatusRepository;
 
-    public Map<UUID, ReadStatusModel> getMyReadStatusMapByConversationIdIn(
+    public Map<UUID, ReadStatusModel> getMyReadStatusMap(
         UUID participantId,
         Collection<UUID> conversationIds
     ) {
@@ -30,7 +29,7 @@ public class ReadStatusService {
             ));
     }
 
-    public Map<UUID, ReadStatusModel> getOtherReadStatusWithParticipantMapByConversationIdIn(
+    public Map<UUID, ReadStatusModel> getOtherReadStatusMapWithParticipant(
         UUID participantId,
         Collection<UUID> conversationIds
     ) {
@@ -43,28 +42,29 @@ public class ReadStatusService {
             ));
     }
 
-    public ReadStatusModel getMyReadStatus(UUID conversationId, UUID participantId) {
+    public ReadStatusModel getMyReadStatus(UUID participantId, UUID conversationId) {
         return readStatusRepository
             .findByParticipantIdAndConversationId(participantId, conversationId)
             .orElse(null);
     }
 
-    public ReadStatusModel getOtherReadStatusWithParticipant(UUID conversationId, UUID participantId) {
+    public ReadStatusModel getOtherReadStatusWithParticipant(UUID participantId, UUID conversationId) {
         return readStatusRepository
             .findWithParticipantByParticipantIdNotAndConversationId(participantId, conversationId)
             .orElse(null);
     }
 
+    public ReadStatusModel create(ReadStatusModel readStatusModel) {
+        return readStatusRepository.save(readStatusModel);
+    }
+
+    public ReadStatusModel update(ReadStatusModel readStatusModel) {
+        return readStatusRepository.save(readStatusModel);
+    }
+
     public void validateParticipant(UUID participantId, UUID conversationId) {
         if (!readStatusRepository.existsByParticipantIdAndConversationId(participantId, conversationId)) {
             throw ConversationAccessDeniedException.withUserIdAndConversationId(participantId, conversationId);
-        }
-    }
-
-    public void markAsRead(DirectMessageModel directMessageModel, ReadStatusModel readStatusModel) {
-        if (directMessageModel != null) {
-            ReadStatusModel updated = readStatusModel.markAsRead();
-            readStatusRepository.save(updated);
         }
     }
 }
