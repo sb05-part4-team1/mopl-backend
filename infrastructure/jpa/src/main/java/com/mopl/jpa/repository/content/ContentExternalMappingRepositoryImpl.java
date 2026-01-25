@@ -42,7 +42,6 @@ public class ContentExternalMappingRepositoryImpl implements ContentExternalMapp
         return jpaRepository.existsByProviderAndExternalId(provider, externalId);
     }
 
-    // 이하 메서드들 cleanup batch 전용
     @Override
     public int deleteAllByContentIds(List<UUID> contentIds) {
         return jpaRepository.deleteAllByContentIds(contentIds);
