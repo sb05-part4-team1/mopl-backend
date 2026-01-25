@@ -1,15 +1,14 @@
 package com.mopl.batch.sync.denormalized.service;
 
-import com.mopl.batch.sync.denormalized.service.ContentReviewStatsSyncService.ReviewStats;
-import com.mopl.jpa.entity.content.ContentEntity;
 import com.mopl.jpa.repository.content.JpaContentRepository;
+import com.mopl.jpa.repository.review.JpaReviewRepository;
+import com.mopl.jpa.repository.review.projection.ReviewStatsProjection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -20,35 +19,30 @@ public class ContentReviewStatsSyncTxService {
     private static final double EPSILON = 0.0001;
 
     private final JpaContentRepository jpaContentRepository;
+    private final JpaReviewRepository jpaReviewRepository;
 
-    @Transactional
-    public int syncBatch(List<UUID> contentIds, Map<UUID, ReviewStats> actualStats) {
-        List<ContentEntity> contents = jpaContentRepository.findAllById(contentIds);
-        int synced = 0;
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public boolean syncOne(UUID contentId) {
+        return jpaContentRepository.findById(contentId)
+            .map(content -> {
+                int currentReviewCount = content.getReviewCount();
+                double currentAverageRating = content.getAverageRating();
 
-        for (ContentEntity content : contents) {
-            ReviewStats stats = actualStats.getOrDefault(
-                content.getId(),
-                new ReviewStats(0, 0.0)
-            );
+                ReviewStatsProjection stats = jpaReviewRepository.findReviewStatsByContentId(contentId);
+                int actualReviewCount = stats != null ? stats.getReviewCount().intValue() : 0;
+                double actualAverageRating = stats != null ? stats.getAverageRating() : 0.0;
 
-            boolean reviewCountMismatch = content.getReviewCount() != stats.reviewCount();
-            boolean ratingMismatch = Math.abs(content.getAverageRating() - stats.averageRating()) > EPSILON;
+                boolean reviewCountMismatch = currentReviewCount != actualReviewCount;
+                boolean ratingMismatch = Math.abs(currentAverageRating - actualAverageRating) > EPSILON;
 
-            if (reviewCountMismatch || ratingMismatch) {
-                jpaContentRepository.updateReviewStats(
-                    content.getId(),
-                    stats.reviewCount(),
-                    stats.averageRating()
-                );
-                log.info("[ContentReviewStatsSync] synced contentId={} reviewCount: {} -> {}, averageRating: {} -> {}",
-                    content.getId(),
-                    content.getReviewCount(), stats.reviewCount(),
-                    content.getAverageRating(), stats.averageRating());
-                synced++;
-            }
-        }
-
-        return synced;
+                if (reviewCountMismatch || ratingMismatch) {
+                    jpaContentRepository.updateReviewStats(contentId, actualReviewCount, actualAverageRating);
+                    log.info("[ContentReviewStatsSync] synced contentId={} reviewCount: {} -> {}, averageRating: {} -> {}",
+                        contentId, currentReviewCount, actualReviewCount, currentAverageRating, actualAverageRating);
+                    return true;
+                }
+                return false;
+            })
+            .orElse(false);
     }
 }

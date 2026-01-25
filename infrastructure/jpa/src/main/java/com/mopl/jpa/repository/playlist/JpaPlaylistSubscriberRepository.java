@@ -1,7 +1,6 @@
 package com.mopl.jpa.repository.playlist;
 
 import com.mopl.jpa.entity.playlist.PlaylistSubscriberEntity;
-import com.mopl.jpa.repository.playlist.projection.PlaylistSubscriberCountProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -35,13 +34,8 @@ public interface JpaPlaylistSubscriberRepository extends
     @Query("SELECT DISTINCT ps.playlist.id FROM PlaylistSubscriberEntity ps")
     Set<UUID> findAllPlaylistIds();
 
-    @Query("""
-        SELECT ps.playlist.id AS playlistId, COUNT(ps) AS subscriberCount
-        FROM PlaylistSubscriberEntity ps
-        WHERE ps.playlist.id IN :playlistIds
-        GROUP BY ps.playlist.id
-        """)
-    List<PlaylistSubscriberCountProjection> countByPlaylistIdIn(Collection<UUID> playlistIds);
+    @Query("SELECT COUNT(ps) FROM PlaylistSubscriberEntity ps WHERE ps.playlist.id = :playlistId")
+    int countByPlaylistId(UUID playlistId);
 
     // cleanup batch 전용
     @Modifying(clearAutomatically = true, flushAutomatically = true)

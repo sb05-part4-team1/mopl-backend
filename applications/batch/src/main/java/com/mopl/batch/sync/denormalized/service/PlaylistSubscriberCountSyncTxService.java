@@ -1,14 +1,13 @@
 package com.mopl.batch.sync.denormalized.service;
 
-import com.mopl.jpa.entity.playlist.PlaylistEntity;
 import com.mopl.jpa.repository.playlist.JpaPlaylistRepository;
+import com.mopl.jpa.repository.playlist.JpaPlaylistSubscriberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -17,24 +16,23 @@ import java.util.UUID;
 public class PlaylistSubscriberCountSyncTxService {
 
     private final JpaPlaylistRepository jpaPlaylistRepository;
+    private final JpaPlaylistSubscriberRepository jpaPlaylistSubscriberRepository;
 
-    @Transactional
-    public int syncBatch(List<UUID> playlistIds, Map<UUID, Long> actualCounts) {
-        List<PlaylistEntity> playlists = jpaPlaylistRepository.findAllById(playlistIds);
-        int synced = 0;
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public boolean syncOne(UUID playlistId) {
+        return jpaPlaylistRepository.findById(playlistId)
+            .map(playlist -> {
+                int currentCount = playlist.getSubscriberCount();
+                int actualCount = jpaPlaylistSubscriberRepository.countByPlaylistId(playlistId);
 
-        for (PlaylistEntity playlist : playlists) {
-            int actualCount = actualCounts.getOrDefault(playlist.getId(), 0L).intValue();
-            int currentCount = playlist.getSubscriberCount();
-
-            if (currentCount != actualCount) {
-                jpaPlaylistRepository.updateSubscriberCount(playlist.getId(), actualCount);
-                log.info("[PlaylistSubscriberCountSync] synced playlistId={} from={} to={}",
-                    playlist.getId(), currentCount, actualCount);
-                synced++;
-            }
-        }
-
-        return synced;
+                if (currentCount != actualCount) {
+                    jpaPlaylistRepository.updateSubscriberCount(playlistId, actualCount);
+                    log.info("[PlaylistSubscriberCountSync] synced playlistId={} from={} to={}",
+                        playlistId, currentCount, actualCount);
+                    return true;
+                }
+                return false;
+            })
+            .orElse(false);
     }
 }
