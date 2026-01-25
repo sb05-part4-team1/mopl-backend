@@ -2,6 +2,8 @@ package com.mopl.websocket.interfaces.api.content;
 
 import com.mopl.security.userdetails.MoplUserDetails;
 import com.mopl.websocket.application.content.ContentWebSocketFacade;
+import com.mopl.websocket.interfaces.api.content.dto.WatchingSessionChangeResponse;
+import com.mopl.websocket.interfaces.api.content.dto.WatchingSessionChangeType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -46,7 +48,7 @@ public class WatchingSessionEventListener {
         MoplUserDetails user = (MoplUserDetails) ((Authentication) accessor.getUser()).getPrincipal();
         accessor.getSessionAttributes().put(SESSION_ATTR_CONTENT_ID, contentId);
 
-        WatchingSessionChange change = contentWebSocketFacade.updateSession(contentId, user.userId(), ChangeType.JOIN);
+        WatchingSessionChangeResponse change = contentWebSocketFacade.updateSession(contentId, user.userId(), WatchingSessionChangeType.JOIN);
         messagingTemplate.convertAndSend(destination, change);
     }
 
@@ -71,7 +73,7 @@ public class WatchingSessionEventListener {
         }
 
         MoplUserDetails user = (MoplUserDetails) ((Authentication) accessor.getUser()).getPrincipal();
-        WatchingSessionChange change = contentWebSocketFacade.updateSession(contentId, user.userId(), ChangeType.LEAVE);
+        WatchingSessionChangeResponse change = contentWebSocketFacade.updateSession(contentId, user.userId(), WatchingSessionChangeType.LEAVE);
 
         messagingTemplate.convertAndSend(buildWatchDestination(contentId), change);
         accessor.getSessionAttributes().remove(SESSION_ATTR_CONTENT_ID);

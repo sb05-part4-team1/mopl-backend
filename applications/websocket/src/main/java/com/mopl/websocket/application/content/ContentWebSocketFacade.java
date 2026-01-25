@@ -13,9 +13,9 @@ import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.dto.user.UserSummaryMapper;
 import com.mopl.dto.watchingsession.WatchingSessionResponseMapper;
-import com.mopl.websocket.interfaces.api.content.ChangeType;
-import com.mopl.websocket.interfaces.api.content.ContentChatDto;
-import com.mopl.websocket.interfaces.api.content.WatchingSessionChange;
+import com.mopl.websocket.interfaces.api.content.dto.WatchingSessionChangeType;
+import com.mopl.websocket.interfaces.api.content.dto.ContentChatResponse;
+import com.mopl.websocket.interfaces.api.content.dto.WatchingSessionChangeResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,17 +29,17 @@ public class ContentWebSocketFacade {
     private final WatchingSessionResponseMapper watchingSessionResponseMapper;
     private final UserSummaryMapper userSummaryMapper;
 
-    public WatchingSessionChange updateSession(UUID contentId, UUID userId, ChangeType type) {
+    public WatchingSessionChangeResponse updateSession(UUID contentId, UUID userId, WatchingSessionChangeType type) {
         ContentModel content = contentService.getById(contentId);
 
-        if (type == ChangeType.JOIN) {
+        if (type == WatchingSessionChangeType.JOIN) {
             return handleJoin(content, userId);
         } else {
             return handleLeave(contentId, userId);
         }
     }
 
-    private WatchingSessionChange handleJoin(ContentModel content, UUID userId) {
+    private WatchingSessionChangeResponse handleJoin(ContentModel content, UUID userId) {
         UserModel watcher = userService.getById(userId);
 
         WatchingSessionModel session = WatchingSessionModel.create(
@@ -51,27 +51,27 @@ public class ContentWebSocketFacade {
         );
         watchingSessionRepository.save(session);
 
-        return new WatchingSessionChange(
-            ChangeType.JOIN,
+        return new WatchingSessionChangeResponse(
+            WatchingSessionChangeType.JOIN,
             watchingSessionResponseMapper.toDto(session),
             watchingSessionRepository.countByContentId(content.getId())
         );
     }
 
-    private WatchingSessionChange handleLeave(UUID contentId, UUID userId) {
+    private WatchingSessionChangeResponse handleLeave(UUID contentId, UUID userId) {
         Optional<WatchingSessionModel> sessionOpt = watchingSessionRepository.findByWatcherId(userId);
 
         sessionOpt.ifPresent(watchingSessionRepository::delete);
 
-        return new WatchingSessionChange(
-            ChangeType.LEAVE,
+        return new WatchingSessionChangeResponse(
+            WatchingSessionChangeType.LEAVE,
             sessionOpt.map(watchingSessionResponseMapper::toDto).orElse(null),
             watchingSessionRepository.countByContentId(contentId)
         );
     }
 
-    public ContentChatDto sendChatMessage(UUID contentId, UUID userId, String message) {
+    public ContentChatResponse sendChatMessage(UUID userId, String message) {
         UserModel sender = userService.getById(userId);
-        return new ContentChatDto(userSummaryMapper.toSummary(sender), message);
+        return new ContentChatResponse(userSummaryMapper.toSummary(sender), message);
     }
 }

@@ -36,7 +36,7 @@ public class FollowController implements FollowApiSpec {
     @PostMapping
     public ResponseEntity<FollowResponse> follow(
         @AuthenticationPrincipal MoplUserDetails userDetails,
-        @Valid @RequestBody FollowRequest request
+        @RequestBody @Valid FollowRequest request
     ) {
         FollowModel follow = followFacade.follow(userDetails.userId(), request.followeeId());
         return ResponseEntity.status(HttpStatus.CREATED)

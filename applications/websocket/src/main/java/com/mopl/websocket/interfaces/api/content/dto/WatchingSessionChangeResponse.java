@@ -1,9 +1,9 @@
-package com.mopl.websocket.interfaces.api.content;
+package com.mopl.websocket.interfaces.api.content.dto;
 
 import com.mopl.dto.watchingsession.WatchingSessionResponse;
 
-public record WatchingSessionChange(
-    ChangeType type,
+public record WatchingSessionChangeResponse(
+    WatchingSessionChangeType type,
     WatchingSessionResponse watchingSession,
     long watcherCount
 ) {

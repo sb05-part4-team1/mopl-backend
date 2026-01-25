@@ -1,17 +1,15 @@
 package com.mopl.websocket.interfaces.api.content;
 
-import java.util.UUID;
-
-import org.springframework.messaging.handler.annotation.DestinationVariable;
+import com.mopl.websocket.application.content.ContentWebSocketFacade;
+import com.mopl.websocket.interfaces.api.content.dto.ContentChatRequest;
+import com.mopl.websocket.interfaces.api.content.dto.ContentChatResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 
-import com.mopl.security.userdetails.MoplUserDetails;
-import com.mopl.websocket.application.content.ContentWebSocketFacade;
-
-import lombok.RequiredArgsConstructor;
+import java.security.Principal;
+import java.util.UUID;
 
 @Controller
 @RequiredArgsConstructor
@@ -21,11 +19,11 @@ public class ContentWebSocketController {
 
     @MessageMapping("/contents/{contentId}/chat")
     @SendTo("/sub/contents/{contentId}/chat")
-    public ContentChatDto chat(
-        @DestinationVariable UUID contentId,
-        ContentChatSendRequest request,
-        @AuthenticationPrincipal MoplUserDetails user
+    public ContentChatResponse sendChat(
+        Principal principal,
+        ContentChatRequest request
     ) {
-        return contentWebSocketFacade.sendChatMessage(contentId, user.userId(), request.content());
+        UUID senderId = UUID.fromString(principal.getName());
+        return contentWebSocketFacade.sendChatMessage(senderId, request.content());
     }
 }
