@@ -22,6 +22,7 @@ import com.mopl.dto.playlist.PlaylistResponse;
 import com.mopl.dto.playlist.PlaylistResponseMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Collections;
@@ -206,6 +207,7 @@ public class PlaylistFacade {
         transactionTemplate.executeWithoutResult(status -> playlistService.deleteContentFromPlaylist(playlistId, contentId));
     }
 
+    @Transactional
     public void subscribePlaylist(
         UUID requesterId,
         UUID playlistId
@@ -221,13 +223,12 @@ public class PlaylistFacade {
             .ownerId(playlist.getOwner().getId())
             .build();
 
-        transactionTemplate.executeWithoutResult(status -> {
-            playlistSubscriptionService.subscribe(playlistId, requesterId);
-            playlistService.update(playlist.withSubscriberAdded());
-            outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
-        });
+        playlistSubscriptionService.subscribe(playlistId, requesterId);
+        playlistService.update(playlist.withSubscriberAdded());
+        outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
     }
 
+    @Transactional
     public void unsubscribePlaylist(
         UUID requesterId,
         UUID playlistId
@@ -235,10 +236,8 @@ public class PlaylistFacade {
         userService.getById(requesterId);
         PlaylistModel playlist = playlistService.getById(playlistId);
 
-        transactionTemplate.executeWithoutResult(status -> {
-            playlistSubscriptionService.unsubscribe(playlistId, requesterId);
-            playlistService.update(playlist.withSubscriberRemoved());
-        });
+        playlistSubscriptionService.unsubscribe(playlistId, requesterId);
+        playlistService.update(playlist.withSubscriberRemoved());
     }
 
     private void validateOwner(PlaylistModel playlist, UUID requesterId) {

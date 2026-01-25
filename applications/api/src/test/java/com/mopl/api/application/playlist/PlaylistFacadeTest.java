@@ -606,7 +606,6 @@ class PlaylistFacadeTest {
             given(playlistService.getById(playlistId)).willReturn(playlist);
             willDoNothing().given(playlistSubscriptionService).subscribe(playlistId, requesterId);
             given(playlistService.update(any(PlaylistModel.class))).willReturn(playlist.withSubscriberAdded());
-            setupTransactionTemplateWithoutResult();
 
             // when & then
             assertThatNoException()
@@ -648,7 +647,6 @@ class PlaylistFacadeTest {
             given(playlistService.getById(playlistId)).willReturn(playlist);
             willThrow(PlaylistSubscriptionAlreadyExistsException.withPlaylistIdAndSubscriberId(playlistId, requesterId))
                 .given(playlistSubscriptionService).subscribe(playlistId, requesterId);
-            setupTransactionTemplateWithoutResult();
 
             // when & then
             assertThatThrownBy(() -> playlistFacade.subscribePlaylist(requesterId, playlistId))
@@ -668,7 +666,6 @@ class PlaylistFacadeTest {
             given(playlistService.getById(playlistId)).willReturn(playlist);
             willThrow(SelfSubscriptionNotAllowedException.withPlaylistIdAndUserId(playlistId, requesterId))
                 .given(playlistSubscriptionService).subscribe(playlistId, requesterId);
-            setupTransactionTemplateWithoutResult();
 
             // when & then
             assertThatThrownBy(() -> playlistFacade.subscribePlaylist(requesterId, playlistId))
@@ -695,7 +692,6 @@ class PlaylistFacadeTest {
             given(playlistService.getById(playlistId)).willReturn(playlist);
             willDoNothing().given(playlistSubscriptionService).unsubscribe(playlistId, requesterId);
             given(playlistService.update(any(PlaylistModel.class))).willReturn(playlist.withSubscriberRemoved());
-            setupTransactionTemplateWithoutResult();
 
             // when & then
             assertThatNoException()
@@ -736,7 +732,6 @@ class PlaylistFacadeTest {
             given(playlistService.getById(playlistId)).willReturn(playlist);
             willThrow(PlaylistSubscriptionNotFoundException.withPlaylistIdAndSubscriberId(playlistId, requesterId))
                 .given(playlistSubscriptionService).unsubscribe(playlistId, requesterId);
-            setupTransactionTemplateWithoutResult();
 
             // when & then
             assertThatThrownBy(() -> playlistFacade.unsubscribePlaylist(requesterId, playlistId))
