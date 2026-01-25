@@ -14,7 +14,13 @@ public class SecurityRegistryImpl implements SecurityRegistry {
     ) {
         auth
             .requestMatchers("/ws/**").permitAll()
-            .requestMatchers("/actuator/health").permitAll()
+            .requestMatchers(
+                "/actuator/health",
+                "/actuator/info",
+                "/actuator/prometheus",
+                "/actuator/metrics",
+                "/actuator/metrics/**"
+            ).permitAll()
             .anyRequest().denyAll();
     }
 }

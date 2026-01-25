@@ -1,6 +1,8 @@
 package com.mopl.websocket.config;
 
+import com.mopl.websocket.monitoring.WebSocketMetrics;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -11,58 +13,47 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
-import com.mopl.websocket.monitoring.WebSocketMetrics;
-
-import lombok.RequiredArgsConstructor;
-
 @Configuration
 @EnableWebSocketMessageBroker
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    private final JwtChannelInterceptor jwtChannelInterceptor; // 기존 JWT 인증 인터셉터
-    private final WebSocketMetrics webSocketMetrics; // WebSocket 메트릭 업데이트 객체
+    private final JwtChannelInterceptor jwtChannelInterceptor;
+    private final WebSocketMetrics webSocketMetrics;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/sub"); // 구독 경로
-        registry.setApplicationDestinationPrefixes("/pub"); // 발행(서버로 전송) 경로
+        registry.enableSimpleBroker("/sub");
+        registry.setApplicationDestinationPrefixes("/pub");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws") // 웹소켓 엔드포인트
-            .setAllowedOriginPatterns("*") // CORS 허용(현재는 전체)
-            .withSockJS(); // SockJS 지원
+        registry.addEndpoint("/ws")
+            .setAllowedOriginPatterns("*")
+            .withSockJS();
     }
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        // 클라이언트 -> 서버로 들어오는 메시지 채널에 JWT 인증 인터셉터 적용
-        registration.interceptors(jwtChannelInterceptor);
-
-        // 클라이언트 -> 서버로 들어오는 모든 메시지를 카운팅
-        registration.interceptors(new ChannelInterceptor() {
-
-            @Override
-            public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
-                webSocketMetrics.onInboundMessage(); // inbound 메시지 +1
-                return message; // 메시지는 그대로 통과
-            }
-        });
+        registration.interceptors(
+            jwtChannelInterceptor,
+            metricsInterceptor(webSocketMetrics::onInboundMessage)
+        );
     }
 
     @Override
     public void configureClientOutboundChannel(ChannelRegistration registration) {
-        // 서버 -> 클라이언트로 나가는 모든 메시지를 카운팅
-        registration.interceptors(new ChannelInterceptor() {
-
-            @Override
-            public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
-                webSocketMetrics.onOutboundMessage(); // outbound 메시지 +1
-                return message; // 메시지는 그대로 통과
-            }
-        });
+        registration.interceptors(metricsInterceptor(webSocketMetrics::onOutboundMessage));
     }
 
+    private ChannelInterceptor metricsInterceptor(Runnable metricsAction) {
+        return new ChannelInterceptor() {
+            @Override
+            public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
+                metricsAction.run();
+                return message;
+            }
+        };
+    }
 }
