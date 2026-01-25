@@ -11,10 +11,10 @@ import java.util.UUID;
 
 public interface JpaReadStatusRepository extends JpaRepository<ReadStatusEntity, UUID> {
 
-    List<ReadStatusEntity> findByParticipantIdAndConversationIdIn(UUID participantId, Collection<UUID> conversationId);
+    List<ReadStatusEntity> findByParticipantIdAndConversationIdIn(UUID participantId, Collection<UUID> conversationIds);
 
     @EntityGraph(attributePaths = {"participant"})
-    List<ReadStatusEntity> findWithParticipantByParticipantIdNotAndConversationIdIn(UUID participantId, Collection<UUID> conversationId);
+    List<ReadStatusEntity> findWithParticipantByParticipantIdNotAndConversationIdIn(UUID participantId, Collection<UUID> conversationIds);
 
     Optional<ReadStatusEntity> findByParticipantIdAndConversationId(UUID participantId, UUID conversationId);
 
