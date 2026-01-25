@@ -14,7 +14,7 @@ import static com.mopl.domain.model.review.ReviewModel.TEXT_MAX_LENGTH;
     {
       "contentId": "550e8400-e29b-41d4-a716-446655440000",
       "text": "정말 재미있는 영화였습니다!",
-      "rating": 4.0
+      "rating": 1.0
     }
     """)
 public record ReviewCreateRequest(
