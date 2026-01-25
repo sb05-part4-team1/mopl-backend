@@ -52,8 +52,8 @@ public class ConversationFacade {
             .toList();
 
         Map<UUID, DirectMessageModel> lastMessageMap = directMessageService.getLastMessagesWithSenderByConversationIdIn(conversationIds);
-        Map<UUID, ReadStatusModel> otherReadStatusMap = readStatusService.getOtherReadStatusWithParticipantMapByConversationIdIn(userId, conversationIds);
-        Map<UUID, ReadStatusModel> requesterReadStatusMap = readStatusService.getMyReadStatusMapByConversationIdIn(userId, conversationIds);
+        Map<UUID, ReadStatusModel> otherReadStatusMap = readStatusService.getOtherReadStatusMapWithParticipant(userId, conversationIds);
+        Map<UUID, ReadStatusModel> requesterReadStatusMap = readStatusService.getMyReadStatusMap(userId, conversationIds);
 
         return response.map(conversation -> {
             UUID conversationId = conversation.getId();
@@ -144,16 +144,23 @@ public class ConversationFacade {
     }
 
     @Transactional
-    public void directMessageRead(UUID requesterId, UUID conversationId, UUID directMessageId) {
+    public void markAsRead(UUID requesterId, UUID conversationId) {
         readStatusService.validateParticipant(requesterId, conversationId);
 
-        DirectMessageModel directMessage = directMessageService.getOtherDirectMessage(
-            requesterId, conversationId, directMessageId
-        );
+        DirectMessageModel lastMessage = directMessageService.getLastMessageByConversationId(conversationId);
+        if (lastMessage == null || lastMessage.getSender().getId().equals(requesterId)) {
+            return;
+        }
 
-        ReadStatusModel requesterReadStatus = readStatusService.getMyReadStatus(conversationId, requesterId);
+        ReadStatusModel readStatus = readStatusService.getMyReadStatus(conversationId, requesterId);
+        if (readStatus == null) {
+            return;
+        }
 
-        readStatusService.markAsRead(directMessage, requesterReadStatus);
+        ReadStatusModel updated = readStatus.markAsReadAt(lastMessage.getCreatedAt());
+        if (updated != readStatus) {
+            readStatusService.update(updated);
+        }
     }
 
     private boolean calculateHasUnread(
