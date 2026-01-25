@@ -106,10 +106,9 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
             .join(directMessageEntity.sender).fetchJoin()
             .where(
                 directMessageEntity.conversation.id.in(conversationIds),
-                directMessageEntity.id.eq(
+                directMessageEntity.createdAt.eq(
                     JPAExpressions
-                        // UUID v7 사용 - id 순서 = 시간순
-                        .select(subDirectMessageEntity.id.max())
+                        .select(subDirectMessageEntity.createdAt.max())
                         .from(subDirectMessageEntity)
                         .where(
                             subDirectMessageEntity.conversation.id.eq(directMessageEntity.conversation.id)
