@@ -11,8 +11,10 @@ import com.mopl.api.interfaces.api.conversation.mapper.ConversationResponseMappe
 import com.mopl.api.interfaces.api.conversation.mapper.DirectMessageResponseMapper;
 import com.mopl.api.interfaces.api.user.dto.UserSummary;
 import com.mopl.api.interfaces.api.user.mapper.UserSummaryMapper;
+import com.mopl.domain.exception.conversation.ConversationAlreadyExistsException;
 import com.mopl.domain.exception.conversation.ConversationNotFoundException;
 import com.mopl.domain.exception.conversation.ReadStatusNotFoundException;
+import com.mopl.domain.exception.conversation.SelfConversationNotAllowedException;
 import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
@@ -422,6 +424,62 @@ class ConversationControllerTest {
                 .andExpect(status().isBadRequest());
 
             then(conversationFacade).should(never()).createConversation(any(), any());
+        }
+
+        @Test
+        @DisplayName("자기 자신과 대화 생성 시 400 Bad Request 응답")
+        void withSelfConversation_returns400BadRequest() throws Exception {
+            // given
+            ConversationCreateRequest request = new ConversationCreateRequest(userId);
+
+            given(conversationFacade.createConversation(eq(userId), any(ConversationCreateRequest.class)))
+                .willThrow(SelfConversationNotAllowedException.withUserId(userId));
+
+            // when & then
+            mockMvc.perform(post("/api/conversations")
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("이미 존재하는 대화 생성 시 409 Conflict 응답")
+        void withExistingConversation_returns409Conflict() throws Exception {
+            // given
+            UUID withUserId = UUID.randomUUID();
+            ConversationCreateRequest request = new ConversationCreateRequest(withUserId);
+
+            given(conversationFacade.createConversation(eq(userId), any(ConversationCreateRequest.class)))
+                .willThrow(ConversationAlreadyExistsException.withParticipants(userId, withUserId));
+
+            // when & then
+            mockMvc.perform(post("/api/conversations")
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 사용자와 대화 생성 시 404 Not Found 응답")
+        void withNonExistingUser_returns404NotFound() throws Exception {
+            // given
+            UUID withUserId = UUID.randomUUID();
+            ConversationCreateRequest request = new ConversationCreateRequest(withUserId);
+
+            given(conversationFacade.createConversation(eq(userId), any(ConversationCreateRequest.class)))
+                .willThrow(UserNotFoundException.withId(withUserId));
+
+            // when & then
+            mockMvc.perform(post("/api/conversations")
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
         }
     }
 

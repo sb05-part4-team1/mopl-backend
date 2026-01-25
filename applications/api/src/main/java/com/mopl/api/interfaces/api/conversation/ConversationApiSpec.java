@@ -104,12 +104,17 @@ public interface ConversationApiSpec {
         UUID userId
     );
 
-    @Operation(summary = "대화 생성")
+    @Operation(
+        summary = "대화 생성",
+        description = "새로운 1:1 대화를 생성합니다. 자기 자신과의 대화는 생성할 수 없으며, 이미 존재하는 대화가 있으면 409 에러를 반환합니다."
+    )
     @ApiResponse(
         responseCode = "201",
         content = @Content(schema = @Schema(implementation = ConversationResponse.class))
     )
     @CommonApiResponse.Default
+    @CommonApiResponse.NotFound
+    @CommonApiResponse.Conflict
     ConversationResponse createConversation(
         @Parameter(hidden = true) MoplUserDetails userDetails,
         ConversationCreateRequest request

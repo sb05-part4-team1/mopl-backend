@@ -71,21 +71,39 @@ public class ConversationQueryRepositoryImpl implements ConversationQueryReposit
 
     @Override
     public Optional<ConversationModel> findByParticipants(UUID userId, UUID withId) {
-        QReadStatusEntity readStatusEntity = new QReadStatusEntity("readStatusEntity");
-        QReadStatusEntity withReadStatusEntity = new QReadStatusEntity("withReadStatusEntity");
+        QReadStatusEntity rs1 = new QReadStatusEntity("rs1");
+        QReadStatusEntity rs2 = new QReadStatusEntity("rs2");
 
         ConversationEntity result = queryFactory
-            .select(readStatusEntity.conversation)
-            .from(readStatusEntity)
-            .join(withReadStatusEntity).on(withReadStatusEntity.conversation.eq(readStatusEntity.conversation))
+            .select(rs1.conversation)
+            .from(rs1)
+            .join(rs2).on(rs2.conversation.eq(rs1.conversation))
             .where(
-                readStatusEntity.participant.id.eq(userId),
-                withReadStatusEntity.participant.id.eq(withId)
+                rs1.participant.id.eq(userId),
+                rs2.participant.id.eq(withId)
             )
             .fetchOne();
 
         return Optional.ofNullable(result)
             .map(conversationEntityMapper::toModel);
+    }
+
+    @Override
+    public boolean existsByParticipants(UUID userId, UUID withId) {
+        QReadStatusEntity rs1 = new QReadStatusEntity("rs1");
+        QReadStatusEntity rs2 = new QReadStatusEntity("rs2");
+
+        Integer result = queryFactory
+            .selectOne()
+            .from(rs1)
+            .join(rs2).on(rs2.conversation.eq(rs1.conversation))
+            .where(
+                rs1.participant.id.eq(userId),
+                rs2.participant.id.eq(withId)
+            )
+            .fetchFirst();
+
+        return result != null;
     }
 
     private JPAQuery<?> baseQuery(UUID userId, String keywordLike) {

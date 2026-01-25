@@ -5,6 +5,8 @@ import com.mopl.api.interfaces.api.conversation.dto.ConversationResponse;
 import com.mopl.api.interfaces.api.conversation.dto.DirectMessageResponse;
 import com.mopl.api.interfaces.api.conversation.mapper.ConversationResponseMapper;
 import com.mopl.api.interfaces.api.conversation.mapper.DirectMessageResponseMapper;
+import com.mopl.domain.exception.conversation.ConversationAlreadyExistsException;
+import com.mopl.domain.exception.conversation.SelfConversationNotAllowedException;
 import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.model.conversation.DirectMessageModel;
 import com.mopl.domain.model.conversation.ReadStatusModel;
@@ -105,8 +107,18 @@ public class ConversationFacade {
     }
 
     public ConversationResponse createConversation(UUID requesterId, ConversationCreateRequest request) {
+        UUID withUserId = request.withUserId();
+
+        if (requesterId.equals(withUserId)) {
+            throw SelfConversationNotAllowedException.withUserId(requesterId);
+        }
+
+        if (conversationService.existsByParticipants(requesterId, withUserId)) {
+            throw ConversationAlreadyExistsException.withParticipants(requesterId, withUserId);
+        }
+
         UserModel requester = userService.getById(requesterId);
-        UserModel withUser = userService.getById(request.withUserId());
+        UserModel withUser = userService.getById(withUserId);
 
         ConversationModel savedConversation = transactionTemplate.execute(status -> {
             ConversationModel conversation = ConversationModel.create();

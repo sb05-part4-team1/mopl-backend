@@ -33,4 +33,8 @@ public class ConversationService {
         return conversationQueryRepository.findByParticipants(userId, withUserId)
             .orElseThrow(() -> ConversationNotFoundException.withParticipants(userId, withUserId));
     }
+
+    public boolean existsByParticipants(UUID userId, UUID withUserId) {
+        return conversationQueryRepository.existsByParticipants(userId, withUserId);
+    }
 }

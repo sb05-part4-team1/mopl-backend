@@ -11,4 +11,6 @@ public interface ConversationQueryRepository {
     CursorResponse<ConversationModel> findAll(UUID userId, ConversationQueryRequest request);
 
     Optional<ConversationModel> findByParticipants(UUID userId, UUID withId);
+
+    boolean existsByParticipants(UUID userId, UUID withId);
 }
