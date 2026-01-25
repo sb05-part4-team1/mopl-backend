@@ -90,6 +90,7 @@ public class ConversationFacade {
         return conversationResponseMapper.toResponse(conversation, withUser, lastMessage, hasUnread);
     }
 
+    @Transactional(readOnly = true)
     public ConversationResponse getConversationWith(UUID requesterId, UUID withUserId) {
         UserModel withUser = userService.getById(withUserId);
 
@@ -120,6 +121,7 @@ public class ConversationFacade {
         return conversationResponseMapper.toResponse(savedConversation, withUser);
     }
 
+    @Transactional(readOnly = true)
     public CursorResponse<DirectMessageResponse> getDirectMessages(
         UUID requesterId,
         UUID conversationId,

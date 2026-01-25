@@ -30,7 +30,7 @@ public class ConversationService {
     }
 
     public ConversationModel getByParticipants(UUID userId, UUID withUserId) {
-        return conversationRepository.findByParticipants(userId, withUserId)
+        return conversationQueryRepository.findByParticipants(userId, withUserId)
             .orElseThrow(() -> ConversationNotFoundException.withParticipants(userId, withUserId));
     }
 }

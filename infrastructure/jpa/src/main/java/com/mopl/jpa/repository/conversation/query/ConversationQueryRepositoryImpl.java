@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.mopl.jpa.entity.conversation.QConversationEntity.conversationEntity;
@@ -66,6 +67,25 @@ public class ConversationQueryRepositoryImpl implements ConversationQueryReposit
             sortFieldJpa::extractValue,
             ConversationEntity::getId
         );
+    }
+
+    @Override
+    public Optional<ConversationModel> findByParticipants(UUID userId, UUID withId) {
+        QReadStatusEntity readStatusEntity = new QReadStatusEntity("readStatusEntity");
+        QReadStatusEntity withReadStatusEntity = new QReadStatusEntity("withReadStatusEntity");
+
+        ConversationEntity result = queryFactory
+            .select(readStatusEntity.conversation)
+            .from(readStatusEntity)
+            .join(withReadStatusEntity).on(withReadStatusEntity.conversation.eq(readStatusEntity.conversation))
+            .where(
+                readStatusEntity.participant.id.eq(userId),
+                withReadStatusEntity.participant.id.eq(withId)
+            )
+            .fetchOne();
+
+        return Optional.ofNullable(result)
+            .map(conversationEntityMapper::toModel);
     }
 
     private JPAQuery<?> baseQuery(UUID userId, String keywordLike) {

@@ -9,7 +9,5 @@ public interface ConversationRepository {
 
     Optional<ConversationModel> findById(UUID conversationId);
 
-    Optional<ConversationModel> findByParticipants(UUID userId, UUID withId);
-
     ConversationModel save(ConversationModel conversationModel);
 }
