@@ -1,6 +1,6 @@
 package com.mopl.api.application.user;
 
-import com.mopl.api.application.outbox.DomainEventOutboxMapper;
+import com.mopl.dto.outbox.DomainEventOutboxMapper;
 import com.mopl.api.interfaces.api.user.dto.UserCreateRequest;
 import com.mopl.api.interfaces.api.user.dto.UserLockUpdateRequest;
 import com.mopl.api.interfaces.api.user.dto.UserRoleUpdateRequest;
@@ -26,6 +26,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -67,9 +69,11 @@ class UserFacadeTest {
     private JwtRegistry jwtRegistry;
 
     @Mock
+    @SuppressWarnings("unused")
     private OutboxService outboxService;
 
     @Mock
+    @SuppressWarnings("unused")
     private DomainEventOutboxMapper domainEventOutboxMapper;
 
     @Mock
@@ -115,7 +119,7 @@ class UserFacadeTest {
         }
 
         @Test
-        @DisplayName("이메일과 이름의 공백이 제거되고 이메일이 소문자로 처리된다")
+        @DisplayName("이메일과 이름의 공백 제거 및 이메일 소문자 처리")
         void withWhitespace_shouldTrimAndLowercase() {
             // given
             String email = "  TEST@EXAMPLE.COM  ";
@@ -191,8 +195,8 @@ class UserFacadeTest {
 
             given(userService.getById(targetUser.getId())).willReturn(targetUser);
             given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
-            willAnswer(invocation -> invocation.<org.springframework.transaction.support.TransactionCallback<?>>getArgument(0)
-                .doInTransaction(null))
+            willAnswer(invocation -> invocation.<TransactionCallback<?>>getArgument(0)
+                .doInTransaction(mock(TransactionStatus.class)))
                 .given(transactionTemplate).execute(any());
 
             // when
@@ -231,8 +235,8 @@ class UserFacadeTest {
 
             given(userService.getById(targetUser.getId())).willReturn(targetUser);
             given(userService.update(any(UserModel.class))).willReturn(targetUser);
-            willAnswer(invocation -> invocation.<org.springframework.transaction.support.TransactionCallback<?>>getArgument(0)
-                .doInTransaction(null))
+            willAnswer(invocation -> invocation.<TransactionCallback<?>>getArgument(0)
+                .doInTransaction(mock(TransactionStatus.class)))
                 .given(transactionTemplate).execute(any());
 
             // when & then
@@ -617,7 +621,7 @@ class UserFacadeTest {
         }
 
         @Test
-        @DisplayName("비밀번호 변경 후 임시 비밀번호가 삭제된다")
+        @DisplayName("비밀번호 변경 후 임시 비밀번호 삭제")
         void afterPasswordChange_temporaryPasswordIsDeleted() {
             // given
             String email = "test@example.com";

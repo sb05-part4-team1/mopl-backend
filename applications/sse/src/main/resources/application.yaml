@@ -15,6 +15,7 @@ spring:
       - jpa.yaml
       - security.yaml
       - redis.yaml
+      - storage.yaml
   threads:
     virtual:
       enabled: true

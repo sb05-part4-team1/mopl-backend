@@ -75,8 +75,7 @@ public class TmdbPopularTvContentCollectService {
             }
         }
 
-        afterCommitExecutor.execute(() -> contentSearchSyncPort.upsertAll(inserted)
-        );
+        afterCommitExecutor.execute(() -> contentSearchSyncPort.upsertAll(inserted));
 
         log.info(
             "TMDB tv collect done. inserted={}",

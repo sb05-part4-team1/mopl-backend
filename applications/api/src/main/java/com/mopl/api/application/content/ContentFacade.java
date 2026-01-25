@@ -1,9 +1,7 @@
 package com.mopl.api.application.content;
 
 import com.mopl.api.interfaces.api.content.dto.ContentCreateRequest;
-import com.mopl.api.interfaces.api.content.dto.ContentResponse;
 import com.mopl.api.interfaces.api.content.dto.ContentUpdateRequest;
-import com.mopl.api.interfaces.api.content.mapper.ContentResponseMapper;
 import com.mopl.domain.exception.content.InvalidContentDataException;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.tag.TagModel;
@@ -14,16 +12,19 @@ import com.mopl.domain.service.watchingsession.WatchingSessionService;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.search.ContentSearchSyncPort;
 import com.mopl.domain.support.transaction.AfterCommitExecutor;
+import com.mopl.dto.content.ContentResponse;
+import com.mopl.dto.content.ContentResponseMapper;
 import com.mopl.storage.provider.StorageProvider;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.web.multipart.MultipartFile;
 
 @Component
 @RequiredArgsConstructor

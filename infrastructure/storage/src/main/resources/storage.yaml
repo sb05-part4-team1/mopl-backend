@@ -9,5 +9,5 @@ mopl:
       secret-key: ${AWS_S3_SECRET_KEY:}
       region: ${AWS_S3_REGION:ap-northeast-2}
       bucket: ${AWS_S3_BUCKET:}
-      presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:11m}
+      presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:1h}
       endpoint: ${AWS_S3_ENDPOINT:}

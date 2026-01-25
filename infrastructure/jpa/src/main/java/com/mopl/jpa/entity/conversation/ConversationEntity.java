@@ -11,8 +11,7 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Table(name = "conversations")
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 public class ConversationEntity extends BaseUpdatableEntity {
-
 }

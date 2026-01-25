@@ -3,7 +3,7 @@ package com.mopl.api.interfaces.api.follow;
 import java.util.UUID;
 
 import com.mopl.api.interfaces.api.follow.dto.FollowRequest;
-import com.mopl.api.interfaces.api.follow.dto.FollowResponse;
+import com.mopl.dto.follow.FollowResponse;
 import org.springframework.http.ResponseEntity;
 
 import com.mopl.domain.exception.ErrorResponse;

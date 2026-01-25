@@ -2,6 +2,7 @@ package com.mopl.worker.notification;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.domain.event.EventTopic;
+import com.mopl.domain.event.conversation.DirectMessageSentEvent;
 import com.mopl.domain.event.playlist.PlaylistContentAddedEvent;
 import com.mopl.domain.event.playlist.PlaylistCreatedEvent;
 import com.mopl.domain.event.playlist.PlaylistSubscribedEvent;
@@ -147,6 +148,31 @@ public class NotificationEventProcessor {
             log.debug("Processed PlaylistContentAddedEvent for playlist: {}", event.getPlaylistId());
         } catch (Exception e) {
             log.error("Failed to process PlaylistContentAddedEvent: {}", payload, e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @KafkaListener(
+        topics = EventTopic.DIRECT_MESSAGE_SENT,
+        groupId = "worker-notification-group",
+        containerFactory = "kafkaListenerContainerFactory"
+    )
+    public void handleDirectMessageSent(String payload, Acknowledgment ack) {
+        try {
+            DirectMessageSentEvent event = objectMapper.readValue(payload, DirectMessageSentEvent.class);
+
+            String title = "[DM] " + event.getSenderName();
+            String content = event.getMessageContent();
+
+            NotificationModel savedNotification = createNotification(
+                title, content, event.getReceiverId()
+            );
+            publishToSse(savedNotification);
+
+            ack.acknowledge();
+            log.debug("Processed DirectMessageSentEvent for receiver: {}", event.getReceiverId());
+        } catch (Exception e) {
+            log.error("Failed to process DirectMessageSentEvent: {}", payload, e);
             throw new RuntimeException(e);
         }
     }

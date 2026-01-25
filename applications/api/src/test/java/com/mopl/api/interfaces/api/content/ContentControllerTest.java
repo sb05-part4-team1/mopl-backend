@@ -5,9 +5,9 @@ import com.mopl.api.application.content.ContentFacade;
 import com.mopl.api.config.TestSecurityConfig;
 import com.mopl.api.interfaces.api.ApiControllerAdvice;
 import com.mopl.api.interfaces.api.content.dto.ContentCreateRequest;
-import com.mopl.api.interfaces.api.content.dto.ContentResponse;
+import com.mopl.dto.content.ContentResponse;
 import com.mopl.api.interfaces.api.content.dto.ContentUpdateRequest;
-import com.mopl.api.interfaces.api.content.mapper.ContentResponseMapper;
+import com.mopl.dto.content.ContentResponseMapper;
 import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.exception.content.InvalidContentDataException;
 import com.mopl.domain.model.content.ContentModel.ContentType;
@@ -70,6 +70,7 @@ class ContentControllerTest {
     private ContentFacade contentFacade;
 
     @MockBean
+    @SuppressWarnings("unused")
     private StorageProvider storageProvider;
 
     private MoplUserDetails mockAdminDetails;
@@ -115,11 +116,11 @@ class ContentControllerTest {
     }
 
     @Nested
-    @DisplayName("GET /api/contents - Get contents list")
+    @DisplayName("GET /api/contents - 콘텐츠 목록 조회")
     class GetContentsTest {
 
         @Test
-        @DisplayName("Returns 200 OK with content list for valid request")
+        @DisplayName("유효한 요청 시 200 OK와 콘텐츠 목록 반환")
         void withValidRequest_returns200OKWithContentList() throws Exception {
             // given
             UUID contentId1 = UUID.randomUUID();
@@ -161,7 +162,7 @@ class ContentControllerTest {
         }
 
         @Test
-        @DisplayName("Applies filter parameters correctly")
+        @DisplayName("필터 파라미터 정상 적용")
         void withFilterParams_appliesFilters() throws Exception {
             // given
             CursorResponse<ContentResponse> emptyResponse = CursorResponse.empty(
@@ -185,7 +186,7 @@ class ContentControllerTest {
         }
 
         @Test
-        @DisplayName("Handles cursor-based pagination")
+        @DisplayName("커서 기반 페이지네이션 처리")
         void withCursorParams_handlesPagination() throws Exception {
             // given
             UUID idAfter = UUID.randomUUID();
@@ -219,7 +220,7 @@ class ContentControllerTest {
         }
 
         @Test
-        @DisplayName("Returns empty list when no results")
+        @DisplayName("결과 없을 시 빈 목록 반환")
         void withNoResults_returnsEmptyList() throws Exception {
             // given
             CursorResponse<ContentResponse> emptyResponse = CursorResponse.empty(
@@ -242,11 +243,11 @@ class ContentControllerTest {
     }
 
     @Nested
-    @DisplayName("GET /api/contents/{contentId} - Get content detail")
+    @DisplayName("GET /api/contents/{contentId} - 콘텐츠 상세 조회")
     class GetContentTest {
 
         @Test
-        @DisplayName("Returns 200 OK for valid content ID")
+        @DisplayName("유효한 콘텐츠 ID로 조회 시 200 OK 반환")
         void withValidContentId_returns200OK() throws Exception {
             // given
             UUID contentId = UUID.randomUUID();
@@ -273,7 +274,7 @@ class ContentControllerTest {
         }
 
         @Test
-        @DisplayName("Returns 404 Not Found for non-existing content ID")
+        @DisplayName("존재하지 않는 콘텐츠 ID로 요청 시 404 Not Found 반환")
         void withNonExistingContentId_returns404NotFound() throws Exception {
             // given
             UUID nonExistingContentId = UUID.randomUUID();
@@ -291,11 +292,11 @@ class ContentControllerTest {
     }
 
     @Nested
-    @DisplayName("POST /api/contents - Upload content")
+    @DisplayName("POST /api/contents - 콘텐츠 업로드")
     class UploadTest {
 
         @Test
-        @DisplayName("Returns 201 Created for ADMIN with valid request")
+        @DisplayName("ADMIN 권한과 유효한 요청 시 201 Created 반환")
         void withAdminAndValidRequest_returns201Created() throws Exception {
             // given
             UUID contentId = UUID.randomUUID();
@@ -341,7 +342,7 @@ class ContentControllerTest {
         }
 
         @Test
-        @DisplayName("Returns 403 Forbidden for USER role")
+        @DisplayName("USER 권한 시 403 Forbidden 반환")
         void withUserRole_returns403Forbidden() throws Exception {
             // given
             ContentCreateRequest request = new ContentCreateRequest(
@@ -376,7 +377,7 @@ class ContentControllerTest {
         }
 
         @Test
-        @DisplayName("Returns 403 Forbidden without authentication")
+        @DisplayName("인증 없이 요청 시 403 Forbidden 반환")
         void withoutAuthentication_returns403Forbidden() throws Exception {
             // given
             ContentCreateRequest request = new ContentCreateRequest(
@@ -410,7 +411,7 @@ class ContentControllerTest {
         }
 
         @Test
-        @DisplayName("Returns 400 Bad Request for invalid content data")
+        @DisplayName("유효하지 않은 콘텐츠 데이터로 요청 시 400 Bad Request 반환")
         void withInvalidContentData_returns400BadRequest() throws Exception {
             // given
             ContentCreateRequest request = new ContentCreateRequest(
@@ -447,11 +448,11 @@ class ContentControllerTest {
     }
 
     @Nested
-    @DisplayName("PATCH /api/contents/{contentId} - Update content")
+    @DisplayName("PATCH /api/contents/{contentId} - 콘텐츠 수정")
     class UpdateTest {
 
         @Test
-        @DisplayName("Returns 200 OK for ADMIN with valid request")
+        @DisplayName("ADMIN 권한과 유효한 요청 시 200 OK 반환")
         void withAdminAndValidRequest_returns200OK() throws Exception {
             // given
             UUID contentId = UUID.randomUUID();
@@ -505,7 +506,7 @@ class ContentControllerTest {
         }
 
         @Test
-        @DisplayName("Returns 200 OK when updating without thumbnail")
+        @DisplayName("썸네일 없이 수정 시 200 OK 반환")
         void withoutThumbnail_returns200OK() throws Exception {
             // given
             UUID contentId = UUID.randomUUID();
@@ -549,7 +550,7 @@ class ContentControllerTest {
         }
 
         @Test
-        @DisplayName("Returns 403 Forbidden for USER role")
+        @DisplayName("USER 권한 시 403 Forbidden 반환")
         void withUserRole_returns403Forbidden() throws Exception {
             // given
             UUID contentId = UUID.randomUUID();
@@ -576,7 +577,7 @@ class ContentControllerTest {
         }
 
         @Test
-        @DisplayName("Returns 404 Not Found for non-existing content ID")
+        @DisplayName("존재하지 않는 콘텐츠 ID로 요청 시 404 Not Found 반환")
         void withNonExistingContentId_returns404NotFound() throws Exception {
             // given
             UUID nonExistingContentId = UUID.randomUUID();
@@ -605,11 +606,11 @@ class ContentControllerTest {
     }
 
     @Nested
-    @DisplayName("DELETE /api/contents/{contentId} - Delete content")
+    @DisplayName("DELETE /api/contents/{contentId} - 콘텐츠 삭제")
     class DeleteTest {
 
         @Test
-        @DisplayName("Returns 204 No Content for ADMIN with valid request")
+        @DisplayName("ADMIN 권한과 유효한 요청 시 204 No Content 반환")
         void withAdminAndValidRequest_returns204NoContent() throws Exception {
             // given
             UUID contentId = UUID.randomUUID();
@@ -625,7 +626,7 @@ class ContentControllerTest {
         }
 
         @Test
-        @DisplayName("Returns 403 Forbidden for USER role")
+        @DisplayName("USER 권한 시 403 Forbidden 반환")
         void withUserRole_returns403Forbidden() throws Exception {
             // given
             UUID contentId = UUID.randomUUID();
@@ -639,7 +640,7 @@ class ContentControllerTest {
         }
 
         @Test
-        @DisplayName("Returns 403 Forbidden without authentication")
+        @DisplayName("인증 없이 요청 시 403 Forbidden 반환")
         void withoutAuthentication_returns403Forbidden() throws Exception {
             // given
             UUID contentId = UUID.randomUUID();
@@ -652,7 +653,7 @@ class ContentControllerTest {
         }
 
         @Test
-        @DisplayName("Returns 404 Not Found for non-existing content ID")
+        @DisplayName("존재하지 않는 콘텐츠 ID로 요청 시 404 Not Found 반환")
         void withNonExistingContentId_returns404NotFound() throws Exception {
             // given
             UUID nonExistingContentId = UUID.randomUUID();

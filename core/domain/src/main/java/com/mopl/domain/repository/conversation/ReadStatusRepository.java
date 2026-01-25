@@ -1,28 +1,23 @@
 package com.mopl.domain.repository.conversation;
 
 import com.mopl.domain.model.conversation.ReadStatusModel;
+
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface ReadStatusRepository {
 
+    List<ReadStatusModel> findByParticipantIdAndConversationIdIn(UUID participantId, Collection<UUID> conversationIds);
+
+    List<ReadStatusModel> findWithParticipantByParticipantIdNotAndConversationIdIn(UUID participantId, Collection<UUID> conversationIds);
+
+    Optional<ReadStatusModel> findByParticipantIdAndConversationId(UUID participantId, UUID conversationId);
+
+    Optional<ReadStatusModel> findWithParticipantByParticipantIdAndConversationId(UUID participantId, UUID conversationId);
+
+    Optional<ReadStatusModel> findWithParticipantByParticipantIdNotAndConversationId(UUID participantId, UUID conversationId);
+
     ReadStatusModel save(ReadStatusModel readStatusModel);
-
-    Optional<ReadStatusModel> findById(UUID readStatusId);
-
-    List<ReadStatusModel> findByConversationId(UUID conversationId);
-
-    ReadStatusModel findByConversationIdAndParticipantId(UUID conversationId, UUID participantId);
-
-    List<ReadStatusModel> findByParticipantId(UUID participantId);
-
-    ReadStatusModel findByConversationIdAndUserId(UUID conversationId, UUID userId);
-
-    ReadStatusModel findOtherReadStatus(UUID conversationId, UUID userId);
-
-    Map<UUID, ReadStatusModel> findOthersByConversationIds(List<UUID> conversationIds, UUID userId);
-
-    Map<UUID, ReadStatusModel> findMineByConversationIds(List<UUID> conversationIds, UUID userId);
 }

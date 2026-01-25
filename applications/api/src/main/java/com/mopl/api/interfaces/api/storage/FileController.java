@@ -3,6 +3,7 @@ package com.mopl.api.interfaces.api.storage;
 import com.mopl.storage.provider.StorageProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/files")
+@RequestMapping("/api/files")
+@ConditionalOnProperty(name = "mopl.storage.type", havingValue = "local", matchIfMissing = true)
 @RequiredArgsConstructor
 @Slf4j
 public class FileController {

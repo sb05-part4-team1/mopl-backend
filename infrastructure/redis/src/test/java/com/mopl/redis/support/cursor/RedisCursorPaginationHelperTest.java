@@ -139,6 +139,30 @@ class RedisCursorPaginationHelperTest {
         }
 
         @Test
+        @DisplayName("idAfter만 있고 cursor가 빈 문자열이면 원본 리스트 반환")
+        void withIdAfterButEmptyCursor_returnsOriginalList() {
+            // given
+            CursorRequest<TestSortField> request = createRequest(
+                "", UUID.randomUUID(), 10, SortDirection.ASCENDING
+            );
+            List<TestItem> items = List.of(
+                new TestItem(UUID.randomUUID(), Instant.now(), "Item1")
+            );
+
+            // when
+            List<TestItem> result = RedisCursorPaginationHelper.applyCursor(
+                items,
+                request,
+                sortField,
+                TestItem::createdAt,
+                TestItem::id
+            );
+
+            // then
+            assertThat(result).isEqualTo(items);
+        }
+
+        @Test
         @DisplayName("ASC 정렬에서 커서 이후 항목만 필터링")
         void withAscendingOrder_filtersItemsAfterCursor() {
             // given
@@ -221,6 +245,62 @@ class RedisCursorPaginationHelperTest {
             List<TestItem> items = List.of(
                 new TestItem(UUID.randomUUID(), null, "Null createdAt"),
                 new TestItem(UUID.randomUUID(), Instant.parse("2024-01-01T13:00:00Z"), "Valid")
+            );
+
+            CursorRequest<TestSortField> request = createRequest(
+                cursor.toString(), cursorId, 10, SortDirection.ASCENDING
+            );
+
+            // when
+            List<TestItem> result = RedisCursorPaginationHelper.applyCursor(
+                items,
+                request,
+                sortField,
+                TestItem::createdAt,
+                TestItem::id
+            );
+
+            // then
+            assertThat(result).hasSize(1);
+            assertThat(result.getFirst().name()).isEqualTo("Valid");
+        }
+
+        @Test
+        @DisplayName("cursor 역직렬화가 null을 반환하면 원본 리스트 반환")
+        void withInvalidCursor_returnsOriginalList() {
+            // given
+            UUID cursorId = UUID.randomUUID();
+            List<TestItem> items = List.of(
+                new TestItem(UUID.randomUUID(), Instant.now(), "Item1")
+            );
+
+            CursorRequest<TestSortField> request = createRequest(
+                "invalid-cursor", cursorId, 10, SortDirection.ASCENDING
+            );
+
+            // when
+            List<TestItem> result = RedisCursorPaginationHelper.applyCursor(
+                items,
+                request,
+                sortField,
+                TestItem::createdAt,
+                TestItem::id
+            );
+
+            // then
+            assertThat(result).isEqualTo(items);
+        }
+
+        @Test
+        @DisplayName("null ID를 가진 항목은 필터링됨")
+        void withNullId_filtersOutItem() {
+            // given
+            Instant cursor = Instant.parse("2024-01-01T12:00:00Z");
+            UUID cursorId = UUID.randomUUID();
+
+            List<TestItem> items = List.of(
+                new TestItem(null, Instant.parse("2024-01-01T13:00:00Z"), "Null id"),
+                new TestItem(UUID.randomUUID(), Instant.parse("2024-01-01T14:00:00Z"), "Valid")
             );
 
             CursorRequest<TestSortField> request = createRequest(
@@ -490,6 +570,73 @@ class RedisCursorPaginationHelperTest {
 
             // then
             assertThat(result).isLessThan(0);
+        }
+
+        @Test
+        @DisplayName("b만 null 필드값이면 a가 앞으로 정렬됨")
+        void withOnlyBNullField_aComesFirst() {
+            // given
+            TestItem a = new TestItem(UUID.randomUUID(), Instant.now(), "A");
+            TestItem b = new TestItem(UUID.randomUUID(), null, "B");
+
+            // when
+            int result = RedisCursorPaginationHelper.compareByFieldThenId(
+                a, b, TestItem::createdAt, TestItem::id, SortDirection.ASCENDING
+            );
+
+            // then
+            assertThat(result).isLessThan(0);
+        }
+
+        @Test
+        @DisplayName("a만 null ID이면 뒤로 정렬됨")
+        void withOnlyANullId_aComesLast() {
+            // given
+            Instant sameTime = Instant.now();
+            TestItem a = new TestItem(null, sameTime, "A");
+            TestItem b = new TestItem(UUID.randomUUID(), sameTime, "B");
+
+            // when
+            int result = RedisCursorPaginationHelper.compareByFieldThenId(
+                a, b, TestItem::createdAt, TestItem::id, SortDirection.ASCENDING
+            );
+
+            // then
+            assertThat(result).isGreaterThan(0);
+        }
+
+        @Test
+        @DisplayName("b만 null ID이면 a가 앞으로 정렬됨")
+        void withOnlyBNullId_aComesFirst() {
+            // given
+            Instant sameTime = Instant.now();
+            TestItem a = new TestItem(UUID.randomUUID(), sameTime, "A");
+            TestItem b = new TestItem(null, sameTime, "B");
+
+            // when
+            int result = RedisCursorPaginationHelper.compareByFieldThenId(
+                a, b, TestItem::createdAt, TestItem::id, SortDirection.ASCENDING
+            );
+
+            // then
+            assertThat(result).isLessThan(0);
+        }
+
+        @Test
+        @DisplayName("둘 다 null ID이면 0 반환")
+        void withBothNullIds_returnsZero() {
+            // given
+            Instant sameTime = Instant.now();
+            TestItem a = new TestItem(null, sameTime, "A");
+            TestItem b = new TestItem(null, sameTime, "B");
+
+            // when
+            int result = RedisCursorPaginationHelper.compareByFieldThenId(
+                a, b, TestItem::createdAt, TestItem::id, SortDirection.ASCENDING
+            );
+
+            // then
+            assertThat(result).isZero();
         }
     }
 }

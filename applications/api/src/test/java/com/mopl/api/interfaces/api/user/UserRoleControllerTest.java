@@ -8,7 +8,7 @@ import com.mopl.domain.exception.user.SelfRoleChangeException;
 import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.user.UserModel;
-import com.mopl.api.interfaces.api.user.mapper.UserResponseMapper;
+import com.mopl.dto.user.UserResponseMapper;
 import com.mopl.security.userdetails.MoplUserDetails;
 import com.mopl.storage.provider.StorageProvider;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,9 +55,11 @@ class UserRoleControllerTest {
     private UserFacade userFacade;
 
     @MockBean
+    @SuppressWarnings("unused")
     private StorageProvider storageProvider;
 
     @MockBean
+    @SuppressWarnings("unused")
     private UserResponseMapper userResponseMapper;
 
     private MoplUserDetails mockAdminDetails;

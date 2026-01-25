@@ -6,16 +6,21 @@ import com.mopl.domain.repository.conversation.DirectMessageQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.jpa.entity.conversation.DirectMessageEntity;
 import com.mopl.jpa.entity.conversation.DirectMessageEntityMapper;
-import com.mopl.jpa.entity.conversation.QConversationEntity;
 import com.mopl.jpa.entity.conversation.QDirectMessageEntity;
-import com.mopl.jpa.entity.conversation.QReadStatusEntity;
 import com.mopl.jpa.support.cursor.CursorPaginationHelper;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static com.mopl.jpa.entity.conversation.QDirectMessageEntity.directMessageEntity;
 
 @Repository
 @RequiredArgsConstructor
@@ -25,66 +30,88 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
     private final DirectMessageEntityMapper directMessageEntityMapper;
 
     @Override
-    public CursorResponse<DirectMessageModel> findAllByConversationId(
+    public CursorResponse<DirectMessageModel> findAll(
         UUID conversationId,
-        DirectMessageQueryRequest request,
-        UUID userId) {
-        QDirectMessageEntity directMessage = QDirectMessageEntity.directMessageEntity;
-        QConversationEntity conversation = QConversationEntity.conversationEntity;
-        QReadStatusEntity readStatus = QReadStatusEntity.readStatusEntity;
+        DirectMessageQueryRequest request
+    ) {
+        DirectMessageSortFieldJpa sortFieldJpa = DirectMessageSortFieldJpa.from(request.sortBy());
 
-        DirectMessageSortFieldJpa sortField = DirectMessageSortFieldJpa.from(request.sortBy());
+        JPAQuery<DirectMessageEntity> jpaQuery = baseQuery(conversationId)
+            .select(directMessageEntity)
+            .join(directMessageEntity.sender).fetchJoin();
 
-        // base query
-        JPAQuery<DirectMessageEntity> query = queryFactory
-            .select(directMessage)
-            .from(directMessage)
-            .join(directMessage.conversation, conversation)
-            .join(readStatus)
-            .on(readStatus.conversation.eq(conversation))
-            .where(
-                // 특정 대화방
-                conversation.id.eq(conversationId),
-                // 내가 해당 대화방의 참여자인지 검증
-                readStatus.participant.id.eq(userId),
-                // soft delete
-                directMessage.deletedAt.isNull()
-            );
-
-        // cursor pagination 적용
         CursorPaginationHelper.applyCursorPagination(
             request,
-            sortField,
-            query,
-            directMessage.id
+            sortFieldJpa,
+            jpaQuery,
+            directMessageEntity.id
         );
 
-        List<DirectMessageEntity> rows = query.fetch();
+        List<DirectMessageEntity> rows = jpaQuery.fetch();
 
-        // total count
-        Long totalCountValue = queryFactory
-            .select(directMessage.count())
-            .from(directMessage)
-            .join(directMessage.conversation, conversation)
-            .join(readStatus)
-            .on(readStatus.conversation.eq(conversation))
-            .where(
-                conversation.id.eq(conversationId),
-                readStatus.participant.id.eq(userId),
-                directMessage.deletedAt.isNull()
-            )
-            .fetchOne();
+        if (rows.isEmpty()) {
+            return CursorResponse.empty(
+                sortFieldJpa.getFieldName(),
+                request.sortDirection()
+            );
+        }
 
-        long totalCount = totalCountValue != null ? totalCountValue : 0L;
+        long totalCount = countTotal(conversationId);
 
         return CursorPaginationHelper.buildResponse(
             rows,
             request,
-            sortField,
+            sortFieldJpa,
             totalCount,
-            directMessageEntityMapper::toModel,
-            sortField::extractValue,
+            directMessageEntityMapper::toModelWithSender,
+            sortFieldJpa::extractValue,
             DirectMessageEntity::getId
         );
+    }
+
+    @Override
+    public Map<UUID, DirectMessageModel> findLastDirectMessagesWithSenderByConversationIdIn(
+        Collection<UUID> conversationIds
+    ) {
+        if (conversationIds.isEmpty()) {
+            return Map.of();
+        }
+
+        QDirectMessageEntity subDirectMessageEntity = new QDirectMessageEntity("subDirectMessageEntity");
+
+        List<DirectMessageEntity> lastMessages = queryFactory
+            .selectFrom(directMessageEntity)
+            .join(directMessageEntity.sender).fetchJoin()
+            .where(
+                directMessageEntity.conversation.id.in(conversationIds),
+                directMessageEntity.createdAt.eq(
+                    JPAExpressions
+                        .select(subDirectMessageEntity.createdAt.max())
+                        .from(subDirectMessageEntity)
+                        .where(
+                            subDirectMessageEntity.conversation.id.eq(directMessageEntity.conversation.id)
+                        )
+                )
+            )
+            .fetch();
+
+        return lastMessages.stream()
+            .collect(Collectors.toMap(
+                entity -> entity.getConversation().getId(),
+                directMessageEntityMapper::toModelWithSender
+            ));
+    }
+
+    private JPAQuery<?> baseQuery(UUID conversationId) {
+        return queryFactory
+            .from(directMessageEntity)
+            .where(directMessageEntity.conversation.id.eq(conversationId));
+    }
+
+    private long countTotal(UUID conversationId) {
+        Long count = baseQuery(conversationId)
+            .select(directMessageEntity.count())
+            .fetchOne();
+        return count != null ? count : 0L;
     }
 }

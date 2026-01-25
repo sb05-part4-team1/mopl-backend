@@ -17,7 +17,7 @@ public interface PlaylistContentRepository {
 
     void save(UUID playlistId, UUID contentId);
 
-    boolean delete(UUID playlistId, UUID contentId);
+    boolean deleteByPlaylistIdAndContentId(UUID playlistId, UUID contentId);
 
     int deleteAllByContentIds(List<UUID> contentIds);
 

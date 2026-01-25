@@ -33,11 +33,8 @@ public class NotificationQueryRepositoryImpl implements NotificationQueryReposit
     ) {
         NotificationSortFieldJpa sortFieldJpa = NotificationSortFieldJpa.from(request.sortBy());
 
-        JPAQuery<NotificationEntity> jpaQuery = queryFactory
-            .selectFrom(notificationEntity)
-            .where(
-                receiverIdEqual(receiverId)
-            );
+        JPAQuery<NotificationEntity> jpaQuery = baseQuery(receiverId)
+            .select(notificationEntity);
 
         CursorPaginationHelper.applyCursorPagination(
             request,
@@ -47,6 +44,14 @@ public class NotificationQueryRepositoryImpl implements NotificationQueryReposit
         );
 
         List<NotificationEntity> rows = jpaQuery.fetch();
+
+        if (rows.isEmpty()) {
+            return CursorResponse.empty(
+                sortFieldJpa.getFieldName(),
+                request.sortDirection()
+            );
+        }
+
         long totalCount = countTotal(receiverId);
 
         return CursorPaginationHelper.buildResponse(
@@ -60,13 +65,15 @@ public class NotificationQueryRepositoryImpl implements NotificationQueryReposit
         );
     }
 
-    private long countTotal(UUID receiverId) {
-        Long total = queryFactory
-            .select(notificationEntity.count())
+    private JPAQuery<?> baseQuery(UUID receiverId) {
+        return queryFactory
             .from(notificationEntity)
-            .where(
-                receiverIdEqual(receiverId)
-            )
+            .where(receiverIdEqual(receiverId));
+    }
+
+    private long countTotal(UUID receiverId) {
+        Long total = baseQuery(receiverId)
+            .select(notificationEntity.count())
             .fetchOne();
         return total != null ? total : 0;
     }

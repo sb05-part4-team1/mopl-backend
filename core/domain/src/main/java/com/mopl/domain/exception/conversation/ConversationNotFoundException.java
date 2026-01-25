@@ -16,4 +16,11 @@ public class ConversationNotFoundException extends ConversationException {
     public static ConversationNotFoundException withId(UUID id) {
         return new ConversationNotFoundException(Map.of("id", id));
     }
+
+    public static ConversationNotFoundException withParticipants(UUID requesterId, UUID withUserId) {
+        return new ConversationNotFoundException(Map.of(
+            "requesterId", requesterId,
+            "withUserId", withUserId
+        ));
+    }
 }

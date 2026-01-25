@@ -1,10 +1,10 @@
 package com.mopl.api.interfaces.api.user;
 
-import com.mopl.api.interfaces.api.common.CommonApiResponse;
+import com.mopl.api.interfaces.api.ApiErrorResponse;
 import com.mopl.api.interfaces.api.user.dto.ChangePasswordRequest;
 import com.mopl.api.interfaces.api.user.dto.UserCreateRequest;
 import com.mopl.api.interfaces.api.user.dto.UserLockUpdateRequest;
-import com.mopl.api.interfaces.api.user.dto.UserResponse;
+import com.mopl.dto.user.UserResponse;
 import com.mopl.api.interfaces.api.user.dto.UserRoleUpdateRequest;
 import com.mopl.api.interfaces.api.user.dto.UserUpdateRequest;
 import com.mopl.domain.model.user.UserModel;
@@ -83,8 +83,8 @@ public interface UserApiSpec {
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = CursorResponse.class))
     )
-    @CommonApiResponse.Default
-    @CommonApiResponse.Forbidden
+    @ApiErrorResponse.Default
+    @ApiErrorResponse.Forbidden
     CursorResponse<UserResponse> getUsers(@Parameter(hidden = true) UserQueryRequest request);
 
     @Operation(summary = "사용자 상세 조회")
@@ -93,8 +93,8 @@ public interface UserApiSpec {
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = UserResponse.class))
     )
-    @CommonApiResponse.Default
-    @CommonApiResponse.NotFound
+    @ApiErrorResponse.Default
+    @ApiErrorResponse.NotFound
     UserResponse getUser(UUID userId);
 
     @Operation(summary = "사용자 등록(회원가입)")
@@ -102,16 +102,16 @@ public interface UserApiSpec {
         responseCode = "201",
         content = @Content(schema = @Schema(implementation = UserResponse.class))
     )
-    @CommonApiResponse.Default
-    @CommonApiResponse.Conflict
+    @ApiErrorResponse.Default
+    @ApiErrorResponse.Conflict
     UserResponse signUp(UserCreateRequest request);
 
     @Operation(summary = "비밀번호 변경", description = "본인의 비밀번호만 변경할 수 있습니다.")
     @Parameter(name = "userId", description = "사용자 ID", required = true)
     @ApiResponse(responseCode = "204", description = "성공")
-    @CommonApiResponse.Default
-    @CommonApiResponse.Forbidden
-    @CommonApiResponse.NotFound
+    @ApiErrorResponse.Default
+    @ApiErrorResponse.Forbidden
+    @ApiErrorResponse.NotFound
     void updatePassword(UUID userId, ChangePasswordRequest request);
 
     @Operation(summary = "사용자 프로필 변경", description = "본인의 프로필만 변경할 수 있습니다.")
@@ -120,17 +120,17 @@ public interface UserApiSpec {
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = UserResponse.class))
     )
-    @CommonApiResponse.Default
-    @CommonApiResponse.Forbidden
-    @CommonApiResponse.NotFound
+    @ApiErrorResponse.Default
+    @ApiErrorResponse.Forbidden
+    @ApiErrorResponse.NotFound
     UserResponse updateProfile(UUID userId, UserUpdateRequest request, MultipartFile image);
 
     @Operation(summary = "[어드민] 사용자 역할 수정")
     @Parameter(name = "userId", description = "수정할 사용자 ID", required = true)
     @ApiResponse(responseCode = "204", description = "성공")
-    @CommonApiResponse.Default
-    @CommonApiResponse.Forbidden
-    @CommonApiResponse.NotFound
+    @ApiErrorResponse.Default
+    @ApiErrorResponse.Forbidden
+    @ApiErrorResponse.NotFound
     void updateRole(
         @Parameter(hidden = true) MoplUserDetails userDetails,
         UUID userId,
@@ -140,9 +140,9 @@ public interface UserApiSpec {
     @Operation(summary = "[어드민] 계정 잠금 상태 수정")
     @Parameter(name = "userId", description = "수정할 사용자 ID", required = true)
     @ApiResponse(responseCode = "204", description = "성공")
-    @CommonApiResponse.Default
-    @CommonApiResponse.Forbidden
-    @CommonApiResponse.NotFound
+    @ApiErrorResponse.Default
+    @ApiErrorResponse.Forbidden
+    @ApiErrorResponse.NotFound
     void updateLocked(
         @Parameter(hidden = true) MoplUserDetails userDetails,
         UUID userId,

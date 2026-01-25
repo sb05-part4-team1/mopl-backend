@@ -1,6 +1,6 @@
 package com.mopl.api.interfaces.api.notification;
 
-import com.mopl.api.interfaces.api.notification.dto.NotificationResponse;
+import com.mopl.dto.notification.NotificationResponse;
 import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.domain.repository.notification.NotificationQueryRequest;
 import com.mopl.domain.repository.notification.NotificationSortField;

@@ -1,7 +1,7 @@
 package com.mopl.api.interfaces.api.playlist;
 
 import com.mopl.api.interfaces.api.playlist.dto.PlaylistCreateRequest;
-import com.mopl.api.interfaces.api.playlist.dto.PlaylistResponse;
+import com.mopl.dto.playlist.PlaylistResponse;
 import com.mopl.api.interfaces.api.playlist.dto.PlaylistUpdateRequest;
 import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.domain.repository.playlist.PlaylistQueryRequest;

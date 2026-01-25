@@ -224,7 +224,7 @@ class PlaylistContentRepositoryImplTest {
             assertThat(jpaPlaylistContentRepository.findAll()).hasSize(1);
 
             // when
-            boolean deleted = playlistContentRepository.delete(playlist.getId(), content.getId());
+            boolean deleted = playlistContentRepository.deleteByPlaylistIdAndContentId(playlist.getId(), content.getId());
 
             // then
             assertThat(deleted).isTrue();
@@ -248,7 +248,7 @@ class PlaylistContentRepositoryImplTest {
             assertThat(jpaPlaylistContentRepository.findAll()).hasSize(2);
 
             // when
-            boolean deleted = playlistContentRepository.delete(playlist.getId(), content.getId());
+            boolean deleted = playlistContentRepository.deleteByPlaylistIdAndContentId(playlist.getId(), content.getId());
 
             // then
             assertThat(deleted).isTrue();
@@ -261,7 +261,7 @@ class PlaylistContentRepositoryImplTest {
         @DisplayName("존재하지 않는 콘텐츠 삭제 시 false를 반환한다")
         void delete_nonExistentContent_returnsFalse() {
             // when
-            boolean deleted = playlistContentRepository.delete(playlist.getId(), content.getId());
+            boolean deleted = playlistContentRepository.deleteByPlaylistIdAndContentId(playlist.getId(), content.getId());
 
             // then
             assertThat(deleted).isFalse();
@@ -293,7 +293,7 @@ class PlaylistContentRepositoryImplTest {
             assertThat(jpaPlaylistContentRepository.findAll()).hasSize(2);
 
             // when
-            boolean deleted = playlistContentRepository.delete(playlist.getId(), content.getId());
+            boolean deleted = playlistContentRepository.deleteByPlaylistIdAndContentId(playlist.getId(), content.getId());
 
             // then
             assertThat(deleted).isTrue();

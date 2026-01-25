@@ -1,6 +1,6 @@
 package com.mopl.api.application.user;
 
-import com.mopl.api.application.outbox.DomainEventOutboxMapper;
+import com.mopl.dto.outbox.DomainEventOutboxMapper;
 import com.mopl.api.interfaces.api.user.dto.UserCreateRequest;
 import com.mopl.api.interfaces.api.user.dto.UserLockUpdateRequest;
 import com.mopl.api.interfaces.api.user.dto.UserRoleUpdateRequest;

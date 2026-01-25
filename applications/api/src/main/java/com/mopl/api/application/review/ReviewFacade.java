@@ -1,9 +1,7 @@
 package com.mopl.api.application.review;
 
 import com.mopl.api.interfaces.api.review.dto.ReviewCreateRequest;
-import com.mopl.api.interfaces.api.review.dto.ReviewResponse;
 import com.mopl.api.interfaces.api.review.dto.ReviewUpdateRequest;
-import com.mopl.api.interfaces.api.review.mapper.ReviewResponseMapper;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.review.ReviewModel;
 import com.mopl.domain.model.user.UserModel;
@@ -15,10 +13,13 @@ import com.mopl.domain.support.cache.ContentCachePort;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.search.ContentSearchSyncPort;
 import com.mopl.domain.support.transaction.AfterCommitExecutor;
-import java.util.UUID;
+import com.mopl.dto.review.ReviewResponse;
+import com.mopl.dto.review.ReviewResponseMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor

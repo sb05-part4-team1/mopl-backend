@@ -2,17 +2,15 @@ package com.mopl.api.interfaces.api.conversation;
 
 import com.mopl.api.application.conversation.ConversationFacade;
 import com.mopl.api.interfaces.api.conversation.dto.ConversationCreateRequest;
-import com.mopl.api.interfaces.api.conversation.dto.ConversationResponse;
-import com.mopl.api.interfaces.api.conversation.dto.DirectMessageResponse;
-import com.mopl.api.interfaces.api.conversation.mapper.ConversationResponseMapper;
-import com.mopl.domain.model.conversation.ConversationModel;
+import com.mopl.dto.conversation.ConversationResponse;
+import com.mopl.dto.conversation.DirectMessageResponse;
 import com.mopl.domain.repository.conversation.ConversationQueryRequest;
 import com.mopl.domain.repository.conversation.DirectMessageQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.security.userdetails.MoplUserDetails;
 import jakarta.validation.Valid;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -21,7 +19,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/conversations")
@@ -29,71 +30,66 @@ import org.springframework.web.bind.annotation.RestController;
 public class ConversationController implements ConversationApiSpec {
 
     private final ConversationFacade conversationFacade;
-    private final ConversationResponseMapper conversationResponseMapper;
-
-    @GetMapping("/{conversationId}/direct-messages")
-    public CursorResponse<DirectMessageResponse> getDirectMessages(
-        @AuthenticationPrincipal MoplUserDetails userDetails,
-        @PathVariable("conversationId") UUID conversationId,
-        @ModelAttribute DirectMessageQueryRequest request
-    ) {
-        return conversationFacade.getAllDirectMessage(conversationId, request, userDetails
-            .userId());
-    }
 
     @GetMapping
     public CursorResponse<ConversationResponse> getConversations(
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @ModelAttribute ConversationQueryRequest request
     ) {
-
-        return conversationFacade.getAllConversation(request, userDetails.userId());
-    }
-
-    @GetMapping("/with")
-    public ConversationResponse findByWith(
-        @AuthenticationPrincipal MoplUserDetails userDetails,
-        @RequestParam UUID userId
-    ) {
-        ConversationModel conversationModel = conversationFacade.getConversationByWith(userDetails
-            .userId(), userId);
-
-        return conversationResponseMapper.toResponse(conversationModel);
-
-    }
-
-    @PostMapping("/{conversationId}/direct-messages/{directMessageId}/read")
-    public void readDirectMessage(
-        @AuthenticationPrincipal MoplUserDetails userDetails,
-        @PathVariable("conversationId") UUID conversationId,
-        @PathVariable("directMessageId") UUID directMessageId
-    ) {
-
-        conversationFacade.directMessageRead(conversationId, directMessageId, userDetails.userId());
-
+        return conversationFacade.getConversations(userDetails.userId(), request);
     }
 
     @GetMapping("/{conversationId}")
-    public ConversationResponse findConversationById(
+    public ConversationResponse getConversation(
         @AuthenticationPrincipal MoplUserDetails userDetails,
-        @PathVariable("conversationId") UUID conversationId
+        @PathVariable UUID conversationId
     ) {
-        ConversationModel conversationModel = conversationFacade.getConversation(conversationId,
-            userDetails.userId());
+        return conversationFacade.getConversation(
+            userDetails.userId(),
+            conversationId
+        );
+    }
 
-        return conversationResponseMapper.toResponse(conversationModel);
+    @GetMapping("/with")
+    public ConversationResponse getConversationWith(
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @RequestParam UUID userId
+    ) {
+        return conversationFacade.getConversationWith(
+            userDetails.userId(),
+            userId
+        );
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ConversationResponse createConversation(
         @AuthenticationPrincipal MoplUserDetails userDetails,
-        @Valid @RequestBody ConversationCreateRequest request
+        @RequestBody @Valid ConversationCreateRequest request
     ) {
-
-        ConversationModel conversationModel = conversationFacade.createConversation(
-            request, userDetails.userId());
-
-        return conversationResponseMapper.toResponse(conversationModel);
+        return conversationFacade.createConversation(userDetails.userId(), request);
     }
 
+    @GetMapping("/{conversationId}/direct-messages")
+    public CursorResponse<DirectMessageResponse> getDirectMessages(
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @PathVariable UUID conversationId,
+        @ModelAttribute DirectMessageQueryRequest request
+    ) {
+        return conversationFacade.getDirectMessages(
+            userDetails.userId(),
+            conversationId,
+            request
+        );
+    }
+
+    @PostMapping("/{conversationId}/direct-messages/{directMessageId}/read")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void markAsRead(
+        @AuthenticationPrincipal MoplUserDetails userDetails,
+        @PathVariable UUID conversationId,
+        @PathVariable UUID directMessageId
+    ) {
+        conversationFacade.markAsRead(userDetails.userId(), conversationId);
+    }
 }

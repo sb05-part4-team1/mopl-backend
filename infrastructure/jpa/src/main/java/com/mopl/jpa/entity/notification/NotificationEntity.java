@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -19,7 +20,12 @@ import static com.mopl.domain.model.notification.NotificationModel.LEVEL_MAX_LEN
 import static com.mopl.domain.model.notification.NotificationModel.TITLE_MAX_LENGTH;
 
 @Entity
-@Table(name = "notifications")
+@Table(
+    name = "notifications",
+    indexes = {
+        @Index(name = "idx_notifications_receiver_created_at", columnList = "receiver_id, created_at DESC")
+    }
+)
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

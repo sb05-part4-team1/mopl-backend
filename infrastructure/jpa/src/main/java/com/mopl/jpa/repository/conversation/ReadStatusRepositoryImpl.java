@@ -4,108 +4,76 @@ import com.mopl.domain.model.conversation.ReadStatusModel;
 import com.mopl.domain.repository.conversation.ReadStatusRepository;
 import com.mopl.jpa.entity.conversation.ReadStatusEntity;
 import com.mopl.jpa.entity.conversation.ReadStatusEntityMapper;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
 public class ReadStatusRepositoryImpl implements ReadStatusRepository {
 
-    private final ReadStatusEntityMapper readStatusEntityMapper;
     private final JpaReadStatusRepository jpaReadStatusRepository;
+    private final ReadStatusEntityMapper readStatusEntityMapper;
+
+    @Override
+    public List<ReadStatusModel> findByParticipantIdAndConversationIdIn(
+        UUID participantId,
+        Collection<UUID> conversationIds
+    ) {
+        return jpaReadStatusRepository
+            .findByParticipantIdAndConversationIdIn(participantId, conversationIds)
+            .stream()
+            .map(readStatusEntityMapper::toModel)
+            .toList();
+    }
+
+    @Override
+    public List<ReadStatusModel> findWithParticipantByParticipantIdNotAndConversationIdIn(
+        UUID participantId,
+        Collection<UUID> conversationIds
+    ) {
+        return jpaReadStatusRepository
+            .findWithParticipantByParticipantIdNotAndConversationIdIn(participantId, conversationIds)
+            .stream()
+            .map(readStatusEntityMapper::toModelWithParticipant)
+            .toList();
+    }
+
+    @Override
+    public Optional<ReadStatusModel> findByParticipantIdAndConversationId(UUID participantId, UUID conversationId) {
+        return jpaReadStatusRepository
+            .findByParticipantIdAndConversationId(participantId, conversationId)
+            .map(readStatusEntityMapper::toModel);
+    }
+
+    @Override
+    public Optional<ReadStatusModel> findWithParticipantByParticipantIdAndConversationId(
+        UUID participantId,
+        UUID conversationId
+    ) {
+        return jpaReadStatusRepository
+            .findWithParticipantByParticipantIdAndConversationId(participantId, conversationId)
+            .map(readStatusEntityMapper::toModelWithParticipant);
+    }
+
+    @Override
+    public Optional<ReadStatusModel> findWithParticipantByParticipantIdNotAndConversationId(
+        UUID participantId,
+        UUID conversationId
+    ) {
+        return jpaReadStatusRepository
+            .findWithParticipantByParticipantIdNotAndConversationId(participantId, conversationId)
+            .map(readStatusEntityMapper::toModelWithParticipant);
+    }
 
     @Override
     public ReadStatusModel save(ReadStatusModel readStatusModel) {
         ReadStatusEntity readStatusEntity = readStatusEntityMapper.toEntity(readStatusModel);
         ReadStatusEntity savedReadStatusEntity = jpaReadStatusRepository.save(readStatusEntity);
-
         return readStatusEntityMapper.toModel(savedReadStatusEntity);
     }
-
-    @Override
-    public Optional<ReadStatusModel> findById(UUID readStatusId) {
-
-        return jpaReadStatusRepository.findById(readStatusId)
-            .map(readStatusEntityMapper::toModel);
-    }
-
-    @Override
-    public List<ReadStatusModel> findByConversationId(UUID conversationId) {
-        List<ReadStatusEntity> readStatusEntities = jpaReadStatusRepository.findByConversationId(
-            conversationId);
-
-        return readStatusEntities.stream()
-            .map(readStatusEntityMapper::toModel)
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public ReadStatusModel findByConversationIdAndParticipantId(
-        UUID conversationId,
-        UUID participantId
-    ) {
-        ReadStatusEntity readStatusEntity = jpaReadStatusRepository
-            .findByConversationIdAndParticipantId(conversationId, participantId);
-
-        return readStatusEntityMapper.toModel(readStatusEntity);
-    }
-
-    @Override
-    public List<ReadStatusModel> findByParticipantId(UUID participantId) {
-        List<ReadStatusEntity> readStatusEntities = jpaReadStatusRepository.findByParticipantId(
-            participantId);
-
-        return readStatusEntities.stream()
-            .map(readStatusEntityMapper::toModel)
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public ReadStatusModel findByConversationIdAndUserId(UUID conversationId, UUID userId) {
-        ReadStatusEntity readStatusEntity = jpaReadStatusRepository
-            .findByConversationIdAndParticipantId(conversationId, userId);
-
-        return readStatusEntityMapper.toModel(readStatusEntity);
-    }
-
-    @Override
-    public ReadStatusModel findOtherReadStatus(UUID conversationId, UUID userId) {
-        ReadStatusEntity readStatusEntity = jpaReadStatusRepository
-            .findOtherReadStatus(conversationId, userId);
-
-        return readStatusEntityMapper.toModel(readStatusEntity);
-    }
-
-    @Override
-    public Map<UUID, ReadStatusModel> findOthersByConversationIds(List<UUID> conversationIds,
-        UUID userId) {
-        return jpaReadStatusRepository
-            .findOthersByConversationIds(conversationIds, userId)
-            .stream()
-            .map(readStatusEntityMapper::toModel)
-            .collect(Collectors.toMap(
-                rs -> rs.getConversation().getId(),
-                Function.identity()
-            ));
-    }
-
-    @Override
-    public Map<UUID, ReadStatusModel> findMineByConversationIds(List<UUID> conversationIds,
-        UUID userId) {
-        return jpaReadStatusRepository
-            .findMineByConversationIds(conversationIds, userId)
-            .stream()
-            .map(readStatusEntityMapper::toModel)
-            .collect(Collectors.toMap(
-                rs -> rs.getConversation().getId(),
-                Function.identity()
-            ));
-    }
-
 }

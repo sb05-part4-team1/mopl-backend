@@ -15,5 +15,5 @@ public final class EventTopic {
     public static final String PLAYLIST_SUBSCRIBED = "mopl.playlist.subscribed";
     public static final String PLAYLIST_CONTENT_ADDED = "mopl.playlist.content-added";
 
-    public static final String DIRECT_MESSAGE_RECEIVED = "mopl.direct-message.received";
+    public static final String DIRECT_MESSAGE_SENT = "mopl.direct-message.sent";
 }

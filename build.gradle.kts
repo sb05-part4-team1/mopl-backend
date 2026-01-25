@@ -145,7 +145,13 @@ tasks.named<JacocoReport>("jacocoTestReport") {
     classDirectories.setFrom(
         files(subprojects.flatMap { subproject ->
             subproject.the<SourceSetContainer>()["main"].output.classesDirs.map {
-                fileTree(it).exclude("**/entity/**/Q*.class")
+                fileTree(it).exclude(
+                    "**/entity/**/Q*.class",
+                    "**/*Config.class",
+                    "**/*Config$*.class",
+                    "**/*Properties.class",
+                    "**/*Properties$*.class"
+                )
             }
         })
     )

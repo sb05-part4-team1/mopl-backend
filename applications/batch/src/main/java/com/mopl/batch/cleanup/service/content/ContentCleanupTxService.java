@@ -1,21 +1,22 @@
 package com.mopl.batch.cleanup.service.content;
 
 import com.mopl.batch.cleanup.strategy.content.ContentDeletionStrategy;
-import com.mopl.domain.support.search.ContentSearchSyncPort;                 // ES 동기화 포트
-import com.mopl.domain.support.transaction.AfterCommitExecutor;            // 커밋 이후 실행기
 import com.mopl.domain.repository.content.ContentCleanupRepository;
 import com.mopl.domain.repository.content.ContentExternalMappingRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.domain.repository.review.ReviewRepository;
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import com.mopl.domain.support.search.ContentSearchSyncPort;
+import com.mopl.domain.support.transaction.AfterCommitExecutor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -56,8 +57,7 @@ public class ContentCleanupTxService {
             );
         }
 
-        afterCommitExecutor.execute(() -> contentSearchSyncPort.deleteAll(contentIds)
-        );
+        afterCommitExecutor.execute(() -> contentSearchSyncPort.deleteAll(contentIds));
 
         log.info(
             "content cleanup batch done. requested={} deletedContents={} deletedMappings={} deletedTags={} deletedPlaylistContents={} softDeletedReviews={} affectedThumbnails={}/{}",

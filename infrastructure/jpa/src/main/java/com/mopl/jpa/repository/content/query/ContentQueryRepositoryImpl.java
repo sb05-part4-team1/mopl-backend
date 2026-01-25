@@ -31,12 +31,8 @@ public class ContentQueryRepositoryImpl implements ContentQueryRepository {
     public CursorResponse<ContentModel> findAll(ContentQueryRequest request) {
         ContentSortFieldJpa sortFieldJpa = ContentSortFieldJpa.from(request.sortBy());
 
-        JPAQuery<ContentEntity> jpaQuery = queryFactory
-            .selectFrom(contentEntity)
-            .where(
-                typeEqual(request.typeEqual()),
-                keywordLike(request.keywordLike())
-            );
+        JPAQuery<ContentEntity> jpaQuery = baseQuery(request)
+            .select(contentEntity);
 
         CursorPaginationHelper.applyCursorPagination(
             request,
@@ -67,16 +63,19 @@ public class ContentQueryRepositoryImpl implements ContentQueryRepository {
         );
     }
 
-    private long countTotal(ContentQueryRequest request) {
-        Long total = queryFactory
-            .select(contentEntity.count())
+    private JPAQuery<?> baseQuery(ContentQueryRequest request) {
+        return queryFactory
             .from(contentEntity)
             .where(
                 typeEqual(request.typeEqual()),
                 keywordLike(request.keywordLike())
-            )
-            .fetchOne();
+            );
+    }
 
+    private long countTotal(ContentQueryRequest request) {
+        Long total = baseQuery(request)
+            .select(contentEntity.count())
+            .fetchOne();
         return total != null ? total : 0;
     }
 

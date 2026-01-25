@@ -8,9 +8,9 @@ import com.mopl.api.interfaces.api.user.dto.ChangePasswordRequest;
 import com.mopl.api.interfaces.api.user.dto.UserCreateRequest;
 import com.mopl.api.interfaces.api.user.dto.UserLockUpdateRequest;
 import com.mopl.api.interfaces.api.user.dto.UserRoleUpdateRequest;
-import com.mopl.api.interfaces.api.user.dto.UserResponse;
+import com.mopl.dto.user.UserResponse;
 import com.mopl.api.interfaces.api.user.dto.UserUpdateRequest;
-import com.mopl.api.interfaces.api.user.mapper.UserResponseMapper;
+import com.mopl.dto.user.UserResponseMapper;
 import com.mopl.domain.exception.user.DuplicateEmailException;
 import com.mopl.domain.exception.user.InvalidUserDataException;
 import com.mopl.domain.exception.user.SelfLockChangeException;
@@ -84,6 +84,7 @@ class UserControllerTest {
     private UserFacade userFacade;
 
     @MockBean
+    @SuppressWarnings("unused")
     private StorageProvider storageProvider;
 
     @MockBean

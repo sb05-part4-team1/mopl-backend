@@ -1,92 +1,62 @@
 package com.mopl.jpa.repository.conversation.query;
 
-import static org.springframework.util.StringUtils.hasText;
-
 import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.repository.conversation.ConversationQueryRepository;
 import com.mopl.domain.repository.conversation.ConversationQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.jpa.entity.conversation.ConversationEntity;
 import com.mopl.jpa.entity.conversation.ConversationEntityMapper;
-import com.mopl.jpa.entity.conversation.QConversationEntity;
 import com.mopl.jpa.entity.conversation.QReadStatusEntity;
 import com.mopl.jpa.entity.user.QUserEntity;
 import com.mopl.jpa.support.cursor.CursorPaginationHelper;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static com.mopl.jpa.entity.conversation.QConversationEntity.conversationEntity;
+import static org.springframework.util.StringUtils.hasText;
 
 @Repository
 @RequiredArgsConstructor
 public class ConversationQueryRepositoryImpl implements ConversationQueryRepository {
 
+    private static final QReadStatusEntity readStatusEntity = new QReadStatusEntity("readStatusEntity");
+    private static final QReadStatusEntity otherReadStatusEntity = new QReadStatusEntity("otherReadStatusEntity");
+    private static final QUserEntity otherUserEntity = new QUserEntity("otherUserEntity");
+
     private final JPAQueryFactory queryFactory;
     private final ConversationEntityMapper conversationEntityMapper;
 
     @Override
-    public CursorResponse<ConversationModel> findAllConversation(
-        ConversationQueryRequest request,
-        UUID userId
-    ) {
-        QConversationEntity conversation = QConversationEntity.conversationEntity;
-        QReadStatusEntity readStatusMe = new QReadStatusEntity("readStatusMe");
-        QReadStatusEntity readStatusOther = new QReadStatusEntity("readStatusOther");
-        QUserEntity otherUser = QUserEntity.userEntity;
-
+    public CursorResponse<ConversationModel> findAll(UUID userId, ConversationQueryRequest request) {
         ConversationSortFieldJpa sortFieldJpa = ConversationSortFieldJpa.from(request.sortBy());
 
-        // base query
-        JPAQuery<ConversationEntity> query = queryFactory
-            .selectDistinct(conversation)
-            .from(readStatusMe)
-            .join(readStatusMe.conversation, conversation)
-            .join(readStatusOther)
-            .on(readStatusOther.conversation.eq(conversation))
-            .join(readStatusOther.participant, otherUser)
-            .where(
-                // 내가 참여한 대화
-                readStatusMe.participant.id.eq(userId),
-                // 상대방만
-                readStatusOther.participant.id.ne(userId),
-                // soft delete
-                conversation.deletedAt.isNull(),
-                // keyword 검색
-                hasText(request.keywordLike())
-                    ? otherUser.name.containsIgnoreCase(request.keywordLike())
-                    : null
-            );
+        JPAQuery<ConversationEntity> jpaQuery = baseQuery(userId, request.keywordLike())
+            .select(conversationEntity);
 
-        // cursor pagination 적용
         CursorPaginationHelper.applyCursorPagination(
             request,
             sortFieldJpa,
-            query,
-            conversation.id
+            jpaQuery,
+            conversationEntity.id
         );
 
-        List<ConversationEntity> rows = query.fetch();
+        List<ConversationEntity> rows = jpaQuery.fetch();
 
-        Long totalCountValue = queryFactory
-            .select(conversation.countDistinct())
-            .from(readStatusMe)
-            .join(readStatusMe.conversation, conversation)
-            .join(readStatusOther)
-            .on(readStatusOther.conversation.eq(conversation))
-            .join(readStatusOther.participant, otherUser)
-            .where(
-                readStatusMe.participant.id.eq(userId),
-                readStatusOther.participant.id.ne(userId),
-                conversation.deletedAt.isNull(),
-                hasText(request.keywordLike())
-                    ? otherUser.name.containsIgnoreCase(request.keywordLike())
-                    : null
-            )
-            .fetchOne();
+        if (rows.isEmpty()) {
+            return CursorResponse.empty(
+                sortFieldJpa.getFieldName(),
+                request.sortDirection()
+            );
+        }
 
-        long totalCount = totalCountValue != null ? totalCountValue : 0L;
+        long totalCount = countTotal(userId, request.keywordLike());
 
         return CursorPaginationHelper.buildResponse(
             rows,
@@ -100,19 +70,64 @@ public class ConversationQueryRepositoryImpl implements ConversationQueryReposit
     }
 
     @Override
-    public boolean existsParticipant(UUID conversationId, UUID userId) {
-        QReadStatusEntity readStatus = QReadStatusEntity.readStatusEntity;
+    public Optional<ConversationModel> findByParticipants(UUID userId, UUID withId) {
+        QReadStatusEntity rs1 = new QReadStatusEntity("rs1");
+        QReadStatusEntity rs2 = new QReadStatusEntity("rs2");
 
-        Integer fetchOne = queryFactory
-            .selectOne()
-            .from(readStatus)
+        ConversationEntity result = queryFactory
+            .select(rs1.conversation)
+            .from(rs1)
+            .join(rs2).on(rs2.conversation.eq(rs1.conversation))
             .where(
-                readStatus.conversation.id.eq(conversationId),
-                readStatus.participant.id.eq(userId)
+                rs1.participant.id.eq(userId),
+                rs2.participant.id.eq(withId)
+            )
+            .fetchOne();
+
+        return Optional.ofNullable(result)
+            .map(conversationEntityMapper::toModel);
+    }
+
+    @Override
+    public boolean existsByParticipants(UUID userId, UUID withId) {
+        QReadStatusEntity rs1 = new QReadStatusEntity("rs1");
+        QReadStatusEntity rs2 = new QReadStatusEntity("rs2");
+
+        Integer result = queryFactory
+            .selectOne()
+            .from(rs1)
+            .join(rs2).on(rs2.conversation.eq(rs1.conversation))
+            .where(
+                rs1.participant.id.eq(userId),
+                rs2.participant.id.eq(withId)
             )
             .fetchFirst();
 
-        return fetchOne != null;
+        return result != null;
     }
 
+    private JPAQuery<?> baseQuery(UUID userId, String keywordLike) {
+        return queryFactory
+            .from(conversationEntity)
+            .join(readStatusEntity)
+            .on(readStatusEntity.conversation.eq(conversationEntity)
+                .and(readStatusEntity.participant.id.eq(userId)))
+            .join(otherReadStatusEntity)
+            .on(otherReadStatusEntity.conversation.eq(conversationEntity)
+                .and(otherReadStatusEntity.participant.id.ne(userId)))
+            .join(otherUserEntity)
+            .on(otherUserEntity.id.eq(otherReadStatusEntity.participant.id))
+            .where(keywordLike(keywordLike));
+    }
+
+    private long countTotal(UUID userId, String keywordLike) {
+        Long total = baseQuery(userId, keywordLike)
+            .select(conversationEntity.count())
+            .fetchOne();
+        return total != null ? total : 0;
+    }
+
+    private BooleanExpression keywordLike(String keywordLike) {
+        return hasText(keywordLike) ? otherUserEntity.name.containsIgnoreCase(keywordLike) : null;
+    }
 }

@@ -3,14 +3,7 @@ package com.mopl.api;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication(scanBasePackages = {
-    "com.mopl.api",
-    "com.mopl.jpa",
-    "com.mopl.redis",
-    "com.mopl.cache",
-    "com.mopl.mail",
-    "com.mopl.search"
-})
+@SpringBootApplication
 public class ApiApplication {
 
     public static void main(String[] args) {

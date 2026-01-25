@@ -23,7 +23,7 @@ public enum ContentSortFieldEs {
         ContentSortField.createdAt,
         "createdAt",
         ContentDocument::getCreatedAt,
-        v -> ((Instant) v).toString(),
+        Object::toString,
         Instant::parse
     ),
 

@@ -2,6 +2,9 @@ server:
   port: 8081
   shutdown: graceful
 
+websocket:
+  allowed-origins: ${WEBSOCKET_ALLOWED_ORIGINS:http://localhost:*}
+
 spring:
   main:
     web-application-type: servlet
@@ -12,7 +15,6 @@ spring:
   config:
     import:
       - optional:file:.env[.properties]
-      - cache.yaml
       - jpa.yaml
       - redis.yaml
       - security.yaml

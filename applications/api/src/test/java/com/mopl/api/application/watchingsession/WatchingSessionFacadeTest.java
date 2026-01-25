@@ -1,7 +1,7 @@
 package com.mopl.api.application.watchingsession;
 
-import com.mopl.api.interfaces.api.watchingsession.dto.WatchingSessionResponse;
-import com.mopl.api.interfaces.api.watchingsession.mapper.WatchingSessionResponseMapper;
+import com.mopl.dto.watchingsession.WatchingSessionResponse;
+import com.mopl.dto.watchingsession.WatchingSessionResponseMapper;
 import com.mopl.domain.fixture.WatchingSessionModelFixture;
 import com.mopl.domain.model.watchingsession.WatchingSessionModel;
 import com.mopl.domain.repository.watchingsession.WatchingSessionQueryRequest;

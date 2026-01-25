@@ -3,8 +3,8 @@ package com.mopl.api.interfaces.api.follow;
 import java.util.UUID;
 
 import com.mopl.api.interfaces.api.follow.dto.FollowRequest;
-import com.mopl.api.interfaces.api.follow.dto.FollowResponse;
-import com.mopl.api.interfaces.api.follow.mapper.FollowResponseMapper;
+import com.mopl.dto.follow.FollowResponse;
+import com.mopl.dto.follow.FollowResponseMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -36,7 +36,7 @@ public class FollowController implements FollowApiSpec {
     @PostMapping
     public ResponseEntity<FollowResponse> follow(
         @AuthenticationPrincipal MoplUserDetails userDetails,
-        @Valid @RequestBody FollowRequest request
+        @RequestBody @Valid FollowRequest request
     ) {
         FollowModel follow = followFacade.follow(userDetails.userId(), request.followeeId());
         return ResponseEntity.status(HttpStatus.CREATED)

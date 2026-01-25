@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ReviewEntityMapper {
 
-    private final UserEntityMapper userEntityMapper;
     private final ContentEntityMapper contentEntityMapper;
+    private final UserEntityMapper userEntityMapper;
 
     public ReviewModel toModel(ReviewEntity reviewEntity) {
         if (reviewEntity == null) {

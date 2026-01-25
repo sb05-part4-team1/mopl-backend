@@ -329,13 +329,13 @@ class PlaylistServiceTest {
             UUID playlistId = UUID.randomUUID();
             UUID contentId = UUID.randomUUID();
 
-            given(playlistContentRepository.delete(playlistId, contentId)).willReturn(true);
+            given(playlistContentRepository.deleteByPlaylistIdAndContentId(playlistId, contentId)).willReturn(true);
 
             // when
-            playlistService.removeContent(playlistId, contentId);
+            playlistService.deleteContentFromPlaylist(playlistId, contentId);
 
             // then
-            then(playlistContentRepository).should().delete(playlistId, contentId);
+            then(playlistContentRepository).should().deleteByPlaylistIdAndContentId(playlistId, contentId);
         }
 
         @Test
@@ -345,10 +345,10 @@ class PlaylistServiceTest {
             UUID playlistId = UUID.randomUUID();
             UUID contentId = UUID.randomUUID();
 
-            given(playlistContentRepository.delete(playlistId, contentId)).willReturn(false);
+            given(playlistContentRepository.deleteByPlaylistIdAndContentId(playlistId, contentId)).willReturn(false);
 
             // when & then
-            assertThatThrownBy(() -> playlistService.removeContent(playlistId, contentId))
+            assertThatThrownBy(() -> playlistService.deleteContentFromPlaylist(playlistId, contentId))
                 .isInstanceOf(PlaylistContentNotFoundException.class)
                 .satisfies(e -> {
                     PlaylistContentNotFoundException ex = (PlaylistContentNotFoundException) e;

@@ -4,8 +4,14 @@ mopl:
     index:
       recreate-on-startup: ${MOPL_SEARCH_INDEX_RECREATE_ON_STARTUP:false}
     elasticsearch:
-      uris: ${MOPL_SEARCH_ELASTICSEARCH_URIS:http://localhost:9200}
+      uris: ${MOPL_SEARCH_ELASTICSEARCH_URIS:localhost:9200}
       username: ${MOPL_SEARCH_ELASTICSEARCH_USERNAME:}
       password: ${MOPL_SEARCH_ELASTICSEARCH_PASSWORD:}
-      connect-timeout: ${MOPL_SEARCH_ELASTICSEARCH_CONNECT_TIMEOUT:1s}
-      socket-timeout: ${MOPL_SEARCH_ELASTICSEARCH_SOCKET_TIMEOUT:3s}
+      connect-timeout-millis: ${MOPL_SEARCH_ELASTICSEARCH_CONNECT_TIMEOUT:1000}
+      socket-timeout-millis: ${MOPL_SEARCH_ELASTICSEARCH_SOCKET_TIMEOUT:3000}
+
+spring:
+  elasticsearch:
+    uris: ${ELASTICSEARCH_URIS:http://localhost:9200}
+    username: ${ELASTICSEARCH_USERNAME:}
+    password: ${ELASTICSEARCH_PASSWORD:}

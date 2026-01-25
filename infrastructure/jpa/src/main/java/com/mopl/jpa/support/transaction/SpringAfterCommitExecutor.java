@@ -15,12 +15,14 @@ public class SpringAfterCommitExecutor implements AfterCommitExecutor {
             return;
         }
 
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+        TransactionSynchronizationManager.registerSynchronization(
+            new TransactionSynchronization() {
 
-            @Override
-            public void afterCommit() {
-                action.run();
+                @Override
+                public void afterCommit() {
+                    action.run();
+                }
             }
-        });
+        );
     }
 }

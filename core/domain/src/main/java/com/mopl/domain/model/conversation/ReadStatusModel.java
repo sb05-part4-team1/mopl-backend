@@ -2,38 +2,40 @@ package com.mopl.domain.model.conversation;
 
 import com.mopl.domain.model.base.BaseModel;
 import com.mopl.domain.model.user.UserModel;
-import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.time.Instant;
+
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder(toBuilder = true)
 public class ReadStatusModel extends BaseModel {
 
+    private Instant lastReadAt;
+    private UserModel participant;
     private ConversationModel conversation;
-    private UserModel user;
-    private Instant lastRead;
 
     public static ReadStatusModel create(
-        ConversationModel conversation,
-        UserModel user
+        UserModel participant,
+        ConversationModel conversation
     ) {
         return ReadStatusModel.builder()
+            .lastReadAt(Instant.now())
+            .participant(participant)
             .conversation(conversation)
-            .user(user)
-            .lastRead(Instant.now())
             .build();
-
     }
 
-    public ReadStatusModel updateLastRead(Instant lastRead) {
-        if (lastRead != null) {
-            this.lastRead = lastRead;
+    public ReadStatusModel updateLastReadAt(Instant readAt) {
+        if (lastReadAt != null && !readAt.isAfter(lastReadAt)) {
+            return this;
         }
-        return this;
-    }
 
+        return this.toBuilder()
+            .lastReadAt(readAt)
+            .build();
+    }
 }

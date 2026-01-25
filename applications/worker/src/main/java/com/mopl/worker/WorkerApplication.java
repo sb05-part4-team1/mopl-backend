@@ -4,13 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+@SpringBootApplication
 @EnableScheduling
-@SpringBootApplication(scanBasePackages = {
-    "com.mopl.worker",
-    "com.mopl.jpa",
-    "com.mopl.kafka",
-    "com.mopl.redis",
-})
 public class WorkerApplication {
 
     public static void main(String[] args) {

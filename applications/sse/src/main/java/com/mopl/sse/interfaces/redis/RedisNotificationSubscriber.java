@@ -5,13 +5,13 @@ import com.mopl.domain.model.notification.NotificationModel;
 import com.mopl.redis.pubsub.NotificationPublisher;
 import com.mopl.sse.application.SseEmitterManager;
 import jakarta.annotation.PostConstruct;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 @Component
