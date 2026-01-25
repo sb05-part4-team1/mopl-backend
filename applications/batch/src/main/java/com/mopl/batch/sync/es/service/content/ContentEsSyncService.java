@@ -38,7 +38,7 @@ public class ContentEsSyncService {
                 break;
             }
 
-            ContentModel last = chunk.get(chunk.size() - 1);
+            ContentModel last = chunk.getLast();
             lastCreatedAt = last.getCreatedAt();
             lastId = last.getId();
 
