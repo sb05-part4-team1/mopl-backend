@@ -7,12 +7,6 @@ import java.util.UUID;
 
 public interface DirectMessageRepository {
 
-    Optional<DirectMessageModel> findOtherDirectMessage(
-        UUID conversationId,
-        UUID directMessageId,
-        UUID userId
-    );
-
     Optional<DirectMessageModel> findLastMessageByConversationId(UUID conversationId);
 
     DirectMessageModel save(DirectMessageModel directMessageModel);

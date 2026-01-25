@@ -18,16 +18,6 @@ public class DirectMessageRepositoryImpl implements DirectMessageRepository {
     private final DirectMessageEntityMapper directMessageEntityMapper;
 
     @Override
-    public Optional<DirectMessageModel> findOtherDirectMessage(
-        UUID conversationId,
-        UUID directMessageId,
-        UUID userId
-    ) {
-        return jpaDirectMessageRepository.findOther(conversationId, directMessageId, userId)
-            .map(directMessageEntityMapper::toModel);
-    }
-
-    @Override
     public Optional<DirectMessageModel> findLastMessageByConversationId(UUID conversationId) {
         return jpaDirectMessageRepository.findTopByConversationIdOrderByCreatedAtDesc(conversationId)
             .map(directMessageEntityMapper::toModel);

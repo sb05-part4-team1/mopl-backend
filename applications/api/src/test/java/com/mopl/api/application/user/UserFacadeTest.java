@@ -115,7 +115,7 @@ class UserFacadeTest {
         }
 
         @Test
-        @DisplayName("이메일과 이름의 공백이 제거되고 이메일이 소문자로 처리된다")
+        @DisplayName("이메일과 이름의 공백 제거 및 이메일 소문자 처리")
         void withWhitespace_shouldTrimAndLowercase() {
             // given
             String email = "  TEST@EXAMPLE.COM  ";
@@ -617,7 +617,7 @@ class UserFacadeTest {
         }
 
         @Test
-        @DisplayName("비밀번호 변경 후 임시 비밀번호가 삭제된다")
+        @DisplayName("비밀번호 변경 후 임시 비밀번호 삭제")
         void afterPasswordChange_temporaryPasswordIsDeleted() {
             // given
             String email = "test@example.com";
