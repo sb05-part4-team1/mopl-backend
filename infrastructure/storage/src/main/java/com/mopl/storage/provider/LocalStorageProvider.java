@@ -57,7 +57,7 @@ public class LocalStorageProvider implements StorageProvider {
             return null;
         }
         String encodedPath = URLEncoder.encode(path, StandardCharsets.UTF_8);
-        return String.format("%s/api/v1/files/display?path=%s", localProperties.baseUrl(), encodedPath);
+        return String.format("%s/api/files/display?path=%s", localProperties.baseUrl(), encodedPath);
     }
 
     @Override

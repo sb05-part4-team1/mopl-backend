@@ -112,19 +112,18 @@ class LocalStorageProviderTest {
 
         @Test
         @DisplayName("스트림 읽기 실패 시 FileUploadException 발생")
-        void throwsExceptionOnStreamError() {
-            // given
-            InputStream exceptionStream = new InputStream() {
+        void throwsExceptionOnStreamError() throws IOException {
+            // given & when & then
+            try (InputStream exceptionStream = new InputStream() {
 
                 @Override
                 public int read() throws IOException {
                     throw new IOException("강제 에러");
                 }
-            };
-
-            // when & then
-            assertThatThrownBy(() -> storageProvider.upload(exceptionStream, 100, "fail.txt"))
-                .isInstanceOf(FileUploadException.class);
+            }) {
+                assertThatThrownBy(() -> storageProvider.upload(exceptionStream, 100, "fail.txt"))
+                    .isInstanceOf(FileUploadException.class);
+            }
         }
 
         @Test
@@ -159,7 +158,7 @@ class LocalStorageProviderTest {
 
             // then
             assertThat(url).contains(BASE_URL);
-            assertThat(url).contains("/api/v1/files/display?path=");
+            assertThat(url).contains("/api/files/display?path=");
             assertThat(url).contains("images%2Fsample.png");
         }
 
