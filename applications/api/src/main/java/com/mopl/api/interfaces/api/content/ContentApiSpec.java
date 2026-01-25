@@ -1,6 +1,6 @@
 package com.mopl.api.interfaces.api.content;
 
-import com.mopl.api.interfaces.api.common.CommonApiResponse;
+import com.mopl.api.interfaces.api.ApiErrorResponse;
 import com.mopl.api.interfaces.api.content.dto.ContentCreateRequest;
 import com.mopl.api.interfaces.api.content.dto.ContentResponse;
 import com.mopl.api.interfaces.api.content.dto.ContentUpdateRequest;
@@ -82,7 +82,7 @@ public interface ContentApiSpec {
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = CursorResponse.class))
     )
-    @CommonApiResponse.Default
+    @ApiErrorResponse.Default
     CursorResponse<ContentResponse> getContents(@Parameter(hidden = true) ContentQueryRequest request);
 
     @Operation(summary = "콘텐츠 상세 조회")
@@ -91,8 +91,8 @@ public interface ContentApiSpec {
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = ContentResponse.class))
     )
-    @CommonApiResponse.Default
-    @CommonApiResponse.NotFound
+    @ApiErrorResponse.Default
+    @ApiErrorResponse.NotFound
     ContentResponse getContent(UUID contentId);
 
     @Operation(summary = "[어드민] 콘텐츠 생성")
@@ -100,8 +100,8 @@ public interface ContentApiSpec {
         responseCode = "201",
         content = @Content(schema = @Schema(implementation = ContentResponse.class))
     )
-    @CommonApiResponse.Default
-    @CommonApiResponse.Forbidden
+    @ApiErrorResponse.Default
+    @ApiErrorResponse.Forbidden
     ContentResponse upload(
         @Parameter(required = true) ContentCreateRequest request,
         @Parameter(description = "썸네일 이미지 파일", required = true) MultipartFile thumbnail
@@ -113,9 +113,9 @@ public interface ContentApiSpec {
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = ContentResponse.class))
     )
-    @CommonApiResponse.Default
-    @CommonApiResponse.Forbidden
-    @CommonApiResponse.NotFound
+    @ApiErrorResponse.Default
+    @ApiErrorResponse.Forbidden
+    @ApiErrorResponse.NotFound
     ContentResponse update(
         UUID contentId,
         @Parameter(required = true) ContentUpdateRequest request,
@@ -132,8 +132,8 @@ public interface ContentApiSpec {
     )
     @Parameter(name = "contentId", required = true)
     @ApiResponse(responseCode = "204")
-    @CommonApiResponse.Default
-    @CommonApiResponse.Forbidden
-    @CommonApiResponse.NotFound
+    @ApiErrorResponse.Default
+    @ApiErrorResponse.Forbidden
+    @ApiErrorResponse.NotFound
     void delete(UUID contentId);
 }

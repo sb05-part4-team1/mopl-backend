@@ -1,6 +1,6 @@
 package com.mopl.api.interfaces.api.conversation;
 
-import com.mopl.api.interfaces.api.common.CommonApiResponse;
+import com.mopl.api.interfaces.api.ApiErrorResponse;
 import com.mopl.api.interfaces.api.conversation.dto.ConversationCreateRequest;
 import com.mopl.api.interfaces.api.conversation.dto.ConversationResponse;
 import com.mopl.api.interfaces.api.conversation.dto.DirectMessageResponse;
@@ -71,7 +71,7 @@ public interface ConversationApiSpec {
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = CursorResponse.class))
     )
-    @CommonApiResponse.Default
+    @ApiErrorResponse.Default
     CursorResponse<ConversationResponse> getConversations(
         @Parameter(hidden = true) MoplUserDetails userDetails,
         @Parameter(hidden = true) ConversationQueryRequest request
@@ -83,9 +83,9 @@ public interface ConversationApiSpec {
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = ConversationResponse.class))
     )
-    @CommonApiResponse.Default
-    @CommonApiResponse.Forbidden
-    @CommonApiResponse.NotFound
+    @ApiErrorResponse.Default
+    @ApiErrorResponse.Forbidden
+    @ApiErrorResponse.NotFound
     ConversationResponse getConversation(
         @Parameter(hidden = true) MoplUserDetails userDetails,
         UUID conversationId
@@ -97,8 +97,8 @@ public interface ConversationApiSpec {
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = ConversationResponse.class))
     )
-    @CommonApiResponse.Default
-    @CommonApiResponse.NotFound
+    @ApiErrorResponse.Default
+    @ApiErrorResponse.NotFound
     ConversationResponse getConversationWith(
         @Parameter(hidden = true) MoplUserDetails userDetails,
         UUID userId
@@ -112,9 +112,9 @@ public interface ConversationApiSpec {
         responseCode = "201",
         content = @Content(schema = @Schema(implementation = ConversationResponse.class))
     )
-    @CommonApiResponse.Default
-    @CommonApiResponse.NotFound
-    @CommonApiResponse.Conflict
+    @ApiErrorResponse.Default
+    @ApiErrorResponse.NotFound
+    @ApiErrorResponse.Conflict
     ConversationResponse createConversation(
         @Parameter(hidden = true) MoplUserDetails userDetails,
         ConversationCreateRequest request
@@ -161,9 +161,9 @@ public interface ConversationApiSpec {
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = CursorResponse.class))
     )
-    @CommonApiResponse.Default
-    @CommonApiResponse.Forbidden
-    @CommonApiResponse.NotFound
+    @ApiErrorResponse.Default
+    @ApiErrorResponse.Forbidden
+    @ApiErrorResponse.NotFound
     CursorResponse<DirectMessageResponse> getDirectMessages(
         @Parameter(hidden = true) MoplUserDetails userDetails,
         UUID conversationId,
@@ -174,9 +174,9 @@ public interface ConversationApiSpec {
     @Parameter(name = "conversationId", description = "대화 ID", required = true)
     @Parameter(name = "directMessageId", description = "메시지 ID", required = true)
     @ApiResponse(responseCode = "204", description = "성공")
-    @CommonApiResponse.Default
-    @CommonApiResponse.Forbidden
-    @CommonApiResponse.NotFound
+    @ApiErrorResponse.Default
+    @ApiErrorResponse.Forbidden
+    @ApiErrorResponse.NotFound
     void markAsRead(
         @Parameter(hidden = true) MoplUserDetails userDetails,
         UUID conversationId,

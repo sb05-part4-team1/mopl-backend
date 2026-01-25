@@ -1,4 +1,4 @@
-package com.mopl.api.interfaces.api.common;
+package com.mopl.api.interfaces.api;
 
 import com.mopl.domain.exception.ErrorResponse;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,7 +11,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-public class CommonApiResponse {
+public class ApiErrorResponse {
 
     @Target({ElementType.METHOD, ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)

@@ -1,6 +1,6 @@
 package com.mopl.api.interfaces.api.watchingsession;
 
-import com.mopl.api.interfaces.api.common.CommonApiResponse;
+import com.mopl.api.interfaces.api.ApiErrorResponse;
 import com.mopl.api.interfaces.api.watchingsession.dto.WatchingSessionResponse;
 import com.mopl.domain.repository.watchingsession.WatchingSessionQueryRequest;
 import com.mopl.domain.repository.watchingsession.WatchingSessionSortField;
@@ -73,7 +73,7 @@ public interface WatchingSessionApiSpec {
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = CursorResponse.class))
     )
-    @CommonApiResponse.Default
+    @ApiErrorResponse.Default
     CursorResponse<WatchingSessionResponse> getWatchingSessions(
         @Parameter(hidden = true) UUID contentId,
         @Parameter(hidden = true) WatchingSessionQueryRequest request
@@ -86,6 +86,6 @@ public interface WatchingSessionApiSpec {
         content = @Content(schema = @Schema(implementation = WatchingSessionResponse.class))
     )
     @ApiResponse(responseCode = "204", description = "시청 중인 세션 없음")
-    @CommonApiResponse.Default
+    @ApiErrorResponse.Default
     ResponseEntity<WatchingSessionResponse> getWatchingSession(UUID watcherId);
 }
