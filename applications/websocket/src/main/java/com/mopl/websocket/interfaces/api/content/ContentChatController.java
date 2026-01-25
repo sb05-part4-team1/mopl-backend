@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Controller
 @RequiredArgsConstructor
-public class ContentWebSocketController {
+public class ContentChatController {
 
     private final ContentChatFacade contentChatFacade;
 

@@ -18,6 +18,7 @@ public class WatchingSessionModel {
     private UUID contentId;
     private String contentTitle;
     private Instant createdAt;
+    private int connectionCount;
 
     @Builder
     public WatchingSessionModel(
@@ -26,7 +27,8 @@ public class WatchingSessionModel {
         String watcherProfileImagePath,
         UUID contentId,
         String contentTitle,
-        Instant createdAt
+        Instant createdAt,
+        int connectionCount
     ) {
         this.watcherId = watcherId;
         this.watcherName = watcherName;
@@ -34,6 +36,7 @@ public class WatchingSessionModel {
         this.contentId = contentId;
         this.contentTitle = contentTitle;
         this.createdAt = createdAt;
+        this.connectionCount = connectionCount;
     }
 
     public static WatchingSessionModel create(
@@ -57,6 +60,34 @@ public class WatchingSessionModel {
             .contentId(contentId)
             .contentTitle(contentTitle)
             .createdAt(Instant.now())
+            .connectionCount(1)
             .build();
+    }
+
+    public WatchingSessionModel incrementConnectionCount() {
+        return this.toBuilder()
+            .connectionCount(this.connectionCount + 1)
+            .build();
+    }
+
+    public WatchingSessionModel decrementConnectionCount() {
+        return this.toBuilder()
+            .connectionCount(Math.max(0, this.connectionCount - 1))
+            .build();
+    }
+
+    public boolean hasNoConnections() {
+        return this.connectionCount <= 0;
+    }
+
+    private WatchingSessionModelBuilder toBuilder() {
+        return WatchingSessionModel.builder()
+            .watcherId(this.watcherId)
+            .watcherName(this.watcherName)
+            .watcherProfileImagePath(this.watcherProfileImagePath)
+            .contentId(this.contentId)
+            .contentTitle(this.contentTitle)
+            .createdAt(this.createdAt)
+            .connectionCount(this.connectionCount);
     }
 }

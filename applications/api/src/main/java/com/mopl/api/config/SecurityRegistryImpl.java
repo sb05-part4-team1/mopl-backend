@@ -4,6 +4,8 @@ import com.mopl.security.config.SecurityRegistry;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,7 +22,7 @@ public class SecurityRegistryImpl implements SecurityRegistry {
                 "/api/auth/reset-password",
                 "/api/auth/refresh"
             ).permitAll()
-            .requestMatchers("/api/files/display").permitAll()
+            .requestMatchers("/api/files/display/**").permitAll()
             .requestMatchers("/oauth2/**").permitAll()
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
             .requestMatchers(
@@ -37,7 +39,7 @@ public class SecurityRegistryImpl implements SecurityRegistry {
             .requestMatchers(HttpMethod.DELETE, "/api/contents/{contentId}").hasRole("ADMIN");
 
         auth
-            .requestMatchers("/api/**").authenticated()
-            .anyRequest().denyAll();
+            .requestMatchers(new NegatedRequestMatcher(new AntPathRequestMatcher("/api/**"))).permitAll()
+            .anyRequest().authenticated();
     }
 }

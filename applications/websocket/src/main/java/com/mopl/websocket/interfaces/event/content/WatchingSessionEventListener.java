@@ -1,9 +1,8 @@
 package com.mopl.websocket.interfaces.event.content;
 
 import com.mopl.security.userdetails.MoplUserDetails;
-import com.mopl.websocket.application.content.ContentChatFacade;
+import com.mopl.websocket.application.content.WatchingSessionFacade;
 import com.mopl.websocket.interfaces.event.content.dto.WatchingSessionChangeResponse;
-import com.mopl.websocket.interfaces.event.content.dto.WatchingSessionChangeType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -24,7 +23,7 @@ public class WatchingSessionEventListener {
     private static final String WATCH_DESTINATION_SUFFIX = "/watch";
     private static final String SESSION_ATTR_CONTENT_ID = "watchingContentId";
 
-    private final ContentChatFacade contentChatFacade;
+    private final WatchingSessionFacade watchingSessionFacade;
     private final SimpMessagingTemplate messagingTemplate;
 
     @EventListener
@@ -48,7 +47,7 @@ public class WatchingSessionEventListener {
         MoplUserDetails user = (MoplUserDetails) ((Authentication) accessor.getUser()).getPrincipal();
         accessor.getSessionAttributes().put(SESSION_ATTR_CONTENT_ID, contentId);
 
-        WatchingSessionChangeResponse change = contentChatFacade.updateSession(contentId, user.userId(), WatchingSessionChangeType.JOIN);
+        WatchingSessionChangeResponse change = watchingSessionFacade.joinSession(contentId, user.userId());
         messagingTemplate.convertAndSend(destination, change);
     }
 
@@ -67,16 +66,17 @@ public class WatchingSessionEventListener {
             return;
         }
 
-        UUID contentId = (UUID) accessor.getSessionAttributes().get(SESSION_ATTR_CONTENT_ID);
+        UUID contentId = (UUID) accessor.getSessionAttributes().remove(SESSION_ATTR_CONTENT_ID);
         if (contentId == null) {
             return;
         }
 
         MoplUserDetails user = (MoplUserDetails) ((Authentication) accessor.getUser()).getPrincipal();
-        WatchingSessionChangeResponse change = contentChatFacade.updateSession(contentId, user.userId(), WatchingSessionChangeType.LEAVE);
+        WatchingSessionChangeResponse change = watchingSessionFacade.leaveSession(contentId, user.userId());
 
-        messagingTemplate.convertAndSend(buildWatchDestination(contentId), change);
-        accessor.getSessionAttributes().remove(SESSION_ATTR_CONTENT_ID);
+        if (change != null) {
+            messagingTemplate.convertAndSend(buildWatchDestination(contentId), change);
+        }
     }
 
     private boolean isWatchDestination(String destination) {
