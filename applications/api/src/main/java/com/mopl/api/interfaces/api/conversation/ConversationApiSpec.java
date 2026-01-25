@@ -165,14 +165,14 @@ public interface ConversationApiSpec {
         @Parameter(hidden = true) DirectMessageQueryRequest request
     );
 
-    @Operation(summary = "메시지 읽음 처리")
+    @Operation(summary = "대화 읽음 처리")
     @Parameter(name = "conversationId", description = "대화 ID", required = true)
     @Parameter(name = "directMessageId", description = "메시지 ID", required = true)
     @ApiResponse(responseCode = "204", description = "성공")
     @CommonApiResponse.Default
     @CommonApiResponse.Forbidden
     @CommonApiResponse.NotFound
-    void readDirectMessage(
+    void markAsRead(
         @Parameter(hidden = true) MoplUserDetails userDetails,
         UUID conversationId,
         UUID directMessageId
