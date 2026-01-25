@@ -1,8 +1,8 @@
 package com.mopl.batch.sync.denormalized.service;
 
 import com.mopl.batch.sync.denormalized.properties.DenormalizedSyncPolicyResolver;
-import com.mopl.jpa.repository.playlist.JpaPlaylistRepository;
 import com.mopl.jpa.repository.playlist.JpaPlaylistSubscriberRepository;
+import com.mopl.jpa.repository.playlist.projection.PlaylistSubscriberCountProjection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,8 +41,8 @@ public class PlaylistSubscriberCountSyncService {
             Map<UUID, Long> actualCounts = jpaPlaylistSubscriberRepository.countByPlaylistIdIn(batch)
                 .stream()
                 .collect(Collectors.toMap(
-                    row -> (UUID) row[0],
-                    row -> (Long) row[1]
+                    PlaylistSubscriberCountProjection::getPlaylistId,
+                    PlaylistSubscriberCountProjection::getSubscriberCount
                 ));
 
             int synced = txService.syncBatch(batch, actualCounts);

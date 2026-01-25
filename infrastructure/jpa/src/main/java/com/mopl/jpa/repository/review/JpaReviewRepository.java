@@ -1,6 +1,7 @@
 package com.mopl.jpa.repository.review;
 
 import com.mopl.jpa.entity.review.ReviewEntity;
+import com.mopl.jpa.repository.review.projection.ReviewStatsProjection;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -25,12 +26,12 @@ public interface JpaReviewRepository extends JpaRepository<ReviewEntity, UUID> {
     Set<UUID> findAllContentIds();
 
     @Query("""
-        SELECT r.content.id, COUNT(r), AVG(r.rating)
+        SELECT r.content.id AS contentId, COUNT(r) AS reviewCount, AVG(r.rating) AS averageRating
         FROM ReviewEntity r
         WHERE r.content.id IN :contentIds AND r.deletedAt IS NULL
         GROUP BY r.content.id
         """)
-    List<Object[]> findReviewStatsByContentIdIn(Collection<UUID> contentIds);
+    List<ReviewStatsProjection> findReviewStatsByContentIdIn(Collection<UUID> contentIds);
 
     // cleanup batch 전용
     @Query(

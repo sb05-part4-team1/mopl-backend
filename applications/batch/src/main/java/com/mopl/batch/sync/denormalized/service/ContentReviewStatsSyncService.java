@@ -2,6 +2,7 @@ package com.mopl.batch.sync.denormalized.service;
 
 import com.mopl.batch.sync.denormalized.properties.DenormalizedSyncPolicyResolver;
 import com.mopl.jpa.repository.review.JpaReviewRepository;
+import com.mopl.jpa.repository.review.projection.ReviewStatsProjection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,8 +41,11 @@ public class ContentReviewStatsSyncService {
             Map<UUID, ReviewStats> actualStats = jpaReviewRepository.findReviewStatsByContentIdIn(batch)
                 .stream()
                 .collect(Collectors.toMap(
-                    row -> (UUID) row[0],
-                    row -> new ReviewStats(((Long) row[1]).intValue(), (Double) row[2])
+                    ReviewStatsProjection::getContentId,
+                    projection -> new ReviewStats(
+                        projection.getReviewCount().intValue(),
+                        projection.getAverageRating()
+                    )
                 ));
 
             int synced = txService.syncBatch(batch, actualStats);

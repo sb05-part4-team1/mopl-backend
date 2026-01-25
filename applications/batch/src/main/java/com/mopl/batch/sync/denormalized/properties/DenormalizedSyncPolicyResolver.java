@@ -14,10 +14,6 @@ public class DenormalizedSyncPolicyResolver {
     private final Environment environment;
 
     public DenormalizedSyncPolicyProperties resolve() {
-        if (properties == null) {
-            return DenormalizedSyncPolicyProperties.defaults();
-        }
-
         String[] activeProfiles = environment.getActiveProfiles();
 
         if (properties.profiles() != null) {
