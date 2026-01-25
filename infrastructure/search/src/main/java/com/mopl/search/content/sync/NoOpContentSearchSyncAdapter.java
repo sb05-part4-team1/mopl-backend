@@ -2,10 +2,14 @@ package com.mopl.search.content.sync;
 
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.support.search.ContentSearchSyncPort;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.UUID;
 
+@Component
+@ConditionalOnProperty(prefix = "mopl.search", name = "enabled", havingValue = "false", matchIfMissing = true)
 public class NoOpContentSearchSyncAdapter implements ContentSearchSyncPort {
 
     @Override

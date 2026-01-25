@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.time.Duration;
+
 @Getter
 @Setter
 @ConfigurationProperties(prefix = "mopl.search.elasticsearch")
@@ -14,6 +16,6 @@ public class ElasticsearchProperties {
     private String username;
     private String password;
 
-    private int connectTimeoutMillis = 1000;
-    private int socketTimeoutMillis = 3000;
+    private Duration connectTimeout = Duration.ofSeconds(1);
+    private Duration socketTimeout = Duration.ofSeconds(3);
 }
