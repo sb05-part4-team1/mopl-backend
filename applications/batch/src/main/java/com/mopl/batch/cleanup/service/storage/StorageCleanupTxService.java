@@ -1,7 +1,7 @@
 package com.mopl.batch.cleanup.service.storage;
 
-import com.mopl.domain.repository.content.ContentDeletionLogRepository;
-import com.mopl.domain.repository.content.ContentDeletionLogItem;
+import com.mopl.domain.repository.content.batch.ContentDeletionLogRepository;
+import com.mopl.domain.repository.content.batch.ContentDeletionLogItem;
 import com.mopl.storage.provider.StorageProvider;
 import java.time.Instant;
 import java.util.ArrayList;

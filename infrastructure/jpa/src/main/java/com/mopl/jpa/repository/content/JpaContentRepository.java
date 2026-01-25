@@ -1,7 +1,7 @@
 package com.mopl.jpa.repository.content;
 
 import com.mopl.jpa.entity.content.ContentEntity;
-import com.mopl.jpa.repository.content.projection.ContentThumbnailRow;
+import com.mopl.jpa.repository.content.batch.ContentThumbnailRow;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

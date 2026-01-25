@@ -1,6 +1,6 @@
 package com.mopl.jpa.repository.content.query;
 
-import com.mopl.domain.repository.content.ContentSortField;
+import com.mopl.domain.repository.content.query.ContentSortField;
 import com.mopl.jpa.entity.content.ContentEntity;
 import com.mopl.jpa.support.cursor.SortField;
 import com.querydsl.core.types.dsl.ComparableExpression;

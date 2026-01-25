@@ -5,7 +5,7 @@ import com.mopl.batch.collect.tsdb.support.TsdbPosterProcessor;
 import com.mopl.domain.model.content.ContentExternalProvider;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.content.ContentModel.ContentType;
-import com.mopl.domain.repository.content.ContentExternalMappingRepository;
+import com.mopl.domain.repository.content.batch.ContentExternalMappingRepository;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.content.ContentTagService;
 import com.mopl.external.tsdb.model.EventItem;
