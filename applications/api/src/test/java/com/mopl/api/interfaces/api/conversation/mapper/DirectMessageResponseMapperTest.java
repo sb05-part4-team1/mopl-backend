@@ -77,13 +77,46 @@ class DirectMessageResponseMapperTest {
         }
 
         @Test
-        @DisplayName("null 입력 시 null 반환")
-        void withNull_returnsNull() {
+        @DisplayName("directMessageModel이 null인 경우 null 반환")
+        void withNullDirectMessageModel_returnsNull() {
             // when
             DirectMessageResponse result = mapper.toResponse(null, null);
 
             // then
             assertThat(result).isNull();
+        }
+
+        @Test
+        @DisplayName("receiver가 null인 경우에도 정상 변환")
+        void withNullReceiver_returnsDirectMessageResponse() {
+            // given
+            UUID conversationId = UUID.randomUUID();
+            ConversationModel conversationModel = ConversationModel.builder()
+                .id(conversationId)
+                .build();
+
+            DirectMessageModel directMessageModel = DirectMessageModelFixture.builder()
+                .set("conversation", conversationModel)
+                .sample();
+
+            UserSummary senderSummary = new UserSummary(
+                directMessageModel.getSender().getId(),
+                directMessageModel.getSender().getName(),
+                "https://cdn.example.com/sender.jpg"
+            );
+
+            given(userSummaryMapper.toSummary(directMessageModel.getSender())).willReturn(senderSummary);
+            given(userSummaryMapper.toSummary(null)).willReturn(null);
+
+            // when
+            DirectMessageResponse result = mapper.toResponse(directMessageModel, null);
+
+            // then
+            assertThat(result.id()).isEqualTo(directMessageModel.getId());
+            assertThat(result.conversationId()).isEqualTo(conversationId);
+            assertThat(result.sender()).isEqualTo(senderSummary);
+            assertThat(result.receiver()).isNull();
+            assertThat(result.content()).isEqualTo(directMessageModel.getContent());
         }
     }
 }

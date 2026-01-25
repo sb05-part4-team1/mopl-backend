@@ -113,5 +113,39 @@ class ConversationResponseMapperTest {
             assertThat(result.lastMessage()).isNull();
             assertThat(result.hasUnread()).isFalse();
         }
+
+        @Test
+        @DisplayName("withUser가 null인 경우에도 정상 변환")
+        void withNullWithUser_returnsConversationResponse() {
+            // given
+            ConversationModel conversationModel = ConversationModelFixture.create();
+            DirectMessageModel lastMessage = DirectMessageModelFixture.create();
+
+            DirectMessageResponse lastMessageResponse = new DirectMessageResponse(
+                lastMessage.getId(),
+                UUID.randomUUID(),
+                Instant.now(),
+                null,
+                null,
+                lastMessage.getContent()
+            );
+
+            given(userSummaryMapper.toSummary(null)).willReturn(null);
+            given(directMessageResponseMapper.toResponse(lastMessage, null)).willReturn(lastMessageResponse);
+
+            // when
+            ConversationResponse result = mapper.toResponse(
+                conversationModel,
+                null,
+                lastMessage,
+                false
+            );
+
+            // then
+            assertThat(result.id()).isEqualTo(conversationModel.getId());
+            assertThat(result.with()).isNull();
+            assertThat(result.lastMessage()).isEqualTo(lastMessageResponse);
+            assertThat(result.hasUnread()).isFalse();
+        }
     }
 }

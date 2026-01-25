@@ -15,5 +15,5 @@ public interface DirectMessageQueryRepository {
         DirectMessageQueryRequest request
     );
 
-    Map<UUID, DirectMessageModel> findLastMessagesWithSenderByConversationIdIn(Collection<UUID> conversationIds);
+    Map<UUID, DirectMessageModel> findLastDirectMessagesWithSenderByConversationIdIn(Collection<UUID> conversationIds);
 }

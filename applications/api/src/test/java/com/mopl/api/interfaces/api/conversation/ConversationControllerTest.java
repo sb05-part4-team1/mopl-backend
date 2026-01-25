@@ -13,7 +13,7 @@ import com.mopl.api.interfaces.api.user.dto.UserSummary;
 import com.mopl.api.interfaces.api.user.mapper.UserSummaryMapper;
 import com.mopl.domain.exception.conversation.ConversationAccessDeniedException;
 import com.mopl.domain.exception.conversation.ConversationNotFoundException;
-import com.mopl.domain.exception.conversation.DirectMessageNotFoundException;
+import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
 import com.mopl.security.userdetails.MoplUserDetails;
@@ -257,13 +257,13 @@ class ConversationControllerTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는 대화 조회 시 404 Not Found 응답")
-        void withNonExistingConversation_returns404NotFound() throws Exception {
+        @DisplayName("존재하지 않는 사용자와의 대화 조회 시 404 Not Found 응답")
+        void withNonExistingUser_returns404NotFound() throws Exception {
             // given
             UUID withUserId = UUID.randomUUID();
 
             given(conversationFacade.getConversationByWith(userId, withUserId))
-                .willThrow(ConversationNotFoundException.withId(withUserId));
+                .willThrow(UserNotFoundException.withId(withUserId));
 
             // when & then
             mockMvc.perform(get("/api/conversations/with")

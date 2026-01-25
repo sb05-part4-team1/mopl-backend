@@ -25,9 +25,9 @@ import static org.springframework.util.StringUtils.hasText;
 @RequiredArgsConstructor
 public class ConversationQueryRepositoryImpl implements ConversationQueryRepository {
 
-    private static final QReadStatusEntity myReadStatus = new QReadStatusEntity("myReadStatus");
-    private static final QReadStatusEntity otherReadStatus = new QReadStatusEntity("otherReadStatus");
-    private static final QUserEntity otherUser = new QUserEntity("otherUser");
+    private static final QReadStatusEntity readStatusEntity = new QReadStatusEntity("readStatusEntity");
+    private static final QReadStatusEntity otherReadStatusEntity = new QReadStatusEntity("otherReadStatusEntity");
+    private static final QUserEntity otherUserEntity = new QUserEntity("otherUserEntity");
 
     private final JPAQueryFactory queryFactory;
     private final ConversationEntityMapper conversationEntityMapper;
@@ -71,14 +71,14 @@ public class ConversationQueryRepositoryImpl implements ConversationQueryReposit
     private JPAQuery<?> baseQuery(UUID userId, String keywordLike) {
         return queryFactory
             .from(conversationEntity)
-            .join(myReadStatus)
-            .on(myReadStatus.conversation.eq(conversationEntity)
-                .and(myReadStatus.participant.id.eq(userId)))
-            .join(otherReadStatus)
-            .on(otherReadStatus.conversation.eq(conversationEntity)
-                .and(otherReadStatus.participant.id.ne(userId)))
-            .join(otherUser)
-            .on(otherUser.id.eq(otherReadStatus.participant.id))
+            .join(readStatusEntity)
+            .on(readStatusEntity.conversation.eq(conversationEntity)
+                .and(readStatusEntity.participant.id.eq(userId)))
+            .join(otherReadStatusEntity)
+            .on(otherReadStatusEntity.conversation.eq(conversationEntity)
+                .and(otherReadStatusEntity.participant.id.ne(userId)))
+            .join(otherUserEntity)
+            .on(otherUserEntity.id.eq(otherReadStatusEntity.participant.id))
             .where(keywordLike(keywordLike));
     }
 
@@ -90,6 +90,6 @@ public class ConversationQueryRepositoryImpl implements ConversationQueryReposit
     }
 
     private BooleanExpression keywordLike(String keywordLike) {
-        return hasText(keywordLike) ? otherUser.name.containsIgnoreCase(keywordLike) : null;
+        return hasText(keywordLike) ? otherUserEntity.name.containsIgnoreCase(keywordLike) : null;
     }
 }

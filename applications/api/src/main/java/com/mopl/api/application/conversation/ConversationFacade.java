@@ -51,9 +51,9 @@ public class ConversationFacade {
             .map(ConversationModel::getId)
             .toList();
 
-        Map<UUID, DirectMessageModel> lastMessageMap = directMessageService.getLastMessagesWithSenderByConversationIdIn(conversationIds);
+        Map<UUID, ReadStatusModel> requesterReadStatusMap = readStatusService.getReadStatusMap(userId, conversationIds);
         Map<UUID, ReadStatusModel> otherReadStatusMap = readStatusService.getOtherReadStatusMapWithParticipant(userId, conversationIds);
-        Map<UUID, ReadStatusModel> requesterReadStatusMap = readStatusService.getMyReadStatusMap(userId, conversationIds);
+        Map<UUID, DirectMessageModel> lastMessageMap = directMessageService.getLastDirectMessageMapWithSender(conversationIds);
 
         return response.map(conversation -> {
             UUID conversationId = conversation.getId();
@@ -81,9 +81,9 @@ public class ConversationFacade {
 
         ConversationModel conversation = conversationService.getById(conversationId);
 
-        DirectMessageModel lastMessage = directMessageService.getLastMessageByConversationId(conversationId);
-        ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatusWithParticipant(conversationId, requesterId);
-        ReadStatusModel requesterReadStatus = readStatusService.getMyReadStatus(conversationId, requesterId);
+        DirectMessageModel lastMessage = directMessageService.getLastDirectMessage(conversationId);
+        ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatusWithParticipant(requesterId, conversationId);
+        ReadStatusModel requesterReadStatus = readStatusService.getReadStatus(requesterId, conversationId);
 
         UserModel withUser = otherReadStatus != null ? otherReadStatus.getParticipant() : null;
         boolean hasUnread = calculateHasUnread(requesterId, lastMessage, requesterReadStatus);
@@ -100,8 +100,8 @@ public class ConversationFacade {
                 return conversationService.create(ConversationModel.create(), requester, withUser);
             });
 
-        DirectMessageModel lastMessage = directMessageService.getLastMessageByConversationId(conversation.getId());
-        ReadStatusModel requesterReadStatus = readStatusService.getMyReadStatus(conversation.getId(), requesterId);
+        DirectMessageModel lastMessage = directMessageService.getLastDirectMessage(conversation.getId());
+        ReadStatusModel requesterReadStatus = readStatusService.getReadStatus(requesterId, conversation.getId());
 
         boolean hasUnread = calculateHasUnread(requesterId, lastMessage, requesterReadStatus);
 
@@ -131,7 +131,7 @@ public class ConversationFacade {
         UUID requesterId = requester.getId();
         readStatusService.validateParticipant(requesterId, conversationId);
 
-        ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatusWithParticipant(conversationId, requesterId);
+        ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatusWithParticipant(requesterId, conversationId);
         UserModel otherParticipant = otherReadStatus != null ? otherReadStatus.getParticipant() : null;
 
         CursorResponse<DirectMessageModel> directMessages = directMessageService.getAll(requesterId, conversationId, request);
@@ -147,12 +147,12 @@ public class ConversationFacade {
     public void markAsRead(UUID requesterId, UUID conversationId) {
         readStatusService.validateParticipant(requesterId, conversationId);
 
-        DirectMessageModel lastMessage = directMessageService.getLastMessageByConversationId(conversationId);
+        DirectMessageModel lastMessage = directMessageService.getLastDirectMessage(conversationId);
         if (lastMessage == null || lastMessage.getSender().getId().equals(requesterId)) {
             return;
         }
 
-        ReadStatusModel readStatus = readStatusService.getMyReadStatus(conversationId, requesterId);
+        ReadStatusModel readStatus = readStatusService.getReadStatus(requesterId, conversationId);
         ReadStatusModel updated = readStatus.updateLastReadAt(lastMessage.getCreatedAt());
         if (updated != readStatus) {
             readStatusService.update(updated);

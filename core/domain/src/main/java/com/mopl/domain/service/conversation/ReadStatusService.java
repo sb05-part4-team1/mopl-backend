@@ -17,7 +17,7 @@ public class ReadStatusService {
 
     private final ReadStatusRepository readStatusRepository;
 
-    public Map<UUID, ReadStatusModel> getMyReadStatusMap(
+    public Map<UUID, ReadStatusModel> getReadStatusMap(
         UUID participantId,
         Collection<UUID> conversationIds
     ) {
@@ -43,7 +43,7 @@ public class ReadStatusService {
             ));
     }
 
-    public ReadStatusModel getMyReadStatus(UUID conversationId, UUID participantId) {
+    public ReadStatusModel getReadStatus(UUID participantId, UUID conversationId) {
         return readStatusRepository
             .findByParticipantIdAndConversationId(participantId, conversationId)
             .orElseThrow(() -> ReadStatusNotFoundException.withParticipantIdAndConversationId(
@@ -51,7 +51,7 @@ public class ReadStatusService {
             ));
     }
 
-    public ReadStatusModel getOtherReadStatusWithParticipant(UUID conversationId, UUID participantId) {
+    public ReadStatusModel getOtherReadStatusWithParticipant(UUID participantId, UUID conversationId) {
         return readStatusRepository
             .findWithParticipantByParticipantIdNotAndConversationId(participantId, conversationId)
             .orElse(null);

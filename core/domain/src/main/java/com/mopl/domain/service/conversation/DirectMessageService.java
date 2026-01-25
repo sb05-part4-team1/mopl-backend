@@ -25,19 +25,11 @@ public class DirectMessageService {
         return directMessageQueryRepository.findAll(requesterId, conversationId, request);
     }
 
-    public DirectMessageModel getOtherDirectMessage(
-        UUID conversationId,
-        UUID directMessageId,
-        UUID userId
-    ) {
-        return directMessageRepository.findOtherDirectMessage(conversationId, directMessageId, userId).orElse(null);
+    public Map<UUID, DirectMessageModel> getLastDirectMessageMapWithSender(Collection<UUID> conversationIds) {
+        return directMessageQueryRepository.findLastDirectMessagesWithSenderByConversationIdIn(conversationIds);
     }
 
-    public Map<UUID, DirectMessageModel> getLastMessagesWithSenderByConversationIdIn(Collection<UUID> conversationIds) {
-        return directMessageQueryRepository.findLastMessagesWithSenderByConversationIdIn(conversationIds);
-    }
-
-    public DirectMessageModel getLastMessageByConversationId(UUID conversationId) {
+    public DirectMessageModel getLastDirectMessage(UUID conversationId) {
         return directMessageRepository.findLastMessageByConversationId(conversationId).orElse(null);
     }
 }
