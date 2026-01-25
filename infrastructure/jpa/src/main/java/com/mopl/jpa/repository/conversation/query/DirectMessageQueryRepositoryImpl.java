@@ -99,7 +99,7 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
             return Map.of();
         }
 
-        QDirectMessageEntity subMessage = new QDirectMessageEntity("subMessage");
+        QDirectMessageEntity subDirectMessageEntity = new QDirectMessageEntity("subDirectMessageEntity");
 
         List<DirectMessageEntity> lastMessages = queryFactory
             .selectFrom(directMessageEntity)
@@ -108,10 +108,11 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
                 directMessageEntity.conversation.id.in(conversationIds),
                 directMessageEntity.id.eq(
                     JPAExpressions
-                        .select(subMessage.id.max())
-                        .from(subMessage)
+                        // UUID v7 사용 - id 순서 = 시간순
+                        .select(subDirectMessageEntity.id.max())
+                        .from(subDirectMessageEntity)
                         .where(
-                            subMessage.conversation.id.eq(directMessageEntity.conversation.id)
+                            subDirectMessageEntity.conversation.id.eq(directMessageEntity.conversation.id)
                         )
                 )
             )

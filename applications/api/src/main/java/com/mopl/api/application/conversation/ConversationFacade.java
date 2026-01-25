@@ -76,6 +76,7 @@ public class ConversationFacade {
         });
     }
 
+    @Transactional(readOnly = true)
     public ConversationResponse getConversation(UUID userId, UUID conversationId) {
         UserModel requester = userService.getById(userId);
         UUID requesterId = requester.getId();
