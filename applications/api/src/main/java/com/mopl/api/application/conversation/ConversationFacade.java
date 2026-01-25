@@ -145,7 +145,7 @@ public class ConversationFacade {
         UserModel requester = requesterReadStatus.getParticipant();
         UserModel otherParticipant = otherReadStatus != null ? otherReadStatus.getParticipant() : null;
 
-        CursorResponse<DirectMessageModel> directMessages = directMessageService.getDirectMessages(requesterId, conversationId, request);
+        CursorResponse<DirectMessageModel> directMessages = directMessageService.getDirectMessages(conversationId, request);
         return directMessages.map(directMessage -> {
             UserModel receiver = directMessage.getSender().getId().equals(requesterId)
                 ? otherParticipant

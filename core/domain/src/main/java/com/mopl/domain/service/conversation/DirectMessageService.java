@@ -18,11 +18,10 @@ public class DirectMessageService {
     private final DirectMessageRepository directMessageRepository;
 
     public CursorResponse<DirectMessageModel> getDirectMessages(
-        UUID requesterId,
         UUID conversationId,
         DirectMessageQueryRequest request
     ) {
-        return directMessageQueryRepository.findAll(requesterId, conversationId, request);
+        return directMessageQueryRepository.findAll(conversationId, request);
     }
 
     public Map<UUID, DirectMessageModel> getLastDirectMessageMapWithSender(Collection<UUID> conversationIds) {

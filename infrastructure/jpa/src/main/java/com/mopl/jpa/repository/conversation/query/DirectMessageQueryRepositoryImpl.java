@@ -20,9 +20,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.mopl.jpa.entity.conversation.QConversationEntity.conversationEntity;
 import static com.mopl.jpa.entity.conversation.QDirectMessageEntity.directMessageEntity;
-import static com.mopl.jpa.entity.conversation.QReadStatusEntity.readStatusEntity;
 
 @Repository
 @RequiredArgsConstructor
@@ -33,13 +31,12 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
 
     @Override
     public CursorResponse<DirectMessageModel> findAll(
-        UUID userId,
         UUID conversationId,
         DirectMessageQueryRequest request
     ) {
         DirectMessageSortFieldJpa sortFieldJpa = DirectMessageSortFieldJpa.from(request.sortBy());
 
-        JPAQuery<DirectMessageEntity> jpaQuery = baseQuery(userId, conversationId)
+        JPAQuery<DirectMessageEntity> jpaQuery = baseQuery(conversationId)
             .select(directMessageEntity)
             .join(directMessageEntity.sender).fetchJoin();
 
@@ -59,7 +56,7 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
             );
         }
 
-        long totalCount = countTotal(userId, conversationId);
+        long totalCount = countTotal(conversationId);
 
         return CursorPaginationHelper.buildResponse(
             rows,
@@ -70,25 +67,6 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
             sortFieldJpa::extractValue,
             DirectMessageEntity::getId
         );
-    }
-
-    private JPAQuery<?> baseQuery(UUID userId, UUID conversationId) {
-        return queryFactory
-            .from(directMessageEntity)
-            .join(directMessageEntity.conversation, conversationEntity)
-            .join(readStatusEntity)
-            .on(readStatusEntity.conversation.eq(conversationEntity))
-            .where(
-                conversationEntity.id.eq(conversationId),
-                readStatusEntity.participant.id.eq(userId)
-            );
-    }
-
-    private long countTotal(UUID userId, UUID conversationId) {
-        Long count = baseQuery(userId, conversationId)
-            .select(directMessageEntity.count())
-            .fetchOne();
-        return count != null ? count : 0L;
     }
 
     @Override
@@ -122,5 +100,18 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
                 entity -> entity.getConversation().getId(),
                 directMessageEntityMapper::toModelWithSender
             ));
+    }
+
+    private JPAQuery<?> baseQuery(UUID conversationId) {
+        return queryFactory
+            .from(directMessageEntity)
+            .where(directMessageEntity.conversation.id.eq(conversationId));
+    }
+
+    private long countTotal(UUID conversationId) {
+        Long count = baseQuery(conversationId)
+            .select(directMessageEntity.count())
+            .fetchOne();
+        return count != null ? count : 0L;
     }
 }
