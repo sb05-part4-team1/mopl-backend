@@ -16,4 +16,14 @@ public class ReadStatusNotFoundException extends ConversationException {
     public static ReadStatusNotFoundException withId(UUID id) {
         return new ReadStatusNotFoundException(Map.of("id", id));
     }
+
+    public static ReadStatusNotFoundException withParticipantIdAndConversationId(
+        UUID participantId,
+        UUID conversationId
+    ) {
+        return new ReadStatusNotFoundException(Map.of(
+            "participantId", participantId,
+            "conversationId", conversationId
+        ));
+    }
 }

@@ -1,6 +1,7 @@
 package com.mopl.domain.service.conversation;
 
 import com.mopl.domain.exception.conversation.ConversationAccessDeniedException;
+import com.mopl.domain.exception.conversation.ReadStatusNotFoundException;
 import com.mopl.domain.model.conversation.ReadStatusModel;
 import com.mopl.domain.repository.conversation.ReadStatusRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,13 +43,15 @@ public class ReadStatusService {
             ));
     }
 
-    public ReadStatusModel getMyReadStatus(UUID participantId, UUID conversationId) {
+    public ReadStatusModel getMyReadStatus(UUID conversationId, UUID participantId) {
         return readStatusRepository
             .findByParticipantIdAndConversationId(participantId, conversationId)
-            .orElse(null);
+            .orElseThrow(() -> ReadStatusNotFoundException.withParticipantIdAndConversationId(
+                participantId, conversationId
+            ));
     }
 
-    public ReadStatusModel getOtherReadStatusWithParticipant(UUID participantId, UUID conversationId) {
+    public ReadStatusModel getOtherReadStatusWithParticipant(UUID conversationId, UUID participantId) {
         return readStatusRepository
             .findWithParticipantByParticipantIdNotAndConversationId(participantId, conversationId)
             .orElse(null);

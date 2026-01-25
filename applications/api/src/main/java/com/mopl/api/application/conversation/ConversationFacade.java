@@ -153,11 +153,7 @@ public class ConversationFacade {
         }
 
         ReadStatusModel readStatus = readStatusService.getMyReadStatus(conversationId, requesterId);
-        if (readStatus == null) {
-            return;
-        }
-
-        ReadStatusModel updated = readStatus.markAsReadAt(lastMessage.getCreatedAt());
+        ReadStatusModel updated = readStatus.updateLastReadAt(lastMessage.getCreatedAt());
         if (updated != readStatus) {
             readStatusService.update(updated);
         }

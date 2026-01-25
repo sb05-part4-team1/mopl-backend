@@ -85,11 +85,11 @@ public class ConversationController implements ConversationApiSpec {
 
     @PostMapping("/{conversationId}/direct-messages/{directMessageId}/read")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void readDirectMessage(
+    public void markAsRead(
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable UUID conversationId,
         @PathVariable UUID directMessageId
     ) {
-        conversationFacade.directMessageRead(userDetails.userId(), conversationId, directMessageId);
+        conversationFacade.markAsRead(userDetails.userId(), conversationId);
     }
 }

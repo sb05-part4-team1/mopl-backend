@@ -427,7 +427,7 @@ class ConversationControllerTest {
 
     @Nested
     @DisplayName("POST /api/conversations/{conversationId}/direct-messages/{directMessageId}/read - 메시지 읽음 처리")
-    class ReadDirectMessageTest {
+    class MarkAsReadTest {
 
         @Test
         @DisplayName("유효한 요청 시 204 No Content 응답")
@@ -437,7 +437,7 @@ class ConversationControllerTest {
             UUID directMessageId = UUID.randomUUID();
 
             willDoNothing().given(conversationFacade)
-                .directMessageRead(userId, conversationId, directMessageId);
+                .markAsRead(userId, conversationId);
 
             // when & then
             mockMvc.perform(post("/api/conversations/{conversationId}/direct-messages/{directMessageId}/read",
@@ -446,7 +446,7 @@ class ConversationControllerTest {
                 .with(csrf()))
                 .andExpect(status().isNoContent());
 
-            then(conversationFacade).should().directMessageRead(userId, conversationId, directMessageId);
+            then(conversationFacade).should().markAsRead(userId, conversationId);
         }
 
         @Test
@@ -457,25 +457,7 @@ class ConversationControllerTest {
             UUID directMessageId = UUID.randomUUID();
 
             willThrow(ConversationNotFoundException.withId(conversationId))
-                .given(conversationFacade).directMessageRead(userId, conversationId, directMessageId);
-
-            // when & then
-            mockMvc.perform(post("/api/conversations/{conversationId}/direct-messages/{directMessageId}/read",
-                conversationId, directMessageId)
-                .with(user(mockUserDetails))
-                .with(csrf()))
-                .andExpect(status().isNotFound());
-        }
-
-        @Test
-        @DisplayName("존재하지 않는 메시지 읽음 처리 시 404 Not Found 응답")
-        void withNonExistingDirectMessage_returns404NotFound() throws Exception {
-            // given
-            UUID conversationId = UUID.randomUUID();
-            UUID directMessageId = UUID.randomUUID();
-
-            willThrow(DirectMessageNotFoundException.withId(directMessageId))
-                .given(conversationFacade).directMessageRead(userId, conversationId, directMessageId);
+                .given(conversationFacade).markAsRead(userId, conversationId);
 
             // when & then
             mockMvc.perform(post("/api/conversations/{conversationId}/direct-messages/{directMessageId}/read",
@@ -493,7 +475,7 @@ class ConversationControllerTest {
             UUID directMessageId = UUID.randomUUID();
 
             willThrow(ConversationAccessDeniedException.withUserIdAndConversationId(conversationId, userId))
-                .given(conversationFacade).directMessageRead(userId, conversationId, directMessageId);
+                .given(conversationFacade).markAsRead(userId, conversationId);
 
             // when & then
             mockMvc.perform(post("/api/conversations/{conversationId}/direct-messages/{directMessageId}/read",
