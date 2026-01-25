@@ -1,4 +1,4 @@
-package com.mopl.batch.collect.tmdb.properties;
+package com.mopl.batch.collect.tmdb.config.properties;
 
 import lombok.Getter;
 import lombok.Setter;

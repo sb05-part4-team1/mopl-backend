@@ -1,7 +1,7 @@
 package com.mopl.batch.sync.es.service.content;
 
-import com.mopl.batch.sync.es.properties.EsSyncPolicyResolver;
-import com.mopl.batch.sync.es.properties.EsSyncProperties;
+import com.mopl.batch.sync.es.config.properties.EsSyncPolicyResolver;
+import com.mopl.batch.sync.es.config.properties.EsSyncProperties;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.support.search.ContentSearchSyncPort;
 import java.time.Instant;

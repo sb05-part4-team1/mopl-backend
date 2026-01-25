@@ -1,4 +1,4 @@
-package com.mopl.batch.collect.tmdb.properties;
+package com.mopl.batch.collect.tmdb.config.properties;
 
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;

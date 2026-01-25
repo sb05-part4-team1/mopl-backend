@@ -1,4 +1,4 @@
-package com.mopl.batch.sync.es.properties;
+package com.mopl.batch.sync.es.config.properties;
 
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;

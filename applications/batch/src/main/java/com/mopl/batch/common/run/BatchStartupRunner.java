@@ -1,4 +1,4 @@
-package com.mopl.batch.config;
+package com.mopl.batch.common.run;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ public class BatchStartupRunner implements ApplicationRunner {
 
     private final JobLauncher jobLauncher;
     private final Map<String, Job> jobs;
-    private final BatchStartupProperties properties;
+    private final com.mopl.batch.common.config.BatchStartupProperties properties;
 
     @Override
     public void run(ApplicationArguments args) {

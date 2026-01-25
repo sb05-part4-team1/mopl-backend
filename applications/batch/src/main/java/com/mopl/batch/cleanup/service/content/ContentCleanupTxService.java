@@ -1,8 +1,8 @@
 package com.mopl.batch.cleanup.service.content;
 
 import com.mopl.batch.cleanup.strategy.content.ContentDeletionStrategy;
-import com.mopl.domain.repository.content.ContentCleanupRepository;
-import com.mopl.domain.repository.content.ContentExternalMappingRepository;
+import com.mopl.domain.repository.content.batch.ContentCleanupRepository;
+import com.mopl.domain.repository.content.batch.ContentExternalMappingRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.domain.repository.review.ReviewRepository;

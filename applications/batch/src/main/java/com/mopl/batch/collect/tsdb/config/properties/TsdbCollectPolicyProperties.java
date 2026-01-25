@@ -1,4 +1,4 @@
-package com.mopl.batch.collect.tsdb.properties;
+package com.mopl.batch.collect.tsdb.config.properties;
 
 import lombok.Getter;
 import lombok.Setter;

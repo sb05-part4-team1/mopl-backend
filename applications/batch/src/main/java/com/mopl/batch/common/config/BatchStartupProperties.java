@@ -1,4 +1,4 @@
-package com.mopl.batch.config;
+package com.mopl.batch.common.config;
 
 import lombok.Getter;
 import lombok.Setter;

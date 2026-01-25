@@ -1,4 +1,4 @@
-package com.mopl.batch.cleanup.properties;
+package com.mopl.batch.cleanup.config.properties;
 
 import lombok.Getter;
 import lombok.Setter;

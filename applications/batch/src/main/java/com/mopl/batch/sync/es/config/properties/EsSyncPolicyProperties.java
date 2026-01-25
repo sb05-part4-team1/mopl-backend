@@ -1,4 +1,4 @@
-package com.mopl.batch.sync.es.properties;
+package com.mopl.batch.sync.es.config.properties;
 
 import lombok.Getter;
 import lombok.Setter;
