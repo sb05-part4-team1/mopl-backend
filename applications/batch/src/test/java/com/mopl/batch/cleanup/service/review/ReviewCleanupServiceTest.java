@@ -1,8 +1,8 @@
 package com.mopl.batch.cleanup.service.review;
 
-import com.mopl.batch.cleanup.properties.CleanupPolicyProperties;
-import com.mopl.batch.cleanup.properties.CleanupPolicyResolver;
-import com.mopl.batch.cleanup.properties.CleanupProperties;
+import com.mopl.batch.cleanup.config.properties.CleanupPolicyProperties;
+import com.mopl.batch.cleanup.config.properties.CleanupPolicyResolver;
+import com.mopl.batch.cleanup.config.properties.CleanupProperties;
 import com.mopl.domain.repository.review.ReviewRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
