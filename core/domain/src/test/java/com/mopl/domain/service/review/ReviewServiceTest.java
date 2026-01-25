@@ -326,7 +326,7 @@ class ReviewServiceTest {
             given(reviewRepository.findById(reviewId)).willReturn(Optional.of(existingReview));
 
             // when
-            reviewService.delete(reviewId, authorId);
+            reviewService.deleteAndGetContentId(reviewId, authorId);
 
             // then
             assertThat(existingReview.getDeletedAt()).isNotNull();
@@ -344,7 +344,7 @@ class ReviewServiceTest {
                 existingReview));
 
             // when & then
-            assertThatThrownBy(() -> reviewService.delete(existingReview.getId(), requesterId))
+            assertThatThrownBy(() -> reviewService.deleteAndGetContentId(existingReview.getId(), requesterId))
                 .isInstanceOf(ReviewForbiddenException.class);
 
             then(reviewRepository).should(never()).save(any());

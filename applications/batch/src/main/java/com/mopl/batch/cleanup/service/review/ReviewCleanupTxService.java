@@ -15,6 +15,6 @@ public class ReviewCleanupTxService {
 
     @Transactional
     public int cleanupBatch(List<UUID> reviewIds) {
-        return reviewRepository.deleteAllByIds(reviewIds);
+        return reviewRepository.deleteByIdIn(reviewIds);
     }
 }

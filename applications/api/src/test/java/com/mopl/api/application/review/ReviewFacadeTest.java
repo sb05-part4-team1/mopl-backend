@@ -300,7 +300,7 @@ class ReviewFacadeTest {
 
             // then
             then(userService).should().getById(requesterId);
-            then(reviewService).should().delete(reviewId, requesterId);
+            then(reviewService).should().deleteAndGetContentId(reviewId, requesterId);
         }
     }
 }

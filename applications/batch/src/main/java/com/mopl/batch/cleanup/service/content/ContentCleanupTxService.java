@@ -44,7 +44,7 @@ public class ContentCleanupTxService {
         int deletedTags = contentTagRepository.deleteAllByContentIds(contentIds);
         int deletedPlaylistContents = playlistContentRepository.deleteAllByContentIds(contentIds);
 
-        int softDeletedReviews = reviewRepository.softDeleteByContentIds(contentIds, now);
+        int softDeletedReviews = reviewRepository.softDeleteByContentIdIn(contentIds, now);
         int affectedThumbnails = deletionStrategy.onDeleted(thumbnailPaths);
 
         int deletedContents = contentCleanupRepository.deleteAllByIdIn(contentIds);

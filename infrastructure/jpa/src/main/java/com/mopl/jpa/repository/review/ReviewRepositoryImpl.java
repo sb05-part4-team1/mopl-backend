@@ -26,15 +26,15 @@ public class ReviewRepositoryImpl implements ReviewRepository {
     }
 
     @Override
-    public ReviewModel save(ReviewModel reviewModel) {
-        ReviewEntity reviewEntity = reviewEntityMapper.toEntity(reviewModel);
-        ReviewEntity savedReviewEntity = jpaReviewRepository.save(reviewEntity);
-        return reviewEntityMapper.toModel(savedReviewEntity);
+    public boolean existsByContentIdAndAuthorId(UUID contentId, UUID authorId) {
+        return jpaReviewRepository.existsByContentIdAndAuthorIdAndDeletedAtIsNull(contentId, authorId);
     }
 
     @Override
-    public boolean existsByContentIdAndAuthorId(UUID contentId, UUID authorId) {
-        return jpaReviewRepository.existsByContentIdAndAuthorIdAndDeletedAtIsNull(contentId, authorId);
+    public ReviewModel save(ReviewModel reviewModel) {
+        ReviewEntity reviewEntity = reviewEntityMapper.toEntity(reviewModel);
+        ReviewEntity savedReviewEntity = jpaReviewRepository.save(reviewEntity);
+        return reviewEntityMapper.toModelWithContentAndAuthor(savedReviewEntity);
     }
 
     @Override
@@ -43,12 +43,12 @@ public class ReviewRepositoryImpl implements ReviewRepository {
     }
 
     @Override
-    public int deleteAllByIds(List<UUID> reviewIds) {
-        return jpaReviewRepository.deleteAllByIds(reviewIds);
+    public int deleteByIdIn(List<UUID> reviewIds) {
+        return jpaReviewRepository.deleteByIdIn(reviewIds);
     }
 
     @Override
-    public int softDeleteByContentIds(List<UUID> contentIds, Instant now) {
-        return jpaReviewRepository.softDeleteByContentIds(contentIds, now);
+    public int softDeleteByContentIdIn(List<UUID> contentIds, Instant now) {
+        return jpaReviewRepository.softDeleteByContentIdIn(contentIds, now);
     }
 }

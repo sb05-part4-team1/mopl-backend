@@ -17,7 +17,7 @@ public interface ReviewRepository {
 
     List<UUID> findCleanupTargets(Instant threshold, int limit);
 
-    int deleteAllByIds(List<UUID> reviewIds);
+    int deleteByIdIn(List<UUID> reviewIds);
 
-    int softDeleteByContentIds(List<UUID> contentIds, Instant now);
+    int softDeleteByContentIdIn(List<UUID> contentIds, Instant now);
 }

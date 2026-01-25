@@ -26,13 +26,11 @@ import java.util.UUID;
 public class ReviewFacade {
 
     private final ReviewService reviewService;
-    private final UserService userService;
     private final ContentService contentService;
+    private final UserService userService;
     private final ReviewResponseMapper reviewResponseMapper;
-
     private final ContentSearchSyncPort contentSearchSyncPort;
     private final AfterCommitExecutor afterCommitExecutor;
-
     private final ContentCachePort contentCachePort;
 
     public CursorResponse<ReviewResponse> getReviews(ReviewQueryRequest request) {
@@ -51,7 +49,7 @@ public class ReviewFacade {
             request.rating()
         );
 
-        syncContentAfterCommit(request.contentId());
+        syncContentAfterCommit(content.getId());
 
         return reviewResponseMapper.toResponse(savedReview);
     }
@@ -78,7 +76,7 @@ public class ReviewFacade {
     public void deleteReview(UUID requesterId, UUID reviewId) {
         userService.getById(requesterId);
 
-        UUID contentId = reviewService.delete(reviewId, requesterId);
+        UUID contentId = reviewService.deleteAndGetContentId(reviewId, requesterId);
 
         syncContentAfterCommit(contentId);
     }

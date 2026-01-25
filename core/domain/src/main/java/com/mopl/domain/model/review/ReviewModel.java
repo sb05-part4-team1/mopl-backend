@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder(toBuilder = true)
 public class ReviewModel extends BaseUpdatableModel {
 
     public static final int TEXT_MAX_LENGTH = 10_000;
@@ -49,17 +49,23 @@ public class ReviewModel extends BaseUpdatableModel {
         String newText,
         Double newRating
     ) {
+        String updatedText = this.text;
+        double updatedRating = this.rating;
+
         if (newText != null) {
             validateText(newText);
-            this.text = newText;
+            updatedText = newText;
         }
 
         if (newRating != null) {
             validateRating(newRating);
-            this.rating = newRating;
+            updatedRating = newRating;
         }
 
-        return this;
+        return this.toBuilder()
+            .text(updatedText)
+            .rating(updatedRating)
+            .build();
     }
 
     private static void validateText(String text) {

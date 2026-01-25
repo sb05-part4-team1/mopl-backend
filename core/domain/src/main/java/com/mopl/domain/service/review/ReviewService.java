@@ -56,32 +56,31 @@ public class ReviewService {
 
         double oldRating = review.getRating();
 
-        review.update(text, rating);
-        ReviewModel saved = reviewRepository.save(review);
+        ReviewModel updatedReview = review.update(text, rating);
+        ReviewModel savedReview = reviewRepository.save(updatedReview);
 
-        if (rating != null && rating != oldRating) {
-            ContentModel content = saved.getContent();
+        if (rating != null && Double.compare(rating, oldRating) != 0) {
+            ContentModel content = savedReview.getContent();
             contentRepository.save(content.updateReview(oldRating, rating));
         }
 
-        return saved;
+        return savedReview;
     }
 
-    public UUID delete(UUID reviewId, UUID requesterId) {
+    public UUID deleteAndGetContentId(UUID reviewId, UUID requesterId) {
         ReviewModel review = getById(reviewId);
         validateAuthor(review, requesterId);
 
-        UUID contentId = review.getContent().getId();
+        ContentModel content = review.getContent();
 
         double rating = review.getRating();
 
         review.delete();
         reviewRepository.save(review);
 
-        ContentModel content = review.getContent();
         contentRepository.save(content.removeReview(rating));
 
-        return contentId;
+        return content.getId();
     }
 
     private ReviewModel getById(UUID reviewId) {

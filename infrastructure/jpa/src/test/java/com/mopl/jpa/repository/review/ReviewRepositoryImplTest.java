@@ -200,8 +200,8 @@ class ReviewRepositoryImplTest {
             ReviewModel savedReview = reviewRepository.save(reviewModel);
 
             // when
-            savedReview.update("수정된 리뷰 내용", 4.5);
-            ReviewModel updatedReview = reviewRepository.save(savedReview);
+            ReviewModel modifiedReview = savedReview.update("수정된 리뷰 내용", 4.5);
+            ReviewModel updatedReview = reviewRepository.save(modifiedReview);
 
             // then
             assertThat(updatedReview.getId()).isEqualTo(savedReview.getId());
