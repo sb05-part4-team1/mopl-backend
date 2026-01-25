@@ -81,6 +81,7 @@ public interface ReviewApiSpec {
         content = @Content(schema = @Schema(implementation = ReviewResponse.class))
     )
     @ApiErrorResponse.Default
+    @ApiErrorResponse.Conflict
     ReviewResponse createReview(
         @Parameter(hidden = true) MoplUserDetails userDetails,
         @Parameter(required = true) ReviewCreateRequest request
