@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.util.List;
@@ -17,7 +16,6 @@ public interface JpaPlaylistRepository extends JpaRepository<PlaylistEntity, UUI
     @EntityGraph(attributePaths = {"owner"})
     Optional<PlaylistEntity> findWithOwnerById(UUID id);
 
-    // 이하 메서드들 cleanup batch 전용
     @Query(
         value = """
                 select BIN_TO_UUID(id)
@@ -29,10 +27,7 @@ public interface JpaPlaylistRepository extends JpaRepository<PlaylistEntity, UUI
             """,
         nativeQuery = true
     )
-    List<UUID> findCleanupTargets(
-        @Param("threshold") Instant threshold,
-        @Param("limit") int limit
-    );
+    List<UUID> findCleanupTargets(Instant threshold, int limit);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(
@@ -45,10 +40,10 @@ public interface JpaPlaylistRepository extends JpaRepository<PlaylistEntity, UUI
     int deleteByIdIn(List<UUID> playlistIds);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("UPDATE PlaylistEntity p SET p.subscriberCount = p.subscriberCount + 1 WHERE p.id = :playlistId")
-    void incrementSubscriberCount(@Param("playlistId") UUID playlistId);
-
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("UPDATE PlaylistEntity p SET p.subscriberCount = p.subscriberCount - 1 WHERE p.id = :playlistId AND p.subscriberCount > 0")
-    void decrementSubscriberCount(@Param("playlistId") UUID playlistId);
+    @Query("""
+            update PlaylistEntity p
+            set p.subscriberCount = :subscriberCount
+            where p.id = :playlistId
+        """)
+    int updateSubscriberCount(UUID playlistId, int subscriberCount);
 }

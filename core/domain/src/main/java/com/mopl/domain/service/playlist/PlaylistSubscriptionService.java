@@ -2,7 +2,6 @@ package com.mopl.domain.service.playlist;
 
 import com.mopl.domain.exception.playlist.PlaylistSubscriptionAlreadyExistsException;
 import com.mopl.domain.exception.playlist.PlaylistSubscriptionNotFoundException;
-import com.mopl.domain.repository.playlist.PlaylistRepository;
 import com.mopl.domain.repository.playlist.PlaylistSubscriberRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -15,7 +14,6 @@ import java.util.UUID;
 public class PlaylistSubscriptionService {
 
     private final PlaylistSubscriberRepository playlistSubscriberRepository;
-    private final PlaylistRepository playlistRepository;
 
     public boolean isSubscribedByPlaylistIdAndSubscriberId(
         UUID playlistId,
@@ -47,7 +45,6 @@ public class PlaylistSubscriptionService {
         }
 
         playlistSubscriberRepository.save(playlistId, subscriberId);
-        playlistRepository.incrementSubscriberCount(playlistId);
     }
 
     public void unsubscribe(UUID playlistId, UUID subscriberId) {
@@ -58,6 +55,5 @@ public class PlaylistSubscriptionService {
         if (!deleted) {
             throw PlaylistSubscriptionNotFoundException.withPlaylistIdAndSubscriberId(playlistId, subscriberId);
         }
-        playlistRepository.decrementSubscriberCount(playlistId);
     }
 }

@@ -601,6 +601,7 @@ class PlaylistFacadeTest {
             given(userService.getById(requesterId)).willReturn(subscriber);
             given(playlistService.getById(playlistId)).willReturn(playlist);
             willDoNothing().given(playlistSubscriptionService).subscribe(playlistId, requesterId);
+            given(playlistService.update(any(PlaylistModel.class))).willReturn(playlist.addSubscriber());
             setupTransactionTemplateWithoutResult();
 
             // when & then
@@ -608,6 +609,7 @@ class PlaylistFacadeTest {
                 .isThrownBy(() -> playlistFacade.subscribePlaylist(requesterId, playlistId));
 
             then(playlistSubscriptionService).should().subscribe(playlistId, requesterId);
+            then(playlistService).should().update(any(PlaylistModel.class));
             then(outboxService).should().save(any());
         }
 
@@ -640,12 +642,15 @@ class PlaylistFacadeTest {
             // given
             UserModel subscriber = UserModelFixture.create();
             UUID requesterId = subscriber.getId();
-            PlaylistModel playlist = PlaylistModelFixture.create();
+            PlaylistModel playlist = PlaylistModelFixture.builder()
+                .set("subscriberCount", 1)
+                .sample();
             UUID playlistId = playlist.getId();
 
             given(userService.getById(requesterId)).willReturn(subscriber);
             given(playlistService.getById(playlistId)).willReturn(playlist);
             willDoNothing().given(playlistSubscriptionService).unsubscribe(playlistId, requesterId);
+            given(playlistService.update(any(PlaylistModel.class))).willReturn(playlist.removeSubscriber());
             setupTransactionTemplateWithoutResult();
 
             // when & then
@@ -653,6 +658,7 @@ class PlaylistFacadeTest {
                 .isThrownBy(() -> playlistFacade.unsubscribePlaylist(requesterId, playlistId));
 
             then(playlistSubscriptionService).should().unsubscribe(playlistId, requesterId);
+            then(playlistService).should().update(any(PlaylistModel.class));
         }
 
         @Test

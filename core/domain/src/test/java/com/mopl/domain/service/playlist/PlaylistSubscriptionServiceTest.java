@@ -2,7 +2,6 @@ package com.mopl.domain.service.playlist;
 
 import com.mopl.domain.exception.playlist.PlaylistSubscriptionAlreadyExistsException;
 import com.mopl.domain.exception.playlist.PlaylistSubscriptionNotFoundException;
-import com.mopl.domain.repository.playlist.PlaylistRepository;
 import com.mopl.domain.repository.playlist.PlaylistSubscriberRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -28,9 +27,6 @@ class PlaylistSubscriptionServiceTest {
 
     @Mock
     private PlaylistSubscriberRepository playlistSubscriberRepository;
-
-    @Mock
-    private PlaylistRepository playlistRepository;
 
     @InjectMocks
     private PlaylistSubscriptionService playlistSubscriptionService;
@@ -151,7 +147,6 @@ class PlaylistSubscriptionServiceTest {
 
             // then
             then(playlistSubscriberRepository).should().save(playlistId, subscriberId);
-            then(playlistRepository).should().incrementSubscriberCount(playlistId);
         }
 
         @Test
@@ -171,7 +166,6 @@ class PlaylistSubscriptionServiceTest {
             ).isInstanceOf(PlaylistSubscriptionAlreadyExistsException.class);
 
             then(playlistSubscriberRepository).should(never()).save(playlistId, subscriberId);
-            then(playlistRepository).should(never()).incrementSubscriberCount(playlistId);
         }
     }
 
@@ -197,7 +191,6 @@ class PlaylistSubscriptionServiceTest {
             then(playlistSubscriberRepository).should().deleteByPlaylistIdAndSubscriberId(
                 playlistId, subscriberId
             );
-            then(playlistRepository).should().decrementSubscriberCount(playlistId);
         }
 
         @Test
@@ -215,8 +208,6 @@ class PlaylistSubscriptionServiceTest {
             assertThatThrownBy(
                 () -> playlistSubscriptionService.unsubscribe(playlistId, subscriberId)
             ).isInstanceOf(PlaylistSubscriptionNotFoundException.class);
-
-            then(playlistRepository).should(never()).decrementSubscriberCount(playlistId);
         }
     }
 }
