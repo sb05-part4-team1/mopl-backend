@@ -12,5 +12,5 @@ public interface JpaDirectMessageRepository extends JpaRepository<DirectMessageE
     Optional<DirectMessageEntity> findTopByConversationIdOrderByCreatedAtDesc(UUID conversationId);
 
     @EntityGraph(attributePaths = {"sender"})
-    Optional<DirectMessageEntity> findWithSenderTopByConversationIdOrderByCreatedAtDesc(UUID conversationId);
+    Optional<DirectMessageEntity> findTopWithSenderByConversationIdOrderByCreatedAtDesc(UUID conversationId);
 }

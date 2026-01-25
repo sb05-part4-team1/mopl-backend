@@ -25,7 +25,7 @@ public class DirectMessageRepositoryImpl implements DirectMessageRepository {
 
     @Override
     public Optional<DirectMessageModel> findLastMessageWithSenderByConversationId(UUID conversationId) {
-        return jpaDirectMessageRepository.findWithSenderTopByConversationIdOrderByCreatedAtDesc(conversationId)
+        return jpaDirectMessageRepository.findTopWithSenderByConversationIdOrderByCreatedAtDesc(conversationId)
             .map(directMessageEntityMapper::toModelWithSender);
     }
 
