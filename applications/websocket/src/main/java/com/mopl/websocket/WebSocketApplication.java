@@ -7,8 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
     "com.mopl.websocket",
     "com.mopl.jpa",
     "com.mopl.domain",
-    "com.mopl.redis",
-    "com.mopl.cache"
+    "com.mopl.redis"
 })
 public class WebSocketApplication {
 
