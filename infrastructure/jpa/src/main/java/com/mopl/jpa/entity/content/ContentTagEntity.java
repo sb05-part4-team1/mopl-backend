@@ -20,7 +20,8 @@ import lombok.experimental.SuperBuilder;
     name = "content_tags",
     indexes = {
         @Index(name = "idx_content_tags_content_id", columnList = "content_id"),
-        @Index(name = "idx_content_tags_tag_id", columnList = "tag_id")
+        @Index(name = "idx_content_tags_tag_id", columnList = "tag_id"),
+        @Index(name = "idx_content_tags_created_at", columnList = "created_at")
     }
 )
 @Getter

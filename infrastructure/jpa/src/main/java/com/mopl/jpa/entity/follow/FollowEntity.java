@@ -24,7 +24,8 @@ import lombok.experimental.SuperBuilder;
     indexes = {
         @Index(name = "idx_follows_follower_id", columnList = "follower_id"),
         @Index(name = "idx_follows_followee_id", columnList = "followee_id"),
-        @Index(name = "idx_follows_deleted_at", columnList = "deleted_at")
+        @Index(name = "idx_follows_deleted_at", columnList = "deleted_at"),
+        @Index(name = "idx_follows_created_at", columnList = "created_at")
     }
 )
 @Getter
