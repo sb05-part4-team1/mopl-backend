@@ -4,6 +4,7 @@ import com.mopl.websocket.application.content.ContentChatFacade;
 import com.mopl.websocket.interfaces.api.content.dto.ContentChatRequest;
 import com.mopl.websocket.interfaces.api.content.dto.ContentChatResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
@@ -21,9 +22,10 @@ public class ContentChatController {
     @SendTo("/sub/contents/{contentId}/chat")
     public ContentChatResponse sendChat(
         Principal principal,
+        @DestinationVariable UUID contentId,
         ContentChatRequest request
     ) {
         UUID senderId = UUID.fromString(principal.getName());
-        return contentChatFacade.sendChatMessage(senderId, request.content());
+        return contentChatFacade.sendChatMessage(senderId, contentId, request.content());
     }
 }

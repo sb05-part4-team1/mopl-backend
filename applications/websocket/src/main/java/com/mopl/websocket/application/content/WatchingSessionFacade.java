@@ -3,6 +3,7 @@ package com.mopl.websocket.application.content;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import com.mopl.domain.model.content.ContentModel;
@@ -21,10 +22,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WatchingSessionFacade {
 
+    private static final String WATCH_DESTINATION_PREFIX = "/sub/contents/";
+    private static final String WATCH_DESTINATION_SUFFIX = "/watch";
+
     private final WatchingSessionRepository watchingSessionRepository;
     private final UserService userService;
     private final ContentService contentService;
     private final WatchingSessionResponseMapper watchingSessionResponseMapper;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public WatchingSessionChangeResponse joinSession(UUID contentId, UUID userId) {
         Optional<WatchingSessionModel> existingOpt = watchingSessionRepository.findByWatcherId(userId);
@@ -35,6 +40,7 @@ public class WatchingSessionFacade {
             if (existing.getContentId().equals(contentId)) {
                 session = existing.incrementConnectionCount();
             } else {
+                broadcastLeave(existing);
                 watchingSessionRepository.delete(existing);
                 session = createNewSession(contentId, userId);
             }
@@ -48,6 +54,19 @@ public class WatchingSessionFacade {
             watchingSessionResponseMapper.toDto(session),
             watchingSessionRepository.countByContentId(contentId)
         );
+    }
+
+    private void broadcastLeave(WatchingSessionModel session) {
+        WatchingSessionChangeResponse leaveResponse = new WatchingSessionChangeResponse(
+            WatchingSessionChangeType.LEAVE,
+            watchingSessionResponseMapper.toDto(session),
+            watchingSessionRepository.countByContentId(session.getContentId()) - 1
+        );
+        messagingTemplate.convertAndSend(buildWatchDestination(session.getContentId()), leaveResponse);
+    }
+
+    private String buildWatchDestination(UUID contentId) {
+        return WATCH_DESTINATION_PREFIX + contentId + WATCH_DESTINATION_SUFFIX;
     }
 
     public WatchingSessionChangeResponse leaveSession(UUID contentId, UUID userId) {
