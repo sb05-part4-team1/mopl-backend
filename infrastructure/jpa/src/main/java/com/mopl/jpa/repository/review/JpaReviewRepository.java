@@ -17,7 +17,8 @@ public interface JpaReviewRepository extends JpaRepository<ReviewEntity, UUID> {
     @EntityGraph(attributePaths = {"content", "author"})
     Optional<ReviewEntity> findWithContentAndAuthorById(UUID id);
 
-    // 이하 메서드들 cleanup batch 전용
+    boolean existsByContentIdAndAuthorIdAndDeletedAtIsNull(UUID contentId, UUID authorId);
+
     @Query(
         value = """
                 select BIN_TO_UUID(id)

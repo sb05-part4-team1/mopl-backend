@@ -1,5 +1,6 @@
 package com.mopl.domain.service.review;
 
+import com.mopl.domain.exception.review.ReviewAlreadyExistsException;
 import com.mopl.domain.exception.review.ReviewForbiddenException;
 import com.mopl.domain.exception.review.ReviewNotFoundException;
 import com.mopl.domain.model.content.ContentModel;
@@ -31,6 +32,10 @@ public class ReviewService {
         String text,
         double rating
     ) {
+        if (reviewRepository.existsByContentIdAndAuthorId(content.getId(), author.getId())) {
+            throw ReviewAlreadyExistsException.withContentIdAndAuthorId(content.getId(), author.getId());
+        }
+
         ReviewModel reviewModel = ReviewModel.create(content, author, text, rating);
         ReviewModel savedReviewModel = reviewRepository.save(reviewModel);
 

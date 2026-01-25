@@ -32,7 +32,11 @@ public class ReviewRepositoryImpl implements ReviewRepository {
         return reviewEntityMapper.toModel(savedReviewEntity);
     }
 
-    // 이하 메서드들 cleanup batch 전용
+    @Override
+    public boolean existsByContentIdAndAuthorId(UUID contentId, UUID authorId) {
+        return jpaReviewRepository.existsByContentIdAndAuthorIdAndDeletedAtIsNull(contentId, authorId);
+    }
+
     @Override
     public List<UUID> findCleanupTargets(Instant threshold, int limit) {
         return jpaReviewRepository.findCleanupTargets(threshold, limit);

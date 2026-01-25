@@ -13,7 +13,8 @@ public interface ReviewRepository {
 
     Optional<ReviewModel> findById(UUID reviewId);
 
-    // 이하 메서드들 cleanup batch 전용
+    boolean existsByContentIdAndAuthorId(UUID contentId, UUID authorId);
+
     List<UUID> findCleanupTargets(Instant threshold, int limit);
 
     int deleteAllByIds(List<UUID> reviewIds);
