@@ -1,6 +1,6 @@
 package com.mopl.api.application.follow;
 
-import com.mopl.api.application.outbox.mapper.DomainEventOutboxMapper;
+import com.mopl.dto.outbox.DomainEventOutboxMapper;
 import com.mopl.domain.event.user.UserFollowedEvent;
 import com.mopl.domain.event.user.UserUnfollowedEvent;
 import com.mopl.domain.exception.follow.FollowNotAllowedException;

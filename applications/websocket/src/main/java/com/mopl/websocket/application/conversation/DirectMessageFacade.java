@@ -12,7 +12,7 @@ import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.dto.conversation.DirectMessageResponse;
 import com.mopl.dto.conversation.DirectMessageResponseMapper;
 import com.mopl.redis.pubsub.DirectMessagePublisher;
-import com.mopl.websocket.application.outbox.mapper.DomainEventOutboxMapper;
+import com.mopl.dto.outbox.DomainEventOutboxMapper;
 import com.mopl.websocket.interfaces.api.conversation.dto.DirectMessageSendRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

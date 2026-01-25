@@ -16,7 +16,7 @@ import com.mopl.dto.conversation.DirectMessageResponse;
 import com.mopl.dto.conversation.DirectMessageResponseMapper;
 import com.mopl.dto.user.UserSummary;
 import com.mopl.redis.pubsub.DirectMessagePublisher;
-import com.mopl.websocket.application.outbox.mapper.DomainEventOutboxMapper;
+import com.mopl.dto.outbox.DomainEventOutboxMapper;
 import com.mopl.websocket.interfaces.api.conversation.dto.DirectMessageSendRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

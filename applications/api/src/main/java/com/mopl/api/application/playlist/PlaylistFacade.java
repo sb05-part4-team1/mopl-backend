@@ -1,6 +1,6 @@
 package com.mopl.api.application.playlist;
 
-import com.mopl.api.application.outbox.mapper.DomainEventOutboxMapper;
+import com.mopl.dto.outbox.DomainEventOutboxMapper;
 import com.mopl.api.interfaces.api.playlist.dto.PlaylistCreateRequest;
 import com.mopl.api.interfaces.api.playlist.dto.PlaylistUpdateRequest;
 import com.mopl.domain.event.playlist.PlaylistContentAddedEvent;

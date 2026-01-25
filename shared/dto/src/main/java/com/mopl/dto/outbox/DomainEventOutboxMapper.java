@@ -1,4 +1,4 @@
-package com.mopl.api.application.outbox.mapper;
+package com.mopl.dto.outbox;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
