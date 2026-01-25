@@ -31,6 +31,14 @@ public interface JpaReviewRepository extends JpaRepository<ReviewEntity, UUID> {
     )
     List<UUID> findCleanupTargets(Instant threshold, int limit);
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(
+        value = """
+                delete from reviews
+                where id in :reviewIds
+            """,
+        nativeQuery = true
+    )
     int deleteByIdIn(List<UUID> reviewIds);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)

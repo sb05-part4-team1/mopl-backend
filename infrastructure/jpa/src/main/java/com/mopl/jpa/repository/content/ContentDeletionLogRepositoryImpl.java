@@ -95,7 +95,7 @@ public class ContentDeletionLogRepositoryImpl implements ContentDeletionLogRepos
     }
 
     @Override
-    public int deleteAllByIdIn(List<UUID> logIds) {
+    public int deleteByIdIn(List<UUID> logIds) {
         if (logIds == null || logIds.isEmpty()) {
             return 0;
         }

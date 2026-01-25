@@ -13,7 +13,6 @@ import com.mopl.jpa.entity.user.UserEntityMapper;
 import com.mopl.jpa.repository.content.ContentRepositoryImpl;
 import com.mopl.jpa.repository.user.UserRepositoryImpl;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -408,11 +406,31 @@ class ReviewRepositoryImplTest {
         }
 
         @Test
-        @DisplayName("soft deleted된 리뷰를 hard delete한다 (통합 테스트 필요)")
+        @DisplayName("soft deleted된 리뷰를 hard delete한다")
         void withSoftDeletedReviews_hardDeletes() {
-            // This test requires MySQL integration test
-            // because @SQLRestriction prevents Spring Data JPA
-            // from finding soft-deleted records
+            // given
+            ReviewModel review1 = reviewRepository.save(
+                ReviewModel.create(savedContent, savedAuthor, "리뷰1", 4.0)
+            );
+            review1.delete();
+            reviewRepository.save(review1);
+
+            UserModel author2 = userRepository.save(
+                UserModel.create("author2@example.com", "작성자2", "encodedPassword")
+            );
+            ReviewModel review2 = reviewRepository.save(
+                ReviewModel.create(savedContent, author2, "리뷰2", 3.0)
+            );
+            review2.delete();
+            reviewRepository.save(review2);
+
+            List<UUID> idsToDelete = List.of(review1.getId(), review2.getId());
+
+            // when
+            int deletedCount = reviewRepository.deleteByIdIn(idsToDelete);
+
+            // then
+            assertThat(deletedCount).isEqualTo(2);
         }
     }
 

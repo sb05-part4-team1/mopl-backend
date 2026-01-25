@@ -15,5 +15,5 @@ public interface ContentDeletionLogRepository {
 
     void markImageProcessed(List<UUID> logIds, Instant now);
 
-    int deleteAllByIdIn(List<UUID> logIds);
+    int deleteByIdIn(List<UUID> logIds);
 }
