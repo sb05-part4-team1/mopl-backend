@@ -27,11 +27,6 @@ public class ConversationService {
             .orElseThrow(() -> ConversationNotFoundException.withId(conversationId));
     }
 
-    public ConversationModel getByIdWithAccessCheck(UUID conversationId, UUID requesterId) {
-        // validateParticipant(conversationId, requesterId);
-        return getById(conversationId);
-    }
-
     public ConversationModel create(
         ConversationModel conversationModel,
         UserModel userModel,

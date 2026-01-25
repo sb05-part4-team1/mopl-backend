@@ -113,24 +113,5 @@ class ConversationResponseMapperTest {
             assertThat(result.lastMessage()).isNull();
             assertThat(result.hasUnread()).isFalse();
         }
-
-        @Test
-        @DisplayName("기본 toResponse 메서드는 연관 데이터 없이 변환")
-        void withOnlyConversationModel_returnsConversationResponseWithNulls() {
-            // given
-            ConversationModel conversationModel = ConversationModelFixture.create();
-
-            given(userSummaryMapper.toSummary(null)).willReturn(null);
-            given(directMessageResponseMapper.toResponse(null, null)).willReturn(null);
-
-            // when
-            ConversationResponse result = mapper.toResponse(conversationModel);
-
-            // then
-            assertThat(result.id()).isEqualTo(conversationModel.getId());
-            assertThat(result.with()).isNull();
-            assertThat(result.lastMessage()).isNull();
-            assertThat(result.hasUnread()).isFalse();
-        }
     }
 }

@@ -15,10 +15,6 @@ public class ConversationResponseMapper {
     private final UserSummaryMapper userSummaryMapper;
     private final DirectMessageResponseMapper directMessageResponseMapper;
 
-    public ConversationResponse toResponse(ConversationModel conversationModel) {
-        return toResponse(conversationModel, null, null, false);
-    }
-
     public ConversationResponse toResponse(
         ConversationModel conversationModel,
         UserModel withUser,

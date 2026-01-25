@@ -3,18 +3,19 @@ package com.mopl.domain.repository.conversation;
 import com.mopl.domain.model.conversation.ReadStatusModel;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ReadStatusRepository {
 
-    ReadStatusModel findByConversationIdAndUserId(UUID conversationId, UUID userId);
+    List<ReadStatusModel> findByParticipantIdAndConversationIdIn(UUID participantId, Collection<UUID> conversationIds);
 
-    ReadStatusModel findWithParticipantByParticipantIdNotAndConversationId(UUID userId, UUID conversationId);
+    List<ReadStatusModel> findWithParticipantByParticipantIdNotAndConversationIdIn(UUID participantId, Collection<UUID> conversationIds);
 
-    Map<UUID, ReadStatusModel> findOtherReadStatusWithParticipantByConversationIdIn(UUID userId, Collection<UUID> conversationIds);
+    Optional<ReadStatusModel> findByParticipantIdAndConversationId(UUID participantId, UUID conversationId);
 
-    Map<UUID, ReadStatusModel> findMyReadStatusByConversationIdIn(UUID userId, Collection<UUID> conversationIds);
+    Optional<ReadStatusModel> findWithParticipantByParticipantIdNotAndConversationId(UUID participantId, UUID conversationId);
 
     boolean existsByParticipantIdAndConversationId(UUID participantId, UUID conversationId);
 

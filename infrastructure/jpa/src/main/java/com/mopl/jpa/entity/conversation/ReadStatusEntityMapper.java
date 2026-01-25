@@ -23,11 +23,11 @@ public class ReadStatusEntityMapper {
         return buildReadStatusModel(
             entity,
             toConversationIdOnly(entity.getConversation()),
-            toUserIdOnly(entity.getParticipant())
+            toParticipantIdOnly(entity.getParticipant())
         );
     }
 
-    public ReadStatusModel toModelWithUser(ReadStatusEntity entity) {
+    public ReadStatusModel toModelWithParticipant(ReadStatusEntity entity) {
         if (entity == null) {
             return null;
         }
@@ -73,7 +73,7 @@ public class ReadStatusEntityMapper {
             : null;
     }
 
-    private UserModel toUserIdOnly(UserEntity entity) {
+    private UserModel toParticipantIdOnly(UserEntity entity) {
         return entity != null
             ? UserModel.builder().id(entity.getId()).build()
             : null;

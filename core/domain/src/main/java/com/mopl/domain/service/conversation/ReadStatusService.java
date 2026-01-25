@@ -9,50 +9,62 @@ import lombok.RequiredArgsConstructor;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class ReadStatusService {
 
     private final ReadStatusRepository readStatusRepository;
 
-    public ReadStatusModel getOtherReadStatusWithParticipant(UUID userId, UUID conversationId) {
-        return readStatusRepository.findWithParticipantByParticipantIdNotAndConversationId(userId, conversationId);
-    }
-
-    public ReadStatusModel getMyReadStatus(UUID conversationId, UUID requesterId) {
-        return readStatusRepository.findByConversationIdAndUserId(conversationId, requesterId);
-    }
-
-    public Map<UUID, ReadStatusModel> getOtherReadStatusWithParticipantByConversationIdIn(
-        UUID userId,
+    public Map<UUID, ReadStatusModel> getMyReadStatusMapByConversationIdIn(
+        UUID participantId,
         Collection<UUID> conversationIds
     ) {
-        return readStatusRepository.findOtherReadStatusWithParticipantByConversationIdIn(userId, conversationIds);
+        return readStatusRepository
+            .findByParticipantIdAndConversationIdIn(participantId, conversationIds)
+            .stream()
+            .collect(Collectors.toMap(
+                rs -> rs.getConversation().getId(),
+                Function.identity()
+            ));
     }
 
-    public Map<UUID, ReadStatusModel> getMyReadStatusByConversationIdIn(
-        UUID userId,
+    public Map<UUID, ReadStatusModel> getOtherReadStatusWithParticipantMapByConversationIdIn(
+        UUID participantId,
         Collection<UUID> conversationIds
     ) {
-        return readStatusRepository.findMyReadStatusByConversationIdIn(userId, conversationIds);
+        return readStatusRepository
+            .findWithParticipantByParticipantIdNotAndConversationIdIn(participantId, conversationIds)
+            .stream()
+            .collect(Collectors.toMap(
+                rs -> rs.getConversation().getId(),
+                Function.identity()
+            ));
+    }
+
+    public ReadStatusModel getMyReadStatus(UUID conversationId, UUID participantId) {
+        return readStatusRepository
+            .findByParticipantIdAndConversationId(participantId, conversationId)
+            .orElse(null);
+    }
+
+    public ReadStatusModel getOtherReadStatusWithParticipant(UUID conversationId, UUID participantId) {
+        return readStatusRepository
+            .findWithParticipantByParticipantIdNotAndConversationId(participantId, conversationId)
+            .orElse(null);
+    }
+
+    public void validateParticipant(UUID participantId, UUID conversationId) {
+        if (!readStatusRepository.existsByParticipantIdAndConversationId(participantId, conversationId)) {
+            throw ConversationAccessDeniedException.withUserIdAndConversationId(participantId, conversationId);
+        }
     }
 
     public void markAsRead(DirectMessageModel directMessageModel, ReadStatusModel readStatusModel) {
         if (directMessageModel != null) {
             ReadStatusModel updated = readStatusModel.markAsRead();
             readStatusRepository.save(updated);
-        }
-    }
-
-    public void validateParticipant(UUID participantId, UUID conversationId) {
-        if (!readStatusRepository.existsByParticipantIdAndConversationId(
-            participantId,
-            conversationId
-        )) {
-            throw ConversationAccessDeniedException.withUserIdAndConversationId(
-                participantId,
-                conversationId
-            );
         }
     }
 }

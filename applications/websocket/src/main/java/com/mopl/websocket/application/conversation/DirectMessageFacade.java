@@ -29,7 +29,7 @@ public class DirectMessageFacade {
     @Transactional
     public DirectMessageResponse sendDirectMessage(UUID conversationId, UUID senderId, String message) {
         UserModel sender = userService.getById(senderId);
-        ConversationModel conversation = conversationService.getByIdWithAccessCheck(conversationId, senderId);
+        ConversationModel conversation = conversationService.getById(conversationId);
 
         ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatusWithParticipant(conversationId, senderId);
         UserModel receiver = otherReadStatus.getParticipant();

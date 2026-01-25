@@ -52,18 +52,18 @@ public class ConversationFacade {
             .toList();
 
         Map<UUID, DirectMessageModel> lastMessageMap = directMessageService.getLastMessagesWithSenderByConversationIdIn(conversationIds);
-        Map<UUID, ReadStatusModel> otherReadStatusMap = readStatusService.getOtherReadStatusWithParticipantByConversationIdIn(userId, conversationIds);
-        Map<UUID, ReadStatusModel> myReadStatusMap = readStatusService.getMyReadStatusByConversationIdIn(userId, conversationIds);
+        Map<UUID, ReadStatusModel> otherReadStatusMap = readStatusService.getOtherReadStatusWithParticipantMapByConversationIdIn(userId, conversationIds);
+        Map<UUID, ReadStatusModel> requesterReadStatusMap = readStatusService.getMyReadStatusMapByConversationIdIn(userId, conversationIds);
 
         return response.map(conversation -> {
             UUID conversationId = conversation.getId();
 
-            ReadStatusModel otherReadStatus = otherReadStatusMap.get(conversationId);
             DirectMessageModel lastMessage = lastMessageMap.get(conversationId);
-            ReadStatusModel myReadStatus = myReadStatusMap.get(conversationId);
+            ReadStatusModel otherReadStatus = otherReadStatusMap.get(conversationId);
+            ReadStatusModel requesterReadStatus = requesterReadStatusMap.get(conversationId);
 
             UserModel withUser = otherReadStatus != null ? otherReadStatus.getParticipant() : null;
-            boolean hasUnread = calculateHasUnread(userId, lastMessage, myReadStatus);
+            boolean hasUnread = calculateHasUnread(userId, lastMessage, requesterReadStatus);
 
             return conversationResponseMapper.toResponse(
                 conversation,
@@ -74,15 +74,19 @@ public class ConversationFacade {
         });
     }
 
-    public ConversationResponse getConversation(UUID requesterId, UUID conversationId) {
-        ConversationModel conversation = conversationService.getByIdWithAccessCheck(conversationId, requesterId);
+    public ConversationResponse getConversation(UUID userId, UUID conversationId) {
+        UserModel requester = userService.getById(userId);
+        UUID requesterId = requester.getId();
+        readStatusService.validateParticipant(requesterId, conversationId);
 
-        ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatusWithParticipant(conversationId, requesterId);
+        ConversationModel conversation = conversationService.getById(conversationId);
+
         DirectMessageModel lastMessage = directMessageService.getLastMessageByConversationId(conversationId);
-        ReadStatusModel myReadStatus = readStatusService.getMyReadStatus(conversationId, requesterId);
+        ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatusWithParticipant(conversationId, requesterId);
+        ReadStatusModel requesterReadStatus = readStatusService.getMyReadStatus(conversationId, requesterId);
 
         UserModel withUser = otherReadStatus != null ? otherReadStatus.getParticipant() : null;
-        boolean hasUnread = calculateHasUnread(requesterId, lastMessage, myReadStatus);
+        boolean hasUnread = calculateHasUnread(requesterId, lastMessage, requesterReadStatus);
 
         return conversationResponseMapper.toResponse(conversation, withUser, lastMessage, hasUnread);
     }
@@ -97,9 +101,9 @@ public class ConversationFacade {
             });
 
         DirectMessageModel lastMessage = directMessageService.getLastMessageByConversationId(conversation.getId());
-        ReadStatusModel myReadStatus = readStatusService.getMyReadStatus(conversation.getId(), requesterId);
+        ReadStatusModel requesterReadStatus = readStatusService.getMyReadStatus(conversation.getId(), requesterId);
 
-        boolean hasUnread = calculateHasUnread(requesterId, lastMessage, myReadStatus);
+        boolean hasUnread = calculateHasUnread(requesterId, lastMessage, requesterReadStatus);
 
         return conversationResponseMapper.toResponse(conversation, withUser, lastMessage, hasUnread);
     }
@@ -127,7 +131,7 @@ public class ConversationFacade {
         UUID requesterId = requester.getId();
         readStatusService.validateParticipant(requesterId, conversationId);
 
-        ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatusWithParticipant(requesterId, conversationId);
+        ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatusWithParticipant(conversationId, requesterId);
         UserModel otherParticipant = otherReadStatus != null ? otherReadStatus.getParticipant() : null;
 
         CursorResponse<DirectMessageModel> directMessages = directMessageService.getAll(requesterId, conversationId, request);
@@ -147,19 +151,19 @@ public class ConversationFacade {
             requesterId, conversationId, directMessageId
         );
 
-        ReadStatusModel myReadStatus = readStatusService.getMyReadStatus(conversationId, requesterId);
+        ReadStatusModel requesterReadStatus = readStatusService.getMyReadStatus(conversationId, requesterId);
 
-        readStatusService.markAsRead(directMessage, myReadStatus);
+        readStatusService.markAsRead(directMessage, requesterReadStatus);
     }
 
     private boolean calculateHasUnread(
         UUID requesterId,
         DirectMessageModel lastMessage,
-        ReadStatusModel myReadStatus
+        ReadStatusModel requesterReadStatus
     ) {
         return lastMessage != null
-            && myReadStatus != null
+            && requesterReadStatus != null
             && !lastMessage.getSender().getId().equals(requesterId)
-            && lastMessage.getCreatedAt().isAfter(myReadStatus.getLastReadAt());
+            && lastMessage.getCreatedAt().isAfter(requesterReadStatus.getLastReadAt());
     }
 }

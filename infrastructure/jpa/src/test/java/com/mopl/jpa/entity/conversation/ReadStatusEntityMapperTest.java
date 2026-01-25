@@ -132,7 +132,7 @@ class ReadStatusEntityMapperTest {
         @Test
         @DisplayName("ReadStatusEntity가 null이면 null을 반환한다")
         void withNullEntity_returnsNull() {
-            ReadStatusModel result = readStatusEntityMapper.toModelWithUser(null);
+            ReadStatusModel result = readStatusEntityMapper.toModelWithParticipant(null);
             assertThat(result).isNull();
         }
 
@@ -164,7 +164,7 @@ class ReadStatusEntityMapperTest {
             given(userMapper.toModel(userEntity)).willReturn(expectedUser);
 
             // when
-            ReadStatusModel result = readStatusEntityMapper.toModelWithUser(entity);
+            ReadStatusModel result = readStatusEntityMapper.toModelWithParticipant(entity);
 
             // then
             assertThat(result).isNotNull();
@@ -191,7 +191,7 @@ class ReadStatusEntityMapperTest {
             given(userMapper.toModel(null)).willReturn(null);
 
             // when
-            ReadStatusModel result = readStatusEntityMapper.toModelWithUser(entity);
+            ReadStatusModel result = readStatusEntityMapper.toModelWithParticipant(entity);
 
             // then
             assertThat(result).isNotNull();
