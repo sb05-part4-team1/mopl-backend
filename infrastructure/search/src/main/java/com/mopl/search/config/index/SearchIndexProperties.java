@@ -11,4 +11,3 @@ public class SearchIndexProperties {
 
     private boolean recreateOnStartup = false;
 }
-

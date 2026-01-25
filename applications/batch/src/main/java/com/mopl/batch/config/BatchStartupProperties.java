@@ -18,6 +18,7 @@ public class BatchStartupProperties {
     @Getter
     @Setter
     public static class RunOnStartup {
+
         private boolean enabled = false;
         private List<String> jobs = List.of();
     }

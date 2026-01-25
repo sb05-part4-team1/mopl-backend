@@ -22,6 +22,8 @@ import org.springframework.lang.NonNull;
 public class ElasticsearchConfig extends ElasticsearchConfiguration {
 
     private final ElasticsearchProperties props;
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    private final ObjectMapper objectMapper;
 
     @Override
     @NonNull
@@ -41,10 +43,10 @@ public class ElasticsearchConfig extends ElasticsearchConfiguration {
     @Override
     @NonNull
     public JsonpMapper jsonpMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        ObjectMapper copy = objectMapper.copy();
+        copy.registerModule(new JavaTimeModule());
+        copy.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-        return new JacksonJsonpMapper(objectMapper);
+        return new JacksonJsonpMapper(copy);
     }
 }
