@@ -6,9 +6,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -163,7 +166,6 @@ class RedisWatchingSessionRepositoryImplTest {
 
         @Test
         @DisplayName("여러 contentId에 대해 파이프라인으로 카운트 조회")
-        @SuppressWarnings("unchecked")
         void withMultipleContentIds_returnsCounts() {
             // given
             UUID contentId1 = UUID.randomUUID();
@@ -184,7 +186,6 @@ class RedisWatchingSessionRepositoryImplTest {
 
         @Test
         @DisplayName("null 카운트는 0으로 처리")
-        @SuppressWarnings("unchecked")
         void withNullCount_treatsAsZero() {
             // given
             UUID contentId = UUID.randomUUID();
@@ -199,6 +200,36 @@ class RedisWatchingSessionRepositoryImplTest {
 
             // then
             assertThat(result.get(contentId)).isZero();
+        }
+
+        @Test
+        @DisplayName("파이프라인 내부에서 각 contentId에 대해 zCard 호출")
+        @SuppressWarnings("unchecked")
+        void verifyPipelineCallsZCardForEachContentId() {
+            // given
+            UUID contentId1 = UUID.randomUUID();
+            UUID contentId2 = UUID.randomUUID();
+            List<UUID> contentIds = List.of(contentId1, contentId2);
+
+            RedisConnection connection = org.mockito.Mockito.mock(RedisConnection.class);
+            RedisZSetCommands zSetCommands = org.mockito.Mockito.mock(RedisZSetCommands.class);
+            given(connection.zSetCommands()).willReturn(zSetCommands);
+
+            ArgumentCaptor<RedisCallback<Object>> callbackCaptor = ArgumentCaptor.forClass(RedisCallback.class);
+            given(redisTemplate.executePipelined(callbackCaptor.capture())).willReturn(List.of(5L, 10L));
+
+            // when
+            repository.countByContentIdIn(contentIds);
+
+            // then
+            RedisCallback<Object> capturedCallback = callbackCaptor.getValue();
+            capturedCallback.doInRedis(connection);
+
+            String expectedKey1 = WatchingSessionRedisKeys.contentWatchersKey(contentId1);
+            String expectedKey2 = WatchingSessionRedisKeys.contentWatchersKey(contentId2);
+
+            then(zSetCommands).should().zCard(expectedKey1.getBytes());
+            then(zSetCommands).should().zCard(expectedKey2.getBytes());
         }
     }
 
@@ -347,7 +378,7 @@ class RedisWatchingSessionRepositoryImplTest {
 
             // then
             then(redisTemplate).should().delete(sessionKey);
-            then(redisTemplate).should(org.mockito.Mockito.never()).opsForZSet();
+            then(redisTemplate).should(org.mockito.Mockito.never());
         }
     }
 }

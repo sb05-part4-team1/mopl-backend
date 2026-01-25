@@ -180,4 +180,27 @@ class DirectMessageServiceTest {
             then(directMessageRepository).should().findLastMessageWithSenderByConversationId(conversationId);
         }
     }
+
+    @Nested
+    @DisplayName("save()")
+    class SaveTest {
+
+        @Test
+        @DisplayName("Repository에 위임하여 저장된 DirectMessageModel 반환")
+        void delegatesToRepository() {
+            // given
+            DirectMessageModel messageToSave = DirectMessageModelFixture.create();
+            DirectMessageModel savedMessage = DirectMessageModelFixture.create();
+
+            given(directMessageRepository.save(messageToSave))
+                .willReturn(savedMessage);
+
+            // when
+            DirectMessageModel result = directMessageService.save(messageToSave);
+
+            // then
+            assertThat(result).isEqualTo(savedMessage);
+            then(directMessageRepository).should().save(messageToSave);
+        }
+    }
 }

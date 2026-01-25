@@ -329,5 +329,188 @@ class RedisWatchingSessionQueryRepositoryImplTest {
             // then
             assertThat(result.data()).isEmpty();
         }
+
+        @Test
+        @DisplayName("DESC 정렬에서 커서 기반 페이지네이션")
+        void withCursorDescending_returnsNextPage() {
+            // given
+            UUID contentId = UUID.randomUUID();
+            UUID watcherId = UUID.randomUUID();
+            Instant cursorTime = Instant.parse("2024-01-01T12:00:00Z");
+            Instant time = Instant.parse("2024-01-01T10:00:00Z");
+
+            String zsetKey = WatchingSessionRedisKeys.contentWatchersKey(contentId);
+            WatchingSessionQueryRequest request = createRequest(
+                cursorTime.toString(),
+                UUID.randomUUID(),
+                10,
+                SortDirection.DESCENDING
+            );
+
+            Set<ZSetOperations.TypedTuple<Object>> tuples = new LinkedHashSet<>();
+            tuples.add(new DefaultTypedTuple<>(watcherId.toString(), (double) time.toEpochMilli()));
+
+            WatchingSessionModel model = createModel(watcherId, contentId, time);
+
+            given(redisTemplate.opsForZSet()).willReturn(zSetOperations);
+            given(zSetOperations.zCard(zsetKey)).willReturn(5L);
+            given(zSetOperations.reverseRangeByScoreWithScores(
+                eq(zsetKey),
+                eq(Double.NEGATIVE_INFINITY),
+                eq((double) cursorTime.toEpochMilli()),
+                eq(0L),
+                eq(20L)
+            )).willReturn(tuples);
+            given(redisTemplate.opsForValue()).willReturn(valueOperations);
+            given(valueOperations.multiGet(anyList())).willReturn(List.of(model));
+
+            // when
+            CursorResponse<WatchingSessionModel> result = repository.findAllByContentId(contentId, request);
+
+            // then
+            assertThat(result.data()).hasSize(1);
+            assertThat(result.data().getFirst().getWatcherId()).isEqualTo(watcherId);
+            assertThat(result.sortDirection()).isEqualTo(SortDirection.DESCENDING);
+        }
+
+        @Test
+        @DisplayName("빈 문자열 UUID는 필터링됨")
+        void withEmptyStringUuid_filtersOut() {
+            // given
+            UUID contentId = UUID.randomUUID();
+            UUID validWatcherId = UUID.randomUUID();
+            Instant time = Instant.now();
+
+            String zsetKey = WatchingSessionRedisKeys.contentWatchersKey(contentId);
+            WatchingSessionQueryRequest request = createRequest(null, null, 10, SortDirection.ASCENDING);
+
+            Set<ZSetOperations.TypedTuple<Object>> tuples = new LinkedHashSet<>();
+            tuples.add(new DefaultTypedTuple<>("", (double) time.toEpochMilli()));
+            tuples.add(new DefaultTypedTuple<>("   ", (double) time.toEpochMilli()));
+            tuples.add(new DefaultTypedTuple<>(validWatcherId.toString(), (double) time.toEpochMilli()));
+
+            WatchingSessionModel model = createModel(validWatcherId, contentId, time);
+
+            given(redisTemplate.opsForZSet()).willReturn(zSetOperations);
+            given(zSetOperations.zCard(zsetKey)).willReturn(3L);
+            given(zSetOperations.rangeWithScores(zsetKey, 0, 19)).willReturn(tuples);
+            given(redisTemplate.opsForValue()).willReturn(valueOperations);
+            given(valueOperations.multiGet(anyList())).willReturn(List.of(model));
+
+            // when
+            CursorResponse<WatchingSessionModel> result = repository.findAllByContentId(contentId, request);
+
+            // then
+            assertThat(result.data()).hasSize(1);
+            assertThat(result.data().getFirst().getWatcherId()).isEqualTo(validWatcherId);
+        }
+
+        @Test
+        @DisplayName("null 값을 가진 tuple은 필터링됨")
+        void withNullValueTuple_filtersOut() {
+            // given
+            UUID contentId = UUID.randomUUID();
+            UUID validWatcherId = UUID.randomUUID();
+            Instant time = Instant.now();
+
+            String zsetKey = WatchingSessionRedisKeys.contentWatchersKey(contentId);
+            WatchingSessionQueryRequest request = createRequest(null, null, 10, SortDirection.ASCENDING);
+
+            Set<ZSetOperations.TypedTuple<Object>> tuples = new LinkedHashSet<>();
+            tuples.add(new DefaultTypedTuple<>(null, (double) time.toEpochMilli()));
+            tuples.add(new DefaultTypedTuple<>(validWatcherId.toString(), (double) time.toEpochMilli()));
+
+            WatchingSessionModel model = createModel(validWatcherId, contentId, time);
+
+            given(redisTemplate.opsForZSet()).willReturn(zSetOperations);
+            given(zSetOperations.zCard(zsetKey)).willReturn(2L);
+            given(zSetOperations.rangeWithScores(zsetKey, 0, 19)).willReturn(tuples);
+            given(redisTemplate.opsForValue()).willReturn(valueOperations);
+            given(valueOperations.multiGet(anyList())).willReturn(List.of(model));
+
+            // when
+            CursorResponse<WatchingSessionModel> result = repository.findAllByContentId(contentId, request);
+
+            // then
+            assertThat(result.data()).hasSize(1);
+            assertThat(result.data().getFirst().getWatcherId()).isEqualTo(validWatcherId);
+        }
+
+        @Test
+        @DisplayName("multiGet 결과에 WatchingSessionModel이 아닌 타입이 섞여 있으면 필터링됨")
+        void withMixedTypesInMultiGet_filtersNonModels() {
+            // given
+            UUID contentId = UUID.randomUUID();
+            UUID watcherId1 = UUID.randomUUID();
+            UUID watcherId2 = UUID.randomUUID();
+            Instant time = Instant.now();
+
+            String zsetKey = WatchingSessionRedisKeys.contentWatchersKey(contentId);
+            WatchingSessionQueryRequest request = createRequest(null, null, 10, SortDirection.ASCENDING);
+
+            Set<ZSetOperations.TypedTuple<Object>> tuples = new LinkedHashSet<>();
+            tuples.add(new DefaultTypedTuple<>(watcherId1.toString(), (double) time.toEpochMilli()));
+            tuples.add(new DefaultTypedTuple<>(watcherId2.toString(), (double) time.toEpochMilli()));
+
+            WatchingSessionModel model = createModel(watcherId1, contentId, time);
+
+            given(redisTemplate.opsForZSet()).willReturn(zSetOperations);
+            given(zSetOperations.zCard(zsetKey)).willReturn(2L);
+            given(zSetOperations.rangeWithScores(zsetKey, 0, 19)).willReturn(tuples);
+            given(redisTemplate.opsForValue()).willReturn(valueOperations);
+            given(valueOperations.multiGet(anyList())).willReturn(List.of(model, "invalid-type"));
+
+            // when
+            CursorResponse<WatchingSessionModel> result = repository.findAllByContentId(contentId, request);
+
+            // then
+            assertThat(result.data()).hasSize(1);
+            assertThat(result.data().getFirst().getWatcherId()).isEqualTo(watcherId1);
+        }
+
+        @Test
+        @DisplayName("zCard가 null이면 totalCount는 0")
+        void withNullZCard_totalCountIsZero() {
+            // given
+            UUID contentId = UUID.randomUUID();
+            String zsetKey = WatchingSessionRedisKeys.contentWatchersKey(contentId);
+            WatchingSessionQueryRequest request = createRequest(null, null, 10, SortDirection.ASCENDING);
+
+            given(redisTemplate.opsForZSet()).willReturn(zSetOperations);
+            given(zSetOperations.zCard(zsetKey)).willReturn(null);
+            given(zSetOperations.rangeWithScores(zsetKey, 0, 19)).willReturn(Set.of());
+
+            // when
+            CursorResponse<WatchingSessionModel> result = repository.findAllByContentId(contentId, request);
+
+            // then
+            assertThat(result.totalCount()).isZero();
+        }
+
+        @Test
+        @DisplayName("watcherIds가 비어있으면 빈 결과 반환")
+        void withEmptyWatcherIds_returnsEmptyResult() {
+            // given
+            UUID contentId = UUID.randomUUID();
+            Instant time = Instant.now();
+
+            String zsetKey = WatchingSessionRedisKeys.contentWatchersKey(contentId);
+            WatchingSessionQueryRequest request = createRequest(null, null, 10, SortDirection.ASCENDING);
+
+            // 모든 tuple의 값이 null이거나 유효하지 않은 UUID인 경우
+            Set<ZSetOperations.TypedTuple<Object>> tuples = new LinkedHashSet<>();
+            tuples.add(new DefaultTypedTuple<>(null, (double) time.toEpochMilli()));
+            tuples.add(new DefaultTypedTuple<>("invalid-uuid", (double) time.toEpochMilli()));
+
+            given(redisTemplate.opsForZSet()).willReturn(zSetOperations);
+            given(zSetOperations.zCard(zsetKey)).willReturn(2L);
+            given(zSetOperations.rangeWithScores(zsetKey, 0, 19)).willReturn(tuples);
+
+            // when
+            CursorResponse<WatchingSessionModel> result = repository.findAllByContentId(contentId, request);
+
+            // then
+            assertThat(result.data()).isEmpty();
+        }
     }
 }

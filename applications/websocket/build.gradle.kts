@@ -9,4 +9,6 @@ dependencies {
     implementation(project(":shared:monitoring"))
     // spring websocket
     implementation("org.springframework.boot:spring-boot-starter-websocket")
+    // test
+    testImplementation(testFixtures(project(":core:domain")))
 }
