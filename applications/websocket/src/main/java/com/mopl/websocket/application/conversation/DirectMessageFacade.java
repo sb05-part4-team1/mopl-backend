@@ -9,6 +9,7 @@ import com.mopl.domain.service.conversation.DirectMessageService;
 import com.mopl.domain.service.conversation.ReadStatusService;
 import com.mopl.dto.conversation.DirectMessageResponse;
 import com.mopl.dto.conversation.DirectMessageResponseMapper;
+import com.mopl.redis.pubsub.DirectMessagePublisher;
 import com.mopl.websocket.interfaces.api.conversation.dto.DirectMessageSendRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,7 @@ public class DirectMessageFacade {
     private final DirectMessageService directMessageService;
     private final ReadStatusService readStatusService;
     private final DirectMessageResponseMapper directMessageResponseMapper;
+    private final DirectMessagePublisher directMessagePublisher;
 
     public DirectMessageResponse sendDirectMessage(UUID senderId, UUID conversationId, DirectMessageSendRequest request) {
         ReadStatusModel requesterReadStatus = readStatusService.getReadStatus(senderId, conversationId);
@@ -34,6 +36,10 @@ public class DirectMessageFacade {
 
         DirectMessageModel directMessage = DirectMessageModel.create(content, requesterReadStatus.getParticipant(), conversation);
         DirectMessageModel savedDirectMessage = directMessageService.save(directMessage);
-        return directMessageResponseMapper.toResponse(savedDirectMessage, receiver);
+        DirectMessageResponse response = directMessageResponseMapper.toResponse(savedDirectMessage, receiver);
+
+        directMessagePublisher.publish(response);
+
+        return response;
     }
 }

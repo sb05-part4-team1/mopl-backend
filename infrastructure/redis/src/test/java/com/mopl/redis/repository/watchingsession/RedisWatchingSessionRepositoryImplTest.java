@@ -378,7 +378,7 @@ class RedisWatchingSessionRepositoryImplTest {
 
             // then
             then(redisTemplate).should().delete(sessionKey);
-            then(redisTemplate).should(org.mockito.Mockito.never());
+            then(zSetOperations).shouldHaveNoInteractions();
         }
     }
 }
