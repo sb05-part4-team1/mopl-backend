@@ -21,7 +21,8 @@ import lombok.experimental.SuperBuilder;
     name = "playlist_subscribers",
     uniqueConstraints = @UniqueConstraint(columnNames = {"playlist_id", "subscriber_id"}),
     indexes = {
-        @Index(name = "idx_playlist_subscribers_subscriber_id", columnList = "subscriber_id")
+        @Index(name = "idx_playlist_subscribers_subscriber_id", columnList = "subscriber_id"),
+        @Index(name = "idx_playlist_subscribers_created_at", columnList = "created_at")
     }
 )
 @Getter
