@@ -52,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 validateNotBlacklisted(payload.jti());
                 authenticateUser(payload, request);
             } catch (InvalidTokenException e) {
-                log.debug("JWT 인증 실패: {}", e.getMessage());
+                log.warn("JWT 인증 실패: {}", e.getMessage());
                 handleAuthenticationException(response, e);
                 return;
             } catch (Exception e) {

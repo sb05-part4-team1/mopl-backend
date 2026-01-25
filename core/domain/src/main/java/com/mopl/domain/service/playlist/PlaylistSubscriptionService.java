@@ -1,7 +1,11 @@
 package com.mopl.domain.service.playlist;
 
+import com.mopl.domain.exception.playlist.PlaylistNotFoundException;
 import com.mopl.domain.exception.playlist.PlaylistSubscriptionAlreadyExistsException;
 import com.mopl.domain.exception.playlist.PlaylistSubscriptionNotFoundException;
+import com.mopl.domain.exception.playlist.SelfSubscriptionNotAllowedException;
+import com.mopl.domain.model.playlist.PlaylistModel;
+import com.mopl.domain.repository.playlist.PlaylistRepository;
 import com.mopl.domain.repository.playlist.PlaylistSubscriberRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -13,6 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PlaylistSubscriptionService {
 
+    private final PlaylistRepository playlistRepository;
     private final PlaylistSubscriberRepository playlistSubscriberRepository;
 
     public boolean isSubscribedByPlaylistIdAndSubscriberId(
@@ -37,6 +42,13 @@ public class PlaylistSubscriptionService {
     }
 
     public void subscribe(UUID playlistId, UUID subscriberId) {
+        PlaylistModel playlist = playlistRepository.findById(playlistId)
+            .orElseThrow(() -> PlaylistNotFoundException.withId(playlistId));
+
+        if (playlist.getOwner().getId().equals(subscriberId)) {
+            throw SelfSubscriptionNotAllowedException.withPlaylistIdAndUserId(playlistId, subscriberId);
+        }
+
         if (playlistSubscriberRepository.existsByPlaylistIdAndSubscriberId(
             playlistId,
             subscriberId)

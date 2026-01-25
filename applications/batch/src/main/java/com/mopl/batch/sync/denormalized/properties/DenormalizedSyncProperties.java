@@ -8,4 +8,5 @@ import java.util.Map;
 public record DenormalizedSyncProperties(
     DenormalizedSyncPolicyProperties defaultPolicy,
     Map<String, DenormalizedSyncPolicyProperties> profiles
-) {}
+) {
+}

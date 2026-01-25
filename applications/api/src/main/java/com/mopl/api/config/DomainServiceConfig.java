@@ -119,9 +119,10 @@ public class DomainServiceConfig {
 
     @Bean
     public PlaylistSubscriptionService playlistSubscriptionService(
+        PlaylistRepository playlistRepository,
         PlaylistSubscriberRepository playlistSubscriberRepository
     ) {
-        return new PlaylistSubscriptionService(playlistSubscriberRepository);
+        return new PlaylistSubscriptionService(playlistRepository, playlistSubscriberRepository);
     }
 
     @Bean
