@@ -388,4 +388,118 @@ class ConversationQueryRepositoryImplTest {
             assertThat(response.sortBy()).isEqualTo("createdAt");
         }
     }
+
+    @Nested
+    @DisplayName("findByParticipants()")
+    class FindByParticipantsTest {
+
+        @Test
+        @DisplayName("두 사용자가 참여한 대화가 존재하면 반환")
+        void withExistingConversation_returnsConversation() {
+            // when
+            var result = conversationQueryRepository.findByParticipants(userId, otherUser1Id);
+
+            // then
+            assertThat(result).isPresent();
+            assertThat(result.get().getId()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("파라미터 순서를 바꿔도 동일한 대화 반환")
+        void withReversedParameters_returnsSameConversation() {
+            // when
+            var result1 = conversationQueryRepository.findByParticipants(userId, otherUser1Id);
+            var result2 = conversationQueryRepository.findByParticipants(otherUser1Id, userId);
+
+            // then
+            assertThat(result1).isPresent();
+            assertThat(result2).isPresent();
+            assertThat(result1.get().getId()).isEqualTo(result2.get().getId());
+        }
+
+        @Test
+        @DisplayName("대화가 존재하지 않으면 빈 Optional 반환")
+        void withNoConversation_returnsEmpty() {
+            // given
+            UUID nonExistingUserId = UUID.randomUUID();
+
+            // when
+            var result = conversationQueryRepository.findByParticipants(userId, nonExistingUserId);
+
+            // then
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("서로 대화가 없는 두 사용자는 빈 Optional 반환")
+        void withUsersWithoutConversation_returnsEmpty() {
+            // given - otherUser1과 otherUser3은 직접 대화가 없음 (setUp에서 설정)
+            Instant baseTime = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+            UserEntity otherUser3 = createAndPersistUser("diana@example.com", "Diana", baseTime);
+            entityManager.flush();
+            entityManager.clear();
+
+            // when
+            var result = conversationQueryRepository.findByParticipants(otherUser1Id, otherUser3.getId());
+
+            // then
+            assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("existsByParticipants()")
+    class ExistsByParticipantsTest {
+
+        @Test
+        @DisplayName("두 사용자가 참여한 대화가 존재하면 true 반환")
+        void withExistingConversation_returnsTrue() {
+            // when
+            boolean result = conversationQueryRepository.existsByParticipants(userId, otherUser1Id);
+
+            // then
+            assertThat(result).isTrue();
+        }
+
+        @Test
+        @DisplayName("파라미터 순서를 바꿔도 true 반환")
+        void withReversedParameters_returnsTrue() {
+            // when
+            boolean result1 = conversationQueryRepository.existsByParticipants(userId, otherUser1Id);
+            boolean result2 = conversationQueryRepository.existsByParticipants(otherUser1Id, userId);
+
+            // then
+            assertThat(result1).isTrue();
+            assertThat(result2).isTrue();
+        }
+
+        @Test
+        @DisplayName("대화가 존재하지 않으면 false 반환")
+        void withNoConversation_returnsFalse() {
+            // given
+            UUID nonExistingUserId = UUID.randomUUID();
+
+            // when
+            boolean result = conversationQueryRepository.existsByParticipants(userId, nonExistingUserId);
+
+            // then
+            assertThat(result).isFalse();
+        }
+
+        @Test
+        @DisplayName("서로 대화가 없는 두 사용자는 false 반환")
+        void withUsersWithoutConversation_returnsFalse() {
+            // given
+            Instant baseTime = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+            UserEntity otherUser4 = createAndPersistUser("eve@example.com", "Eve", baseTime);
+            entityManager.flush();
+            entityManager.clear();
+
+            // when
+            boolean result = conversationQueryRepository.existsByParticipants(otherUser1Id, otherUser4.getId());
+
+            // then
+            assertThat(result).isFalse();
+        }
+    }
 }
