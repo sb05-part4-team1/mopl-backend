@@ -2,19 +2,19 @@ package com.mopl.jpa.repository.content;
 
 import com.mopl.jpa.entity.content.ContentDeletionLogEntity;
 import com.mopl.jpa.repository.content.projection.ContentDeletionLogRow;
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
 public interface JpaContentDeletionLogRepository extends
     JpaRepository<ContentDeletionLogEntity, UUID> {
 
-    // 이하 메서드들 cleanup batch 전용
     @Query("""
             select l.contentId
             from ContentDeletionLogEntity l
@@ -59,5 +59,5 @@ public interface JpaContentDeletionLogRepository extends
             delete from ContentDeletionLogEntity l
             where l.id in :logIds
         """)
-    int deleteAllByIds(@Param("logIds") List<UUID> logIds);
+    int deleteByIdIn(List<UUID> logIds);
 }

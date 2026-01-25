@@ -17,5 +17,5 @@ public interface NotificationRepository {
 
     List<UUID> findCleanupTargets(Instant threshold, int limit);
 
-    int deleteAllByIds(List<UUID> notificationIds);
+    int deleteByIdIn(List<UUID> notificationIds);
 }

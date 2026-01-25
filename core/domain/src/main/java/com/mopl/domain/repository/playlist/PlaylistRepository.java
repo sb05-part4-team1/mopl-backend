@@ -15,7 +15,7 @@ public interface PlaylistRepository {
 
     List<UUID> findCleanupTargets(Instant threshold, int limit);
 
-    int deleteAllByIdIn(List<UUID> playlistIds);
+    int deleteByIdIn(List<UUID> playlistIds);
 
     void incrementSubscriberCount(UUID playlistId);
 

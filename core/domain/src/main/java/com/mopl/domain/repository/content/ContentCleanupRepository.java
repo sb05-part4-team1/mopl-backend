@@ -11,5 +11,5 @@ public interface ContentCleanupRepository {
 
     Map<UUID, String> findThumbnailPathsByIdIn(List<UUID> contentIds);
 
-    int deleteAllByIdIn(List<UUID> contentIds);
+    int deleteByIdIn(List<UUID> contentIds);
 }

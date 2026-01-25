@@ -49,7 +49,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
     }
 
     @Override
-    public int deleteAllByIds(List<UUID> notificationIds) {
-        return jpaNotificationRepository.deleteAllByIds(notificationIds);
+    public int deleteByIdIn(List<UUID> notificationIds) {
+        return jpaNotificationRepository.deleteByIdIn(notificationIds);
     }
 }

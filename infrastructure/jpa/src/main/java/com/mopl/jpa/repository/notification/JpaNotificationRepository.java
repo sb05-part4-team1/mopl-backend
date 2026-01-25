@@ -1,18 +1,17 @@
 package com.mopl.jpa.repository.notification;
 
 import com.mopl.jpa.entity.notification.NotificationEntity;
-import java.time.Instant;
-import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.UUID;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
 public interface JpaNotificationRepository extends JpaRepository<NotificationEntity, UUID> {
 
-    // 이하 메서드들 cleanup batch 전용
     @Query(
         value = """
                 select BIN_TO_UUID(id)
@@ -24,10 +23,7 @@ public interface JpaNotificationRepository extends JpaRepository<NotificationEnt
             """,
         nativeQuery = true
     )
-    List<UUID> findCleanupTargets(
-        @Param("threshold") Instant threshold,
-        @Param("limit") int limit
-    );
+    List<UUID> findCleanupTargets(Instant threshold, int limit);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(
@@ -37,5 +33,5 @@ public interface JpaNotificationRepository extends JpaRepository<NotificationEnt
             """,
         nativeQuery = true
     )
-    int deleteAllByIds(@Param("notificationIds") List<UUID> notificationIds);
+    int deleteByIdIn(List<UUID> notificationIds);
 }

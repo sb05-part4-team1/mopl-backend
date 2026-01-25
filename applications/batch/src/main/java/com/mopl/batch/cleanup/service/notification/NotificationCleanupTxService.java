@@ -15,6 +15,6 @@ public class NotificationCleanupTxService {
 
     @Transactional
     public int cleanupBatch(List<UUID> notificationIds) {
-        return notificationRepository.deleteAllByIds(notificationIds);
+        return notificationRepository.deleteByIdIn(notificationIds);
     }
 }

@@ -47,7 +47,7 @@ public class ContentCleanupTxService {
         int softDeletedReviews = reviewRepository.softDeleteByContentIdIn(contentIds, now);
         int affectedThumbnails = deletionStrategy.onDeleted(thumbnailPaths);
 
-        int deletedContents = contentCleanupRepository.deleteAllByIdIn(contentIds);
+        int deletedContents = contentCleanupRepository.deleteByIdIn(contentIds);
 
         if (deletedContents != contentIds.size()) {
             log.warn(

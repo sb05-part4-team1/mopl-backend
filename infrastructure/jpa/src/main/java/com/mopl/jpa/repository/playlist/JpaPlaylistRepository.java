@@ -42,7 +42,7 @@ public interface JpaPlaylistRepository extends JpaRepository<PlaylistEntity, UUI
             """,
         nativeQuery = true
     )
-    int deleteAllByIds(@Param("playlistIds") List<UUID> playlistIds);
+    int deleteByIdIn(List<UUID> playlistIds);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE PlaylistEntity p SET p.subscriberCount = p.subscriberCount + 1 WHERE p.id = :playlistId")

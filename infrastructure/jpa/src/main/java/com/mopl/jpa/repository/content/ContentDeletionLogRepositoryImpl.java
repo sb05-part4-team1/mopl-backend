@@ -99,6 +99,6 @@ public class ContentDeletionLogRepositoryImpl implements ContentDeletionLogRepos
         if (logIds == null || logIds.isEmpty()) {
             return 0;
         }
-        return jpaContentDeletionLogRepository.deleteAllByIds(logIds);
+        return jpaContentDeletionLogRepository.deleteByIdIn(logIds);
     }
 }

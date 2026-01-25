@@ -38,8 +38,8 @@ public class PlaylistRepositoryImpl implements PlaylistRepository {
     }
 
     @Override
-    public int deleteAllByIdIn(List<UUID> playlistIds) {
-        return jpaPlaylistRepository.deleteAllByIds(playlistIds);
+    public int deleteByIdIn(List<UUID> playlistIds) {
+        return jpaPlaylistRepository.deleteByIdIn(playlistIds);
     }
 
     @Override

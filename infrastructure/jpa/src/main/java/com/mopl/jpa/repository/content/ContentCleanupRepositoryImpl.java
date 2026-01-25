@@ -33,7 +33,7 @@ public class ContentCleanupRepositoryImpl implements ContentCleanupRepository {
     }
 
     @Override
-    public int deleteAllByIdIn(List<UUID> contentIds) {
-        return jpaContentRepository.deleteAllByIds(contentIds);
+    public int deleteByIdIn(List<UUID> contentIds) {
+        return jpaContentRepository.deleteByIdIn(contentIds);
     }
 }

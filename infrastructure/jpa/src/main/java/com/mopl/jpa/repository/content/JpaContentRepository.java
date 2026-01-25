@@ -49,5 +49,5 @@ public interface JpaContentRepository extends JpaRepository<ContentEntity, UUID>
             """,
         nativeQuery = true
     )
-    int deleteAllByIds(@Param("contentIds") List<UUID> contentIds);
+    int deleteByIdIn(List<UUID> contentIds);
 }
