@@ -23,7 +23,9 @@ import org.hibernate.annotations.SQLRestriction;
     name = "reviews",
     indexes = {
         @Index(name = "idx_reviews_content_created_at", columnList = "content_id, created_at DESC"),
-        @Index(name = "idx_reviews_content_rating", columnList = "content_id, rating DESC")
+        @Index(name = "idx_reviews_content_rating", columnList = "content_id, rating DESC"),
+        @Index(name = "idx_reviews_deleted_at", columnList = "deleted_at"),
+        @Index(name = "idx_reviews_author_id", columnList = "author_id")
     }
 )
 @Getter
