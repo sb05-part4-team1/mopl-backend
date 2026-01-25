@@ -25,11 +25,11 @@ public class TsdbLeagueEventUpsertTxService {
     private final TsdbEventTagResolver tsdbEventTagResolver;
 
     @Transactional
-    public boolean upsert(EventItem item) {
+    public ContentModel upsert(EventItem item) {
         Long externalId = item.idEvent();
 
         if (externalMappingRepository.exists(ContentExternalProvider.TSDB, externalId)) {
-            return false;
+            return null;
         }
 
         String thumbnailPath = tsdbPosterProcessor.uploadPosterIfPresent(
@@ -48,6 +48,7 @@ public class TsdbLeagueEventUpsertTxService {
                 thumbnailPath
             )
         );
+
         contentTagService.applyTags(content.getId(), tagNames);
 
         externalMappingRepository.save(
@@ -56,6 +57,6 @@ public class TsdbLeagueEventUpsertTxService {
             content.getId()
         );
 
-        return true;
+        return content;
     }
 }

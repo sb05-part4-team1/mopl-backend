@@ -2,9 +2,14 @@ package com.mopl.batch.collect.tmdb.service.content;
 
 import com.mopl.batch.collect.tmdb.properties.TmdbCollectPolicyResolver;
 import com.mopl.batch.collect.tmdb.properties.TmdbCollectProperties;
+import com.mopl.domain.model.content.ContentModel;
+import com.mopl.domain.support.search.ContentSearchSyncPort;
+import com.mopl.domain.support.transaction.AfterCommitExecutor;
 import com.mopl.external.tmdb.client.TmdbClient;
 import com.mopl.external.tmdb.model.TmdbMovieItem;
 import com.mopl.external.tmdb.model.TmdbMovieResponse;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,46 +25,65 @@ public class TmdbPopularMovieContentCollectService {
     private final TmdbCollectProperties collectProperties;
     private final TmdbCollectPolicyResolver policyResolver;
 
+    private final AfterCommitExecutor afterCommitExecutor;
+    private final ContentSearchSyncPort contentSearchSyncPort;
+
     public int collectPopularMovies() {
         int maxPage = policyResolver.maxPage(collectProperties.getMovieContent());
-        int processed = 0;
+        List<ContentModel> inserted = new ArrayList<>();
 
         for (int page = 1; page <= maxPage; page++) {
             TmdbMovieResponse response = tmdbClient.fetchPopularMovies(page);
 
             if (response == null || response.results() == null) {
-                log.debug("TMDB movie results empty: page={}",
-                    page);
+                log.debug(
+                    "TMDB movie results empty: page={}",
+                    page
+                );
                 continue;
             }
 
             for (TmdbMovieItem item : response.results()) {
                 if (!isValid(item)) {
-                    log.debug("TMDB invalid movie skipped: page={}, externalId={}",
+                    log.debug(
+                        "TMDB invalid movie skipped: page={}, externalId={}",
                         page,
-                        item == null ? null : item.id());
+                        item == null ? null : item.id()
+                    );
                     continue;
                 }
 
                 try {
-                    boolean created = upsertService.upsertMovie(item);
-                    if (created) {
-                        processed++;
+                    ContentModel created = upsertService.upsertMovie(item);
+                    if (created != null) {
+                        inserted.add(created);
                     }
 
                 } catch (DataIntegrityViolationException e) {
-                    log.debug("TMDB duplicate skipped: externalId={}",
-                        item.id());
+                    log.debug(
+                        "TMDB duplicate skipped: externalId={}",
+                        item.id()
+                    );
 
                 } catch (RuntimeException e) {
-                    log.warn("Failed to process TMDB movie: title={}, reason={}",
+                    log.warn(
+                        "Failed to process TMDB movie: title={}, reason={}",
                         item.title(),
-                        e.getMessage());
+                        e.getMessage()
+                    );
                 }
             }
         }
 
-        return processed;
+        afterCommitExecutor.execute(() -> contentSearchSyncPort.upsertAll(inserted)
+        );
+
+        log.info(
+            "TMDB movie collect done. inserted={}",
+            inserted.size()
+        );
+
+        return inserted.size();
     }
 
     private boolean isValid(TmdbMovieItem item) {

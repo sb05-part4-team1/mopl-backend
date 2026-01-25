@@ -16,6 +16,7 @@ spring:
       - kafka.yaml
       - mail.yaml
       - redis.yaml
+      - search.yaml
       - security.yaml
       - storage.yaml
   threads:

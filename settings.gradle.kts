@@ -13,6 +13,7 @@ include(
     ":infrastructure:mail",
     ":infrastructure:openapi",
     ":infrastructure:redis",
+    ":infrastructure:search",
     ":infrastructure:security",
     ":infrastructure:storage",
     ":shared:dto",

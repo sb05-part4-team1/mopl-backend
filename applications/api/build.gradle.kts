@@ -6,6 +6,7 @@ dependencies {
     implementation(project(":infrastructure:kafka"))
     implementation(project(":infrastructure:mail"))
     implementation(project(":infrastructure:redis"))
+    implementation(project(":infrastructure:search"))
     implementation(project(":infrastructure:security"))
     implementation(project(":infrastructure:storage"))
     implementation(project(":shared:dto"))

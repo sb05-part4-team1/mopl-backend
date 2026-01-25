@@ -11,6 +11,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,6 +21,7 @@ import static org.springframework.util.StringUtils.hasText;
 
 @Repository
 @RequiredArgsConstructor
+@ConditionalOnProperty(prefix = "mopl.search", name = "enabled", havingValue = "false", matchIfMissing = true)
 public class ContentQueryRepositoryImpl implements ContentQueryRepository {
 
     private final JPAQueryFactory queryFactory;
