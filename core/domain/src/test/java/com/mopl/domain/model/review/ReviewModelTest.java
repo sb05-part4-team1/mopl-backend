@@ -50,8 +50,9 @@ class ReviewModelTest {
         }
 
         @Test
-        @DisplayName("ContentModel이 null이거나 ID가 없으면 예외 발생")
-        void withInvalidContent_throwsException() {
+        @DisplayName("ContentModel이 null이면 예외 발생")
+        @SuppressWarnings("ConstantConditions")
+        void withNullContent_throwsException() {
             // given
             UserModel author = mock(UserModel.class);
 
@@ -60,9 +61,121 @@ class ReviewModelTest {
                 .isInstanceOf(InvalidReviewDataException.class)
                 .satisfies(e -> {
                     InvalidReviewDataException ex = (InvalidReviewDataException) e;
-                    // Object -> String 형변환
                     assertThat((String) ex.getDetails().get("detailMessage"))
                         .isEqualTo("콘텐츠 정보는 null일 수 없습니다.");
+                });
+        }
+
+        @Test
+        @DisplayName("ContentModel의 ID가 null이면 예외 발생")
+        void withNullContentId_throwsException() {
+            // given
+            ContentModel content = mock(ContentModel.class);
+            given(content.getId()).willReturn(null);
+            UserModel author = mock(UserModel.class);
+
+            // when & then
+            assertThatThrownBy(() -> ReviewModel.create(content, author, "text", 1.0))
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    assertThat((String) ex.getDetails().get("detailMessage"))
+                        .isEqualTo("콘텐츠 정보는 null일 수 없습니다.");
+                });
+        }
+
+        @Test
+        @DisplayName("UserModel이 null이면 예외 발생")
+        void withNullAuthor_throwsException() {
+            // given
+            ContentModel content = mock(ContentModel.class);
+            given(content.getId()).willReturn(UUID.randomUUID());
+
+            // when & then
+            assertThatThrownBy(() -> ReviewModel.create(content, null, "text", 1.0))
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    assertThat((String) ex.getDetails().get("detailMessage"))
+                        .isEqualTo("작성자 정보는 null일 수 없습니다.");
+                });
+        }
+
+        @Test
+        @DisplayName("UserModel의 ID가 null이면 예외 발생")
+        void withNullAuthorId_throwsException() {
+            // given
+            ContentModel content = mock(ContentModel.class);
+            given(content.getId()).willReturn(UUID.randomUUID());
+            UserModel author = mock(UserModel.class);
+            given(author.getId()).willReturn(null);
+
+            // when & then
+            assertThatThrownBy(() -> ReviewModel.create(content, author, "text", 1.0))
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    assertThat((String) ex.getDetails().get("detailMessage"))
+                        .isEqualTo("작성자 정보는 null일 수 없습니다.");
+                });
+        }
+
+        @Test
+        @DisplayName("텍스트 길이가 최대 길이를 초과하면 예외 발생")
+        void withTextExceedingMaxLength_throwsException() {
+            // given
+            ContentModel content = mock(ContentModel.class);
+            given(content.getId()).willReturn(UUID.randomUUID());
+            UserModel author = mock(UserModel.class);
+            given(author.getId()).willReturn(UUID.randomUUID());
+
+            String longText = "a".repeat(ReviewModel.TEXT_MAX_LENGTH + 1);
+
+            // when & then
+            assertThatThrownBy(() -> ReviewModel.create(content, author, longText, 1.0))
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    assertThat((String) ex.getDetails().get("detailMessage"))
+                        .contains("리뷰 내용은");
+                });
+        }
+
+        @Test
+        @DisplayName("평점이 0.0 미만이면 예외 발생")
+        void withNegativeRating_throwsException() {
+            // given
+            ContentModel content = mock(ContentModel.class);
+            given(content.getId()).willReturn(UUID.randomUUID());
+            UserModel author = mock(UserModel.class);
+            given(author.getId()).willReturn(UUID.randomUUID());
+
+            // when & then
+            assertThatThrownBy(() -> ReviewModel.create(content, author, "text", -0.1))
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    assertThat((String) ex.getDetails().get("detailMessage"))
+                        .contains("평점은 0.0 이상 5.0 이하만 가능합니다");
+                });
+        }
+
+        @Test
+        @DisplayName("평점이 5.0 초과면 예외 발생")
+        void withRatingExceedingMax_throwsException() {
+            // given
+            ContentModel content = mock(ContentModel.class);
+            given(content.getId()).willReturn(UUID.randomUUID());
+            UserModel author = mock(UserModel.class);
+            given(author.getId()).willReturn(UUID.randomUUID());
+
+            // when & then
+            assertThatThrownBy(() -> ReviewModel.create(content, author, "text", 5.1))
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    assertThat((String) ex.getDetails().get("detailMessage"))
+                        .contains("평점은 0.0 이상 5.0 이하만 가능합니다");
                 });
         }
 
@@ -166,6 +279,39 @@ class ReviewModelTest {
 
             // when & then
             assertThatThrownBy(() -> review.update("Valid text", 6.0))
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    assertThat((String) ex.getDetails().get("detailMessage"))
+                        .contains("평점은 0.0 이상 5.0 이하만 가능합니다");
+                });
+        }
+
+        @Test
+        @DisplayName("수정할 텍스트가 최대 길이를 초과하면 예외 발생")
+        void withTextExceedingMaxLength_throwsException() {
+            // given
+            ReviewModel review = ReviewModelFixture.create();
+            String longText = "a".repeat(ReviewModel.TEXT_MAX_LENGTH + 1);
+
+            // when & then
+            assertThatThrownBy(() -> review.update(longText, null))
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    assertThat((String) ex.getDetails().get("detailMessage"))
+                        .contains("리뷰 내용은");
+                });
+        }
+
+        @Test
+        @DisplayName("수정할 평점이 0.0 미만이면 예외 발생")
+        void withNegativeRating_throwsException() {
+            // given
+            ReviewModel review = ReviewModelFixture.create();
+
+            // when & then
+            assertThatThrownBy(() -> review.update(null, -0.1))
                 .isInstanceOf(InvalidReviewDataException.class)
                 .satisfies(e -> {
                     InvalidReviewDataException ex = (InvalidReviewDataException) e;

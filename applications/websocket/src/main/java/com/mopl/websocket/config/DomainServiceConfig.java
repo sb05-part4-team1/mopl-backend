@@ -8,6 +8,7 @@ import com.mopl.domain.repository.conversation.ConversationRepository;
 import com.mopl.domain.repository.conversation.DirectMessageQueryRepository;
 import com.mopl.domain.repository.conversation.DirectMessageRepository;
 import com.mopl.domain.repository.conversation.ReadStatusRepository;
+import com.mopl.domain.repository.outbox.OutboxRepository;
 import com.mopl.domain.repository.tag.TagRepository;
 import com.mopl.domain.repository.user.UserQueryRepository;
 import com.mopl.domain.repository.user.UserRepository;
@@ -16,6 +17,7 @@ import com.mopl.domain.service.content.ContentTagService;
 import com.mopl.domain.service.conversation.ConversationService;
 import com.mopl.domain.service.conversation.DirectMessageService;
 import com.mopl.domain.service.conversation.ReadStatusService;
+import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.domain.service.user.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -74,5 +76,12 @@ public class DomainServiceConfig {
         UserRepository userRepository
     ) {
         return new UserService(userQueryRepository, userRepository);
+    }
+
+    @Bean
+    public OutboxService outboxService(
+        OutboxRepository outboxRepository
+    ) {
+        return new OutboxService(outboxRepository);
     }
 }

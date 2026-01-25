@@ -6,23 +6,28 @@ import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.model.conversation.DirectMessageModel;
 import com.mopl.domain.model.conversation.ReadStatusModel;
+import com.mopl.domain.model.outbox.OutboxModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.conversation.ConversationService;
 import com.mopl.domain.service.conversation.DirectMessageService;
 import com.mopl.domain.service.conversation.ReadStatusService;
+import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.dto.conversation.DirectMessageResponse;
 import com.mopl.dto.conversation.DirectMessageResponseMapper;
 import com.mopl.dto.user.UserSummary;
 import com.mopl.redis.pubsub.DirectMessagePublisher;
+import com.mopl.websocket.application.outbox.mapper.DomainEventOutboxMapper;
 import com.mopl.websocket.interfaces.api.conversation.dto.DirectMessageSendRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -31,6 +36,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("DirectMessageFacade 단위 테스트")
@@ -51,7 +59,15 @@ class DirectMessageFacadeTest {
     @Mock
     private DirectMessagePublisher directMessagePublisher;
 
-    @InjectMocks
+    @Mock
+    private OutboxService outboxService;
+
+    @Mock
+    private DomainEventOutboxMapper domainEventOutboxMapper;
+
+    @Mock
+    private TransactionTemplate transactionTemplate;
+
     private DirectMessageFacade directMessageFacade;
 
     private UUID senderId;
@@ -63,6 +79,17 @@ class DirectMessageFacadeTest {
 
     @BeforeEach
     void setUp() {
+        directMessageFacade = new DirectMessageFacade(
+            conversationService,
+            directMessageService,
+            readStatusService,
+            directMessageResponseMapper,
+            directMessagePublisher,
+            outboxService,
+            domainEventOutboxMapper,
+            transactionTemplate
+        );
+
         senderId = UUID.randomUUID();
         receiverId = UUID.randomUUID();
         conversationId = UUID.randomUUID();
@@ -87,8 +114,8 @@ class DirectMessageFacadeTest {
     class SendDirectMessageTest {
 
         @Test
-        @DisplayName("DM 전송 성공 및 Redis 발행")
-        void withValidRequest_sendsMessageAndPublishesToRedis() {
+        @DisplayName("DM 전송 성공 및 Redis 발행, Outbox 저장")
+        void withValidRequest_sendsMessageAndPublishesToRedisAndSavesOutbox() {
             // given
             DirectMessageSendRequest request = new DirectMessageSendRequest("Hello");
 
@@ -123,11 +150,18 @@ class DirectMessageFacadeTest {
                 "Hello"
             );
 
-            given(readStatusService.getReadStatus(senderId, conversationId)).willReturn(senderReadStatus);
+            OutboxModel outboxModel = mock(OutboxModel.class);
+
+            given(readStatusService.getReadStatusWithParticipant(senderId, conversationId)).willReturn(senderReadStatus);
             given(conversationService.getById(conversationId)).willReturn(conversation);
             given(readStatusService.getOtherReadStatusWithParticipant(senderId, conversationId))
                 .willReturn(receiverReadStatus);
+            willAnswer(invocation -> invocation.<TransactionCallback<DirectMessageModel>>getArgument(0)
+                .doInTransaction(mock(TransactionStatus.class)))
+                .given(transactionTemplate).execute(any());
             given(directMessageService.save(any(DirectMessageModel.class))).willReturn(savedMessage);
+            given(domainEventOutboxMapper.toOutboxModel(any())).willReturn(outboxModel);
+            given(outboxService.save(outboxModel)).willReturn(outboxModel);
             given(directMessageResponseMapper.toResponse(savedMessage, receiver)).willReturn(expectedResponse);
 
             // when
@@ -138,12 +172,13 @@ class DirectMessageFacadeTest {
             assertThat(result.content()).isEqualTo("Hello");
 
             then(directMessageService).should().save(any(DirectMessageModel.class));
+            then(outboxService).should().save(outboxModel);
             then(directMessagePublisher).should().publish(expectedResponse);
         }
 
         @Test
-        @DisplayName("상대방이 없는 대화에서도 DM 전송 및 Redis 발행")
-        void withNoReceiver_sendsMessageAndPublishesToRedis() {
+        @DisplayName("상대방이 없는 대화에서는 Outbox 저장하지 않음")
+        void withNoReceiver_doesNotSaveOutbox() {
             // given
             DirectMessageSendRequest request = new DirectMessageSendRequest("Hello");
 
@@ -170,10 +205,13 @@ class DirectMessageFacadeTest {
                 "Hello"
             );
 
-            given(readStatusService.getReadStatus(senderId, conversationId)).willReturn(senderReadStatus);
+            given(readStatusService.getReadStatusWithParticipant(senderId, conversationId)).willReturn(senderReadStatus);
             given(conversationService.getById(conversationId)).willReturn(conversation);
             given(readStatusService.getOtherReadStatusWithParticipant(senderId, conversationId))
                 .willReturn(null);
+            willAnswer(invocation -> invocation.<TransactionCallback<DirectMessageModel>>getArgument(0)
+                .doInTransaction(mock(TransactionStatus.class)))
+                .given(transactionTemplate).execute(any());
             given(directMessageService.save(any(DirectMessageModel.class))).willReturn(savedMessage);
             given(directMessageResponseMapper.toResponse(savedMessage, null)).willReturn(expectedResponse);
 
@@ -184,6 +222,7 @@ class DirectMessageFacadeTest {
             assertThat(result).isEqualTo(expectedResponse);
             assertThat(result.receiver()).isNull();
 
+            then(outboxService).should(never()).save(any());
             then(directMessagePublisher).should().publish(expectedResponse);
         }
     }

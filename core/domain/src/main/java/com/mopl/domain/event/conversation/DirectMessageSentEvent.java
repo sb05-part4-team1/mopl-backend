@@ -12,7 +12,7 @@ import java.util.UUID;
 @Getter
 @Builder
 @Jacksonized
-public class DirectMessageReceivedEvent implements DomainEvent {
+public class DirectMessageSentEvent implements DomainEvent {
 
     private final UUID messageId;
     private final UUID conversationId;
@@ -33,6 +33,6 @@ public class DirectMessageReceivedEvent implements DomainEvent {
 
     @Override
     public String getTopic() {
-        return EventTopic.DIRECT_MESSAGE_RECEIVED;
+        return EventTopic.DIRECT_MESSAGE_SENT;
     }
 }
