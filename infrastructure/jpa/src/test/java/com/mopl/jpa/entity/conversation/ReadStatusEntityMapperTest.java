@@ -126,8 +126,8 @@ class ReadStatusEntityMapperTest {
     }
 
     @Nested
-    @DisplayName("toModelWithUser()")
-    class ToModelWithUserTest {
+    @DisplayName("toModelWithParticipant()")
+    class ToModelWithParticipantTest {
 
         @Test
         @DisplayName("ReadStatusEntity가 null이면 null을 반환한다")
