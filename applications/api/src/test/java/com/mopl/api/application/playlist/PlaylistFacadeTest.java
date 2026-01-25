@@ -5,6 +5,9 @@ import com.mopl.api.interfaces.api.playlist.dto.PlaylistUpdateRequest;
 import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.exception.playlist.PlaylistForbiddenException;
 import com.mopl.domain.exception.playlist.PlaylistNotFoundException;
+import com.mopl.domain.exception.playlist.PlaylistSubscriptionAlreadyExistsException;
+import com.mopl.domain.exception.playlist.PlaylistSubscriptionNotFoundException;
+import com.mopl.domain.exception.playlist.SelfSubscriptionNotAllowedException;
 import com.mopl.domain.fixture.ContentModelFixture;
 import com.mopl.domain.fixture.PlaylistModelFixture;
 import com.mopl.domain.fixture.UserModelFixture;
@@ -49,6 +52,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 
@@ -630,6 +634,46 @@ class PlaylistFacadeTest {
 
             then(playlistSubscriptionService).should(never()).subscribe(any(), any());
         }
+
+        @Test
+        @DisplayName("이미 구독 중인 플레이리스트 구독 시 예외 발생")
+        void withAlreadySubscribed_throwsException() {
+            // given
+            UserModel subscriber = UserModelFixture.create();
+            UUID requesterId = subscriber.getId();
+            PlaylistModel playlist = PlaylistModelFixture.create();
+            UUID playlistId = playlist.getId();
+
+            given(userService.getById(requesterId)).willReturn(subscriber);
+            given(playlistService.getById(playlistId)).willReturn(playlist);
+            willThrow(PlaylistSubscriptionAlreadyExistsException.withPlaylistIdAndSubscriberId(playlistId, requesterId))
+                .given(playlistSubscriptionService).subscribe(playlistId, requesterId);
+            setupTransactionTemplateWithoutResult();
+
+            // when & then
+            assertThatThrownBy(() -> playlistFacade.subscribePlaylist(requesterId, playlistId))
+                .isInstanceOf(PlaylistSubscriptionAlreadyExistsException.class);
+        }
+
+        @Test
+        @DisplayName("자기 자신의 플레이리스트 구독 시 예외 발생")
+        void withSelfSubscription_throwsException() {
+            // given
+            UserModel owner = UserModelFixture.create();
+            UUID requesterId = owner.getId();
+            PlaylistModel playlist = PlaylistModelFixture.create(owner);
+            UUID playlistId = playlist.getId();
+
+            given(userService.getById(requesterId)).willReturn(owner);
+            given(playlistService.getById(playlistId)).willReturn(playlist);
+            willThrow(SelfSubscriptionNotAllowedException.withPlaylistIdAndUserId(playlistId, requesterId))
+                .given(playlistSubscriptionService).subscribe(playlistId, requesterId);
+            setupTransactionTemplateWithoutResult();
+
+            // when & then
+            assertThatThrownBy(() -> playlistFacade.subscribePlaylist(requesterId, playlistId))
+                .isInstanceOf(SelfSubscriptionNotAllowedException.class);
+        }
     }
 
     @Nested
@@ -677,6 +721,26 @@ class PlaylistFacadeTest {
                 .isInstanceOf(PlaylistNotFoundException.class);
 
             then(playlistSubscriptionService).should(never()).unsubscribe(any(), any());
+        }
+
+        @Test
+        @DisplayName("구독 중이 아닌 플레이리스트 구독 취소 시 예외 발생")
+        void withNotSubscribed_throwsException() {
+            // given
+            UserModel subscriber = UserModelFixture.create();
+            UUID requesterId = subscriber.getId();
+            PlaylistModel playlist = PlaylistModelFixture.create();
+            UUID playlistId = playlist.getId();
+
+            given(userService.getById(requesterId)).willReturn(subscriber);
+            given(playlistService.getById(playlistId)).willReturn(playlist);
+            willThrow(PlaylistSubscriptionNotFoundException.withPlaylistIdAndSubscriberId(playlistId, requesterId))
+                .given(playlistSubscriptionService).unsubscribe(playlistId, requesterId);
+            setupTransactionTemplateWithoutResult();
+
+            // when & then
+            assertThatThrownBy(() -> playlistFacade.unsubscribePlaylist(requesterId, playlistId))
+                .isInstanceOf(PlaylistSubscriptionNotFoundException.class);
         }
     }
 }

@@ -301,4 +301,114 @@ class PlaylistModelTest {
                 .isInstanceOf(InvalidPlaylistDataException.class);
         }
     }
+
+    @Nested
+    @DisplayName("withSubscriberAdded()")
+    class WithSubscriberAddedTest {
+
+        @Test
+        @DisplayName("구독자 추가 시 구독자 수 1 증가")
+        void increasesSubscriberCountByOne() {
+            // given
+            PlaylistModel playlist = createDefaultPlaylist();
+            int originalCount = playlist.getSubscriberCount();
+
+            // when
+            PlaylistModel result = playlist.withSubscriberAdded();
+
+            // then
+            assertThat(result.getSubscriberCount()).isEqualTo(originalCount + 1);
+            assertThat(result).isNotSameAs(playlist);
+        }
+
+        @Test
+        @DisplayName("구독자 0명에서 추가 시 1명이 됨")
+        void fromZeroSubscribers_becomesOne() {
+            // given
+            PlaylistModel playlist = createDefaultPlaylist();
+            assertThat(playlist.getSubscriberCount()).isZero();
+
+            // when
+            PlaylistModel result = playlist.withSubscriberAdded();
+
+            // then
+            assertThat(result.getSubscriberCount()).isEqualTo(1);
+        }
+
+        @Test
+        @DisplayName("기존 필드 값 유지")
+        void preservesOtherFields() {
+            // given
+            PlaylistModel playlist = createDefaultPlaylist();
+
+            // when
+            PlaylistModel result = playlist.withSubscriberAdded();
+
+            // then
+            assertThat(result.getTitle()).isEqualTo(playlist.getTitle());
+            assertThat(result.getDescription()).isEqualTo(playlist.getDescription());
+            assertThat(result.getOwner()).isEqualTo(playlist.getOwner());
+        }
+    }
+
+    @Nested
+    @DisplayName("withSubscriberRemoved()")
+    class WithSubscriberRemovedTest {
+
+        @Test
+        @DisplayName("구독자 제거 시 구독자 수 1 감소")
+        void decreasesSubscriberCountByOne() {
+            // given
+            PlaylistModel playlist = createDefaultPlaylist().withSubscriberAdded().withSubscriberAdded();
+            int originalCount = playlist.getSubscriberCount();
+
+            // when
+            PlaylistModel result = playlist.withSubscriberRemoved();
+
+            // then
+            assertThat(result.getSubscriberCount()).isEqualTo(originalCount - 1);
+            assertThat(result).isNotSameAs(playlist);
+        }
+
+        @Test
+        @DisplayName("구독자 1명에서 제거 시 0명이 됨")
+        void fromOneSubscriber_becomesZero() {
+            // given
+            PlaylistModel playlist = createDefaultPlaylist().withSubscriberAdded();
+            assertThat(playlist.getSubscriberCount()).isEqualTo(1);
+
+            // when
+            PlaylistModel result = playlist.withSubscriberRemoved();
+
+            // then
+            assertThat(result.getSubscriberCount()).isZero();
+        }
+
+        @Test
+        @DisplayName("구독자 0명일 때 제거 시 예외 발생")
+        void withZeroSubscribers_throwsException() {
+            // given
+            PlaylistModel playlist = createDefaultPlaylist();
+            assertThat(playlist.getSubscriberCount()).isZero();
+
+            // when & then
+            assertThatThrownBy(playlist::withSubscriberRemoved)
+                .isInstanceOf(InvalidPlaylistDataException.class);
+        }
+
+        @Test
+        @DisplayName("기존 필드 값 유지")
+        void preservesOtherFields() {
+            // given
+            PlaylistModel playlist = createDefaultPlaylist().withSubscriberAdded();
+
+            // when
+            PlaylistModel result = playlist.withSubscriberRemoved();
+
+            // then
+            assertThat(result.getTitle()).isEqualTo(playlist.getTitle());
+            assertThat(result.getDescription()).isEqualTo(playlist.getDescription());
+            assertThat(result.getOwner()).isEqualTo(playlist.getOwner());
+        }
+    }
 }
