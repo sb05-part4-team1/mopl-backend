@@ -12,10 +12,6 @@ public class FileUploadException extends StorageException {
         super(ERROR_CODE, details);
     }
 
-    public static FileUploadException withPath(String path) {
-        return new FileUploadException(Map.of("path", path));
-    }
-
     public static FileUploadException withPathAndCause(String path, String cause) {
         return new FileUploadException(Map.of("path", path, "cause", cause));
     }

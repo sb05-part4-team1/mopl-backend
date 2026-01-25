@@ -121,6 +121,25 @@ class ReviewModelTest {
         }
 
         @Test
+        @DisplayName("텍스트가 null이면 예외 발생")
+        void withNullText_throwsException() {
+            // given
+            ContentModel content = mock(ContentModel.class);
+            given(content.getId()).willReturn(UUID.randomUUID());
+            UserModel author = mock(UserModel.class);
+            given(author.getId()).willReturn(UUID.randomUUID());
+
+            // when & then
+            assertThatThrownBy(() -> ReviewModel.create(content, author, null, 1.0))
+                .isInstanceOf(InvalidReviewDataException.class)
+                .satisfies(e -> {
+                    InvalidReviewDataException ex = (InvalidReviewDataException) e;
+                    assertThat((String) ex.getDetails().get("detailMessage"))
+                        .isEqualTo("리뷰 내용은 null일 수 없습니다.");
+                });
+        }
+
+        @Test
         @DisplayName("텍스트 길이가 최대 길이를 초과하면 예외 발생")
         void withTextExceedingMaxLength_throwsException() {
             // given

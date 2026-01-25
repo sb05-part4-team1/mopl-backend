@@ -69,6 +69,10 @@ public class ReviewModel extends BaseUpdatableModel {
     }
 
     private static void validateText(String text) {
+        if (text == null) {
+            throw InvalidReviewDataException.withDetailMessage("리뷰 내용은 null일 수 없습니다.");
+        }
+
         if (text.length() > TEXT_MAX_LENGTH) {
             throw InvalidReviewDataException.withDetailMessage(
                 "리뷰 내용은 " + TEXT_MAX_LENGTH + "자를 초과할 수 없습니다."

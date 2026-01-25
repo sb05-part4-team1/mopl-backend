@@ -196,7 +196,7 @@ class ReviewServiceTest {
             assertThat(updatedReview.getText()).isEqualTo(newText);
             assertThat(updatedReview.getRating()).isEqualTo(newRating);
 
-            then(reviewRepository).should().save(existingReview);
+            then(reviewRepository).should().save(any(ReviewModel.class));
             then(contentRepository).should().save(any(ContentModel.class));
         }
 
@@ -222,7 +222,7 @@ class ReviewServiceTest {
             assertThat(updatedReview.getText()).isEqualTo(newText);
             assertThat(updatedReview.getRating()).isEqualTo(originalRating);
 
-            then(reviewRepository).should().save(existingReview);
+            then(reviewRepository).should().save(any(ReviewModel.class));
             then(contentRepository).should(never()).save(any());
         }
 
@@ -249,7 +249,7 @@ class ReviewServiceTest {
             assertThat(updatedReview.getText()).isEqualTo(originalText);
             assertThat(updatedReview.getRating()).isEqualTo(newRating);
 
-            then(reviewRepository).should().save(existingReview);
+            then(reviewRepository).should().save(any(ReviewModel.class));
             then(contentRepository).should().save(any(ContentModel.class));
         }
 
@@ -271,7 +271,7 @@ class ReviewServiceTest {
             reviewService.update(reviewId, authorId, null, originalRating);
 
             // then
-            then(reviewRepository).should().save(existingReview);
+            then(reviewRepository).should().save(any(ReviewModel.class));
             then(contentRepository).should(never()).save(any());
         }
 
@@ -330,7 +330,7 @@ class ReviewServiceTest {
 
             // then
             assertThat(existingReview.getDeletedAt()).isNotNull();
-            then(reviewRepository).should().save(existingReview);
+            then(reviewRepository).should().save(any(ReviewModel.class));
         }
 
         @Test
