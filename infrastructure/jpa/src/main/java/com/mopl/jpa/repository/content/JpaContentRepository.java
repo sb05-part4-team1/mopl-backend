@@ -13,6 +13,16 @@ import java.util.UUID;
 
 public interface JpaContentRepository extends JpaRepository<ContentEntity, UUID> {
 
+    // denormalized sync batch 전용
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            update ContentEntity c
+            set c.reviewCount = :reviewCount, c.averageRating = :averageRating
+            where c.id = :contentId
+        """)
+    void updateReviewStats(UUID contentId, int reviewCount, double averageRating);
+
+    // cleanup batch 전용
     @Query(
         value = """
                 select BIN_TO_UUID(id)
@@ -50,12 +60,4 @@ public interface JpaContentRepository extends JpaRepository<ContentEntity, UUID>
         nativeQuery = true
     )
     int deleteByIdIn(List<UUID> contentIds);
-
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("""
-            update ContentEntity c
-            set c.reviewCount = :reviewCount, c.averageRating = :averageRating
-            where c.id = :contentId
-        """)
-    void updateReviewStats(UUID contentId, int reviewCount, double averageRating);
 }

@@ -16,6 +16,16 @@ public interface JpaPlaylistRepository extends JpaRepository<PlaylistEntity, UUI
     @EntityGraph(attributePaths = {"owner"})
     Optional<PlaylistEntity> findWithOwnerById(UUID id);
 
+    // denormalized sync batch 전용
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            update PlaylistEntity p
+            set p.subscriberCount = :subscriberCount
+            where p.id = :playlistId
+        """)
+    void updateSubscriberCount(UUID playlistId, int subscriberCount);
+
+    // cleanup batch 전용
     @Query(
         value = """
                 select BIN_TO_UUID(id)
@@ -38,12 +48,4 @@ public interface JpaPlaylistRepository extends JpaRepository<PlaylistEntity, UUI
         nativeQuery = true
     )
     int deleteByIdIn(List<UUID> playlistIds);
-
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("""
-            update PlaylistEntity p
-            set p.subscriberCount = :subscriberCount
-            where p.id = :playlistId
-        """)
-    int updateSubscriberCount(UUID playlistId, int subscriberCount);
 }

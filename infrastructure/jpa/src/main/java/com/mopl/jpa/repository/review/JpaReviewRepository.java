@@ -20,6 +20,19 @@ public interface JpaReviewRepository extends JpaRepository<ReviewEntity, UUID> {
 
     boolean existsByContentIdAndAuthorIdAndDeletedAtIsNull(UUID contentId, UUID authorId);
 
+    // denormalized sync batch 전용
+    @Query("SELECT DISTINCT r.content.id FROM ReviewEntity r WHERE r.deletedAt IS NULL")
+    Set<UUID> findAllContentIds();
+
+    @Query("""
+        SELECT r.content.id, COUNT(r), AVG(r.rating)
+        FROM ReviewEntity r
+        WHERE r.content.id IN :contentIds AND r.deletedAt IS NULL
+        GROUP BY r.content.id
+        """)
+    List<Object[]> findReviewStatsByContentIdIn(Collection<UUID> contentIds);
+
+    // cleanup batch 전용
     @Query(
         value = """
                 select BIN_TO_UUID(id)
@@ -51,15 +64,4 @@ public interface JpaReviewRepository extends JpaRepository<ReviewEntity, UUID> {
               and r.deletedAt is null
         """)
     int softDeleteByContentIdIn(List<UUID> contentIds, Instant now);
-
-    @Query("SELECT DISTINCT r.content.id FROM ReviewEntity r WHERE r.deletedAt IS NULL")
-    Set<UUID> findAllContentIds();
-
-    @Query("""
-        SELECT r.content.id, COUNT(r), AVG(r.rating)
-        FROM ReviewEntity r
-        WHERE r.content.id IN :contentIds AND r.deletedAt IS NULL
-        GROUP BY r.content.id
-        """)
-    List<Object[]> findReviewStatsByContentIdIn(Collection<UUID> contentIds);
 }
