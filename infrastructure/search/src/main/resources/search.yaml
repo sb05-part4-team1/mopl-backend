@@ -1,11 +1,15 @@
 mopl:
   search:
-    enabled: true
+    enabled: ${ELASTICSEARCH_ENABLED:true}
     elasticsearch:
-      uris: localhost:9200
-      connect-timeout-millis: 1000
-      socket-timeout-millis: 3000
+      uris: ${ELASTICSEARCH_URIS:localhost:9200}
+      username: ${ELASTICSEARCH_USERNAME:}
+      password: ${ELASTICSEARCH_PASSWORD:}
+      connect-timeout-millis: ${ELASTICSEARCH_CONNECT_TIMEOUT:1000}
+      socket-timeout-millis: ${ELASTICSEARCH_SOCKET_TIMEOUT:3000}
 
 spring:
   elasticsearch:
-    uris: http://localhost:9200
+    uris: ${ELASTICSEARCH_URIS:http://localhost:9200}
+    username: ${ELASTICSEARCH_USERNAME:}
+    password: ${ELASTICSEARCH_PASSWORD:}
