@@ -47,6 +47,8 @@ public class PlaylistFacade {
         UUID requesterId,
         PlaylistQueryRequest request
     ) {
+        userService.getById(requesterId);
+
         CursorResponse<PlaylistModel> playlistPage = playlistService.getAll(request);
         List<PlaylistModel> playlists = playlistPage.data();
 
@@ -163,7 +165,8 @@ public class PlaylistFacade {
         PlaylistModel playlist = playlistService.getById(playlistId);
         validateOwner(playlist, requesterId);
 
-        transactionTemplate.executeWithoutResult(status -> playlistService.delete(playlist));
+        transactionTemplate.executeWithoutResult(status ->
+            playlistService.delete(playlist));
     }
 
     public void addContentToPlaylist(
@@ -201,7 +204,8 @@ public class PlaylistFacade {
         PlaylistModel playlist = playlistService.getById(playlistId);
         validateOwner(playlist, requesterId);
 
-        transactionTemplate.executeWithoutResult(status -> playlistService.deleteContentFromPlaylist(playlistId, contentId));
+        transactionTemplate.executeWithoutResult(status ->
+            playlistService.deleteContentFromPlaylist(playlistId, contentId));
     }
 
     public void subscribePlaylist(
@@ -232,7 +236,8 @@ public class PlaylistFacade {
         userService.getById(requesterId);
         playlistService.getById(playlistId);
 
-        transactionTemplate.executeWithoutResult(status -> playlistSubscriptionService.unsubscribe(playlistId, requesterId));
+        transactionTemplate.executeWithoutResult(status ->
+            playlistSubscriptionService.unsubscribe(playlistId, requesterId));
     }
 
     private void validateOwner(PlaylistModel playlist, UUID requesterId) {
