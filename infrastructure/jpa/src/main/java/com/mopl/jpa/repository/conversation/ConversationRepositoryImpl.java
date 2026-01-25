@@ -25,7 +25,7 @@ public class ConversationRepositoryImpl implements ConversationRepository {
 
     @Override
     public Optional<ConversationModel> findByParticipants(UUID userId, UUID withId) {
-        return jpaConversationRepository.findConversationIdByParticipants(userId, withId)
+        return jpaConversationRepository.findByParticipants(userId, withId)
             .map(conversationEntityMapper::toModel);
     }
 

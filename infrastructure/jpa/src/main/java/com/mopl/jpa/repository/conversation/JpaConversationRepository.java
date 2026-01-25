@@ -1,12 +1,11 @@
 package com.mopl.jpa.repository.conversation;
 
 import com.mopl.jpa.entity.conversation.ConversationEntity;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.UUID;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+
+import java.util.Optional;
+import java.util.UUID;
 
 public interface JpaConversationRepository extends JpaRepository<ConversationEntity, UUID> {
 
@@ -17,8 +16,5 @@ public interface JpaConversationRepository extends JpaRepository<ConversationEnt
             GROUP BY rs.conversation.id
             HAVING COUNT(DISTINCT rs.participant.id) = 2
         """)
-    Optional<ConversationEntity> findConversationIdByParticipants(
-        @Param("userId") UUID userId,
-        @Param("withId") UUID withId
-    );
+    Optional<ConversationEntity> findByParticipants(UUID userId, UUID withId);
 }

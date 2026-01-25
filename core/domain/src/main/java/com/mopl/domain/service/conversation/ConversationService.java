@@ -2,14 +2,12 @@ package com.mopl.domain.service.conversation;
 
 import com.mopl.domain.exception.conversation.ConversationNotFoundException;
 import com.mopl.domain.model.conversation.ConversationModel;
-import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.conversation.ConversationQueryRepository;
 import com.mopl.domain.repository.conversation.ConversationQueryRequest;
 import com.mopl.domain.repository.conversation.ConversationRepository;
 import com.mopl.domain.support.cursor.CursorResponse;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -27,15 +25,12 @@ public class ConversationService {
             .orElseThrow(() -> ConversationNotFoundException.withId(conversationId));
     }
 
-    public ConversationModel create(
-        ConversationModel conversationModel,
-        UserModel userModel,
-        UserModel withUserModel
-    ) {
+    public ConversationModel create(ConversationModel conversationModel) {
         return conversationRepository.save(conversationModel);
     }
 
-    public Optional<ConversationModel> findByParticipants(UUID userId, UUID withUserId) {
-        return conversationRepository.findByParticipants(userId, withUserId);
+    public ConversationModel getByParticipants(UUID userId, UUID withUserId) {
+        return conversationRepository.findByParticipants(userId, withUserId)
+            .orElseThrow(() -> ConversationNotFoundException.withParticipants(userId, withUserId));
     }
 }

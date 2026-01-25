@@ -91,35 +91,29 @@ public class ConversationFacade {
         return conversationResponseMapper.toResponse(conversation, withUser, lastMessage, hasUnread);
     }
 
-    public ConversationResponse getConversationByWith(UUID requesterId, UUID withUserId) {
+    public ConversationResponse getConversationWith(UUID requesterId, UUID withUserId) {
         UserModel withUser = userService.getById(withUserId);
 
-        ConversationModel conversation = conversationService.findByParticipants(requesterId, withUserId)
-            .orElseGet(() -> {
-                UserModel requester = userService.getById(requesterId);
-                return conversationService.create(ConversationModel.create(), requester, withUser);
-            });
+        ConversationModel conversation = conversationService.getByParticipants(requesterId, withUserId);
 
-        DirectMessageModel lastMessage = directMessageService.getLastDirectMessage(conversation.getId());
         ReadStatusModel requesterReadStatus = readStatusService.getReadStatus(requesterId, conversation.getId());
+        DirectMessageModel lastMessage = directMessageService.getLastDirectMessage(conversation.getId());
 
         boolean hasUnread = calculateHasUnread(requesterId, lastMessage, requesterReadStatus);
 
         return conversationResponseMapper.toResponse(conversation, withUser, lastMessage, hasUnread);
     }
 
-    @Transactional
     public ConversationResponse createConversation(UUID requesterId, ConversationCreateRequest request) {
-        UserModel withUser = userService.getById(request.withUserId());
         UserModel requester = userService.getById(requesterId);
+        UserModel withUser = userService.getById(request.withUserId());
 
-        ConversationModel conversation = conversationService.create(
-            ConversationModel.create(),
-            requester,
-            withUser
-        );
+        ConversationModel conversation = ConversationModel.create();
+        ConversationModel savedConversation = conversationService.create(conversation);
+        ReadStatusModel requesterReadStatus = ReadStatusModel.create(savedConversation, requester);
+        ReadStatusModel withUserReadStatus = ReadStatusModel.create(savedConversation, withUser);
 
-        return conversationResponseMapper.toResponse(conversation, withUser, null, false);
+        return conversationResponseMapper.toResponse(savedConversation, withUser);
     }
 
     public CursorResponse<DirectMessageResponse> getDirectMessages(

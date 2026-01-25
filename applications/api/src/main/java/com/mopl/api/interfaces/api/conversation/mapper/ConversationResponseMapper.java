@@ -28,4 +28,16 @@ public class ConversationResponseMapper {
             hasUnread
         );
     }
+
+    public ConversationResponse toResponse(
+        ConversationModel conversationModel,
+        UserModel withUser
+    ) {
+        return toResponse(
+            conversationModel,
+            withUser,
+            null,
+            false
+        );
+    }
 }

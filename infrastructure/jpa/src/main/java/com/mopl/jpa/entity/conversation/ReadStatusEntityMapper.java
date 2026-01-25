@@ -22,8 +22,8 @@ public class ReadStatusEntityMapper {
 
         return buildReadStatusModel(
             entity,
-            toConversationIdOnly(entity.getConversation()),
-            toParticipantIdOnly(entity.getParticipant())
+            toParticipantIdOnly(entity.getParticipant()),
+            toConversationIdOnly(entity.getConversation())
         );
     }
 
@@ -34,8 +34,8 @@ public class ReadStatusEntityMapper {
 
         return buildReadStatusModel(
             entity,
-            toConversationIdOnly(entity.getConversation()),
-            userEntityMapper.toModel(entity.getParticipant())
+            userEntityMapper.toModel(entity.getParticipant()),
+            toConversationIdOnly(entity.getConversation())
         );
     }
 
@@ -48,34 +48,34 @@ public class ReadStatusEntityMapper {
             .id(model.getId())
             .createdAt(model.getCreatedAt())
             .lastReadAt(model.getLastReadAt())
-            .conversation(conversationEntityMapper.toEntity(model.getConversation()))
             .participant(userEntityMapper.toEntity(model.getParticipant()))
+            .conversation(conversationEntityMapper.toEntity(model.getConversation()))
             .build();
     }
 
     private ReadStatusModel buildReadStatusModel(
         ReadStatusEntity entity,
-        ConversationModel conversation,
-        UserModel user
+        UserModel user,
+        ConversationModel conversation
     ) {
         return ReadStatusModel.builder()
             .id(entity.getId())
             .createdAt(entity.getCreatedAt())
             .lastReadAt(entity.getLastReadAt())
-            .conversation(conversation)
             .participant(user)
+            .conversation(conversation)
             .build();
-    }
-
-    private ConversationModel toConversationIdOnly(ConversationEntity entity) {
-        return entity != null
-            ? ConversationModel.builder().id(entity.getId()).build()
-            : null;
     }
 
     private UserModel toParticipantIdOnly(UserEntity entity) {
         return entity != null
             ? UserModel.builder().id(entity.getId()).build()
+            : null;
+    }
+
+    private ConversationModel toConversationIdOnly(ConversationEntity entity) {
+        return entity != null
+            ? ConversationModel.builder().id(entity.getId()).build()
             : null;
     }
 }

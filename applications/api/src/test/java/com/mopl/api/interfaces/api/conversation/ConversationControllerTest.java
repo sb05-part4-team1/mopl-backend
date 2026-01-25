@@ -242,7 +242,7 @@ class ConversationControllerTest {
                 false
             );
 
-            given(conversationFacade.getConversationByWith(userId, withUserId))
+            given(conversationFacade.getConversationWith(userId, withUserId))
                 .willReturn(conversationResponse);
 
             // when & then
@@ -253,7 +253,7 @@ class ConversationControllerTest {
                 .andExpect(jsonPath("$.id").value(conversationId.toString()))
                 .andExpect(jsonPath("$.with.userId").value(withUserId.toString()));
 
-            then(conversationFacade).should().getConversationByWith(userId, withUserId);
+            then(conversationFacade).should().getConversationWith(userId, withUserId);
         }
 
         @Test
@@ -262,7 +262,7 @@ class ConversationControllerTest {
             // given
             UUID withUserId = UUID.randomUUID();
 
-            given(conversationFacade.getConversationByWith(userId, withUserId))
+            given(conversationFacade.getConversationWith(userId, withUserId))
                 .willThrow(UserNotFoundException.withId(withUserId));
 
             // when & then

@@ -15,17 +15,17 @@ import java.time.Instant;
 public class ReadStatusModel extends BaseModel {
 
     private Instant lastReadAt;
-    private ConversationModel conversation;
     private UserModel participant;
+    private ConversationModel conversation;
 
     public static ReadStatusModel create(
-        ConversationModel conversation,
-        UserModel participant
+        UserModel participant,
+        ConversationModel conversation
     ) {
         return ReadStatusModel.builder()
             .lastReadAt(Instant.now())
-            .conversation(conversation)
             .participant(participant)
+            .conversation(conversation)
             .build();
     }
 

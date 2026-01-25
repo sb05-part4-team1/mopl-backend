@@ -55,7 +55,7 @@ public class ConversationController implements ConversationApiSpec {
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @RequestParam UUID userId
     ) {
-        return conversationFacade.getConversationByWith(
+        return conversationFacade.getConversationWith(
             userDetails.userId(),
             userId
         );

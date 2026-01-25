@@ -35,7 +35,7 @@ class ReadStatusModelTest {
             Instant before = Instant.now();
 
             // when
-            ReadStatusModel readStatus = ReadStatusModel.create(conversation, participant);
+            ReadStatusModel readStatus = ReadStatusModel.create(participant, conversation);
 
             // then
             Instant after = Instant.now();
