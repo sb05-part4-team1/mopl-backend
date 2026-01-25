@@ -7,6 +7,8 @@ import static com.mopl.logging.mdc.MDCKeys.REQUEST_URI;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.UUID;
+
+import lombok.NonNull;
 import org.slf4j.MDC;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -16,7 +18,7 @@ public class MDCLoggingInterceptor implements HandlerInterceptor {
     public boolean preHandle(
         HttpServletRequest request,
         HttpServletResponse response,
-        Object handler
+        @NonNull Object handler
     ) {
         // 1. requestId 생성
         String requestId = UUID.randomUUID().toString();
@@ -34,9 +36,9 @@ public class MDCLoggingInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(
-        HttpServletRequest request,
-        HttpServletResponse response,
-        Object handler,
+        @NonNull HttpServletRequest request,
+        @NonNull HttpServletResponse response,
+        @NonNull Object handler,
         Exception ex
     ) {
         // 반드시 호출
