@@ -2,9 +2,9 @@ package com.mopl.api.application.conversation;
 
 import com.mopl.api.interfaces.api.conversation.dto.ConversationCreateRequest;
 import com.mopl.api.interfaces.api.conversation.dto.ConversationResponse;
-import com.mopl.api.interfaces.api.conversation.dto.DirectMessageResponse;
+import com.mopl.dto.conversation.DirectMessageResponse;
 import com.mopl.api.interfaces.api.conversation.mapper.ConversationResponseMapper;
-import com.mopl.api.interfaces.api.conversation.mapper.DirectMessageResponseMapper;
+import com.mopl.dto.conversation.DirectMessageResponseMapper;
 import com.mopl.domain.exception.conversation.ConversationAlreadyExistsException;
 import com.mopl.domain.exception.conversation.SelfConversationNotAllowedException;
 import com.mopl.domain.model.conversation.ConversationModel;

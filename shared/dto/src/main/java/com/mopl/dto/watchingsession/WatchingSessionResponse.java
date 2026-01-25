@@ -1,7 +1,8 @@
-package com.mopl.api.interfaces.api.watchingsession.dto;
+package com.mopl.dto.watchingsession;
 
-import com.mopl.api.interfaces.api.content.dto.ContentSummary;
-import com.mopl.api.interfaces.api.user.dto.UserSummary;
+import com.mopl.dto.content.ContentSummary;
+import com.mopl.dto.user.UserSummary;
+
 import java.time.Instant;
 import java.util.UUID;
 

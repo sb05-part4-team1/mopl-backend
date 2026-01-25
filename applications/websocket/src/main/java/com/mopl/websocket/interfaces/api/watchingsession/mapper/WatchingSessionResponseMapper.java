@@ -3,9 +3,9 @@ package com.mopl.websocket.interfaces.api.watchingsession.mapper;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.watchingsession.WatchingSessionModel;
 import com.mopl.storage.provider.StorageProvider;
-import com.mopl.websocket.interfaces.api.content.mapper.ContentSummaryMapper;
-import com.mopl.websocket.interfaces.api.user.dto.UserSummary;
-import com.mopl.websocket.interfaces.api.watchingsession.dto.WatchingSessionResponse;
+import com.mopl.dto.content.ContentSummaryMapper;
+import com.mopl.dto.user.UserSummary;
+import com.mopl.dto.watchingsession.WatchingSessionResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

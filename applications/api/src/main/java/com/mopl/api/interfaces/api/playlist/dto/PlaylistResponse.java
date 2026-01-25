@@ -1,7 +1,7 @@
 package com.mopl.api.interfaces.api.playlist.dto;
 
-import com.mopl.api.interfaces.api.content.dto.ContentSummary;
-import com.mopl.api.interfaces.api.user.dto.UserSummary;
+import com.mopl.dto.content.ContentSummary;
+import com.mopl.dto.user.UserSummary;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;

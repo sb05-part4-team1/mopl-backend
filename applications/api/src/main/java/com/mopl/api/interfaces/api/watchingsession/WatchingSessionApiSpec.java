@@ -1,7 +1,7 @@
 package com.mopl.api.interfaces.api.watchingsession;
 
 import com.mopl.api.interfaces.api.ApiErrorResponse;
-import com.mopl.api.interfaces.api.watchingsession.dto.WatchingSessionResponse;
+import com.mopl.dto.watchingsession.WatchingSessionResponse;
 import com.mopl.domain.repository.watchingsession.WatchingSessionQueryRequest;
 import com.mopl.domain.repository.watchingsession.WatchingSessionSortField;
 import com.mopl.domain.support.cursor.CursorResponse;

@@ -15,6 +15,7 @@ include(
     ":infrastructure:redis",
     ":infrastructure:security",
     ":infrastructure:storage",
+    ":shared:dto",
     ":shared:jackson",
     ":shared:logging",
     ":shared:monitoring"

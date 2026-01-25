@@ -1,6 +1,5 @@
-package com.mopl.api.interfaces.api.content.mapper;
+package com.mopl.dto.content;
 
-import com.mopl.api.interfaces.api.content.dto.ContentSummary;
 import com.mopl.domain.fixture.ContentModelFixture;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.storage.provider.StorageProvider;

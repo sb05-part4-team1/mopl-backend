@@ -16,8 +16,8 @@ import com.mopl.websocket.application.watchingsession.WatchingSessionWebSocketFa
 import com.mopl.websocket.interfaces.api.content.ChangeType;
 import com.mopl.websocket.interfaces.api.content.ContentChatDto;
 import com.mopl.websocket.interfaces.api.content.WatchingSessionChange;
-import com.mopl.websocket.interfaces.api.user.mapper.UserSummaryMapper;
-import com.mopl.websocket.interfaces.api.watchingsession.dto.WatchingSessionResponse;
+import com.mopl.dto.user.UserSummaryMapper;
+import com.mopl.dto.watchingsession.WatchingSessionResponse;
 import com.mopl.websocket.interfaces.api.watchingsession.mapper.WatchingSessionResponseMapper;
 
 import lombok.RequiredArgsConstructor;

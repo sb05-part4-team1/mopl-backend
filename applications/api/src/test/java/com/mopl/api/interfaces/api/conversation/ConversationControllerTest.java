@@ -6,11 +6,11 @@ import com.mopl.api.config.TestSecurityConfig;
 import com.mopl.api.interfaces.api.ApiControllerAdvice;
 import com.mopl.api.interfaces.api.conversation.dto.ConversationCreateRequest;
 import com.mopl.api.interfaces.api.conversation.dto.ConversationResponse;
-import com.mopl.api.interfaces.api.conversation.dto.DirectMessageResponse;
+import com.mopl.dto.conversation.DirectMessageResponse;
 import com.mopl.api.interfaces.api.conversation.mapper.ConversationResponseMapper;
-import com.mopl.api.interfaces.api.conversation.mapper.DirectMessageResponseMapper;
-import com.mopl.api.interfaces.api.user.dto.UserSummary;
-import com.mopl.api.interfaces.api.user.mapper.UserSummaryMapper;
+import com.mopl.dto.conversation.DirectMessageResponseMapper;
+import com.mopl.dto.user.UserSummary;
+import com.mopl.dto.user.UserSummaryMapper;
 import com.mopl.domain.exception.conversation.ConversationAlreadyExistsException;
 import com.mopl.domain.exception.conversation.ConversationNotFoundException;
 import com.mopl.domain.exception.conversation.ReadStatusNotFoundException;
@@ -75,6 +75,7 @@ class ConversationControllerTest {
     private ConversationFacade conversationFacade;
 
     @MockBean
+    @SuppressWarnings("unused")
     private StorageProvider storageProvider;
 
     private MoplUserDetails mockUserDetails;

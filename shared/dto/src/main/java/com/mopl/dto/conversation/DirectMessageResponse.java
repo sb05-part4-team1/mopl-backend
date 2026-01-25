@@ -1,6 +1,6 @@
-package com.mopl.websocket.interfaces.api.conversation.dto;
+package com.mopl.dto.conversation;
 
-import com.mopl.websocket.interfaces.api.user.dto.UserSummary;
+import com.mopl.dto.user.UserSummary;
 
 import java.time.Instant;
 import java.util.UUID;

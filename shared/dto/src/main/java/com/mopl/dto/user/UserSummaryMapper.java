@@ -1,6 +1,5 @@
-package com.mopl.api.interfaces.api.user.mapper;
+package com.mopl.dto.user;
 
-import com.mopl.api.interfaces.api.user.dto.UserSummary;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.storage.provider.StorageProvider;
 import lombok.RequiredArgsConstructor;

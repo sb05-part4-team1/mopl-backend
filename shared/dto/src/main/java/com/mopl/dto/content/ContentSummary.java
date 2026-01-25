@@ -1,4 +1,4 @@
-package com.mopl.websocket.interfaces.api.content.dto;
+package com.mopl.dto.content;
 
 import com.mopl.domain.model.content.ContentModel.ContentType;
 

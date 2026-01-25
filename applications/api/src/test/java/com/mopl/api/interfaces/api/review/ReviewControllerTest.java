@@ -7,7 +7,7 @@ import com.mopl.api.interfaces.api.ApiControllerAdvice;
 import com.mopl.api.interfaces.api.review.dto.ReviewCreateRequest;
 import com.mopl.api.interfaces.api.review.dto.ReviewResponse;
 import com.mopl.api.interfaces.api.review.dto.ReviewUpdateRequest;
-import com.mopl.api.interfaces.api.user.dto.UserSummary;
+import com.mopl.dto.user.UserSummary;
 import com.mopl.domain.repository.review.ReviewQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;

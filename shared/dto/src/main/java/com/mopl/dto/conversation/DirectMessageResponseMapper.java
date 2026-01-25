@@ -1,15 +1,14 @@
-package com.mopl.websocket.interfaces.api.conversation.mapper;
+package com.mopl.dto.conversation;
 
 import com.mopl.domain.model.conversation.DirectMessageModel;
 import com.mopl.domain.model.user.UserModel;
-import com.mopl.websocket.interfaces.api.conversation.dto.DirectMessageResponse;
-import com.mopl.websocket.interfaces.api.user.mapper.UserSummaryMapper;
+import com.mopl.dto.user.UserSummaryMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class DirectMessageMapper {
+public class DirectMessageResponseMapper {
 
     private final UserSummaryMapper userSummaryMapper;
 
@@ -17,6 +16,7 @@ public class DirectMessageMapper {
         if (directMessageModel == null) {
             return null;
         }
+
         return new DirectMessageResponse(
             directMessageModel.getId(),
             directMessageModel.getConversation().getId(),

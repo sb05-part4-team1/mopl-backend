@@ -1,8 +1,8 @@
 package com.mopl.api.interfaces.api.review.mapper;
 
 import com.mopl.api.interfaces.api.review.dto.ReviewResponse;
-import com.mopl.api.interfaces.api.user.dto.UserSummary;
-import com.mopl.api.interfaces.api.user.mapper.UserSummaryMapper;
+import com.mopl.dto.user.UserSummary;
+import com.mopl.dto.user.UserSummaryMapper;
 import com.mopl.domain.fixture.ReviewModelFixture;
 import com.mopl.domain.model.review.ReviewModel;
 import com.mopl.domain.model.user.UserModel;

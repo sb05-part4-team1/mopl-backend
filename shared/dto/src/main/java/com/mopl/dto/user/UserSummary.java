@@ -1,4 +1,4 @@
-package com.mopl.api.interfaces.api.user.dto;
+package com.mopl.dto.user;
 
 import java.util.UUID;
 

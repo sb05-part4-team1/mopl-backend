@@ -1,6 +1,6 @@
 package com.mopl.websocket.interfaces.api.content;
 
-import com.mopl.websocket.interfaces.api.user.dto.UserSummary;
+import com.mopl.dto.user.UserSummary;
 
 public record ContentChatDto(
     UserSummary sender,

@@ -1,8 +1,8 @@
 package com.mopl.api.interfaces.api.playlist.mapper;
 
-import com.mopl.api.interfaces.api.content.mapper.ContentSummaryMapper;
+import com.mopl.dto.content.ContentSummaryMapper;
 import com.mopl.api.interfaces.api.playlist.dto.PlaylistResponse;
-import com.mopl.api.interfaces.api.user.mapper.UserSummaryMapper;
+import com.mopl.dto.user.UserSummaryMapper;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import lombok.RequiredArgsConstructor;

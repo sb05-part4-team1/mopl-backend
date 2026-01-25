@@ -8,6 +8,7 @@ dependencies {
     implementation(project(":infrastructure:redis"))
     implementation(project(":infrastructure:security"))
     implementation(project(":infrastructure:storage"))
+    implementation(project(":shared:dto"))
     implementation(project(":shared:jackson"))
     implementation(project(":shared:logging"))
     implementation(project(":shared:monitoring"))

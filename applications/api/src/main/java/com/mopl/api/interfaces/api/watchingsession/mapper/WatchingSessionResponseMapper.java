@@ -1,8 +1,8 @@
 package com.mopl.api.interfaces.api.watchingsession.mapper;
 
-import com.mopl.api.interfaces.api.content.dto.ContentSummary;
-import com.mopl.api.interfaces.api.user.dto.UserSummary;
-import com.mopl.api.interfaces.api.watchingsession.dto.WatchingSessionResponse;
+import com.mopl.dto.content.ContentSummary;
+import com.mopl.dto.user.UserSummary;
+import com.mopl.dto.watchingsession.WatchingSessionResponse;
 import com.mopl.domain.model.watchingsession.WatchingSessionModel;
 import com.mopl.storage.provider.StorageProvider;
 import lombok.RequiredArgsConstructor;

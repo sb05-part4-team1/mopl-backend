@@ -1,7 +1,8 @@
 package com.mopl.api.interfaces.api.conversation.mapper;
 
 import com.mopl.api.interfaces.api.conversation.dto.ConversationResponse;
-import com.mopl.api.interfaces.api.user.mapper.UserSummaryMapper;
+import com.mopl.dto.conversation.DirectMessageResponseMapper;
+import com.mopl.dto.user.UserSummaryMapper;
 import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.model.conversation.DirectMessageModel;
 import com.mopl.domain.model.user.UserModel;

@@ -1,6 +1,8 @@
 package com.mopl.api.interfaces.api.conversation.dto;
 
-import com.mopl.api.interfaces.api.user.dto.UserSummary;
+import com.mopl.dto.conversation.DirectMessageResponse;
+import com.mopl.dto.user.UserSummary;
+
 import java.util.UUID;
 
 public record ConversationResponse(

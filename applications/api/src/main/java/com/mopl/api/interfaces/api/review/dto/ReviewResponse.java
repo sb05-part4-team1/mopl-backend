@@ -1,6 +1,6 @@
 package com.mopl.api.interfaces.api.review.dto;
 
-import com.mopl.api.interfaces.api.user.dto.UserSummary;
+import com.mopl.dto.user.UserSummary;
 import java.util.UUID;
 
 public record ReviewResponse(

@@ -1,7 +1,7 @@
 package com.mopl.api.interfaces.api.review.mapper;
 
 import com.mopl.api.interfaces.api.review.dto.ReviewResponse;
-import com.mopl.api.interfaces.api.user.mapper.UserSummaryMapper;
+import com.mopl.dto.user.UserSummaryMapper;
 import com.mopl.domain.model.review.ReviewModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
