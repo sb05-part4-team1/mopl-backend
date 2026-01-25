@@ -1,9 +1,7 @@
-package com.mopl.websocket.interfaces.api.watchingsession;
+package com.mopl.websocket.interfaces.api.content;
 
 import com.mopl.security.userdetails.MoplUserDetails;
 import com.mopl.websocket.application.content.ContentWebSocketFacade;
-import com.mopl.websocket.interfaces.api.content.ChangeType;
-import com.mopl.websocket.interfaces.api.content.WatchingSessionChange;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

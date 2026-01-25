@@ -1,12 +1,11 @@
 package com.mopl.websocket.interfaces.api.content;
 
-import java.security.Principal;
 import java.util.UUID;
 
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 
 import com.mopl.security.userdetails.MoplUserDetails;
@@ -25,22 +24,8 @@ public class ContentWebSocketController {
     public ContentChatDto chat(
         @DestinationVariable UUID contentId,
         ContentChatSendRequest request,
-        Principal principal
+        @AuthenticationPrincipal MoplUserDetails user
     ) {
-        UUID userId = extractUserId(principal);
-
-        return contentWebSocketFacade.sendChatMessage(contentId, userId, request.content());
-    }
-
-    /**
-     * Principal에서 MoplUserDetails를 추출하여 userId를 반환
-     */
-    private UUID extractUserId(Principal principal) {
-        if (principal instanceof UsernamePasswordAuthenticationToken auth) {
-            if (auth.getPrincipal() instanceof MoplUserDetails userDetails) {
-                return userDetails.userId();
-            }
-        }
-        throw new IllegalStateException("인증된 사용자 정보를 찾을 수 없습니다.");
+        return contentWebSocketFacade.sendChatMessage(contentId, user.userId(), request.content());
     }
 }

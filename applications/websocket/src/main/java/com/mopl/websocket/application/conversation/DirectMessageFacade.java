@@ -4,15 +4,14 @@ import com.mopl.domain.model.conversation.ConversationModel;
 import com.mopl.domain.model.conversation.DirectMessageModel;
 import com.mopl.domain.model.conversation.ReadStatusModel;
 import com.mopl.domain.model.user.UserModel;
-import com.mopl.domain.repository.conversation.DirectMessageRepository;
 import com.mopl.domain.service.conversation.ConversationService;
+import com.mopl.domain.service.conversation.DirectMessageService;
 import com.mopl.domain.service.conversation.ReadStatusService;
-import com.mopl.domain.service.user.UserService;
 import com.mopl.dto.conversation.DirectMessageResponse;
 import com.mopl.dto.conversation.DirectMessageResponseMapper;
+import com.mopl.websocket.interfaces.api.conversation.dto.DirectMessageSendRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -20,24 +19,21 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DirectMessageFacade {
 
-    private final UserService userService;
     private final ConversationService conversationService;
+    private final DirectMessageService directMessageService;
     private final ReadStatusService readStatusService;
-    private final DirectMessageRepository directMessageRepository;
     private final DirectMessageResponseMapper directMessageResponseMapper;
 
-    @Transactional
-    public DirectMessageResponse sendDirectMessage(UUID conversationId, UUID senderId, String message) {
-        UserModel sender = userService.getById(senderId);
+    public DirectMessageResponse sendDirectMessage(UUID senderId, UUID conversationId, DirectMessageSendRequest request) {
+        ReadStatusModel requesterReadStatus = readStatusService.getReadStatus(senderId, conversationId);
         ConversationModel conversation = conversationService.getById(conversationId);
+        String content = request.content();
 
-        ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatusWithParticipant(senderId, conversationId);
+        ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatusWithParticipant(senderId, conversation.getId());
         UserModel receiver = otherReadStatus != null ? otherReadStatus.getParticipant() : null;
 
-        DirectMessageModel directMessageModel = DirectMessageModel.create(message, sender, conversation);
-
-        DirectMessageModel savedMessage = directMessageRepository.save(directMessageModel);
-
-        return directMessageResponseMapper.toResponse(savedMessage, receiver);
+        DirectMessageModel directMessage = DirectMessageModel.create(content, requesterReadStatus.getParticipant(), conversation);
+        DirectMessageModel savedDirectMessage = directMessageService.save(directMessage);
+        return directMessageResponseMapper.toResponse(savedDirectMessage, receiver);
     }
 }
