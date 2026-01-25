@@ -455,7 +455,6 @@ class PlaylistFacadeTest {
 
             given(userService.getById(requesterId)).willReturn(nonOwner);
             given(playlistService.getById(playlistId)).willReturn(playlist);
-            setupTransactionTemplateWithoutResult();
 
             // when & then
             assertThatThrownBy(() -> playlistFacade.deletePlaylist(requesterId, playlistId))

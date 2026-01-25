@@ -163,9 +163,7 @@ public class PlaylistFacade {
         PlaylistModel playlist = playlistService.getById(playlistId);
         validateOwner(playlist, requesterId);
 
-        transactionTemplate.executeWithoutResult(status -> {
-            playlistService.delete(playlist);
-        });
+        transactionTemplate.executeWithoutResult(status -> playlistService.delete(playlist));
     }
 
     public void addContentToPlaylist(
