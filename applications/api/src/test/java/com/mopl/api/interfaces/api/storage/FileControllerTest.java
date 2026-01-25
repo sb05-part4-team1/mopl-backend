@@ -51,7 +51,7 @@ class FileControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/files/display")
-                    .param("path", path))
+                .param("path", path))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.IMAGE_PNG))
                 .andExpect(content().bytes(imageBytes));
