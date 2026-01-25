@@ -213,8 +213,7 @@ class ContentChatFacadeTest {
             contentChatFacade.sendChatMessage(userId, contentId, message);
 
             // then
-            ArgumentCaptor<WatchingSessionChangeResponse> responseCaptor =
-                ArgumentCaptor.forClass(WatchingSessionChangeResponse.class);
+            ArgumentCaptor<WatchingSessionChangeResponse> responseCaptor = ArgumentCaptor.forClass(WatchingSessionChangeResponse.class);
             then(messagingTemplate).should().convertAndSend(
                 eq("/sub/contents/" + oldContentId + "/watch"),
                 responseCaptor.capture()
@@ -245,8 +244,7 @@ class ContentChatFacadeTest {
             contentChatFacade.sendChatMessage(userId, contentId, message);
 
             // then
-            ArgumentCaptor<WatchingSessionChangeResponse> responseCaptor =
-                ArgumentCaptor.forClass(WatchingSessionChangeResponse.class);
+            ArgumentCaptor<WatchingSessionChangeResponse> responseCaptor = ArgumentCaptor.forClass(WatchingSessionChangeResponse.class);
             then(messagingTemplate).should().convertAndSend(
                 eq("/sub/contents/" + contentId + "/watch"),
                 responseCaptor.capture()

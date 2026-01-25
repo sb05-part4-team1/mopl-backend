@@ -206,8 +206,7 @@ class WatchingSessionFacadeTest {
             watchingSessionFacade.joinSession(contentId, userId);
 
             // then
-            ArgumentCaptor<WatchingSessionChangeResponse> responseCaptor =
-                ArgumentCaptor.forClass(WatchingSessionChangeResponse.class);
+            ArgumentCaptor<WatchingSessionChangeResponse> responseCaptor = ArgumentCaptor.forClass(WatchingSessionChangeResponse.class);
             then(messagingTemplate).should().convertAndSend(
                 eq("/sub/contents/" + oldContentId + "/watch"),
                 responseCaptor.capture()

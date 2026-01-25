@@ -148,7 +148,9 @@ tasks.named<JacocoReport>("jacocoTestReport") {
                 fileTree(it).exclude(
                     "**/entity/**/Q*.class",
                     "**/*Config.class",
-                    "**/*Config$*.class"
+                    "**/*Config$*.class",
+                    "**/*Properties.class",
+                    "**/*Properties$*.class"
                 )
             }
         })

@@ -139,6 +139,30 @@ class RedisCursorPaginationHelperTest {
         }
 
         @Test
+        @DisplayName("idAfter만 있고 cursor가 빈 문자열이면 원본 리스트 반환")
+        void withIdAfterButEmptyCursor_returnsOriginalList() {
+            // given
+            CursorRequest<TestSortField> request = createRequest(
+                "", UUID.randomUUID(), 10, SortDirection.ASCENDING
+            );
+            List<TestItem> items = List.of(
+                new TestItem(UUID.randomUUID(), Instant.now(), "Item1")
+            );
+
+            // when
+            List<TestItem> result = RedisCursorPaginationHelper.applyCursor(
+                items,
+                request,
+                sortField,
+                TestItem::createdAt,
+                TestItem::id
+            );
+
+            // then
+            assertThat(result).isEqualTo(items);
+        }
+
+        @Test
         @DisplayName("ASC 정렬에서 커서 이후 항목만 필터링")
         void withAscendingOrder_filtersItemsAfterCursor() {
             // given
