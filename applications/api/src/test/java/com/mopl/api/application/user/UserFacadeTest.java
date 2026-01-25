@@ -27,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -194,7 +195,7 @@ class UserFacadeTest {
 
             given(userService.getById(targetUser.getId())).willReturn(targetUser);
             given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
-            willAnswer(invocation -> invocation.<org.springframework.transaction.support.TransactionCallback<?>>getArgument(0)
+            willAnswer(invocation -> invocation.<TransactionCallback<?>>getArgument(0)
                 .doInTransaction(mock(TransactionStatus.class)))
                 .given(transactionTemplate).execute(any());
 
@@ -234,7 +235,7 @@ class UserFacadeTest {
 
             given(userService.getById(targetUser.getId())).willReturn(targetUser);
             given(userService.update(any(UserModel.class))).willReturn(targetUser);
-            willAnswer(invocation -> invocation.<org.springframework.transaction.support.TransactionCallback<?>>getArgument(0)
+            willAnswer(invocation -> invocation.<TransactionCallback<?>>getArgument(0)
                 .doInTransaction(mock(TransactionStatus.class)))
                 .given(transactionTemplate).execute(any());
 

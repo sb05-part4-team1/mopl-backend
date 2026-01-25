@@ -34,6 +34,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
@@ -340,8 +341,7 @@ class ConversationFacadeTest {
             given(conversationService.existsByParticipants(requesterId, withUserId)).willReturn(false);
             given(userService.getById(requesterId)).willReturn(requester);
             given(userService.getById(withUserId)).willReturn(otherUser);
-            willAnswer(invocation -> invocation
-                .<org.springframework.transaction.support.TransactionCallback<?>>getArgument(0)
+            willAnswer(invocation -> invocation.<TransactionCallback<?>>getArgument(0)
                 .doInTransaction(mock(TransactionStatus.class)))
                 .given(transactionTemplate).execute(any());
             given(conversationService.create(any(ConversationModel.class))).willReturn(createdConversation);
