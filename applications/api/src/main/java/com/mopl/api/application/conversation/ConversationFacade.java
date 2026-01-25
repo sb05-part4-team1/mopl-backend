@@ -19,6 +19,7 @@ import com.mopl.domain.support.cursor.CursorResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ public class ConversationFacade {
     private final UserService userService;
     private final ConversationResponseMapper conversationResponseMapper;
     private final DirectMessageResponseMapper directMessageResponseMapper;
+    private final TransactionTemplate transactionTemplate;
 
     @Transactional(readOnly = true)
     public CursorResponse<ConversationResponse> getConversations(
@@ -108,10 +110,15 @@ public class ConversationFacade {
         UserModel requester = userService.getById(requesterId);
         UserModel withUser = userService.getById(request.withUserId());
 
-        ConversationModel conversation = ConversationModel.create();
-        ConversationModel savedConversation = conversationService.create(conversation);
-        ReadStatusModel requesterReadStatus = ReadStatusModel.create(savedConversation, requester);
-        ReadStatusModel withUserReadStatus = ReadStatusModel.create(savedConversation, withUser);
+        ConversationModel savedConversation = transactionTemplate.execute(status -> {
+            ConversationModel conversation = ConversationModel.create();
+            ConversationModel created = conversationService.create(conversation);
+
+            readStatusService.create(ReadStatusModel.create(requester, created));
+            readStatusService.create(ReadStatusModel.create(withUser, created));
+
+            return created;
+        });
 
         return conversationResponseMapper.toResponse(savedConversation, withUser);
     }
@@ -137,7 +144,6 @@ public class ConversationFacade {
         });
     }
 
-    @Transactional
     public void markAsRead(UUID requesterId, UUID conversationId) {
         readStatusService.validateParticipant(requesterId, conversationId);
 
@@ -147,9 +153,9 @@ public class ConversationFacade {
         }
 
         ReadStatusModel readStatus = readStatusService.getReadStatus(requesterId, conversationId);
-        ReadStatusModel updated = readStatus.updateLastReadAt(lastMessage.getCreatedAt());
-        if (updated != readStatus) {
-            readStatusService.update(updated);
+        ReadStatusModel updatedReadStatus = readStatus.updateLastReadAt(lastMessage.getCreatedAt());
+        if (updatedReadStatus.getLastReadAt() != readStatus.getLastReadAt()) {
+            readStatusService.update(updatedReadStatus);
         }
     }
 
