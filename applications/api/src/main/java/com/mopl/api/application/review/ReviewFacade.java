@@ -1,8 +1,8 @@
 package com.mopl.api.application.review;
 
 import com.mopl.api.interfaces.api.review.dto.ReviewCreateRequest;
-import com.mopl.api.interfaces.api.review.dto.ReviewResponse;
-import com.mopl.api.interfaces.api.review.mapper.ReviewResponseMapper;
+import com.mopl.dto.review.ReviewResponse;
+import com.mopl.dto.review.ReviewResponseMapper;
 import com.mopl.api.interfaces.api.review.dto.ReviewUpdateRequest;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.review.ReviewModel;

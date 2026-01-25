@@ -1,7 +1,7 @@
 package com.mopl.api.application.notification;
 
-import com.mopl.api.interfaces.api.notification.dto.NotificationResponse;
-import com.mopl.api.interfaces.api.notification.mapper.NotificationResponseMapper;
+import com.mopl.dto.notification.NotificationResponse;
+import com.mopl.dto.notification.NotificationResponseMapper;
 import com.mopl.domain.exception.notification.NotificationForbiddenException;
 import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.domain.fixture.NotificationModelFixture;
@@ -43,6 +43,7 @@ class NotificationFacadeTest {
     private UserService userService;
 
     @Spy
+    @SuppressWarnings("unused")
     private NotificationResponseMapper notificationResponseMapper = new NotificationResponseMapper();
 
     @InjectMocks

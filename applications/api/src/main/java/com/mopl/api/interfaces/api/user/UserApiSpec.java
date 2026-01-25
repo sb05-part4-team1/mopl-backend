@@ -4,7 +4,7 @@ import com.mopl.api.interfaces.api.ApiErrorResponse;
 import com.mopl.api.interfaces.api.user.dto.ChangePasswordRequest;
 import com.mopl.api.interfaces.api.user.dto.UserCreateRequest;
 import com.mopl.api.interfaces.api.user.dto.UserLockUpdateRequest;
-import com.mopl.api.interfaces.api.user.dto.UserResponse;
+import com.mopl.dto.user.UserResponse;
 import com.mopl.api.interfaces.api.user.dto.UserRoleUpdateRequest;
 import com.mopl.api.interfaces.api.user.dto.UserUpdateRequest;
 import com.mopl.domain.model.user.UserModel;

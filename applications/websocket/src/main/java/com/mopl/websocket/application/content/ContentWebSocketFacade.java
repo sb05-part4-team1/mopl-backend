@@ -18,7 +18,7 @@ import com.mopl.websocket.interfaces.api.content.ContentChatDto;
 import com.mopl.websocket.interfaces.api.content.WatchingSessionChange;
 import com.mopl.dto.user.UserSummaryMapper;
 import com.mopl.dto.watchingsession.WatchingSessionResponse;
-import com.mopl.websocket.interfaces.api.watchingsession.mapper.WatchingSessionResponseMapper;
+import com.mopl.dto.watchingsession.WatchingSessionResponseMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -61,7 +61,7 @@ public class ContentWebSocketFacade {
             .map(TagModel::getName)
             .toList();
 
-        WatchingSessionResponse dto = watchingSessionResponseMapper.toDto(session, content, tags);
+        WatchingSessionResponse dto = watchingSessionResponseMapper.toDto(session);
         long watcherCount = watchingSessionWebSocketFacade.getWatcherCount(contentId);
 
         return new WatchingSessionChange(type, dto, watcherCount);

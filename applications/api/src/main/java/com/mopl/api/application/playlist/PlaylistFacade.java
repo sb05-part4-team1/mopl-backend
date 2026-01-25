@@ -2,9 +2,9 @@ package com.mopl.api.application.playlist;
 
 import com.mopl.api.application.outbox.mapper.DomainEventOutboxMapper;
 import com.mopl.api.interfaces.api.playlist.dto.PlaylistCreateRequest;
-import com.mopl.api.interfaces.api.playlist.dto.PlaylistResponse;
+import com.mopl.dto.playlist.PlaylistResponse;
 import com.mopl.api.interfaces.api.playlist.dto.PlaylistUpdateRequest;
-import com.mopl.api.interfaces.api.playlist.mapper.PlaylistResponseMapper;
+import com.mopl.dto.playlist.PlaylistResponseMapper;
 import com.mopl.domain.event.playlist.PlaylistContentAddedEvent;
 import com.mopl.domain.event.playlist.PlaylistCreatedEvent;
 import com.mopl.domain.event.playlist.PlaylistSubscribedEvent;

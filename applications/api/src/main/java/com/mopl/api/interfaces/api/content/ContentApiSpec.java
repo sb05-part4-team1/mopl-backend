@@ -2,7 +2,7 @@ package com.mopl.api.interfaces.api.content;
 
 import com.mopl.api.interfaces.api.ApiErrorResponse;
 import com.mopl.api.interfaces.api.content.dto.ContentCreateRequest;
-import com.mopl.api.interfaces.api.content.dto.ContentResponse;
+import com.mopl.dto.content.ContentResponse;
 import com.mopl.api.interfaces.api.content.dto.ContentUpdateRequest;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.repository.content.ContentQueryRequest;

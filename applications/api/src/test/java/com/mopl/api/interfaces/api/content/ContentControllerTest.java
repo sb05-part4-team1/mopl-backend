@@ -5,9 +5,9 @@ import com.mopl.api.application.content.ContentFacade;
 import com.mopl.api.config.TestSecurityConfig;
 import com.mopl.api.interfaces.api.ApiControllerAdvice;
 import com.mopl.api.interfaces.api.content.dto.ContentCreateRequest;
-import com.mopl.api.interfaces.api.content.dto.ContentResponse;
+import com.mopl.dto.content.ContentResponse;
 import com.mopl.api.interfaces.api.content.dto.ContentUpdateRequest;
-import com.mopl.api.interfaces.api.content.mapper.ContentResponseMapper;
+import com.mopl.dto.content.ContentResponseMapper;
 import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.exception.content.InvalidContentDataException;
 import com.mopl.domain.model.content.ContentModel.ContentType;
@@ -70,6 +70,7 @@ class ContentControllerTest {
     private ContentFacade contentFacade;
 
     @MockBean
+    @SuppressWarnings("unused")
     private StorageProvider storageProvider;
 
     private MoplUserDetails mockAdminDetails;

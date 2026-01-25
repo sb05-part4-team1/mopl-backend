@@ -1,7 +1,7 @@
 package com.mopl.api.interfaces.api.review;
 
 import com.mopl.api.interfaces.api.review.dto.ReviewCreateRequest;
-import com.mopl.api.interfaces.api.review.dto.ReviewResponse;
+import com.mopl.dto.review.ReviewResponse;
 import com.mopl.api.interfaces.api.review.dto.ReviewUpdateRequest;
 import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.domain.repository.review.ReviewQueryRequest;

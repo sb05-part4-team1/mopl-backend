@@ -1,9 +1,9 @@
 package com.mopl.api.application.conversation;
 
 import com.mopl.api.interfaces.api.conversation.dto.ConversationCreateRequest;
-import com.mopl.api.interfaces.api.conversation.dto.ConversationResponse;
+import com.mopl.dto.conversation.ConversationResponse;
 import com.mopl.dto.conversation.DirectMessageResponse;
-import com.mopl.api.interfaces.api.conversation.mapper.ConversationResponseMapper;
+import com.mopl.dto.conversation.ConversationResponseMapper;
 import com.mopl.dto.conversation.DirectMessageResponseMapper;
 import com.mopl.dto.user.UserSummary;
 import com.mopl.domain.exception.conversation.ConversationAlreadyExistsException;
