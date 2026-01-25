@@ -27,7 +27,7 @@ public class ContentReviewStatsSyncService {
         Set<UUID> contentIds = jpaReviewRepository.findAllContentIds();
 
         if (contentIds.isEmpty()) {
-            log.info("[ContentReviewStatsSync] no contents with reviews found");
+            log.debug("[ContentReviewStatsSync] no contents with reviews found");
             return 0;
         }
 
