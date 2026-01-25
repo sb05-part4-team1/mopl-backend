@@ -10,6 +10,7 @@ spring:
       - optional:file:.env[.properties]
       - jpa.yaml
       - kafka.yaml
+      - redis.yaml
   threads:
     virtual:
       enabled: true

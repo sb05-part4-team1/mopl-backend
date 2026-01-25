@@ -57,7 +57,9 @@ spring:
 #    init:
 #      mode: always
 #      data-locations: classpath:data-mysql.sql
-  logging:
+
+logging:
+  level:
     org.hibernate.orm.jdbc.batch: DEBUG
     org.hibernate.engine.jdbc.batch.internal: DEBUG
 
