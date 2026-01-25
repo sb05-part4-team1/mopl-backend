@@ -127,7 +127,6 @@ public class ContentFacade {
             ContentModel contentModel = contentService.getById(contentId);
             contentModel.delete();
             contentService.delete(contentModel);
-            contentTagService.deleteAllByContentId(contentId);
             afterCommitExecutor.execute(() -> contentSearchSyncPort.delete(contentId));
         });
     }
