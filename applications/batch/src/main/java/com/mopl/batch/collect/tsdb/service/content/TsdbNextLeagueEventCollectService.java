@@ -2,10 +2,15 @@ package com.mopl.batch.collect.tsdb.service.content;
 
 import com.mopl.batch.collect.tsdb.properties.TsdbCollectPolicyResolver;
 import com.mopl.batch.collect.tsdb.properties.TsdbCollectProperties;
+import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.repository.league.LeagueRepository;
+import com.mopl.domain.support.search.ContentSearchSyncPort;
+import com.mopl.domain.support.transaction.AfterCommitExecutor;
 import com.mopl.external.tsdb.client.TsdbClient;
 import com.mopl.external.tsdb.model.EventItem;
 import com.mopl.external.tsdb.model.EventResponse;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,37 +27,46 @@ public class TsdbNextLeagueEventCollectService {
     private final TsdbCollectProperties collectProperties;
     private final TsdbCollectPolicyResolver policyResolver;
 
+    private final AfterCommitExecutor afterCommitExecutor;
+    private final ContentSearchSyncPort contentSearchSyncPort;
+
     public int collectNextLeagueEvents() {
         int sleepMs = policyResolver.sleepMs(collectProperties.getLeagueEvent());
-        int processed = 0;
+        List<ContentModel> inserted = new ArrayList<>();
 
         for (var league : leagueRepository.findAll()) {
             Long leagueId = league.getLeagueId();
             EventResponse response = tsdbClient.fetchNextLeagueEvent(leagueId);
 
             if (response == null || response.events() == null) {
-                log.debug("TSDB next events empty: leagueId={}",
-                    leagueId);
+                log.debug(
+                    "TSDB next events empty: leagueId={}",
+                    leagueId
+                );
                 continue;
             }
 
             for (EventItem item : response.events()) {
                 if (!isValid(item)) {
-                    log.debug("TSDB invalid next event skipped: leagueId={}, eventId={}",
+                    log.debug(
+                        "TSDB invalid next event skipped: leagueId={}, eventId={}",
                         leagueId,
-                        item == null ? null : item.idEvent());
+                        item == null ? null : item.idEvent()
+                    );
                     continue;
                 }
 
                 try {
-                    boolean created = upsertService.upsert(item);
-                    if (created) {
-                        processed++;
+                    ContentModel created = upsertService.upsert(item);
+                    if (created != null) {
+                        inserted.add(created);
                     }
 
                 } catch (DataIntegrityViolationException e) {
-                    log.debug("TSDB duplicate skipped: externalId={}",
-                        item.idEvent());
+                    log.debug(
+                        "TSDB duplicate skipped: externalId={}",
+                        item.idEvent()
+                    );
 
                 } catch (RuntimeException e) {
                     log.warn(
@@ -66,7 +80,15 @@ public class TsdbNextLeagueEventCollectService {
             }
         }
 
-        return processed;
+        afterCommitExecutor.execute(() -> contentSearchSyncPort.upsertAll(inserted)
+        );
+
+        log.info(
+            "TSDB next league events collect done. inserted={}",
+            inserted.size()
+        );
+
+        return inserted.size();
     }
 
     private boolean isValid(EventItem item) {

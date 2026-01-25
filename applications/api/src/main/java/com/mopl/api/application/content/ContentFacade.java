@@ -12,17 +12,18 @@ import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.content.ContentTagService;
 import com.mopl.domain.service.watchingsession.WatchingSessionService;
 import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.domain.support.search.ContentSearchSyncPort;
+import com.mopl.domain.support.transaction.AfterCommitExecutor;
 import com.mopl.storage.provider.StorageProvider;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 @Component
 @RequiredArgsConstructor
@@ -34,6 +35,9 @@ public class ContentFacade {
     private final StorageProvider storageProvider;
     private final ContentResponseMapper contentResponseMapper;
     private final TransactionTemplate transactionTemplate;
+
+    private final ContentSearchSyncPort contentSearchSyncPort;
+    private final AfterCommitExecutor afterCommitExecutor;
 
     public CursorResponse<ContentResponse> getContents(ContentQueryRequest request) {
         CursorResponse<ContentModel> response = contentService.getAll(request);
@@ -83,6 +87,7 @@ public class ContentFacade {
         return transactionTemplate.execute(status -> {
             ContentModel saved = contentService.create(contentModel);
             contentTagService.applyTags(saved.getId(), request.tags());
+            afterCommitExecutor.execute(() -> contentSearchSyncPort.upsert(saved));
             return toContentResponse(saved);
         });
     }
@@ -112,15 +117,19 @@ public class ContentFacade {
                 contentTagService.applyTags(saved.getId(), request.tags());
             }
 
+            afterCommitExecutor.execute(() -> contentSearchSyncPort.upsert(saved));
             return toContentResponse(saved);
         });
     }
 
     public void delete(UUID contentId) {
-        ContentModel contentModel = contentService.getById(contentId);
-        contentModel.delete();
-        contentService.delete(contentModel);
-        contentTagService.deleteAllByContentId(contentId);
+        transactionTemplate.executeWithoutResult(status -> {
+            ContentModel contentModel = contentService.getById(contentId);
+            contentModel.delete();
+            contentService.delete(contentModel);
+            contentTagService.deleteAllByContentId(contentId);
+            afterCommitExecutor.execute(() -> contentSearchSyncPort.delete(contentId));
+        });
     }
 
     private String uploadToStorage(MultipartFile file) {
@@ -136,7 +145,6 @@ public class ContentFacade {
     private ContentResponse toContentResponse(ContentModel content) {
         List<String> tagNames = toTagNames(contentTagService.getTagsByContentId(content.getId()));
         long watcherCount = watchingSessionService.countByContentId(content.getId());
-
         return contentResponseMapper.toResponse(content, tagNames, watcherCount);
     }
 

@@ -1,6 +1,8 @@
 package com.mopl.batch.cleanup.service.content;
 
 import com.mopl.batch.cleanup.strategy.content.ContentDeletionStrategy;
+import com.mopl.domain.support.search.ContentSearchSyncPort;                 // ES 동기화 포트
+import com.mopl.domain.support.transaction.AfterCommitExecutor;            // 커밋 이후 실행기
 import com.mopl.domain.repository.content.ContentCleanupRepository;
 import com.mopl.domain.repository.content.ContentExternalMappingRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
@@ -27,6 +29,9 @@ public class ContentCleanupTxService {
     private final ContentExternalMappingRepository externalMappingRepository;
     private final ContentDeletionStrategy deletionStrategy;
 
+    private final AfterCommitExecutor afterCommitExecutor;
+    private final ContentSearchSyncPort contentSearchSyncPort;
+
     @Transactional
     public int cleanupBatch(List<UUID> contentIds) {
         Instant now = Instant.now();
@@ -50,6 +55,9 @@ public class ContentCleanupTxService {
                 deletedContents
             );
         }
+
+        afterCommitExecutor.execute(() -> contentSearchSyncPort.deleteAll(contentIds)
+        );
 
         log.info(
             "content cleanup batch done. requested={} deletedContents={} deletedMappings={} deletedTags={} deletedPlaylistContents={} softDeletedReviews={} affectedThumbnails={}/{}",

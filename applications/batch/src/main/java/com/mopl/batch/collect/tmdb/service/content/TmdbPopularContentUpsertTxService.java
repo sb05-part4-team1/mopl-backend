@@ -27,7 +27,7 @@ public class TmdbPopularContentUpsertTxService {
     private final GenreTagResolver genreTagResolver;
 
     @Transactional
-    public boolean upsertMovie(TmdbMovieItem item) {
+    public ContentModel upsertMovie(TmdbMovieItem item) {
         return upsert(
             ContentType.movie,
             item.id(),
@@ -39,7 +39,7 @@ public class TmdbPopularContentUpsertTxService {
     }
 
     @Transactional
-    public boolean upsertTv(TmdbTvItem item) {
+    public ContentModel upsertTv(TmdbTvItem item) {
         return upsert(
             ContentType.tvSeries,
             item.id(),
@@ -50,7 +50,7 @@ public class TmdbPopularContentUpsertTxService {
         );
     }
 
-    public boolean upsert(
+    public ContentModel upsert(
         ContentType type,
         Long externalId,
         String title,
@@ -59,7 +59,7 @@ public class TmdbPopularContentUpsertTxService {
         List<Integer> genreIds
     ) {
         if (contentExternalMappingRepository.exists(ContentExternalProvider.TMDB, externalId)) {
-            return false;
+            return null;
         }
 
         String storedThumbnailPath = tmdbPosterProcessor.uploadPosterIfPresent(type, externalId, posterPath);
@@ -76,6 +76,6 @@ public class TmdbPopularContentUpsertTxService {
             content.getId()
         );
 
-        return true;
+        return content;
     }
 }
