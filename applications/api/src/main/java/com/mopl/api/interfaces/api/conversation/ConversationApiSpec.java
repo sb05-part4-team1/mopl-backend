@@ -99,7 +99,7 @@ public interface ConversationApiSpec {
     )
     @CommonApiResponse.Default
     @CommonApiResponse.NotFound
-    ConversationResponse findByWith(
+    ConversationResponse getConversationWith(
         @Parameter(hidden = true) MoplUserDetails userDetails,
         UUID userId
     );

@@ -81,9 +81,9 @@ public class ConversationFacade {
 
         ConversationModel conversation = conversationService.getById(conversationId);
 
-        DirectMessageModel lastMessage = directMessageService.getLastDirectMessage(conversationId);
-        ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatusWithParticipant(requesterId, conversationId);
         ReadStatusModel requesterReadStatus = readStatusService.getReadStatus(requesterId, conversationId);
+        ReadStatusModel otherReadStatus = readStatusService.getOtherReadStatusWithParticipant(requesterId, conversationId);
+        DirectMessageModel lastMessage = directMessageService.getLastDirectMessage(conversationId);
 
         UserModel withUser = otherReadStatus != null ? otherReadStatus.getParticipant() : null;
         boolean hasUnread = calculateHasUnread(requesterId, lastMessage, requesterReadStatus);

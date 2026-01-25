@@ -51,7 +51,7 @@ public class ConversationController implements ConversationApiSpec {
     }
 
     @GetMapping("/with")
-    public ConversationResponse findByWith(
+    public ConversationResponse getConversationWith(
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @RequestParam UUID userId
     ) {
