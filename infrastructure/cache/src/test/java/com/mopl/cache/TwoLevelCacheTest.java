@@ -18,6 +18,8 @@ import org.springframework.data.redis.core.ValueOperations;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -27,6 +29,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TwoLevelCache 단위 테스트")
@@ -56,6 +59,28 @@ class TwoLevelCacheTest {
             false
         );
         cache = new TwoLevelCache(CACHE_NAME, l1Cache, redisTemplate, properties, TTL);
+    }
+
+    @Nested
+    @DisplayName("getName()")
+    class GetNameTest {
+
+        @Test
+        @DisplayName("캐시 이름 반환")
+        void returnsName() {
+            assertThat(cache.getName()).isEqualTo(CACHE_NAME);
+        }
+    }
+
+    @Nested
+    @DisplayName("getNativeCache()")
+    class GetNativeCacheTest {
+
+        @Test
+        @DisplayName("L1 캐시 반환")
+        void returnsL1Cache() {
+            assertThat(cache.getNativeCache()).isSameAs(l1Cache);
+        }
     }
 
     @Nested
@@ -157,6 +182,42 @@ class TwoLevelCacheTest {
                 throw new RuntimeException("DB error");
             })).isInstanceOf(org.springframework.cache.Cache.ValueRetrievalException.class);
         }
+
+        @Test
+        @DisplayName("캐시 히트시 valueLoader 호출 안 함")
+        void withCacheHit_doesNotCallLoader() {
+            // given
+            String key = "1";
+            String fullKey = KEY_PREFIX + CACHE_NAME + "::" + key;
+            String cachedValue = "cached";
+            given(l1Cache.getIfPresent(fullKey)).willReturn(cachedValue);
+
+            // when
+            Object result = cache.get(key, () -> "loaded");
+
+            // then
+            assertThat(result).isEqualTo(cachedValue);
+            then(valueOperations).shouldHaveNoInteractions();
+        }
+
+        @Test
+        @DisplayName("valueLoader가 null 반환시 put 호출 안 함")
+        void withLoaderReturningNull_doesNotPut() {
+            // given
+            String key = "1";
+            String fullKey = KEY_PREFIX + CACHE_NAME + "::" + key;
+            given(l1Cache.getIfPresent(fullKey)).willReturn(null);
+            given(redisTemplate.opsForValue()).willReturn(valueOperations);
+            given(valueOperations.get(fullKey)).willReturn(null);
+
+            // when
+            Object result = cache.get(key, () -> null);
+
+            // then
+            assertThat(result).isNull();
+            then(valueOperations).should(never()).set(anyString(), any(), any(Duration.class));
+            then(l1Cache).should(never()).put(anyString(), any());
+        }
     }
 
     @Nested
@@ -257,6 +318,40 @@ class TwoLevelCacheTest {
             // then
             then(l1Cache).should().put(fullKey, value);
         }
+
+        @Test
+        @DisplayName("Redis 삭제 실패시 L1만 삭제하고 서비스 계속")
+        void withRedisDeleteFailure_deletesFromL1OnlyAndContinues() {
+            // given
+            String key = "1";
+            String fullKey = KEY_PREFIX + CACHE_NAME + "::" + key;
+            willThrow(new RuntimeException("Redis connection failed"))
+                .given(redisTemplate).delete(fullKey);
+
+            // when
+            cache.evict(key);
+
+            // then
+            then(l1Cache).should().invalidate(fullKey);
+        }
+
+        @Test
+        @DisplayName("Redis clear 실패시 L1만 클리어하고 서비스 계속")
+        void withRedisClearFailure_clearsL1OnlyAndContinues() {
+            // given
+            String prefix = KEY_PREFIX + CACHE_NAME + "::";
+            ConcurrentMap<String, Object> l1Map = new ConcurrentHashMap<>();
+            l1Map.put(prefix + "1", "value1");
+            given(l1Cache.asMap()).willReturn(l1Map);
+            willThrow(new RuntimeException("Redis connection failed"))
+                .given(redisTemplate).scan(any(ScanOptions.class));
+
+            // when
+            cache.clear();
+
+            // then
+            then(l1Cache).should().invalidate(prefix + "1");
+        }
     }
 
     @Nested
@@ -275,8 +370,8 @@ class TwoLevelCacheTest {
         }
 
         @Test
-        @DisplayName("RedisTemplate이 null이면 L1만 사용")
-        void withNullRedisTemplate_usesL1Only() {
+        @DisplayName("RedisTemplate이 null이면 L1만 사용하여 put")
+        void withNullRedisTemplate_usesL1OnlyForPut() {
             // given
             String key = "1";
             String fullKey = KEY_PREFIX + CACHE_NAME + "::" + key;
@@ -287,6 +382,59 @@ class TwoLevelCacheTest {
 
             // then
             then(l1Cache).should().put(fullKey, value);
+            then(redisTemplate).shouldHaveNoInteractions();
+        }
+
+        @Test
+        @DisplayName("RedisTemplate이 null이면 L1만 사용하여 lookup")
+        void withNullRedisTemplate_usesL1OnlyForLookup() {
+            // given
+            String key = "1";
+            String fullKey = KEY_PREFIX + CACHE_NAME + "::" + key;
+            given(l1Cache.getIfPresent(fullKey)).willReturn(null);
+
+            // when
+            org.springframework.cache.Cache.ValueWrapper result = cache.get(key);
+
+            // then
+            assertThat(result).isNull();
+            then(redisTemplate).shouldHaveNoInteractions();
+        }
+
+        @Test
+        @DisplayName("RedisTemplate이 null이면 L1만 사용하여 evict")
+        void withNullRedisTemplate_usesL1OnlyForEvict() {
+            // given
+            String key = "1";
+            String fullKey = KEY_PREFIX + CACHE_NAME + "::" + key;
+
+            // when
+            cache.evict(key);
+
+            // then
+            then(l1Cache).should().invalidate(fullKey);
+            then(redisTemplate).shouldHaveNoInteractions();
+        }
+
+        @Test
+        @DisplayName("RedisTemplate이 null이면 L1만 사용하여 clear")
+        void withNullRedisTemplate_usesL1OnlyForClear() {
+            // given
+            String prefix = KEY_PREFIX + CACHE_NAME + "::";
+            ConcurrentMap<String, Object> l1Map = new ConcurrentHashMap<>();
+            l1Map.put(prefix + "1", "value1");
+            l1Map.put(prefix + "2", "value2");
+            l1Map.put("other::key", "otherValue");
+            given(l1Cache.asMap()).willReturn(l1Map);
+
+            // when
+            cache.clear();
+
+            // then
+            then(l1Cache).should().invalidate(prefix + "1");
+            then(l1Cache).should().invalidate(prefix + "2");
+            then(l1Cache).should(never()).invalidate("other::key");
+            then(redisTemplate).shouldHaveNoInteractions();
         }
     }
 
@@ -315,6 +463,42 @@ class TwoLevelCacheTest {
             then(redisTemplate).should().scan(any(ScanOptions.class));
             then(redisTemplate).should().delete(keys.getFirst());
             then(redisTemplate).should().delete(keys.get(1));
+        }
+
+        @Test
+        @DisplayName("L1에서 prefix가 일치하는 키만 삭제")
+        void withClear_deletesOnlyMatchingPrefixFromL1() {
+            // given
+            String prefix = KEY_PREFIX + CACHE_NAME + "::";
+            ConcurrentMap<String, Object> l1Map = new ConcurrentHashMap<>();
+            l1Map.put(prefix + "1", "value1");
+            l1Map.put(prefix + "2", "value2");
+            l1Map.put("other:cache::key", "otherValue");
+            given(l1Cache.asMap()).willReturn(l1Map);
+            given(redisTemplate.scan(any(ScanOptions.class))).willReturn(cursor);
+            given(cursor.hasNext()).willReturn(false);
+
+            // when
+            cache.clear();
+
+            // then
+            then(l1Cache).should().invalidate(prefix + "1");
+            then(l1Cache).should().invalidate(prefix + "2");
+            then(l1Cache).should(never()).invalidate("other:cache::key");
+        }
+    }
+
+    @Nested
+    @DisplayName("generateKey()")
+    class GenerateKeyTest {
+
+        @Test
+        @DisplayName("null 키 입력 시 IllegalArgumentException 발생")
+        @SuppressWarnings("DataFlowIssue")
+        void withNullKey_throwsException() {
+            assertThatThrownBy(() -> cache.get(null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Cache key must not be null");
         }
     }
 }
