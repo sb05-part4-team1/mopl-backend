@@ -8,7 +8,8 @@ import org.springframework.context.annotation.Import;
 @Import({JpaConfig.class, QuerydslConfig.class})
 @ComponentScan(basePackages = {
     "com.mopl.jpa.repository",
-    "com.mopl.jpa.entity"
+    "com.mopl.jpa.entity",
+    "com.mopl.jpa.support"
 })
 public class JpaAutoConfig {
 }
