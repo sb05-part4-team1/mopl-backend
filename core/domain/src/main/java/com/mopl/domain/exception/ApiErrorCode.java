@@ -27,6 +27,9 @@ public enum ApiErrorCode implements ErrorCode {
     INVALID_REQUEST_BODY(400, "요청 본문 값이 유효하지 않습니다."),
     INVALID_PARAMETER_VALUE(400, "요청 매개변수 값이 유효하지 않습니다."),
 
+    // 인프라 에러
+    ELASTICSEARCH_UNAVAILABLE(503, "검색 서비스에 일시적인 문제가 발생했습니다."),
+
     // 서버 에러
     INTERNAL_SERVER_ERROR(500, "서버 내부 오류가 발생했습니다.");
 
