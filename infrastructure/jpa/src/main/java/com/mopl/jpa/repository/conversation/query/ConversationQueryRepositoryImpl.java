@@ -36,18 +36,17 @@ public class ConversationQueryRepositoryImpl implements ConversationQueryReposit
     public CursorResponse<ConversationModel> findAll(UUID userId, ConversationQueryRequest request) {
         ConversationSortFieldJpa sortFieldJpa = ConversationSortFieldJpa.from(request.sortBy());
 
-        JPAQuery<ConversationEntity> query = baseQuery(userId)
-            .select(conversationEntity)
-            .where(keywordLike(request.keywordLike()));
+        JPAQuery<ConversationEntity> jpaQuery = baseQuery(userId, request.keywordLike())
+            .select(conversationEntity);
 
         CursorPaginationHelper.applyCursorPagination(
             request,
             sortFieldJpa,
-            query,
+            jpaQuery,
             conversationEntity.id
         );
 
-        List<ConversationEntity> rows = query.fetch();
+        List<ConversationEntity> rows = jpaQuery.fetch();
 
         if (rows.isEmpty()) {
             return CursorResponse.empty(
@@ -69,7 +68,7 @@ public class ConversationQueryRepositoryImpl implements ConversationQueryReposit
         );
     }
 
-    private JPAQuery<?> baseQuery(UUID userId) {
+    private JPAQuery<?> baseQuery(UUID userId, String keywordLike) {
         return queryFactory
             .from(conversationEntity)
             .join(myReadStatus)
@@ -79,13 +78,13 @@ public class ConversationQueryRepositoryImpl implements ConversationQueryReposit
             .on(otherReadStatus.conversation.eq(conversationEntity)
                 .and(otherReadStatus.participant.id.ne(userId)))
             .join(otherUser)
-            .on(otherUser.id.eq(otherReadStatus.participant.id));
+            .on(otherUser.id.eq(otherReadStatus.participant.id))
+            .where(keywordLike(keywordLike));
     }
 
     private long countTotal(UUID userId, String keywordLike) {
-        Long total = baseQuery(userId)
+        Long total = baseQuery(userId, keywordLike)
             .select(conversationEntity.count())
-            .where(keywordLike(keywordLike))
             .fetchOne();
         return total != null ? total : 0;
     }
