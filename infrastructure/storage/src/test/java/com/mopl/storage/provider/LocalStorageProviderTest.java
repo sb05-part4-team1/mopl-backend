@@ -1,5 +1,6 @@
 package com.mopl.storage.provider;
 
+import com.mopl.domain.exception.storage.FileDeleteException;
 import com.mopl.domain.exception.storage.FileNotFoundException;
 import com.mopl.domain.exception.storage.FileUploadException;
 import com.mopl.storage.config.StorageProperties;
@@ -7,6 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.core.io.Resource;
 
@@ -16,6 +19,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -68,6 +72,29 @@ class LocalStorageProviderTest {
 
             // then
             assertThat(Files.exists(existingRoot)).isTrue();
+        }
+
+        @Test
+        @DisplayName("디렉토리 생성 실패 시 RuntimeException 발생")
+        @DisabledOnOs(OS.WINDOWS)
+        void throwsExceptionOnDirectoryCreationFailure() throws IOException {
+            // given
+            Path readOnlyDir = tempDir.resolve("readonly");
+            Files.createDirectories(readOnlyDir);
+            Files.setPosixFilePermissions(readOnlyDir, PosixFilePermissions.fromString("r-xr-xr-x"));
+
+            Path targetPath = readOnlyDir.resolve("cannot-create");
+            StorageProperties.Local localProperties = new StorageProperties.Local(targetPath, BASE_URL);
+            LocalStorageProvider provider = new LocalStorageProvider(localProperties);
+
+            // when & then
+            try {
+                assertThatThrownBy(provider::init)
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("스토리지 초기화에 실패했습니다.");
+            } finally {
+                Files.setPosixFilePermissions(readOnlyDir, PosixFilePermissions.fromString("rwxr-xr-x"));
+            }
         }
     }
 
@@ -205,6 +232,25 @@ class LocalStorageProviderTest {
         }
 
         @Test
+        @DisplayName("읽을 수 없는 파일 다운로드 시 FileNotFoundException 발생")
+        @DisabledOnOs(OS.WINDOWS)
+        void throwsExceptionForUnreadableFile() throws IOException {
+            // given
+            String path = "unreadable-file.txt";
+            Path filePath = tempDir.resolve(path);
+            Files.writeString(filePath, "content");
+            Files.setPosixFilePermissions(filePath, PosixFilePermissions.fromString("---------"));
+
+            // when & then
+            try {
+                assertThatThrownBy(() -> storageProvider.download(path))
+                    .isInstanceOf(FileNotFoundException.class);
+            } finally {
+                Files.setPosixFilePermissions(filePath, PosixFilePermissions.fromString("rw-r--r--"));
+            }
+        }
+
+        @Test
         @DisplayName("경로 탈출 시도 시 예외 발생")
         void throwsExceptionOnPathTraversal() {
             // when & then
@@ -244,6 +290,29 @@ class LocalStorageProviderTest {
             // when & then
             assertThatThrownBy(() -> storageProvider.delete("../escape.txt"))
                 .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        @Test
+        @DisplayName("파일 삭제 중 IOException 발생 시 FileDeleteException 발생")
+        @DisabledOnOs(OS.WINDOWS)
+        void throwsExceptionOnDeleteFailure() throws IOException {
+            // given
+            Path subDir = tempDir.resolve("locked-dir");
+            Files.createDirectories(subDir);
+            Path file = subDir.resolve("locked-file.txt");
+            Files.writeString(file, "content");
+
+            // 디렉토리를 읽기 전용으로 설정하여 파일 삭제 불가하게 만듦
+            Files.setPosixFilePermissions(subDir, PosixFilePermissions.fromString("r-xr-xr-x"));
+
+            // when & then
+            try {
+                assertThatThrownBy(() -> storageProvider.delete("locked-dir/locked-file.txt"))
+                    .isInstanceOf(FileDeleteException.class);
+            } finally {
+                Files.setPosixFilePermissions(subDir, PosixFilePermissions.fromString("rwxr-xr-x"));
+                Files.deleteIfExists(file);
+            }
         }
     }
 
