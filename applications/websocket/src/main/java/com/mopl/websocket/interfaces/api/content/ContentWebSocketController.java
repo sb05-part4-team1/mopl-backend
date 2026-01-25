@@ -1,6 +1,6 @@
 package com.mopl.websocket.interfaces.api.content;
 
-import com.mopl.websocket.application.content.ContentWebSocketFacade;
+import com.mopl.websocket.application.content.ContentChatFacade;
 import com.mopl.websocket.interfaces.api.content.dto.ContentChatRequest;
 import com.mopl.websocket.interfaces.api.content.dto.ContentChatResponse;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ContentWebSocketController {
 
-    private final ContentWebSocketFacade contentWebSocketFacade;
+    private final ContentChatFacade contentChatFacade;
 
     @MessageMapping("/contents/{contentId}/chat")
     @SendTo("/sub/contents/{contentId}/chat")
@@ -24,6 +24,6 @@ public class ContentWebSocketController {
         ContentChatRequest request
     ) {
         UUID senderId = UUID.fromString(principal.getName());
-        return contentWebSocketFacade.sendChatMessage(senderId, request.content());
+        return contentChatFacade.sendChatMessage(senderId, request.content());
     }
 }

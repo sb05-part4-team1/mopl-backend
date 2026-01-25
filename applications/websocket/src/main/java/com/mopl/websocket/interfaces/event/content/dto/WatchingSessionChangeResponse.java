@@ -1,4 +1,4 @@
-package com.mopl.websocket.interfaces.api.content.dto;
+package com.mopl.websocket.interfaces.event.content.dto;
 
 import com.mopl.dto.watchingsession.WatchingSessionResponse;
 

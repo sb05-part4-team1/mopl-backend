@@ -13,15 +13,15 @@ import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.dto.user.UserSummaryMapper;
 import com.mopl.dto.watchingsession.WatchingSessionResponseMapper;
-import com.mopl.websocket.interfaces.api.content.dto.WatchingSessionChangeType;
+import com.mopl.websocket.interfaces.event.content.dto.WatchingSessionChangeType;
 import com.mopl.websocket.interfaces.api.content.dto.ContentChatResponse;
-import com.mopl.websocket.interfaces.api.content.dto.WatchingSessionChangeResponse;
+import com.mopl.websocket.interfaces.event.content.dto.WatchingSessionChangeResponse;
 
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class ContentWebSocketFacade {
+public class ContentChatFacade {
 
     private final WatchingSessionRepository watchingSessionRepository;
     private final UserService userService;
