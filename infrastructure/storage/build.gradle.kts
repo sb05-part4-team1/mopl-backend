@@ -5,8 +5,6 @@ plugins {
 dependencies {
     // project modules
     implementation(project(":core:domain"))
-    // spring boot
-    implementation("org.springframework.boot:spring-boot-starter")
     // validation
     implementation("org.springframework.boot:spring-boot-starter-validation")
     // aws s3

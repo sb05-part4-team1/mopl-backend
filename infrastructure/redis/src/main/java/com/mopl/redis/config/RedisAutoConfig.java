@@ -6,6 +6,9 @@ import org.springframework.context.annotation.Import;
 
 @AutoConfiguration
 @Import(RedisConfig.class)
-@ComponentScan(basePackages = "com.mopl.redis.repository")
+@ComponentScan(basePackages = {
+    "com.mopl.redis.repository",
+    "com.mopl.redis.pubsub"
+})
 public class RedisAutoConfig {
 }
