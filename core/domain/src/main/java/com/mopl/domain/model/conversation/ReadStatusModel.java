@@ -29,9 +29,13 @@ public class ReadStatusModel extends BaseModel {
             .build();
     }
 
-    public ReadStatusModel markAsRead() {
+    public ReadStatusModel updateLastReadAt(Instant readAt) {
+        if (lastReadAt != null && !readAt.isAfter(lastReadAt)) {
+            return this;
+        }
+
         return this.toBuilder()
-            .lastReadAt(Instant.now())
+            .lastReadAt(readAt)
             .build();
     }
 }

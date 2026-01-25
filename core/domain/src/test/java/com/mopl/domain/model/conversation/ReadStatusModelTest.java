@@ -62,56 +62,95 @@ class ReadStatusModelTest {
     }
 
     @Nested
-    @DisplayName("markAsRead()")
-    class MarkAsReadTest {
+    @DisplayName("updateLastReadAt()")
+    class UpdateLastReadAtTest {
 
         @Test
-        @DisplayName("markAsRead 호출 시 lastReadAt이 현재 시간으로 갱신된다")
-        void markAsRead_updatesLastReadAt() {
+        @DisplayName("readAt이 lastReadAt 이후이면 lastReadAt이 갱신된다")
+        void whenReadAtIsAfterLastReadAt_updatesLastReadAt() {
             // given
             Instant pastTime = Instant.now().minusSeconds(3600);
+            Instant newReadAt = Instant.now();
             ReadStatusModel readStatus = ReadStatusModel.builder()
                 .conversation(mock(ConversationModel.class))
                 .participant(mock(UserModel.class))
                 .lastReadAt(pastTime)
                 .build();
 
-            Instant before = Instant.now();
-
             // when
-            ReadStatusModel updated = readStatus.markAsRead();
+            ReadStatusModel updated = readStatus.updateLastReadAt(newReadAt);
 
             // then
-            Instant after = Instant.now();
-            assertThat(updated.getLastReadAt()).isBetween(before, after);
-            assertThat(updated.getLastReadAt()).isAfter(pastTime);
-        }
-
-        @Test
-        @DisplayName("markAsRead는 새로운 객체를 반환한다")
-        void markAsRead_returnsNewInstance() {
-            // given
-            ReadStatusModel readStatus = ReadStatusModel.builder()
-                .conversation(mock(ConversationModel.class))
-                .participant(mock(UserModel.class))
-                .lastReadAt(Instant.now().minusSeconds(3600))
-                .build();
-
-            // when
-            ReadStatusModel updated = readStatus.markAsRead();
-
-            // then
+            assertThat(updated.getLastReadAt()).isEqualTo(newReadAt);
             assertThat(updated).isNotSameAs(readStatus);
         }
 
         @Test
-        @DisplayName("markAsRead 호출 시 다른 필드는 유지된다")
-        void markAsRead_preservesOtherFields() {
+        @DisplayName("readAt이 lastReadAt 이전이면 동일 객체를 반환한다")
+        void whenReadAtIsBeforeLastReadAt_returnsSameInstance() {
+            // given
+            Instant currentReadAt = Instant.now();
+            Instant olderReadAt = currentReadAt.minusSeconds(3600);
+            ReadStatusModel readStatus = ReadStatusModel.builder()
+                .conversation(mock(ConversationModel.class))
+                .participant(mock(UserModel.class))
+                .lastReadAt(currentReadAt)
+                .build();
+
+            // when
+            ReadStatusModel updated = readStatus.updateLastReadAt(olderReadAt);
+
+            // then
+            assertThat(updated).isSameAs(readStatus);
+            assertThat(updated.getLastReadAt()).isEqualTo(currentReadAt);
+        }
+
+        @Test
+        @DisplayName("readAt이 lastReadAt과 같으면 동일 객체를 반환한다")
+        void whenReadAtEqualsLastReadAt_returnsSameInstance() {
+            // given
+            Instant sameTime = Instant.now();
+            ReadStatusModel readStatus = ReadStatusModel.builder()
+                .conversation(mock(ConversationModel.class))
+                .participant(mock(UserModel.class))
+                .lastReadAt(sameTime)
+                .build();
+
+            // when
+            ReadStatusModel updated = readStatus.updateLastReadAt(sameTime);
+
+            // then
+            assertThat(updated).isSameAs(readStatus);
+        }
+
+        @Test
+        @DisplayName("lastReadAt이 null이면 갱신된다")
+        void whenLastReadAtIsNull_updatesLastReadAt() {
+            // given
+            Instant newReadAt = Instant.now();
+            ReadStatusModel readStatus = ReadStatusModel.builder()
+                .conversation(mock(ConversationModel.class))
+                .participant(mock(UserModel.class))
+                .lastReadAt(null)
+                .build();
+
+            // when
+            ReadStatusModel updated = readStatus.updateLastReadAt(newReadAt);
+
+            // then
+            assertThat(updated.getLastReadAt()).isEqualTo(newReadAt);
+            assertThat(updated).isNotSameAs(readStatus);
+        }
+
+        @Test
+        @DisplayName("updateLastReadAt 호출 시 다른 필드는 유지된다")
+        void updateLastReadAt_preservesOtherFields() {
             // given
             ConversationModel conversation = mock(ConversationModel.class);
             UserModel participant = mock(UserModel.class);
             UUID id = UUID.randomUUID();
             Instant createdAt = Instant.now().minusSeconds(7200);
+            Instant newReadAt = Instant.now();
 
             ReadStatusModel readStatus = ReadStatusModel.builder()
                 .id(id)
@@ -122,7 +161,7 @@ class ReadStatusModelTest {
                 .build();
 
             // when
-            ReadStatusModel updated = readStatus.markAsRead();
+            ReadStatusModel updated = readStatus.updateLastReadAt(newReadAt);
 
             // then
             assertThat(updated.getId()).isEqualTo(id);
