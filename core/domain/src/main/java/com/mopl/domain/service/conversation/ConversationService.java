@@ -25,10 +25,6 @@ public class ConversationService {
             .orElseThrow(() -> ConversationNotFoundException.withId(conversationId));
     }
 
-    public ConversationModel create(ConversationModel conversationModel) {
-        return conversationRepository.save(conversationModel);
-    }
-
     public ConversationModel getByParticipants(UUID userId, UUID withUserId) {
         return conversationQueryRepository.findByParticipants(userId, withUserId)
             .orElseThrow(() -> ConversationNotFoundException.withParticipants(userId, withUserId));
@@ -36,5 +32,9 @@ public class ConversationService {
 
     public boolean existsByParticipants(UUID userId, UUID withUserId) {
         return conversationQueryRepository.existsByParticipants(userId, withUserId);
+    }
+
+    public ConversationModel create(ConversationModel conversationModel) {
+        return conversationRepository.save(conversationModel);
     }
 }
