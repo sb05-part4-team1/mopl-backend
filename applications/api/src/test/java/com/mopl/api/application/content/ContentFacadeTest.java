@@ -1,9 +1,7 @@
 package com.mopl.api.application.content;
 
 import com.mopl.api.interfaces.api.content.dto.ContentCreateRequest;
-import com.mopl.dto.content.ContentResponse;
 import com.mopl.api.interfaces.api.content.dto.ContentUpdateRequest;
-import com.mopl.dto.content.ContentResponseMapper;
 import com.mopl.domain.exception.content.InvalidContentDataException;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.content.ContentModel.ContentType;
@@ -14,6 +12,10 @@ import com.mopl.domain.service.content.ContentTagService;
 import com.mopl.domain.service.watchingsession.WatchingSessionService;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
+import com.mopl.domain.support.search.ContentSearchSyncPort;
+import com.mopl.domain.support.transaction.AfterCommitExecutor;
+import com.mopl.dto.content.ContentResponse;
+import com.mopl.dto.content.ContentResponseMapper;
 import com.mopl.storage.provider.StorageProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,6 +35,7 @@ import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -43,6 +46,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -68,6 +72,14 @@ class ContentFacadeTest {
 
     @Mock
     private TransactionTemplate transactionTemplate;
+
+    @Mock
+    @SuppressWarnings("unused")
+    private ContentSearchSyncPort contentSearchSyncPort;
+
+    @Mock
+    @SuppressWarnings("unused")
+    private AfterCommitExecutor afterCommitExecutor;
 
     @Mock
     private MultipartFile multipartFile;
@@ -685,6 +697,11 @@ class ContentFacadeTest {
             UUID contentId = UUID.randomUUID();
             ContentModel contentModel = createContentModelWithId(contentId);
 
+            willAnswer(invocation -> {
+                invocation.<Consumer<Object>>getArgument(0).accept(null);
+                return null;
+            }).given(transactionTemplate).executeWithoutResult(any());
+
             given(contentService.getById(contentId)).willReturn(contentModel);
 
             // when
@@ -692,7 +709,7 @@ class ContentFacadeTest {
 
             // then
             then(contentService).should().getById(contentId);
-            then(contentService).should().delete(contentModel);
+            then(contentService).should().delete(any(ContentModel.class));
         }
     }
 }
