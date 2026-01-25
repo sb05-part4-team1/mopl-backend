@@ -5,10 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(scanBasePackages = {
     "com.mopl.api",
-    "com.mopl.jpa",
-    "com.mopl.redis",
     "com.mopl.cache",
-    "com.mopl.mail"
+    "com.mopl.jpa",
+    "com.mopl.mail",
+    "com.mopl.redis"
 })
 public class ApiApplication {
 
