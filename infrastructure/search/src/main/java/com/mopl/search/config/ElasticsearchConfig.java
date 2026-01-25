@@ -5,9 +5,8 @@ import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.mopl.search.config.properties.ElasticsearchProperties;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfiguration;
@@ -15,14 +14,11 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 import org.springframework.lang.NonNull;
 
 @Configuration
-@EnableConfigurationProperties(ElasticsearchProperties.class)
 @EnableElasticsearchRepositories(basePackages = "com.mopl.search.content.repository")
-@ConditionalOnProperty(prefix = "mopl.search", name = "enabled", havingValue = "true")
 @RequiredArgsConstructor
 public class ElasticsearchConfig extends ElasticsearchConfiguration {
 
     private final ElasticsearchProperties props;
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     private final ObjectMapper objectMapper;
 
     @Override

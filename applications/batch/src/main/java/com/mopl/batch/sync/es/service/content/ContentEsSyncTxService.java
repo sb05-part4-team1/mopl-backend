@@ -1,7 +1,7 @@
 package com.mopl.batch.sync.es.service.content;
 
 import com.mopl.domain.model.content.ContentModel;
-import com.mopl.domain.repository.content.ContentEsSyncRepository;
+import com.mopl.domain.repository.content.sync.es.ContentEsSyncRepository;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;

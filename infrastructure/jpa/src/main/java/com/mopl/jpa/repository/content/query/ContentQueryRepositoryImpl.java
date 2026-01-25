@@ -1,8 +1,8 @@
 package com.mopl.jpa.repository.content.query;
 
 import com.mopl.domain.model.content.ContentModel;
-import com.mopl.domain.repository.content.ContentQueryRepository;
-import com.mopl.domain.repository.content.ContentQueryRequest;
+import com.mopl.domain.repository.content.query.ContentQueryRepository;
+import com.mopl.domain.repository.content.query.ContentQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.jpa.entity.content.ContentEntity;
 import com.mopl.jpa.entity.content.ContentEntityMapper;

@@ -1,7 +1,7 @@
 package com.mopl.jpa.repository.content.sync.es;
 
 import com.mopl.domain.model.content.ContentModel;
-import com.mopl.domain.repository.content.ContentEsSyncRepository;
+import com.mopl.domain.repository.content.sync.es.ContentEsSyncRepository;
 import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

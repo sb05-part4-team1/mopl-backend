@@ -1,7 +1,7 @@
 package com.mopl.batch.cleanup.service.notification;
 
-import com.mopl.batch.cleanup.properties.CleanupPolicyResolver;
-import com.mopl.batch.cleanup.properties.CleanupProperties;
+import com.mopl.batch.cleanup.config.properties.CleanupPolicyResolver;
+import com.mopl.batch.cleanup.config.properties.CleanupProperties;
 import com.mopl.domain.repository.notification.NotificationRepository;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

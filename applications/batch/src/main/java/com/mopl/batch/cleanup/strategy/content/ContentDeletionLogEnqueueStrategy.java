@@ -1,6 +1,6 @@
 package com.mopl.batch.cleanup.strategy.content;
 
-import com.mopl.domain.repository.content.ContentDeletionLogRepository;
+import com.mopl.domain.repository.content.batch.ContentDeletionLogRepository;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

@@ -1,9 +1,10 @@
 package com.mopl.search.content.repository.query;
 
 import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import com.mopl.domain.model.content.ContentModel;
-import com.mopl.domain.repository.content.ContentQueryRepository;
-import com.mopl.domain.repository.content.ContentQueryRequest;
+import com.mopl.domain.repository.content.query.ContentQueryRepository;
+import com.mopl.domain.repository.content.query.ContentQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.search.content.mapper.ContentDocumentMapper;
 import com.mopl.search.document.ContentDocument;
@@ -45,8 +46,12 @@ public class ContentQueryRepositoryEsImpl implements ContentQueryRepository {
             }
 
             String keyword = request.keywordLike();
-            if (keyword != null && !keyword.isBlank()) {
-                b.must(m -> m.multiMatch(mm -> mm.query(keyword).fields("title", "description")));
+            if (keyword != null) {
+                b.must(m -> m.multiMatch(mm -> mm
+                    .query(keyword)
+                    .fields("title", "description")
+                    .type(TextQueryType.PhrasePrefix)
+                ));
             }
 
             return b;

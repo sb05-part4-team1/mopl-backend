@@ -1,6 +1,6 @@
 package com.mopl.batch.collect.tmdb.config;
 
-import com.mopl.domain.repository.content.ContentQueryRepository;
+import com.mopl.domain.repository.content.query.ContentQueryRepository;
 import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
 import com.mopl.domain.repository.tag.TagRepository;

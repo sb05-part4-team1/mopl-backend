@@ -1,8 +1,8 @@
 package com.mopl.batch.cleanup.service.content;
 
-import com.mopl.batch.cleanup.properties.CleanupPolicyResolver;
-import com.mopl.batch.cleanup.properties.CleanupProperties;
-import com.mopl.domain.repository.content.ContentCleanupRepository;
+import com.mopl.batch.cleanup.config.properties.CleanupPolicyResolver;
+import com.mopl.batch.cleanup.config.properties.CleanupProperties;
+import com.mopl.domain.repository.content.batch.ContentCleanupRepository;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
