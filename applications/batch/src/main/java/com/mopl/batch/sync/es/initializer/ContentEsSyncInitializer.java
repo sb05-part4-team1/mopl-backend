@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @ConditionalOnExpression(
-    "${mopl.search.enabled:false} && ${mopl.batch.sync.es.defaults.initial-enabled:false}"
+    "${mopl.search.enabled:false} && ${mopl.batch.sync.es.initial-enabled:false}"
 )
 public class ContentEsSyncInitializer implements ApplicationRunner {
 

@@ -67,12 +67,11 @@ public class ReviewService {
         return saved;
     }
 
-    public void delete(
-        UUID reviewId,
-        UUID requesterId
-    ) {
+    public UUID delete(UUID reviewId, UUID requesterId) {
         ReviewModel review = getById(reviewId);
         validateAuthor(review, requesterId);
+
+        UUID contentId = review.getContent().getId();
 
         double rating = review.getRating();
 
@@ -81,6 +80,8 @@ public class ReviewService {
 
         ContentModel content = review.getContent();
         contentRepository.save(content.removeReview(rating));
+
+        return contentId;
     }
 
     private ReviewModel getById(UUID reviewId) {
