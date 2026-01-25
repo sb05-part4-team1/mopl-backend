@@ -56,3 +56,6 @@ mopl:
         initial-enabled: ${MOPL_BATCH_SYNC_ES_INITIAL_ENABLED:false}
         defaults:
           chunk-size: ${MOPL_BATCH_SYNC_ES_CHUNK_SIZE:500}
+      denormalized:
+        default-policy:
+          batch-size: ${MOPL_BATCH_SYNC_DENORMALIZED_BATCH_SIZE:500}

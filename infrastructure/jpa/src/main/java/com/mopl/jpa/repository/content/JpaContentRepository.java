@@ -50,4 +50,12 @@ public interface JpaContentRepository extends JpaRepository<ContentEntity, UUID>
         nativeQuery = true
     )
     int deleteByIdIn(List<UUID> contentIds);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            update ContentEntity c
+            set c.reviewCount = :reviewCount, c.averageRating = :averageRating
+            where c.id = :contentId
+        """)
+    void updateReviewStats(UUID contentId, int reviewCount, double averageRating);
 }
