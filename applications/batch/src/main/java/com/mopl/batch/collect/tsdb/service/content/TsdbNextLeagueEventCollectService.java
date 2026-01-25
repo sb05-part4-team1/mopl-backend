@@ -82,8 +82,7 @@ public class TsdbNextLeagueEventCollectService {
             }
         }
 
-        afterCommitExecutor.execute(() -> contentSearchSyncPort.upsertAll(inserted)
-        );
+        afterCommitExecutor.execute(() -> contentSearchSyncPort.upsertAll(inserted));
 
         log.info(
             "TSDB next league events collect done. inserted={}",

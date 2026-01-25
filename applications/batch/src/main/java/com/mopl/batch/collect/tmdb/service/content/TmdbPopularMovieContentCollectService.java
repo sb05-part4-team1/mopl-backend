@@ -75,8 +75,7 @@ public class TmdbPopularMovieContentCollectService {
             }
         }
 
-        afterCommitExecutor.execute(() -> contentSearchSyncPort.upsertAll(inserted)
-        );
+        afterCommitExecutor.execute(() -> contentSearchSyncPort.upsertAll(inserted));
 
         log.info(
             "TMDB movie collect done. inserted={}",
