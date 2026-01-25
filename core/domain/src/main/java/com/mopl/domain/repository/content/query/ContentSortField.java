@@ -1,4 +1,4 @@
-package com.mopl.domain.repository.content;
+package com.mopl.domain.repository.content.query;
 
 public enum ContentSortField {
     watcherCount,

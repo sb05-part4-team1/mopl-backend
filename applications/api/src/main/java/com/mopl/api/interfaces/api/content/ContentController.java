@@ -4,7 +4,7 @@ import com.mopl.api.application.content.ContentFacade;
 import com.mopl.api.interfaces.api.content.dto.ContentCreateRequest;
 import com.mopl.dto.content.ContentResponse;
 import com.mopl.api.interfaces.api.content.dto.ContentUpdateRequest;
-import com.mopl.domain.repository.content.ContentQueryRequest;
+import com.mopl.domain.repository.content.query.ContentQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

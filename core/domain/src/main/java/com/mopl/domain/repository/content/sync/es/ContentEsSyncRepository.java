@@ -1,4 +1,4 @@
-package com.mopl.domain.repository.content;
+package com.mopl.domain.repository.content.sync.es;
 
 import com.mopl.domain.model.content.ContentModel;
 import java.time.Instant;

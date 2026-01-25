@@ -1,7 +1,7 @@
-package com.mopl.jpa.repository.content;
+package com.mopl.jpa.repository.content.batch;
 
-import com.mopl.domain.repository.content.ContentCleanupRepository;
-import com.mopl.jpa.repository.content.projection.ContentThumbnailRow;
+import com.mopl.domain.repository.content.batch.ContentCleanupRepository;
+import com.mopl.jpa.repository.content.JpaContentRepository;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;

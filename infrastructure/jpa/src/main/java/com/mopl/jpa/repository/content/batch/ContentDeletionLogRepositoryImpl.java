@@ -1,7 +1,7 @@
-package com.mopl.jpa.repository.content;
+package com.mopl.jpa.repository.content.batch;
 
-import com.mopl.domain.repository.content.ContentDeletionLogRepository;
-import com.mopl.domain.repository.content.ContentDeletionLogItem;
+import com.mopl.domain.repository.content.batch.ContentDeletionLogRepository;
+import com.mopl.domain.repository.content.batch.ContentDeletionLogItem;
 import com.mopl.jpa.entity.content.ContentDeletionLogEntity;
 import java.time.Instant;
 import java.util.ArrayList;

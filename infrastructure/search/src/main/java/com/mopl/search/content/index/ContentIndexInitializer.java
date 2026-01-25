@@ -1,6 +1,6 @@
 package com.mopl.search.content.index;
 
-import com.mopl.search.config.index.SearchIndexProperties;
+import com.mopl.search.config.properties.SearchIndexProperties;
 import com.mopl.search.document.ContentDocument;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

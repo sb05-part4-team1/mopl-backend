@@ -1,4 +1,4 @@
-package com.mopl.domain.repository.content;
+package com.mopl.domain.repository.content.batch;
 
 import java.util.UUID;
 

@@ -1,4 +1,4 @@
-package com.mopl.jpa.repository.content;
+package com.mopl.jpa.repository.content.batch;
 
 import com.mopl.domain.model.content.ContentExternalProvider;
 import com.mopl.jpa.entity.content.ContentExternalMappingEntity;

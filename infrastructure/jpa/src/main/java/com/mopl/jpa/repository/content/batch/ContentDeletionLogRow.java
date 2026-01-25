@@ -1,4 +1,4 @@
-package com.mopl.jpa.repository.content.projection;
+package com.mopl.jpa.repository.content.batch;
 
 import java.util.UUID;
 

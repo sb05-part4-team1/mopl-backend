@@ -1,9 +1,10 @@
-package com.mopl.jpa.repository.content;
+package com.mopl.jpa.repository.content.batch;
 
 import com.mopl.domain.model.content.ContentExternalProvider;
-import com.mopl.domain.repository.content.ContentExternalMappingRepository;
+import com.mopl.domain.repository.content.batch.ContentExternalMappingRepository;
 import com.mopl.jpa.entity.content.ContentEntity;
 import com.mopl.jpa.entity.content.ContentExternalMappingEntity;
+import com.mopl.jpa.repository.content.JpaContentRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

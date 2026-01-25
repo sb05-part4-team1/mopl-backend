@@ -5,7 +5,7 @@ import com.mopl.api.interfaces.api.content.dto.ContentUpdateRequest;
 import com.mopl.domain.exception.content.InvalidContentDataException;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.tag.TagModel;
-import com.mopl.domain.repository.content.ContentQueryRequest;
+import com.mopl.domain.repository.content.query.ContentQueryRequest;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.content.ContentTagService;
 import com.mopl.domain.service.watchingsession.WatchingSessionService;
