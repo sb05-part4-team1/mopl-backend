@@ -26,6 +26,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -67,9 +68,11 @@ class UserFacadeTest {
     private JwtRegistry jwtRegistry;
 
     @Mock
+    @SuppressWarnings("unused")
     private OutboxService outboxService;
 
     @Mock
+    @SuppressWarnings("unused")
     private DomainEventOutboxMapper domainEventOutboxMapper;
 
     @Mock
@@ -192,7 +195,7 @@ class UserFacadeTest {
             given(userService.getById(targetUser.getId())).willReturn(targetUser);
             given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
             willAnswer(invocation -> invocation.<org.springframework.transaction.support.TransactionCallback<?>>getArgument(0)
-                .doInTransaction(null))
+                .doInTransaction(mock(TransactionStatus.class)))
                 .given(transactionTemplate).execute(any());
 
             // when
@@ -232,7 +235,7 @@ class UserFacadeTest {
             given(userService.getById(targetUser.getId())).willReturn(targetUser);
             given(userService.update(any(UserModel.class))).willReturn(targetUser);
             willAnswer(invocation -> invocation.<org.springframework.transaction.support.TransactionCallback<?>>getArgument(0)
-                .doInTransaction(null))
+                .doInTransaction(mock(TransactionStatus.class)))
                 .given(transactionTemplate).execute(any());
 
             // when & then
