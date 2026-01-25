@@ -20,6 +20,10 @@ public class ReadStatusService {
         UUID participantId,
         Collection<UUID> conversationIds
     ) {
+        if (conversationIds.isEmpty()) {
+            return Map.of();
+        }
+
         return readStatusRepository
             .findByParticipantIdAndConversationIdIn(participantId, conversationIds)
             .stream()
@@ -33,6 +37,10 @@ public class ReadStatusService {
         UUID participantId,
         Collection<UUID> conversationIds
     ) {
+        if (conversationIds.isEmpty()) {
+            return Map.of();
+        }
+
         return readStatusRepository
             .findWithParticipantByParticipantIdNotAndConversationIdIn(participantId, conversationIds)
             .stream()
