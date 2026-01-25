@@ -241,7 +241,7 @@ class ConversationFacadeTest {
             given(conversationService.getById(conversationId)).willReturn(conversation);
             given(readStatusService.getOtherReadStatusWithParticipant(requesterId, conversationId))
                 .willReturn(otherReadStatus);
-            given(directMessageService.getLastDirectMessage(conversationId)).willReturn(lastMessage);
+            given(directMessageService.getLastDirectMessageWithSender(conversationId)).willReturn(lastMessage);
             given(conversationResponseMapper.toResponse(eq(conversation), eq(otherUser), eq(lastMessage), any(Boolean.class)))
                 .willReturn(expectedResponse);
 
@@ -267,7 +267,7 @@ class ConversationFacadeTest {
             given(readStatusService.getReadStatus(requesterId, conversationId)).willReturn(requesterReadStatus);
             given(conversationService.getById(conversationId)).willReturn(conversation);
             given(readStatusService.getOtherReadStatusWithParticipant(requesterId, conversationId)).willReturn(null);
-            given(directMessageService.getLastDirectMessage(conversationId)).willReturn(null);
+            given(directMessageService.getLastDirectMessageWithSender(conversationId)).willReturn(null);
             given(conversationResponseMapper.toResponse(conversation, null, null, false))
                 .willReturn(new ConversationResponse(conversationId, null, null, false));
 
@@ -303,7 +303,7 @@ class ConversationFacadeTest {
             given(userService.getById(withUserId)).willReturn(otherUser);
             given(conversationService.getByParticipants(requesterId, withUserId)).willReturn(conversation);
             given(readStatusService.getReadStatus(requesterId, conversation.getId())).willReturn(requesterReadStatus);
-            given(directMessageService.getLastDirectMessage(conversation.getId())).willReturn(null);
+            given(directMessageService.getLastDirectMessageWithSender(conversation.getId())).willReturn(null);
             given(conversationResponseMapper.toResponse(conversation, otherUser, null, false))
                 .willReturn(expectedResponse);
 
@@ -641,7 +641,7 @@ class ConversationFacadeTest {
             given(conversationService.getById(conversationId)).willReturn(conversation);
             given(readStatusService.getOtherReadStatusWithParticipant(requesterId, conversationId))
                 .willReturn(otherReadStatus);
-            given(directMessageService.getLastDirectMessage(conversationId)).willReturn(lastMessage);
+            given(directMessageService.getLastDirectMessageWithSender(conversationId)).willReturn(lastMessage);
             given(conversationResponseMapper.toResponse(eq(conversation), eq(otherUser), eq(lastMessage), eq(true)))
                 .willReturn(new ConversationResponse(conversationId, null, null, true));
 
@@ -671,7 +671,7 @@ class ConversationFacadeTest {
             given(readStatusService.getReadStatus(requesterId, conversationId)).willReturn(requesterReadStatus);
             given(conversationService.getById(conversationId)).willReturn(conversation);
             given(readStatusService.getOtherReadStatusWithParticipant(requesterId, conversationId)).willReturn(null);
-            given(directMessageService.getLastDirectMessage(conversationId)).willReturn(lastMessage);
+            given(directMessageService.getLastDirectMessageWithSender(conversationId)).willReturn(lastMessage);
             given(conversationResponseMapper.toResponse(eq(conversation), any(), eq(lastMessage), eq(false)))
                 .willReturn(new ConversationResponse(conversationId, null, null, false));
 

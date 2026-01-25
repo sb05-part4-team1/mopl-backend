@@ -140,4 +140,44 @@ class DirectMessageServiceTest {
             then(directMessageRepository).should().findLastMessageByConversationId(conversationId);
         }
     }
+
+    @Nested
+    @DisplayName("getLastDirectMessageWithSender()")
+    class GetLastDirectMessageWithSenderTest {
+
+        @Test
+        @DisplayName("마지막 메시지가 존재하면 sender 포함 DirectMessageModel 반환")
+        void withExistingMessage_returnsDirectMessageModelWithSender() {
+            // given
+            UUID conversationId = UUID.randomUUID();
+            DirectMessageModel lastMessage = DirectMessageModelFixture.create();
+
+            given(directMessageRepository.findLastMessageWithSenderByConversationId(conversationId))
+                .willReturn(Optional.of(lastMessage));
+
+            // when
+            DirectMessageModel result = directMessageService.getLastDirectMessageWithSender(conversationId);
+
+            // then
+            assertThat(result).isEqualTo(lastMessage);
+            then(directMessageRepository).should().findLastMessageWithSenderByConversationId(conversationId);
+        }
+
+        @Test
+        @DisplayName("마지막 메시지가 없으면 null 반환")
+        void withNoMessage_returnsNull() {
+            // given
+            UUID conversationId = UUID.randomUUID();
+
+            given(directMessageRepository.findLastMessageWithSenderByConversationId(conversationId))
+                .willReturn(Optional.empty());
+
+            // when
+            DirectMessageModel result = directMessageService.getLastDirectMessageWithSender(conversationId);
+
+            // then
+            assertThat(result).isNull();
+            then(directMessageRepository).should().findLastMessageWithSenderByConversationId(conversationId);
+        }
+    }
 }

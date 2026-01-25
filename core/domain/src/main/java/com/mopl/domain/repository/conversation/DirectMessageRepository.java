@@ -9,5 +9,7 @@ public interface DirectMessageRepository {
 
     Optional<DirectMessageModel> findLastMessageByConversationId(UUID conversationId);
 
+    Optional<DirectMessageModel> findLastMessageWithSenderByConversationId(UUID conversationId);
+
     DirectMessageModel save(DirectMessageModel directMessageModel);
 }
