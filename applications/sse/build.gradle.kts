@@ -12,8 +12,3 @@ dependencies {
     // uuid v7
     implementation("com.fasterxml.uuid:java-uuid-generator:${project.properties["javaUuidGeneratorVersion"]}")
 }
-
-// TODO: 배포 전 ALB 설계 후 제거
-tasks.jar {
-    enabled = true
-}
