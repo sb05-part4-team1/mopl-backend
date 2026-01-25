@@ -53,6 +53,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private ChannelInterceptor metricsInterceptor(Runnable metricsAction) {
         return new ChannelInterceptor() {
+
             @Override
             public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
                 metricsAction.run();
