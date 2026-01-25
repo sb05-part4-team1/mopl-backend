@@ -2,9 +2,7 @@ package com.mopl.api.application.playlist;
 
 import com.mopl.api.application.outbox.mapper.DomainEventOutboxMapper;
 import com.mopl.api.interfaces.api.playlist.dto.PlaylistCreateRequest;
-import com.mopl.dto.playlist.PlaylistResponse;
 import com.mopl.api.interfaces.api.playlist.dto.PlaylistUpdateRequest;
-import com.mopl.dto.playlist.PlaylistResponseMapper;
 import com.mopl.domain.event.playlist.PlaylistContentAddedEvent;
 import com.mopl.domain.event.playlist.PlaylistCreatedEvent;
 import com.mopl.domain.event.playlist.PlaylistSubscribedEvent;
@@ -20,8 +18,11 @@ import com.mopl.domain.service.playlist.PlaylistService;
 import com.mopl.domain.service.playlist.PlaylistSubscriptionService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.dto.playlist.PlaylistResponse;
+import com.mopl.dto.playlist.PlaylistResponseMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Collections;
@@ -153,10 +154,12 @@ public class PlaylistFacade {
         UUID playlistId
     ) {
         userService.getById(requesterId);
-        PlaylistModel playlist = playlistService.getById(playlistId);
-        validateOwner(playlist, requesterId);
 
-        playlistService.delete(playlist);
+        transactionTemplate.executeWithoutResult(status -> {
+            PlaylistModel playlist = playlistService.getById(playlistId);
+            validateOwner(playlist, requesterId);
+            playlistService.delete(playlist);
+        });
     }
 
     public void addContentToPlaylist(
@@ -186,6 +189,7 @@ public class PlaylistFacade {
         });
     }
 
+    @Transactional
     public void deleteContentFromPlaylist(
         UUID requesterId,
         UUID playlistId,
@@ -195,7 +199,7 @@ public class PlaylistFacade {
         PlaylistModel playlist = playlistService.getById(playlistId);
         validateOwner(playlist, requesterId);
 
-        playlistService.removeContent(playlistId, contentId);
+        playlistService.deleteContentFromPlaylist(playlistId, contentId);
     }
 
     public void subscribePlaylist(
@@ -219,6 +223,7 @@ public class PlaylistFacade {
         });
     }
 
+    @Transactional
     public void unsubscribePlaylist(
         UUID requesterId,
         UUID playlistId

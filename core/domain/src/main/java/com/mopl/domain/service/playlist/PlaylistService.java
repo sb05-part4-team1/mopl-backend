@@ -62,8 +62,8 @@ public class PlaylistService {
     }
 
     @CacheEvict(cacheNames = CacheName.PLAYLIST_CONTENTS, key = "#playlistId")
-    public void removeContent(UUID playlistId, UUID contentId) {
-        boolean deleted = playlistContentRepository.delete(playlistId, contentId);
+    public void deleteContentFromPlaylist(UUID playlistId, UUID contentId) {
+        boolean deleted = playlistContentRepository.deleteByPlaylistIdAndContentId(playlistId, contentId);
         if (!deleted) {
             throw PlaylistContentNotFoundException.withPlaylistIdAndContentId(playlistId, contentId);
         }

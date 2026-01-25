@@ -59,7 +59,7 @@ public class PlaylistContentRepositoryImpl implements PlaylistContentRepository 
     }
 
     @Override
-    public boolean delete(UUID playlistId, UUID contentId) {
+    public boolean deleteByPlaylistIdAndContentId(UUID playlistId, UUID contentId) {
         int deletedCount = jpaPlaylistContentRepository.deleteByPlaylistIdAndContentId(
             playlistId,
             contentId

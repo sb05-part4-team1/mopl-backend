@@ -41,11 +41,6 @@ public interface JpaPlaylistSubscriberRepository extends
 
     boolean existsByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("""
-        DELETE FROM PlaylistSubscriberEntity ps
-        WHERE ps.playlist.id = :playlistId AND ps.subscriber.id = :subscriberId
-        """)
     int deleteByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
