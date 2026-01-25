@@ -17,7 +17,7 @@ public class SecurityRegistryImpl implements SecurityRegistry {
         auth
             // Local 용
             .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
-            .requestMatchers(new AntPathRequestMatcher("/api/v1/files/display")).permitAll()
+            .requestMatchers(new AntPathRequestMatcher("/api/files/display")).permitAll()
 
             .requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
             .requestMatchers(HttpMethod.POST,
