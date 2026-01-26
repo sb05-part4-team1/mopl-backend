@@ -405,7 +405,8 @@ class ReviewQueryRepositoryImplTest {
 
             // when
             CursorResponse<ReviewModel> secondResponse = reviewQueryRepository.findAll(
-                secondRequest);
+                secondRequest
+            );
 
             // then
             assertThat(firstResponse.data())
