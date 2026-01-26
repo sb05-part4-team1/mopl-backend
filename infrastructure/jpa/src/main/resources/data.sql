@@ -1,7 +1,7 @@
 -- =============================================
 -- 1. 사용자 (Users)
 -- =============================================
-INSERT INTO users (id, created_at, deleted_at, updated_at, auth_provider, email, name, password, profile_image_path, role, locked)
+MERGE INTO users (id, created_at, deleted_at, updated_at, auth_provider, email, name, password, profile_image_path, role, locked) KEY(id)
 VALUES
     (CAST('019439a0-0001-7000-8000-000000000001' AS UUID), DATEADD('DAY', -90, NOW()), NULL, DATEADD('DAY', -90, NOW()), 'EMAIL', 'admin@mopl.com', '이윤수', '$2a$10$gCRpIif4.HK5xSpWLeNJ8OCGEaAjnI5Rv33SZs5tTb6F7EyMpjjWe', 'users/019439a0-0001-7000-8000-000000000001/31a154c4-813f-48de-a144-e554b85396c0_profile.png', 'ADMIN', FALSE),
     (CAST('019439a0-0002-7000-8000-000000000002' AS UUID), DATEADD('DAY', -60, NOW()), NULL, DATEADD('DAY', -5, NOW()), 'EMAIL', 'user1@mopl.com', '김수연', '$2a$10$gCRpIif4.HK5xSpWLeNJ8OCGEaAjnI5Rv33SZs5tTb6F7EyMpjjWe', 'users/019bee84-e567-77cd-b7a9-be9e885df765/1.png', 'USER', FALSE),
@@ -14,7 +14,7 @@ VALUES
 -- =============================================
 -- 2. 태그 (Tags)
 -- =============================================
-INSERT INTO tags (id, created_at, deleted_at, name)
+MERGE INTO tags (id, created_at, deleted_at, name) KEY(id)
 VALUES
     (CAST('019439b0-0001-7000-8000-000000000001' AS UUID), DATEADD('DAY', -100, NOW()), NULL, '액션'),
     (CAST('019439b0-0002-7000-8000-000000000002' AS UUID), DATEADD('DAY', -100, NOW()), NULL, '드라마'),
@@ -28,7 +28,7 @@ VALUES
 -- =============================================
 -- 3. 콘텐츠 (Contents) - 영화
 -- =============================================
-INSERT INTO contents (id, created_at, deleted_at, updated_at, type, title, description, thumbnail_path, review_count, average_rating)
+MERGE INTO contents (id, created_at, deleted_at, updated_at, type, title, description, thumbnail_path, review_count, average_rating) KEY(id)
 VALUES
     (CAST('019439c0-0001-7000-8000-000000000001' AS UUID), DATEADD('DAY', -85, NOW()), NULL, DATEADD('DAY', -85, NOW()), 'movie', '세 가지 색: 레드 (1994)', '발렌틴은 스위스의 제네바 대학 학생이며 파트 타임 모델로 일하고 있다. 그녀는 이웃들의 전화 통화를 도청하는 은퇴한 판사의 개를 부상시킨 후 우정을 쌓기 시작하고, 그 만남은 인생에서의 우연과 인연에 대해 생각하게 만든다.', 'contents/019439c0-0001-7000-8000-000000000001/a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d_thumbnail.webp', 2, 4.75),
     (CAST('019439c0-0002-7000-8000-000000000002' AS UUID), DATEADD('DAY', -82, NOW()), NULL, DATEADD('DAY', -82, NOW()), 'movie', '사랑에 빠진 것처럼 (2012)', '도쿄의 고급스러운 바에서 사랑에 무뎌진 노인과 사랑을 갈망하는 젊은 여자가 만나 서로의 삶에 대한 관점에 영향을 주고받는다.', 'contents/019439c0-0002-7000-8000-000000000002/b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e_thumbnail.webp', 0, 0.0),
@@ -41,7 +41,7 @@ VALUES
 -- =============================================
 -- 4. 콘텐츠-태그 연결 (Content Tags)
 -- =============================================
-INSERT INTO content_tags (id, created_at, deleted_at, content_id, tag_id)
+MERGE INTO content_tags (id, created_at, deleted_at, content_id, tag_id) KEY(id)
 VALUES
     -- 세 가지 색: 레드 - 드라마, 미스터리, 로맨스
     (CAST('019439d0-0001-7000-8000-000000000001' AS UUID), DATEADD('DAY', -85, NOW()), NULL, CAST('019439c0-0001-7000-8000-000000000001' AS UUID), CAST('019439b0-0002-7000-8000-000000000002' AS UUID)),
@@ -71,7 +71,7 @@ VALUES
 -- =============================================
 -- 5. 플레이리스트 (Playlists)
 -- =============================================
-INSERT INTO playlists (id, created_at, deleted_at, updated_at, title, description, owner_id, subscriber_count)
+MERGE INTO playlists (id, created_at, deleted_at, updated_at, title, description, owner_id, subscriber_count) KEY(id)
 VALUES
     (CAST('019439e0-0001-7000-8000-000000000001' AS UUID), DATEADD('DAY', -55, NOW()), NULL, DATEADD('DAY', -10, NOW()), '아트하우스 영화 컬렉션', '예술적 감성이 담긴 영화들', CAST('019439a0-0002-7000-8000-000000000002' AS UUID), 2),
     (CAST('019439e0-0002-7000-8000-000000000002' AS UUID), DATEADD('DAY', -50, NOW()), NULL, DATEADD('DAY', -8, NOW()), '왕가위 & 아시아 영화', '아시아 감독들의 명작 모음', CAST('019439a0-0002-7000-8000-000000000002' AS UUID), 1),
@@ -80,7 +80,7 @@ VALUES
 -- =============================================
 -- 6. 플레이리스트-콘텐츠 연결 (Playlist Contents)
 -- =============================================
-INSERT INTO playlist_contents (id, created_at, deleted_at, playlist_id, content_id)
+MERGE INTO playlist_contents (id, created_at, deleted_at, playlist_id, content_id) KEY(id)
 VALUES
     -- 아트하우스 영화 컬렉션: 세 가지 색: 레드, 펀치 드렁크 러브
     (CAST('019439f0-0001-7000-8000-000000000001' AS UUID), DATEADD('DAY', -55, NOW()), NULL, CAST('019439e0-0001-7000-8000-000000000001' AS UUID), CAST('019439c0-0001-7000-8000-000000000001' AS UUID)),
@@ -96,7 +96,7 @@ VALUES
 -- =============================================
 -- 7. 플레이리스트 구독자 (Playlist Subscribers)
 -- =============================================
-INSERT INTO playlist_subscribers (id, created_at, deleted_at, playlist_id, subscriber_id)
+MERGE INTO playlist_subscribers (id, created_at, deleted_at, playlist_id, subscriber_id) KEY(id)
 VALUES
     (CAST('01943a00-0001-7000-8000-000000000001' AS UUID), DATEADD('DAY', -42, NOW()), NULL, CAST('019439e0-0001-7000-8000-000000000001' AS UUID), CAST('019439a0-0003-7000-8000-000000000003' AS UUID)),
     (CAST('01943a00-0002-7000-8000-000000000002' AS UUID), DATEADD('DAY', -28, NOW()), NULL, CAST('019439e0-0001-7000-8000-000000000001' AS UUID), CAST('019439a0-0004-7000-8000-000000000004' AS UUID)),
@@ -106,7 +106,7 @@ VALUES
 -- =============================================
 -- 8. 팔로우 (Follows)
 -- =============================================
-INSERT INTO follows (id, created_at, deleted_at, follower_id, followee_id)
+MERGE INTO follows (id, created_at, deleted_at, follower_id, followee_id) KEY(id)
 VALUES
     -- user1 -> user2, user3
     (CAST('01943a10-0001-7000-8000-000000000001' AS UUID), DATEADD('DAY', -50, NOW()), NULL, CAST('019439a0-0002-7000-8000-000000000002' AS UUID), CAST('019439a0-0003-7000-8000-000000000003' AS UUID)),
@@ -122,7 +122,7 @@ VALUES
 -- =============================================
 -- 9. 리뷰 (Reviews)
 -- =============================================
-INSERT INTO reviews (id, created_at, deleted_at, updated_at, text, rating, content_id, author_id)
+MERGE INTO reviews (id, created_at, deleted_at, updated_at, text, rating, content_id, author_id) KEY(id)
 VALUES
     -- 세 가지 색: 레드 리뷰
     (CAST('01943a20-0001-7000-8000-000000000001' AS UUID), DATEADD('DAY', -45, NOW()), NULL, DATEADD('DAY', -45, NOW()), '키에슬로프스키의 삼색 3부작 중 최고작. 우연과 운명에 대한 깊은 통찰이 담겨 있어요.', 5.0, CAST('019439c0-0001-7000-8000-000000000001' AS UUID), CAST('019439a0-0002-7000-8000-000000000002' AS UUID)),
@@ -140,7 +140,7 @@ VALUES
 -- =============================================
 -- 10. 알림 (Notifications)
 -- =============================================
-INSERT INTO notifications (id, created_at, deleted_at, title, content, level, receiver_id)
+MERGE INTO notifications (id, created_at, deleted_at, title, content, level, receiver_id) KEY(id)
 VALUES
     (CAST('01943a30-0001-7000-8000-000000000001' AS UUID), DATEADD('DAY', -60, NOW()), NULL, '환영합니다!', 'MOPL에 가입해주셔서 감사합니다.', 'INFO', CAST('019439a0-0002-7000-8000-000000000002' AS UUID)),
     (CAST('01943a30-0002-7000-8000-000000000002' AS UUID), DATEADD('DAY', -40, NOW()), NULL, '새로운 팔로워', '류승민님이 회원님을 팔로우하기 시작했습니다.', 'INFO', CAST('019439a0-0002-7000-8000-000000000002' AS UUID)),
@@ -151,7 +151,7 @@ VALUES
 -- =============================================
 -- 11. 대화 (Conversations)
 -- =============================================
-INSERT INTO conversations (id, created_at, deleted_at, updated_at)
+MERGE INTO conversations (id, created_at, deleted_at, updated_at) KEY(id)
 VALUES
     (CAST('01943a40-0001-7000-8000-000000000001' AS UUID), DATEADD('DAY', -30, NOW()), NULL, DATEADD('HOUR', -2, NOW())),
     (CAST('01943a40-0002-7000-8000-000000000002' AS UUID), DATEADD('DAY', -15, NOW()), NULL, DATEADD('HOUR', -1, NOW())),
@@ -160,7 +160,7 @@ VALUES
 -- =============================================
 -- 12. 다이렉트 메시지 (Direct Messages)
 -- =============================================
-INSERT INTO direct_messages (id, created_at, deleted_at, content, conversation_id, sender_id)
+MERGE INTO direct_messages (id, created_at, deleted_at, content, conversation_id, sender_id) KEY(id)
 VALUES
     -- 대화 1: user1 <-> user2
     (CAST('01943a50-0001-7000-8000-000000000001' AS UUID), DATEADD('DAY', -30, NOW()), NULL, '안녕하세요! 아트하우스 영화 플레이리스트 잘 봤어요.', CAST('01943a40-0001-7000-8000-000000000001' AS UUID), CAST('019439a0-0002-7000-8000-000000000002' AS UUID)),
@@ -177,7 +177,7 @@ VALUES
 -- =============================================
 -- 13. 읽음 상태 (Read Statuses)
 -- =============================================
-INSERT INTO read_statuses (id, created_at, deleted_at, last_read_at, conversation_id, participant_id)
+MERGE INTO read_statuses (id, created_at, deleted_at, last_read_at, conversation_id, participant_id) KEY(id)
 VALUES
     -- 대화 1 참여자들
     (CAST('01943a60-0001-7000-8000-000000000001' AS UUID), DATEADD('DAY', -30, NOW()), NULL, NOW(), CAST('01943a40-0001-7000-8000-000000000001' AS UUID), CAST('019439a0-0002-7000-8000-000000000002' AS UUID)),
