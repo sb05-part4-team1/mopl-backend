@@ -266,4 +266,40 @@ class NotificationRepositoryImplTest {
             assertThat(savedNotifications).isEmpty();
         }
     }
+
+    @Nested
+    @DisplayName("delete()")
+    class DeleteTest {
+
+        @Test
+        @DisplayName("존재하는 알림을 삭제하면 조회되지 않는다")
+        void withExistingId_deletesNotification() {
+            // given
+            NotificationModel savedNotification = notificationRepository.save(
+                NotificationModel.create(
+                    "삭제할 알림",
+                    "삭제 테스트용 알림입니다.",
+                    NotificationModel.NotificationLevel.INFO,
+                    savedReceiverId
+                )
+            );
+            UUID notificationId = savedNotification.getId();
+
+            // when
+            notificationRepository.delete(notificationId);
+
+            // then
+            assertThat(notificationRepository.findById(notificationId)).isEmpty();
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 알림 ID로 삭제해도 예외가 발생하지 않는다")
+        void withNonExistingId_doesNotThrowException() {
+            // given
+            UUID nonExistingId = UUID.randomUUID();
+
+            // when & then
+            notificationRepository.delete(nonExistingId);
+        }
+    }
 }
