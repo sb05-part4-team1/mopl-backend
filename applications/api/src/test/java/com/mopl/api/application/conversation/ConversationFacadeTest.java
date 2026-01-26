@@ -106,7 +106,7 @@ class ConversationFacadeTest {
                 null, null, null, 20, SortDirection.DESCENDING, ConversationSortField.CREATED_AT
             );
             CursorResponse<ConversationModel> emptyResponse = CursorResponse.empty(
-                "createdAt", SortDirection.DESCENDING
+                "CREATED_AT", SortDirection.DESCENDING
             );
 
             given(conversationService.getAll(requesterId, request)).willReturn(emptyResponse);
@@ -136,7 +136,7 @@ class ConversationFacadeTest {
             CursorResponse<ConversationModel> serviceResponse = CursorResponse.of(
                 List.of(conversation),
                 null, null, false, 1L,
-                "createdAt", SortDirection.DESCENDING
+                "CREATED_AT", SortDirection.DESCENDING
             );
 
             ReadStatusModel requesterReadStatus = createReadStatus(requester, conversation, Instant.now().minusSeconds(100));
@@ -187,7 +187,7 @@ class ConversationFacadeTest {
             CursorResponse<ConversationModel> serviceResponse = CursorResponse.of(
                 List.of(conversation),
                 null, null, false, 1L,
-                "createdAt", SortDirection.DESCENDING
+                "CREATED_AT", SortDirection.DESCENDING
             );
 
             ReadStatusModel requesterReadStatus = createReadStatus(requester, conversation, Instant.now());
@@ -419,7 +419,7 @@ class ConversationFacadeTest {
             CursorResponse<DirectMessageModel> serviceResponse = CursorResponse.of(
                 List.of(directMessage),
                 null, null, false, 1L,
-                "createdAt", SortDirection.DESCENDING
+                "CREATED_AT", SortDirection.DESCENDING
             );
 
             DirectMessageResponse expectedMessageResponse = new DirectMessageResponse(
@@ -474,7 +474,7 @@ class ConversationFacadeTest {
             CursorResponse<DirectMessageModel> serviceResponse = CursorResponse.of(
                 List.of(directMessage),
                 null, null, false, 1L,
-                "createdAt", SortDirection.DESCENDING
+                "CREATED_AT", SortDirection.DESCENDING
             );
 
             given(readStatusService.getReadStatusWithParticipant(requesterId, conversationId))

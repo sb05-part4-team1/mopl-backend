@@ -127,7 +127,7 @@ class WatchingSessionFacadeTest {
                 session2.getWatcherId(),
                 true,
                 10,
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.ASCENDING
             );
 
@@ -160,7 +160,7 @@ class WatchingSessionFacadeTest {
             UUID contentId = UUID.randomUUID();
 
             CursorResponse<WatchingSessionModel> emptyResponse = CursorResponse.empty(
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.ASCENDING
             );
 
@@ -208,7 +208,7 @@ class WatchingSessionFacadeTest {
                 null,
                 false,
                 1,
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.ASCENDING
             );
 

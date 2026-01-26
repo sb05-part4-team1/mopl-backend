@@ -50,7 +50,7 @@ class ConversationServiceTest {
                 null, null, null, null, null, null
             );
             CursorResponse<ConversationModel> expectedResponse = CursorResponse.empty(
-                "createdAt", SortDirection.DESCENDING
+                "CREATED_AT", SortDirection.DESCENDING
             );
 
             given(conversationQueryRepository.findAll(userId, request)).willReturn(expectedResponse);

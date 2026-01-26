@@ -492,7 +492,7 @@ class UserControllerTest {
         @DisplayName("필터 파라미터가 적용된 요청 처리")
         void withFilterParams_appliesFilters() throws Exception {
             // given
-            CursorResponse<UserModel> emptyResponse = CursorResponse.empty("name",
+            CursorResponse<UserModel> emptyResponse = CursorResponse.empty("NAME",
                 SortDirection.ASCENDING);
 
             given(userFacade.getUsers(any(UserQueryRequest.class))).willReturn(emptyResponse);
@@ -524,7 +524,7 @@ class UserControllerTest {
                 null,
                 false,
                 5,
-                "name",
+                "NAME",
                 SortDirection.ASCENDING
             );
 
@@ -548,7 +548,7 @@ class UserControllerTest {
         @DisplayName("빈 결과 시 빈 목록 반환")
         void withNoResults_returnsEmptyList() throws Exception {
             // given
-            CursorResponse<UserModel> emptyResponse = CursorResponse.empty("name",
+            CursorResponse<UserModel> emptyResponse = CursorResponse.empty("NAME",
                 SortDirection.DESCENDING);
 
             given(userFacade.getUsers(any(UserQueryRequest.class))).willReturn(emptyResponse);

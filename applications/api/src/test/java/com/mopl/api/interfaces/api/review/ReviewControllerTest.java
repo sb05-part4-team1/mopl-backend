@@ -244,7 +244,7 @@ class ReviewControllerTest {
                 null,
                 false,
                 5,
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.DESCENDING
             );
 
@@ -266,7 +266,7 @@ class ReviewControllerTest {
         void withNoResults_returnsEmptyList() throws Exception {
             // given
             CursorResponse<ReviewResponse> emptyResponse = CursorResponse.empty(
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.DESCENDING
             );
 

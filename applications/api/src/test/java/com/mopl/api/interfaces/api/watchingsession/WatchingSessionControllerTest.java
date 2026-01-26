@@ -142,7 +142,7 @@ class WatchingSessionControllerTest {
             // given
             UUID contentId = UUID.randomUUID();
             CursorResponse<WatchingSessionResponse> emptyResponse = CursorResponse.empty(
-                "createdAt", SortDirection.DESCENDING
+                "CREATED_AT", SortDirection.DESCENDING
             );
 
             given(watchingSessionFacade.getWatchingSessions(eq(contentId), any(WatchingSessionQueryRequest.class)))
@@ -176,7 +176,7 @@ class WatchingSessionControllerTest {
                 null,
                 false,
                 25,
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.ASCENDING
             );
 
@@ -204,7 +204,7 @@ class WatchingSessionControllerTest {
             // given
             UUID contentId = UUID.randomUUID();
             CursorResponse<WatchingSessionResponse> emptyResponse = CursorResponse.empty(
-                "createdAt", SortDirection.DESCENDING
+                "CREATED_AT", SortDirection.DESCENDING
             );
 
             given(watchingSessionFacade.getWatchingSessions(eq(contentId), any(WatchingSessionQueryRequest.class)))

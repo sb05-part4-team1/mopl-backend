@@ -74,7 +74,7 @@ class NotificationFacadeTest {
                 notification2.getId(),
                 true,
                 10,
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.ASCENDING
             );
 
@@ -107,7 +107,7 @@ class NotificationFacadeTest {
             UUID userId = UUID.randomUUID();
 
             CursorResponse<NotificationModel> emptyResponse = CursorResponse.empty(
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.ASCENDING
             );
 

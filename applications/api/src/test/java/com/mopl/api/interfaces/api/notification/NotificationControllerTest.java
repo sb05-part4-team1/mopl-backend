@@ -155,7 +155,7 @@ class NotificationControllerTest {
                 null,
                 false,
                 5,
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.DESCENDING
             );
 
@@ -184,7 +184,7 @@ class NotificationControllerTest {
         void withNoResults_returnsEmptyList() throws Exception {
             // given
             CursorResponse<NotificationResponse> emptyResponse = CursorResponse.empty(
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.ASCENDING
             );
 

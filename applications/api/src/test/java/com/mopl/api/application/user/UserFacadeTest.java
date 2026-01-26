@@ -499,7 +499,7 @@ class UserFacadeTest {
                 user2.getId(),
                 true,
                 10,
-                "name",
+                "NAME",
                 SortDirection.ASCENDING
             );
 
@@ -528,7 +528,7 @@ class UserFacadeTest {
         void withNoUsers_returnsEmptyList() {
             // given
             CursorResponse<UserModel> emptyResponse = CursorResponse.empty(
-                "name",
+                "NAME",
                 SortDirection.ASCENDING
             );
 
@@ -571,7 +571,7 @@ class UserFacadeTest {
                 null,
                 false,
                 1,
-                "name",
+                "NAME",
                 SortDirection.ASCENDING
             );
 

@@ -157,7 +157,7 @@ class ReviewFacadeTest {
                 null,
                 false,
                 2,
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.DESCENDING
             );
 
@@ -187,7 +187,7 @@ class ReviewFacadeTest {
             );
 
             CursorResponse<ReviewModel> emptyResponse = CursorResponse.empty(
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.DESCENDING
             );
 

@@ -166,7 +166,7 @@ class ContentControllerTest {
         void withFilterParams_appliesFilters() throws Exception {
             // given
             CursorResponse<ContentResponse> emptyResponse = CursorResponse.empty(
-                "watcherCount", SortDirection.DESCENDING
+                "POPULARITY", SortDirection.DESCENDING
             );
 
             given(contentFacade.getContents(any(ContentQueryRequest.class))).willReturn(emptyResponse);
@@ -199,7 +199,7 @@ class ContentControllerTest {
                 null,
                 false,
                 50,
-                "watcherCount",
+                "POPULARITY",
                 SortDirection.DESCENDING
             );
 
@@ -224,7 +224,7 @@ class ContentControllerTest {
         void withNoResults_returnsEmptyList() throws Exception {
             // given
             CursorResponse<ContentResponse> emptyResponse = CursorResponse.empty(
-                "watcherCount", SortDirection.DESCENDING
+                "POPULARITY", SortDirection.DESCENDING
             );
 
             given(contentFacade.getContents(any(ContentQueryRequest.class))).willReturn(emptyResponse);

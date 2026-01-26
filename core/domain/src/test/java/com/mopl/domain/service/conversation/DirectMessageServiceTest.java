@@ -50,7 +50,7 @@ class DirectMessageServiceTest {
                 null, null, null, null, null
             );
             CursorResponse<DirectMessageModel> expectedResponse = CursorResponse.empty(
-                "createdAt", SortDirection.DESCENDING
+                "CREATED_AT", SortDirection.DESCENDING
             );
 
             given(directMessageQueryRepository.findAll(conversationId, request))

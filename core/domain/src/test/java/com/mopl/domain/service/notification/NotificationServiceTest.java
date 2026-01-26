@@ -56,7 +56,7 @@ class NotificationServiceTest {
                     NotificationModelFixture.builder().set("receiverId", receiverId).sample(),
                     NotificationModelFixture.builder().set("receiverId", receiverId).sample()
                 ),
-                "cursor", UUID.randomUUID(), true, 10, "createdAt", SortDirection.ASCENDING
+                "cursor", UUID.randomUUID(), true, 10, "CREATED_AT", SortDirection.ASCENDING
             );
 
             given(notificationQueryRepository.findAll(receiverId, request)).willReturn(expectedResponse);
@@ -76,7 +76,7 @@ class NotificationServiceTest {
             // given
             UUID receiverId = UUID.randomUUID();
             NotificationQueryRequest request = createQueryRequest();
-            CursorResponse<NotificationModel> emptyResponse = CursorResponse.empty("createdAt", SortDirection.ASCENDING);
+            CursorResponse<NotificationModel> emptyResponse = CursorResponse.empty("CREATED_AT", SortDirection.ASCENDING);
 
             given(notificationQueryRepository.findAll(receiverId, request)).willReturn(emptyResponse);
 
