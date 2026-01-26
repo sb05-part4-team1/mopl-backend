@@ -2,6 +2,7 @@ package com.mopl.jpa.repository.review.query;
 
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.review.ReviewModel;
+import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.review.ReviewQueryRepository;
 import com.mopl.domain.repository.review.ReviewQueryRequest;
 import com.mopl.domain.repository.review.ReviewSortField;
@@ -28,11 +29,9 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
-import static com.mopl.domain.model.user.UserModel.AuthProvider;
-import static com.mopl.domain.model.user.UserModel.Role;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @Import({
     JpaConfig.class,
     QuerydslConfig.class,
@@ -83,11 +82,11 @@ class ReviewQueryRepositoryImplTest {
         UserEntity entity = UserEntity.builder()
             .createdAt(createdAt)
             .updatedAt(createdAt)
-            .authProvider(AuthProvider.EMAIL)
+            .authProvider(UserModel.AuthProvider.EMAIL)
             .email(email)
             .name(name)
             .password("encodedPassword")
-            .role(Role.USER)
+            .role(UserModel.Role.USER)
             .locked(false)
             .build();
         entityManager.persist(entity);
@@ -101,6 +100,7 @@ class ReviewQueryRepositoryImplTest {
             .type(ContentModel.ContentType.movie)
             .title(title)
             .description("Description")
+            .thumbnailPath("contents/test-thumbnail.png")
             .averageRating(0.0)
             .reviewCount(0)
             .build();
@@ -353,7 +353,7 @@ class ReviewQueryRepositoryImplTest {
 
             // then
             assertThat(secondResponse.data()).hasSize(1);
-            assertThat(secondResponse.data().get(0).getText()).isEqualTo("리뷰 1");
+            assertThat(secondResponse.data().getFirst().getText()).isEqualTo("리뷰 1");
             assertThat(secondResponse.hasNext()).isFalse();
             assertThat(secondResponse.nextCursor()).isNull();
         }

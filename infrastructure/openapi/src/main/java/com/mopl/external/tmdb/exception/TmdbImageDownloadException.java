@@ -1,5 +1,8 @@
 package com.mopl.external.tmdb.exception;
 
+import lombok.Getter;
+
+@Getter
 public class TmdbImageDownloadException extends RuntimeException {
 
     private final String posterPath;
@@ -7,9 +10,5 @@ public class TmdbImageDownloadException extends RuntimeException {
     public TmdbImageDownloadException(String posterPath, Throwable cause) {
         super("TMDB image download failed: posterPath=" + posterPath, cause);
         this.posterPath = posterPath;
-    }
-
-    public String getPosterPath() {
-        return posterPath;
     }
 }

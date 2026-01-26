@@ -1,0 +1,18 @@
+spring:
+  main:
+    web-application-type: none
+  application:
+    name: mopl-worker
+  profiles:
+    active: local
+  config:
+    import:
+      - optional:file:.env[.properties]
+      - jpa.yaml
+      - kafka.yaml
+      - redis.yaml
+  threads:
+    virtual:
+      enabled: true
+  jpa:
+    show-sql: false

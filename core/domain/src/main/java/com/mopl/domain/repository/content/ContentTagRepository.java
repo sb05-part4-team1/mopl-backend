@@ -10,9 +10,11 @@ public interface ContentTagRepository {
 
     List<TagModel> findTagsByContentId(UUID contentId);
 
-    Map<UUID, List<TagModel>> findTagsByContentIds(List<UUID> contentIds);
+    Map<UUID, List<TagModel>> findTagsByContentIdIn(List<UUID> contentIds);
 
     void saveAll(UUID contentId, List<TagModel> tags);
 
     void deleteAllByContentId(UUID contentId);
+
+    int deleteAllByContentIds(List<UUID> contentIds);
 }

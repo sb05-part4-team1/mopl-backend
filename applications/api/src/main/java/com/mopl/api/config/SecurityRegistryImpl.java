@@ -15,8 +15,10 @@ public class SecurityRegistryImpl implements SecurityRegistry {
     public void configure(
         AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
         auth
+            // Local 용
             .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
-            .requestMatchers(new AntPathRequestMatcher("/api/v1/files/display")).permitAll()
+            .requestMatchers(new AntPathRequestMatcher("/api/files/display")).permitAll()
+
             .requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
             .requestMatchers(HttpMethod.POST,
                 "/api/users",
@@ -26,6 +28,13 @@ public class SecurityRegistryImpl implements SecurityRegistry {
             ).permitAll()
             .requestMatchers("/oauth2/**").permitAll()
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+            .requestMatchers(
+                "/actuator/health",
+                "/actuator/info",
+                "/actuator/prometheus",
+                "/actuator/metrics",
+                "/actuator/metrics/**"
+            ).permitAll()
 
             .requestMatchers(
                 new AntPathRequestMatcher("/api/contents", HttpMethod.POST.name()),

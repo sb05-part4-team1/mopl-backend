@@ -29,13 +29,8 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
     public CursorResponse<UserModel> findAll(UserQueryRequest request) {
         UserSortFieldJpa sortFieldJpa = UserSortFieldJpa.from(request.sortBy());
 
-        JPAQuery<UserEntity> jpaQuery = queryFactory
-            .selectFrom(userEntity)
-            .where(
-                emailLike(request.emailLike()),
-                roleEqual(request.roleEqual()),
-                isLocked(request.isLocked())
-            );
+        JPAQuery<UserEntity> jpaQuery = baseQuery(request)
+            .select(userEntity);
 
         CursorPaginationHelper.applyCursorPagination(
             request,
@@ -45,6 +40,14 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
         );
 
         List<UserEntity> rows = jpaQuery.fetch();
+
+        if (rows.isEmpty()) {
+            return CursorResponse.empty(
+                sortFieldJpa.getFieldName(),
+                request.sortDirection()
+            );
+        }
+
         long totalCount = countTotal(request);
 
         return CursorPaginationHelper.buildResponse(
@@ -58,15 +61,19 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
         );
     }
 
-    private long countTotal(UserQueryRequest request) {
-        Long total = queryFactory
-            .select(userEntity.count())
+    private JPAQuery<?> baseQuery(UserQueryRequest request) {
+        return queryFactory
             .from(userEntity)
             .where(
                 emailLike(request.emailLike()),
                 roleEqual(request.roleEqual()),
                 isLocked(request.isLocked())
-            )
+            );
+    }
+
+    private long countTotal(UserQueryRequest request) {
+        Long total = baseQuery(request)
+            .select(userEntity.count())
             .fetchOne();
         return total != null ? total : 0;
     }

@@ -1,12 +1,13 @@
 package com.mopl.domain.service.content;
 
 import com.mopl.domain.exception.content.ContentNotFoundException;
+import com.mopl.domain.fixture.ContentModelFixture;
 import com.mopl.domain.model.content.ContentModel;
-import com.mopl.domain.model.tag.TagModel;
+import com.mopl.domain.repository.content.query.ContentQueryRepository;
+import com.mopl.domain.repository.content.query.ContentQueryRequest;
 import com.mopl.domain.repository.content.ContentRepository;
-import com.mopl.domain.repository.content.ContentTagRepository;
-import com.mopl.domain.service.tag.TagService;
-import java.time.Instant;
+import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.domain.support.cursor.SortDirection;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,76 +22,75 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ContentService 단위 테스트")
 class ContentServiceTest {
 
     @Mock
-    private TagService tagService;
+    private ContentQueryRepository contentQueryRepository;
 
     @Mock
     private ContentRepository contentRepository;
-
-    @Mock
-    private ContentTagRepository contentTagRepository;
 
     @InjectMocks
     private ContentService contentService;
 
     @Nested
-    @DisplayName("create()")
-    class CreateTest {
+    @DisplayName("getAll()")
+    class GetAllTest {
 
         @Test
-        @DisplayName("태그명이 있으면 태그 생성 후 연관관계 저장")
-        void withTagNames_createsTagsAndRelations() {
+        @DisplayName("Repository에 위임하여 결과 반환")
+        void delegatesToRepository() {
             // given
-            UUID contentId = UUID.randomUUID();
-            ContentModel contentModel = ContentModel.builder()
-                .id(contentId)
-                .title("인셉션")
-                .build();
-
-            List<String> tagNames = List.of("SF", "액션");
-            List<TagModel> tags = List.of(
-                TagModel.builder().id(UUID.randomUUID()).name("SF").build(),
-                TagModel.builder().id(UUID.randomUUID()).name("액션").build()
+            ContentQueryRequest request = new ContentQueryRequest(
+                null, null, null, null, null, null, null, null
+            );
+            CursorResponse<ContentModel> expectedResponse = CursorResponse.empty(
+                "watcherCount", SortDirection.DESCENDING
             );
 
-            given(contentRepository.save(contentModel)).willReturn(contentModel);
-            given(tagService.findOrCreateTags(tagNames)).willReturn(tags);
+            given(contentQueryRepository.findAll(request)).willReturn(expectedResponse);
 
             // when
-            ContentModel result = contentService.create(contentModel, tagNames);
+            CursorResponse<ContentModel> result = contentService.getAll(request);
 
             // then
-            assertThat(result.getTags()).containsExactly("SF", "액션");
-            then(contentTagRepository).should().saveAll(contentId, tags);
+            assertThat(result).isEqualTo(expectedResponse);
+            then(contentQueryRepository).should().findAll(request);
         }
 
         @Test
-        @DisplayName("태그명이 null이면 태그 로직을 타지 않는다")
-        void withNullTagNames_onlySaveContent() {
+        @DisplayName("콘텐츠 목록이 있으면 결과 반환")
+        void withContents_returnsContentList() {
             // given
-            ContentModel contentModel = ContentModel.builder()
-                .title("인셉션")
-                .build();
+            ContentModel content1 = ContentModelFixture.create();
+            ContentModel content2 = ContentModelFixture.create();
+            ContentQueryRequest request = new ContentQueryRequest(
+                null, null, null, null, null, 20, null, null
+            );
+            CursorResponse<ContentModel> expectedResponse = CursorResponse.of(
+                List.of(content1, content2),
+                null,
+                null,
+                false,
+                2L,
+                "watcherCount",
+                SortDirection.DESCENDING
+            );
 
-            given(contentRepository.save(contentModel)).willReturn(contentModel);
+            given(contentQueryRepository.findAll(request)).willReturn(expectedResponse);
 
             // when
-            ContentModel result = contentService.create(contentModel, null);
+            CursorResponse<ContentModel> result = contentService.getAll(request);
 
             // then
-            assertThat(result.getTags()).isEmpty();
-            then(tagService).shouldHaveNoInteractions();
-            then(contentTagRepository).shouldHaveNoInteractions();
+            assertThat(result.data()).hasSize(2);
+            assertThat(result.totalCount()).isEqualTo(2L);
+            then(contentQueryRepository).should().findAll(request);
         }
     }
 
@@ -99,35 +99,63 @@ class ContentServiceTest {
     class GetByIdTest {
 
         @Test
-        @DisplayName("태그 조회 결과가 null이면 빈 리스트 반환 (toTagNames 분기)")
-        void returnsEmptyTags_whenTagRepositoryReturnsNull() {
+        @DisplayName("존재하는 콘텐츠 ID로 조회하면 ContentModel 반환")
+        void withExistingContentId_returnsContentModel() {
             // given
             UUID contentId = UUID.randomUUID();
-            ContentModel contentModel = ContentModel.builder()
-                .id(contentId)
-                .title("인셉션")
-                .build();
+            ContentModel contentModel = ContentModelFixture.builder()
+                .set("id", contentId)
+                .sample();
 
             given(contentRepository.findById(contentId)).willReturn(Optional.of(contentModel));
-            given(contentTagRepository.findTagsByContentId(contentId)).willReturn(null);
 
             // when
             ContentModel result = contentService.getById(contentId);
 
             // then
-            assertThat(result.getTags()).isEmpty();
+            assertThat(result).isEqualTo(contentModel);
+            assertThat(result.getId()).isEqualTo(contentId);
+            then(contentRepository).should().findById(contentId);
         }
 
         @Test
-        @DisplayName("존재하지 않으면 예외 발생")
-        void notFound_throwsException() {
+        @DisplayName("존재하지 않는 콘텐츠 ID로 조회하면 ContentNotFoundException 발생")
+        void withNonExistingContentId_throwsContentNotFoundException() {
             // given
             UUID contentId = UUID.randomUUID();
+
             given(contentRepository.findById(contentId)).willReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> contentService.getById(contentId))
-                .isInstanceOf(ContentNotFoundException.class);
+                .isInstanceOf(ContentNotFoundException.class)
+                .satisfies(e -> {
+                    ContentNotFoundException ex = (ContentNotFoundException) e;
+                    assertThat(ex.getDetails().get("id")).isEqualTo(contentId);
+                });
+
+            then(contentRepository).should().findById(contentId);
+        }
+    }
+
+    @Nested
+    @DisplayName("create()")
+    class CreateTest {
+
+        @Test
+        @DisplayName("유효한 콘텐츠 생성")
+        void withValidContent_createsContent() {
+            // given
+            ContentModel contentModel = ContentModelFixture.create();
+
+            given(contentRepository.save(contentModel)).willReturn(contentModel);
+
+            // when
+            ContentModel result = contentService.create(contentModel);
+
+            // then
+            assertThat(result).isEqualTo(contentModel);
+            then(contentRepository).should().save(contentModel);
         }
     }
 
@@ -136,91 +164,19 @@ class ContentServiceTest {
     class UpdateTest {
 
         @Test
-        @DisplayName("tagNames가 null이면 태그를 변경하지 않는다 (early return 분기)")
-        void update_withNullTags_doesNotTouchTags() {
+        @DisplayName("콘텐츠 정보 업데이트 성공")
+        void withValidContent_updatesContent() {
             // given
-            UUID contentId = UUID.randomUUID();
-            ContentModel original = ContentModel.builder()
-                .id(contentId)
-                .type(ContentModel.ContentType.movie)
-                .title("기존 제목")
-                .description("설명")
-                .thumbnailUrl("old.png")
-                .build();
+            ContentModel contentModel = ContentModelFixture.create();
 
-            given(contentRepository.findById(contentId)).willReturn(Optional.of(original));
-            given(contentRepository.save(any())).willAnswer(inv -> inv.getArgument(0));
+            given(contentRepository.save(contentModel)).willReturn(contentModel);
 
             // when
-            ContentModel result = contentService.update(
-                contentId,
-                "새 제목",
-                null,
-                null,
-                null
-            );
+            ContentModel result = contentService.update(contentModel);
 
             // then
-            assertThat(result.getTitle()).isEqualTo("새 제목");
-
-            then(contentTagRepository).should(never()).deleteAllByContentId(any());
-            then(contentTagRepository).should(never()).saveAll(any(), any());
-            then(tagService).shouldHaveNoInteractions();
-        }
-
-        @Test
-        @DisplayName("기존 태그 삭제 후 새 태그로 갱신")
-        void update_replacesTags() {
-            // given
-            UUID contentId = UUID.randomUUID();
-            ContentModel original = ContentModel.builder()
-                .id(contentId)
-                .type(ContentModel.ContentType.movie)
-                .title("기존 제목")
-                .description("설명")
-                .thumbnailUrl("old.png")
-                .build();
-
-            List<String> tagNames = List.of("드라마");
-            List<TagModel> tags = List.of(
-                TagModel.builder().id(UUID.randomUUID()).name("드라마").build()
-            );
-
-            given(contentRepository.findById(contentId)).willReturn(Optional.of(original));
-            given(contentRepository.save(any())).willAnswer(inv -> inv.getArgument(0));
-            given(tagService.findOrCreateTags(tagNames)).willReturn(tags);
-
-            // when
-            ContentModel result = contentService.update(
-                contentId,
-                "새 제목",
-                "새 설명",
-                null,
-                tagNames
-            );
-
-            // then
-            assertThat(result.getTags()).containsExactly("드라마");
-            then(contentTagRepository).should().deleteAllByContentId(contentId);
-            then(contentTagRepository).should().saveAll(contentId, tags);
-        }
-    }
-
-    @Nested
-    @DisplayName("exists()")
-    class ExistsTest {
-
-        @Test
-        void exists_returnsTrue() {
-            // given
-            UUID id = UUID.randomUUID();
-            given(contentRepository.existsById(id)).willReturn(true);
-
-            // when
-            boolean result = contentService.exists(id);
-
-            // then
-            assertThat(result).isTrue();
+            assertThat(result).isEqualTo(contentModel);
+            then(contentRepository).should().save(contentModel);
         }
     }
 
@@ -229,50 +185,18 @@ class ContentServiceTest {
     class DeleteTest {
 
         @Test
-        @DisplayName("콘텐츠 삭제 시 deleteContent 후 저장된다")
-        void delete_softDeletesContent() {
+        @DisplayName("콘텐츠 삭제 성공")
+        void withValidContent_deletesContent() {
             // given
-            UUID contentId = UUID.randomUUID();
-            ContentModel content = ContentModel.builder()
-                .id(contentId)
-                .build();
+            ContentModel contentModel = ContentModelFixture.create();
 
-            given(contentRepository.findById(contentId))
-                .willReturn(Optional.of(content));
-            given(contentRepository.save(any()))
-                .willAnswer(inv -> inv.getArgument(0));
+            given(contentRepository.save(contentModel)).willReturn(contentModel);
 
             // when
-            contentService.delete(contentId);
+            contentService.delete(contentModel);
 
             // then
-            then(contentRepository).should().save(
-                argThat(ContentModel::isDeleted)
-            );
-        }
-
-        @Test
-        @DisplayName("이미 삭제된 콘텐츠도 예외 없이 처리된다 (멱등성)")
-        void delete_isIdempotent() {
-            // given
-            UUID contentId = UUID.randomUUID();
-            ContentModel content = ContentModel.builder()
-                .id(contentId)
-                .deletedAt(Instant.now())
-                .build();
-
-            given(contentRepository.findById(contentId))
-                .willReturn(Optional.of(content));
-
-            // when
-            contentService.delete(contentId);
-
-            // then
-            then(contentRepository).should().save(
-                argThat(model -> model.getId().equals(contentId) &&
-                    model.getDeletedAt() != null
-                )
-            );
+            then(contentRepository).should().save(contentModel);
         }
     }
 }

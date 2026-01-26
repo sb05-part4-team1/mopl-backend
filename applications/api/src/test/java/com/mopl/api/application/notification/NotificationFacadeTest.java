@@ -1,13 +1,12 @@
 package com.mopl.api.application.notification;
 
-import com.mopl.api.interfaces.api.notification.NotificationResponse;
-import com.mopl.api.interfaces.api.notification.NotificationResponseMapper;
-import com.mopl.domain.exception.notification.NotificationOwnershipException;
+import com.mopl.dto.notification.NotificationResponse;
+import com.mopl.dto.notification.NotificationResponseMapper;
+import com.mopl.domain.exception.notification.NotificationForbiddenException;
 import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.domain.fixture.NotificationModelFixture;
 import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.notification.NotificationModel;
-import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.notification.NotificationQueryRequest;
 import com.mopl.domain.repository.notification.NotificationSortField;
 import com.mopl.domain.service.notification.NotificationService;
@@ -44,6 +43,7 @@ class NotificationFacadeTest {
     private UserService userService;
 
     @Spy
+    @SuppressWarnings("unused")
     private NotificationResponseMapper notificationResponseMapper = new NotificationResponseMapper();
 
     @InjectMocks
@@ -58,16 +58,13 @@ class NotificationFacadeTest {
         void withValidRequest_getNotificationsSuccess() {
             // given
             UUID userId = UUID.randomUUID();
-            UserModel userModel = UserModelFixture.builder()
-                .set("id", userId)
-                .sample();
 
             NotificationModel notification1 = NotificationModelFixture.builder()
-                .set("receiver", userModel)
+                .set("receiverId", userId)
                 .set("title", "알림1")
                 .sample();
             NotificationModel notification2 = NotificationModelFixture.builder()
-                .set("receiver", userModel)
+                .set("receiverId", userId)
                 .set("title", "알림2")
                 .sample();
 
@@ -85,7 +82,7 @@ class NotificationFacadeTest {
                 null, null, 10, SortDirection.ASCENDING, NotificationSortField.createdAt
             );
 
-            given(userService.getById(userId)).willReturn(userModel);
+            given(userService.getById(userId)).willReturn(UserModelFixture.builder().set("id", userId).sample());
             given(notificationService.getAll(userId, request)).willReturn(serviceResponse);
 
             // when
@@ -94,7 +91,7 @@ class NotificationFacadeTest {
 
             // then
             assertThat(result.data()).hasSize(2);
-            assertThat(result.data().get(0).title()).isEqualTo("알림1");
+            assertThat(result.data().getFirst().title()).isEqualTo("알림1");
             assertThat(result.data().get(1).title()).isEqualTo("알림2");
             assertThat(result.hasNext()).isTrue();
             assertThat(result.totalCount()).isEqualTo(10);
@@ -108,9 +105,6 @@ class NotificationFacadeTest {
         void withNoNotifications_returnsEmptyList() {
             // given
             UUID userId = UUID.randomUUID();
-            UserModel userModel = UserModelFixture.builder()
-                .set("id", userId)
-                .sample();
 
             CursorResponse<NotificationModel> emptyResponse = CursorResponse.empty(
                 "createdAt",
@@ -121,7 +115,7 @@ class NotificationFacadeTest {
                 null, null, 10, SortDirection.ASCENDING, NotificationSortField.createdAt
             );
 
-            given(userService.getById(userId)).willReturn(userModel);
+            given(userService.getById(userId)).willReturn(UserModelFixture.builder().set("id", userId).sample());
             given(notificationService.getAll(userId, request)).willReturn(emptyResponse);
 
             // when
@@ -167,16 +161,12 @@ class NotificationFacadeTest {
             UUID userId = UUID.randomUUID();
             UUID notificationId = UUID.randomUUID();
 
-            UserModel userModel = UserModelFixture.builder()
-                .set("id", userId)
-                .sample();
-
             NotificationModel notification = NotificationModelFixture.builder()
                 .set("id", notificationId)
-                .set("receiver", userModel)
+                .set("receiverId", userId)
                 .sample();
 
-            given(userService.getById(userId)).willReturn(userModel);
+            given(userService.getById(userId)).willReturn(UserModelFixture.builder().set("id", userId).sample());
             given(notificationService.getById(notificationId)).willReturn(notification);
             willDoNothing().given(notificationService).deleteById(notificationId);
 
@@ -197,25 +187,17 @@ class NotificationFacadeTest {
             UUID otherUserId = UUID.randomUUID();
             UUID notificationId = UUID.randomUUID();
 
-            UserModel userModel = UserModelFixture.builder()
-                .set("id", userId)
-                .sample();
-
-            UserModel otherUserModel = UserModelFixture.builder()
-                .set("id", otherUserId)
-                .sample();
-
             NotificationModel notification = NotificationModelFixture.builder()
                 .set("id", notificationId)
-                .set("receiver", otherUserModel)
+                .set("receiverId", otherUserId)
                 .sample();
 
-            given(userService.getById(userId)).willReturn(userModel);
+            given(userService.getById(userId)).willReturn(UserModelFixture.builder().set("id", userId).sample());
             given(notificationService.getById(notificationId)).willReturn(notification);
 
             // when & then
             assertThatThrownBy(() -> notificationFacade.readNotification(userId, notificationId))
-                .isInstanceOf(NotificationOwnershipException.class);
+                .isInstanceOf(NotificationForbiddenException.class);
 
             then(notificationService).should().getById(notificationId);
             then(notificationService).shouldHaveNoMoreInteractions();

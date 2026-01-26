@@ -2,19 +2,8 @@ package com.mopl.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
-// TODO: Batch application으로 이동
-@EnableScheduling
-@SpringBootApplication(scanBasePackages = {
-    "com.mopl.api",
-    "com.mopl.sse",
-    "com.mopl.jpa",
-    "com.mopl.storage",
-    "com.mopl.redis",
-    "com.mopl.cache",
-    "com.mopl.mail"
-})
+@SpringBootApplication
 public class ApiApplication {
 
     public static void main(String[] args) {

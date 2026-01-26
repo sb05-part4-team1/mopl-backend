@@ -15,7 +15,8 @@ public final class ReviewModelFixture {
         return fixtureMonkey().giveMeBuilder(ReviewModel.class)
             .setNull("updatedAt")
             .set("rating", Arbitraries.of(0, 1, 2, 3, 4, 5)
-                .map(Integer::doubleValue));
+                .map(Integer::doubleValue))
+            .set("content.reviewCount", Arbitraries.integers().between(1, 1000));
     }
 
     public static ReviewModel create() {

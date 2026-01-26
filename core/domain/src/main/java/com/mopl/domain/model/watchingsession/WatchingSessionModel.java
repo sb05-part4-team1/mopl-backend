@@ -1,42 +1,93 @@
 package com.mopl.domain.model.watchingsession;
 
 import com.mopl.domain.exception.watchingsession.InvalidWatchingSessionDataException;
-import com.mopl.domain.model.base.BaseModel;
-import com.mopl.domain.model.content.ContentModel;
-import com.mopl.domain.model.user.UserModel;
-import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+
+import java.time.Instant;
+import java.util.UUID;
 
 @Getter
-@SuperBuilder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class WatchingSessionModel extends BaseModel {
+@NoArgsConstructor
+public class WatchingSessionModel {
 
-    private UserModel watcher;
-    private ContentModel content;
+    private UUID watcherId;
+    private String watcherName;
+    private String watcherProfileImagePath;
+    private UUID contentId;
+    private String contentTitle;
+    private Instant createdAt;
+    private int connectionCount;
+
+    @Builder
+    public WatchingSessionModel(
+        UUID watcherId,
+        String watcherName,
+        String watcherProfileImagePath,
+        UUID contentId,
+        String contentTitle,
+        Instant createdAt,
+        int connectionCount
+    ) {
+        this.watcherId = watcherId;
+        this.watcherName = watcherName;
+        this.watcherProfileImagePath = watcherProfileImagePath;
+        this.contentId = contentId;
+        this.contentTitle = contentTitle;
+        this.createdAt = createdAt;
+        this.connectionCount = connectionCount;
+    }
 
     public static WatchingSessionModel create(
-        UserModel watcher,
-        ContentModel content
+        UUID watcherId,
+        String watcherName,
+        String watcherProfileImagePath,
+        UUID contentId,
+        String contentTitle
     ) {
-        if (watcher == null) {
-            throw new InvalidWatchingSessionDataException("시청자 정보는 null일 수 없습니다.");
+        if (watcherId == null) {
+            throw InvalidWatchingSessionDataException.withDetailMessage("시청자 ID는 null일 수 없습니다.");
         }
-        if (watcher.getId() == null) {
-            throw new InvalidWatchingSessionDataException("시청자 ID는 null일 수 없습니다.");
-        }
-        if (content == null) {
-            throw new InvalidWatchingSessionDataException("컨텐츠 정보는 null일 수 없습니다.");
-        }
-        if (content.getId() == null) {
-            throw new InvalidWatchingSessionDataException("컨텐츠 ID는 null일 수 없습니다.");
+        if (contentId == null) {
+            throw InvalidWatchingSessionDataException.withDetailMessage("콘텐츠 ID는 null일 수 없습니다.");
         }
 
         return WatchingSessionModel.builder()
-            .watcher(watcher)
-            .content(content)
+            .watcherId(watcherId)
+            .watcherName(watcherName)
+            .watcherProfileImagePath(watcherProfileImagePath)
+            .contentId(contentId)
+            .contentTitle(contentTitle)
+            .createdAt(Instant.now())
+            .connectionCount(1)
             .build();
+    }
+
+    public WatchingSessionModel incrementConnectionCount() {
+        return this.toBuilder()
+            .connectionCount(this.connectionCount + 1)
+            .build();
+    }
+
+    public WatchingSessionModel decrementConnectionCount() {
+        return this.toBuilder()
+            .connectionCount(Math.max(0, this.connectionCount - 1))
+            .build();
+    }
+
+    public boolean hasNoConnections() {
+        return this.connectionCount <= 0;
+    }
+
+    private WatchingSessionModelBuilder toBuilder() {
+        return WatchingSessionModel.builder()
+            .watcherId(this.watcherId)
+            .watcherName(this.watcherName)
+            .watcherProfileImagePath(this.watcherProfileImagePath)
+            .contentId(this.contentId)
+            .contentTitle(this.contentTitle)
+            .createdAt(this.createdAt)
+            .connectionCount(this.connectionCount);
     }
 }

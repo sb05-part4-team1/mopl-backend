@@ -1,6 +1,6 @@
 package com.mopl.security.oauth2.userinfo;
 
-import com.mopl.domain.model.user.UserModel.AuthProvider;
+import com.mopl.domain.model.user.UserModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,7 @@ class KakaoOAuth2UserInfoTest {
             KakaoOAuth2UserInfo userInfo = new KakaoOAuth2UserInfo(attributes);
 
             // then
-            assertThat(userInfo.getProvider()).isEqualTo(AuthProvider.KAKAO);
+            assertThat(userInfo.getProvider()).isEqualTo(UserModel.AuthProvider.KAKAO);
             assertThat(userInfo.getProviderId()).isEqualTo("123456789");
             assertThat(userInfo.getEmail()).isEqualTo("test@kakao.com");
             assertThat(userInfo.getName()).isEqualTo("홍길동");

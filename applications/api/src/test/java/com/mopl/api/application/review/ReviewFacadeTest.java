@@ -1,9 +1,9 @@
 package com.mopl.api.application.review;
 
-import com.mopl.api.interfaces.api.review.ReviewCreateRequest;
-import com.mopl.api.interfaces.api.review.ReviewResponse;
-import com.mopl.api.interfaces.api.review.ReviewResponseMapper;
-import com.mopl.api.interfaces.api.review.ReviewUpdateRequest;
+import com.mopl.api.interfaces.api.review.dto.ReviewCreateRequest;
+import com.mopl.dto.review.ReviewResponse;
+import com.mopl.dto.review.ReviewResponseMapper;
+import com.mopl.api.interfaces.api.review.dto.ReviewUpdateRequest;
 import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.fixture.ReviewModelFixture;
 import com.mopl.domain.model.content.ContentModel;
@@ -14,8 +14,11 @@ import com.mopl.domain.repository.review.ReviewSortField;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.review.ReviewService;
 import com.mopl.domain.service.user.UserService;
+import com.mopl.domain.support.cache.ContentCachePort;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
+import com.mopl.domain.support.search.ContentSearchSyncPort;
+import com.mopl.domain.support.transaction.AfterCommitExecutor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -40,9 +43,6 @@ import static org.mockito.Mockito.never;
 @DisplayName("ReviewFacade 단위 테스트")
 class ReviewFacadeTest {
 
-    @InjectMocks
-    private ReviewFacade reviewFacade;
-
     @Mock
     private ReviewService reviewService;
 
@@ -54,6 +54,21 @@ class ReviewFacadeTest {
 
     @Mock
     private ReviewResponseMapper reviewResponseMapper;
+
+    @Mock
+    @SuppressWarnings("unused")
+    private ContentSearchSyncPort contentSearchSyncPort;
+
+    @Mock
+    @SuppressWarnings("unused")
+    private AfterCommitExecutor afterCommitExecutor;
+
+    @Mock
+    @SuppressWarnings("unused")
+    private ContentCachePort contentCachePort;
+
+    @InjectMocks
+    private ReviewFacade reviewFacade;
 
     @Nested
     @DisplayName("createReview()")
@@ -148,7 +163,7 @@ class ReviewFacadeTest {
 
             // then
             assertThat(result.data()).hasSize(2);
-            assertThat(result.data().get(0)).isEqualTo(response1);
+            assertThat(result.data().getFirst()).isEqualTo(response1);
             assertThat(result.data().get(1)).isEqualTo(response2);
             assertThat(result.hasNext()).isFalse();
             assertThat(result.totalCount()).isEqualTo(2);
@@ -285,7 +300,7 @@ class ReviewFacadeTest {
 
             // then
             then(userService).should().getById(requesterId);
-            then(reviewService).should().delete(reviewId, requesterId);
+            then(reviewService).should().deleteAndGetContentId(reviewId, requesterId);
         }
     }
 }

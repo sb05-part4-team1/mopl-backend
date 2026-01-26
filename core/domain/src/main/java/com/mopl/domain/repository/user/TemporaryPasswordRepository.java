@@ -4,9 +4,9 @@ import java.util.Optional;
 
 public interface TemporaryPasswordRepository {
 
-    void save(String email, String encodedPassword);
-
     Optional<String> findByEmail(String email);
+
+    void save(String email, String encodedPassword);
 
     void deleteByEmail(String email);
 }

@@ -1,9 +1,9 @@
 package com.mopl.api.interfaces.api.storage;
 
-import com.mopl.storage.config.LocalStorageProperties;
-import com.mopl.storage.provider.FileStorageProvider;
+import com.mopl.storage.provider.StorageProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,19 +12,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
 @RestController
+@RequestMapping("/api/files")
+@ConditionalOnProperty(name = "mopl.storage.type", havingValue = "local", matchIfMissing = true)
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/files")
+@Slf4j
 public class FileController {
 
-    private final LocalStorageProperties properties;
-    private final FileStorageProvider fileStorageProvider;
+    private final StorageProvider storageProvider;
 
     @GetMapping("/display")
     public ResponseEntity<Resource> display(@RequestParam String path) {
         return ResponseEntity.ok()
             .contentType(MediaType.IMAGE_PNG)
-            .body(fileStorageProvider.load(path));
+            .body(storageProvider.download(path));
     }
 }

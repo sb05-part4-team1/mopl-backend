@@ -3,11 +3,12 @@ package com.mopl.api.interfaces.api.notification;
 import com.mopl.api.application.notification.NotificationFacade;
 import com.mopl.api.config.TestSecurityConfig;
 import com.mopl.api.interfaces.api.ApiControllerAdvice;
+import com.mopl.dto.notification.NotificationResponse;
+import com.mopl.dto.notification.NotificationResponseMapper;
 import com.mopl.domain.exception.notification.NotificationNotFoundException;
-import com.mopl.domain.exception.notification.NotificationOwnershipException;
+import com.mopl.domain.exception.notification.NotificationForbiddenException;
 import com.mopl.domain.fixture.NotificationModelFixture;
 import com.mopl.domain.fixture.UserModelFixture;
-import com.mopl.domain.model.notification.NotificationLevel;
 import com.mopl.domain.model.notification.NotificationModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.notification.NotificationQueryRequest;
@@ -87,13 +88,13 @@ class NotificationControllerTest {
                 .set("receiver", receiver)
                 .set("title", "알림1")
                 .set("content", "알림 내용1")
-                .set("level", NotificationLevel.INFO)
+                .set("level", NotificationModel.NotificationLevel.INFO)
                 .sample();
             NotificationModel notification2 = NotificationModelFixture.builder()
                 .set("receiver", receiver)
                 .set("title", "알림2")
                 .set("content", "알림 내용2")
-                .set("level", NotificationLevel.WARNING)
+                .set("level", NotificationModel.NotificationLevel.WARNING)
                 .sample();
 
             NotificationResponse response1 = notificationResponseMapper.toResponse(notification1);
@@ -232,7 +233,7 @@ class NotificationControllerTest {
             // given
             UUID notificationId = UUID.randomUUID();
 
-            willThrow(new NotificationNotFoundException(notificationId))
+            willThrow(NotificationNotFoundException.withId(notificationId))
                 .given(notificationFacade).readNotification(userId, notificationId);
 
             // when & then
@@ -247,7 +248,7 @@ class NotificationControllerTest {
             // given
             UUID notificationId = UUID.randomUUID();
 
-            willThrow(new NotificationOwnershipException(notificationId, userId))
+            willThrow(NotificationForbiddenException.withNotificationIdAndUserId(notificationId, userId))
                 .given(notificationFacade).readNotification(userId, notificationId);
 
             // when & then

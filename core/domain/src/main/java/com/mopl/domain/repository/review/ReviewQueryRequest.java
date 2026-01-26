@@ -14,8 +14,8 @@ public record ReviewQueryRequest(
     ReviewSortField sortBy
 ) implements CursorRequest<ReviewSortField> {
 
-    private static final int DEFAULT_LIMIT = 100;
-    private static final int MAX_LIMIT = 1000;
+    private static final int DEFAULT_LIMIT = 20;
+    private static final int MAX_LIMIT = 100;
 
     public ReviewQueryRequest {
         limit = limit != null ? Math.min(limit, MAX_LIMIT) : DEFAULT_LIMIT;

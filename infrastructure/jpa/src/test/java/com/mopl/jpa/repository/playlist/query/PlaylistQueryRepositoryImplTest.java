@@ -2,7 +2,6 @@ package com.mopl.jpa.repository.playlist.query;
 
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.model.user.UserModel;
-import com.mopl.domain.model.user.UserModel.AuthProvider;
 import com.mopl.domain.repository.playlist.PlaylistQueryRepository;
 import com.mopl.domain.repository.playlist.PlaylistQueryRequest;
 import com.mopl.domain.repository.playlist.PlaylistSortField;
@@ -30,7 +29,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @Import({
     JpaConfig.class,
     QuerydslConfig.class,
@@ -50,10 +49,6 @@ class PlaylistQueryRepositoryImplTest {
     private UserEntity owner1;
     private UserEntity owner2;
     private UserEntity subscriber1;
-    private PlaylistEntity playlist1;
-    private PlaylistEntity playlist2;
-    private PlaylistEntity playlist3;
-    private PlaylistEntity playlist4;
 
     @BeforeEach
     void setUp() {
@@ -63,20 +58,19 @@ class PlaylistQueryRepositoryImplTest {
         owner2 = createAndPersistUser("owner2@example.com", "Owner2", baseTime);
         subscriber1 = createAndPersistUser("subscriber1@example.com", "Subscriber1", baseTime);
 
-        // playlist1: owner1, updatedAt=baseTime, subscribeCount=3
-        playlist1 = createAndPersistPlaylist("음악 모음", "좋아하는 음악", owner1, baseTime);
+        // playlist1: owner1, updatedAt=baseTime, subscriberCount=3
+        PlaylistEntity playlist1 = createAndPersistPlaylist("음악 모음", "좋아하는 음악", owner1, baseTime, 3);
 
-        // playlist2: owner1, updatedAt=baseTime+1, subscribeCount=1
-        playlist2 = createAndPersistPlaylist("영화 OST", "영화 음악 모음", owner1, baseTime.plusSeconds(1));
+        // playlist2: owner1, updatedAt=baseTime+1, subscriberCount=1
+        PlaylistEntity playlist2 = createAndPersistPlaylist("영화 OST", "영화 음악 모음", owner1, baseTime.plusSeconds(1), 1);
 
-        // playlist3: owner2, updatedAt=baseTime+2, subscribeCount=2
-        playlist3 = createAndPersistPlaylist("힐링 음악", "힐링되는 플리", owner2, baseTime.plusSeconds(2));
+        // playlist3: owner2, updatedAt=baseTime+2, subscriberCount=2
+        PlaylistEntity playlist3 = createAndPersistPlaylist("힐링 음악", "힐링되는 플리", owner2, baseTime.plusSeconds(2), 2);
 
-        // playlist4: owner2, updatedAt=baseTime+3, subscribeCount=0
-        playlist4 = createAndPersistPlaylist("운동 음악", "운동할 때 듣는 플리", owner2, baseTime.plusSeconds(
-            3));
+        // playlist4: owner2, updatedAt=baseTime+3, subscriberCount=0
+        createAndPersistPlaylist("운동 음악", "운동할 때 듣는 플리", owner2, baseTime.plusSeconds(3), 0);
 
-        // subscriber 설정: playlist1에 3명, playlist2에 1명, playlist3에 2명
+        // subscriber 설정 (subscriberIdEqual 필터 테스트용으로 여전히 필요)
         createAndPersistSubscription(playlist1, owner1);
         createAndPersistSubscription(playlist1, owner2);
         createAndPersistSubscription(playlist1, subscriber1);
@@ -94,7 +88,7 @@ class PlaylistQueryRepositoryImplTest {
         UserEntity entity = UserEntity.builder()
             .createdAt(createdAt)
             .updatedAt(createdAt)
-            .authProvider(AuthProvider.EMAIL)
+            .authProvider(UserModel.AuthProvider.EMAIL)
             .email(email)
             .name(name)
             .password("encodedPassword")
@@ -109,7 +103,8 @@ class PlaylistQueryRepositoryImplTest {
         String title,
         String description,
         UserEntity owner,
-        Instant updatedAt
+        Instant updatedAt,
+        int subscriberCount
     ) {
         PlaylistEntity entity = PlaylistEntity.builder()
             .createdAt(updatedAt)
@@ -117,6 +112,7 @@ class PlaylistQueryRepositoryImplTest {
             .owner(owner)
             .title(title)
             .description(description)
+            .subscriberCount(subscriberCount)
             .build();
         entityManager.persist(entity);
         return entity;
@@ -186,7 +182,7 @@ class PlaylistQueryRepositoryImplTest {
 
             // then
             assertThat(response.data()).hasSize(1);
-            assertThat(response.data().get(0).getTitle()).isEqualTo("힐링 음악");
+            assertThat(response.data().getFirst().getTitle()).isEqualTo("힐링 음악");
         }
 
         @Test
@@ -611,7 +607,7 @@ class PlaylistQueryRepositoryImplTest {
 
             // then
             assertThat(response.data()).hasSize(1);
-            assertThat(response.data().get(0).getTitle()).isEqualTo("힐링 음악"); // subscribeCount=2
+            assertThat(response.data().getFirst().getTitle()).isEqualTo("힐링 음악"); // subscribeCount=2
             assertThat(response.totalCount()).isEqualTo(2);
             assertThat(response.hasNext()).isTrue();
         }

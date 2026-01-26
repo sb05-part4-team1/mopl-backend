@@ -45,6 +45,7 @@ public class PlaylistEntityMapper {
             .owner(userEntityMapper.toEntity(playlistModel.getOwner()))
             .title(playlistModel.getTitle())
             .description(playlistModel.getDescription())
+            .subscriberCount(playlistModel.getSubscriberCount())
             .build();
     }
 
@@ -57,6 +58,7 @@ public class PlaylistEntityMapper {
             .owner(ownerModel)
             .title(playlistEntity.getTitle())
             .description(playlistEntity.getDescription())
+            .subscriberCount(playlistEntity.getSubscriberCount())
             .build();
     }
 

@@ -5,8 +5,6 @@ import com.mopl.external.tmdb.model.TmdbGenreResponse;
 import com.mopl.external.tmdb.model.TmdbMovieResponse;
 import com.mopl.external.tmdb.model.TmdbTvResponse;
 import com.mopl.external.tmdb.properties.TmdbProperties;
-import java.io.IOException;
-import java.io.InputStream;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -79,13 +77,13 @@ public class TmdbClient {
             .block();
     }
 
-    public InputStream downloadImageStream(String posterPath) {
+    public Resource downloadImage(String posterPath) {
         if (posterPath == null || posterPath.isBlank()) {
             return null;
         }
 
         try {
-            Resource resource = tmdbImageClient.get()
+            return tmdbImageClient.get()
                 .uri(uriBuilder -> uriBuilder
                     .path("/" + props.getImage().getDefaultSize() + posterPath)
                     .build()
@@ -94,9 +92,7 @@ public class TmdbClient {
                 .bodyToMono(Resource.class)
                 .block();
 
-            return resource != null ? resource.getInputStream() : null;
-
-        } catch (IOException | RuntimeException e) {
+        } catch (RuntimeException e) {
             throw new TmdbImageDownloadException(posterPath, e);
         }
     }

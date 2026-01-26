@@ -1,0 +1,87 @@
+package com.mopl.websocket.config;
+
+import com.mopl.domain.repository.content.query.ContentQueryRepository;
+import com.mopl.domain.repository.content.ContentRepository;
+import com.mopl.domain.repository.content.ContentTagRepository;
+import com.mopl.domain.repository.conversation.ConversationQueryRepository;
+import com.mopl.domain.repository.conversation.ConversationRepository;
+import com.mopl.domain.repository.conversation.DirectMessageQueryRepository;
+import com.mopl.domain.repository.conversation.DirectMessageRepository;
+import com.mopl.domain.repository.conversation.ReadStatusRepository;
+import com.mopl.domain.repository.outbox.OutboxRepository;
+import com.mopl.domain.repository.tag.TagRepository;
+import com.mopl.domain.repository.user.UserQueryRepository;
+import com.mopl.domain.repository.user.UserRepository;
+import com.mopl.domain.service.content.ContentService;
+import com.mopl.domain.service.content.ContentTagService;
+import com.mopl.domain.service.conversation.ConversationService;
+import com.mopl.domain.service.conversation.DirectMessageService;
+import com.mopl.domain.service.conversation.ReadStatusService;
+import com.mopl.domain.service.outbox.OutboxService;
+import com.mopl.domain.service.user.UserService;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class DomainServiceConfig {
+
+    @Bean
+    public ContentService contentService(
+        ContentQueryRepository contentQueryRepository,
+        ContentRepository contentRepository
+    ) {
+        return new ContentService(contentQueryRepository, contentRepository);
+    }
+
+    @Bean
+    public ContentTagService contentTagService(
+        ContentTagRepository contentTagRepository,
+        TagRepository tagRepository
+    ) {
+        return new ContentTagService(contentTagRepository, tagRepository);
+    }
+
+    @Bean
+    public ConversationService conversationService(
+        ConversationQueryRepository conversationQueryRepository,
+        ConversationRepository conversationRepository
+    ) {
+        return new ConversationService(
+            conversationQueryRepository,
+            conversationRepository
+        );
+    }
+
+    @Bean
+    public DirectMessageService directMessageService(
+        DirectMessageQueryRepository directMessageQueryRepository,
+        DirectMessageRepository directMessageRepository
+    ) {
+        return new DirectMessageService(
+            directMessageQueryRepository,
+            directMessageRepository
+        );
+    }
+
+    @Bean
+    public ReadStatusService readStatusService(
+        ReadStatusRepository readStatusRepository
+    ) {
+        return new ReadStatusService(readStatusRepository);
+    }
+
+    @Bean
+    public UserService userService(
+        UserQueryRepository userQueryRepository,
+        UserRepository userRepository
+    ) {
+        return new UserService(userQueryRepository, userRepository);
+    }
+
+    @Bean
+    public OutboxService outboxService(
+        OutboxRepository outboxRepository
+    ) {
+        return new OutboxService(outboxRepository);
+    }
+}

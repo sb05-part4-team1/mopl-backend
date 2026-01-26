@@ -34,7 +34,7 @@ public class ContentTagRepositoryImpl implements ContentTagRepository {
     }
 
     @Override
-    public Map<UUID, List<TagModel>> findTagsByContentIds(List<UUID> contentIds) {
+    public Map<UUID, List<TagModel>> findTagsByContentIdIn(List<UUID> contentIds) {
 
         if (contentIds == null || contentIds.isEmpty()) {
             return Map.of();
@@ -70,5 +70,10 @@ public class ContentTagRepositoryImpl implements ContentTagRepository {
     @Override
     public void deleteAllByContentId(UUID contentId) {
         jpaContentTagRepository.deleteAllByContentId(contentId);
+    }
+
+    @Override
+    public int deleteAllByContentIds(List<UUID> contentIds) {
+        return jpaContentTagRepository.deleteAllByContentIds(contentIds);
     }
 }

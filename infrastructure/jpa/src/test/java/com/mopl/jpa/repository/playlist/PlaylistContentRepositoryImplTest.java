@@ -27,7 +27,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @Import({
     JpaConfig.class,
     PlaylistContentRepositoryImpl.class,
@@ -63,7 +63,6 @@ class PlaylistContentRepositoryImplTest {
     void setUp() {
         UserModel owner = userRepository.save(
             UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "owner@example.com",
                 "소유자",
                 "encodedPassword"
@@ -72,9 +71,9 @@ class PlaylistContentRepositoryImplTest {
 
         playlist = playlistRepository.save(
             PlaylistModel.create(
-                owner,
                 "테스트 플레이리스트",
-                "설명"
+                "설명",
+                owner
             )
         );
 
@@ -157,8 +156,8 @@ class PlaylistContentRepositoryImplTest {
             // then
             List<PlaylistContentEntity> playlistContents = jpaPlaylistContentRepository.findAll();
             assertThat(playlistContents).hasSize(1);
-            assertThat(playlistContents.get(0).getPlaylist().getId()).isEqualTo(playlist.getId());
-            assertThat(playlistContents.get(0).getContent().getId()).isEqualTo(content.getId());
+            assertThat(playlistContents.getFirst().getPlaylist().getId()).isEqualTo(playlist.getId());
+            assertThat(playlistContents.getFirst().getContent().getId()).isEqualTo(content.getId());
         }
 
         @Test
@@ -189,7 +188,6 @@ class PlaylistContentRepositoryImplTest {
             // given
             UserModel anotherOwner = userRepository.save(
                 UserModel.create(
-                    UserModel.AuthProvider.EMAIL,
                     "another@example.com",
                     "다른 소유자",
                     "encodedPassword"
@@ -198,9 +196,9 @@ class PlaylistContentRepositoryImplTest {
 
             PlaylistModel anotherPlaylist = playlistRepository.save(
                 PlaylistModel.create(
-                    anotherOwner,
                     "다른 플레이리스트",
-                    "설명"
+                    "설명",
+                    anotherOwner
                 )
             );
 
@@ -226,7 +224,7 @@ class PlaylistContentRepositoryImplTest {
             assertThat(jpaPlaylistContentRepository.findAll()).hasSize(1);
 
             // when
-            boolean deleted = playlistContentRepository.delete(playlist.getId(), content.getId());
+            boolean deleted = playlistContentRepository.deleteByPlaylistIdAndContentId(playlist.getId(), content.getId());
 
             // then
             assertThat(deleted).isTrue();
@@ -250,20 +248,20 @@ class PlaylistContentRepositoryImplTest {
             assertThat(jpaPlaylistContentRepository.findAll()).hasSize(2);
 
             // when
-            boolean deleted = playlistContentRepository.delete(playlist.getId(), content.getId());
+            boolean deleted = playlistContentRepository.deleteByPlaylistIdAndContentId(playlist.getId(), content.getId());
 
             // then
             assertThat(deleted).isTrue();
             List<PlaylistContentEntity> remaining = jpaPlaylistContentRepository.findAll();
             assertThat(remaining).hasSize(1);
-            assertThat(remaining.get(0).getContent().getId()).isEqualTo(anotherContent.getId());
+            assertThat(remaining.getFirst().getContent().getId()).isEqualTo(anotherContent.getId());
         }
 
         @Test
         @DisplayName("존재하지 않는 콘텐츠 삭제 시 false를 반환한다")
         void delete_nonExistentContent_returnsFalse() {
             // when
-            boolean deleted = playlistContentRepository.delete(playlist.getId(), content.getId());
+            boolean deleted = playlistContentRepository.deleteByPlaylistIdAndContentId(playlist.getId(), content.getId());
 
             // then
             assertThat(deleted).isFalse();
@@ -276,7 +274,6 @@ class PlaylistContentRepositoryImplTest {
             // given
             UserModel anotherOwner = userRepository.save(
                 UserModel.create(
-                    UserModel.AuthProvider.EMAIL,
                     "another@example.com",
                     "다른 소유자",
                     "encodedPassword"
@@ -285,9 +282,9 @@ class PlaylistContentRepositoryImplTest {
 
             PlaylistModel anotherPlaylist = playlistRepository.save(
                 PlaylistModel.create(
-                    anotherOwner,
                     "다른 플레이리스트",
-                    "설명"
+                    "설명",
+                    anotherOwner
                 )
             );
 
@@ -296,13 +293,13 @@ class PlaylistContentRepositoryImplTest {
             assertThat(jpaPlaylistContentRepository.findAll()).hasSize(2);
 
             // when
-            boolean deleted = playlistContentRepository.delete(playlist.getId(), content.getId());
+            boolean deleted = playlistContentRepository.deleteByPlaylistIdAndContentId(playlist.getId(), content.getId());
 
             // then
             assertThat(deleted).isTrue();
             List<PlaylistContentEntity> remaining = jpaPlaylistContentRepository.findAll();
             assertThat(remaining).hasSize(1);
-            assertThat(remaining.get(0).getPlaylist().getId()).isEqualTo(anotherPlaylist.getId());
+            assertThat(remaining.getFirst().getPlaylist().getId()).isEqualTo(anotherPlaylist.getId());
         }
     }
 }

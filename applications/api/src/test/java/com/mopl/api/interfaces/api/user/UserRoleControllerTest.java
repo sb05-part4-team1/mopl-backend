@@ -3,11 +3,14 @@ package com.mopl.api.interfaces.api.user;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.api.application.user.UserFacade;
 import com.mopl.api.interfaces.api.ApiControllerAdvice;
+import com.mopl.api.interfaces.api.user.dto.UserRoleUpdateRequest;
 import com.mopl.domain.exception.user.SelfRoleChangeException;
 import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.user.UserModel;
+import com.mopl.dto.user.UserResponseMapper;
 import com.mopl.security.userdetails.MoplUserDetails;
+import com.mopl.storage.provider.StorageProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -38,7 +41,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
-@Import({ApiControllerAdvice.class, UserResponseMapper.class})
+@Import(ApiControllerAdvice.class)
 @DisplayName("UserController 역할 수정 테스트")
 class UserRoleControllerTest {
 
@@ -50,6 +53,14 @@ class UserRoleControllerTest {
 
     @MockBean
     private UserFacade userFacade;
+
+    @MockBean
+    @SuppressWarnings("unused")
+    private StorageProvider storageProvider;
+
+    @MockBean
+    @SuppressWarnings("unused")
+    private UserResponseMapper userResponseMapper;
 
     private MoplUserDetails mockAdminDetails;
     private UUID mockAdminId;

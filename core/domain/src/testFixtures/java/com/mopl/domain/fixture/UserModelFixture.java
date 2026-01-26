@@ -1,12 +1,12 @@
 package com.mopl.domain.fixture;
 
-import static com.mopl.domain.fixture.FixtureMonkeyConfig.fixtureMonkey;
-
 import com.mopl.domain.model.user.UserModel;
 import com.navercorp.fixturemonkey.ArbitraryBuilder;
 import net.jqwik.api.Arbitraries;
 
 import java.util.Locale;
+
+import static com.mopl.domain.fixture.FixtureMonkeyConfig.fixtureMonkey;
 
 public final class UserModelFixture {
 
@@ -19,7 +19,7 @@ public final class UserModelFixture {
             .set("authProvider", UserModel.AuthProvider.EMAIL)
             .set("email", Arbitraries.strings().alpha().ofLength(8)
                 .map(s -> s.toLowerCase(Locale.ROOT) + "@testfixture.com"))
-            .setNull("profileImageUrl")
+            .setNull("profileImagePath")
             .set("role", UserModel.Role.USER)
             .set("locked", false);
     }

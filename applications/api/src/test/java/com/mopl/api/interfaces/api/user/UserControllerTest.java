@@ -4,6 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.api.application.user.UserFacade;
 import com.mopl.api.config.TestSecurityConfig;
 import com.mopl.api.interfaces.api.ApiControllerAdvice;
+import com.mopl.api.interfaces.api.user.dto.ChangePasswordRequest;
+import com.mopl.api.interfaces.api.user.dto.UserCreateRequest;
+import com.mopl.api.interfaces.api.user.dto.UserLockUpdateRequest;
+import com.mopl.api.interfaces.api.user.dto.UserRoleUpdateRequest;
+import com.mopl.dto.user.UserResponse;
+import com.mopl.api.interfaces.api.user.dto.UserUpdateRequest;
+import com.mopl.dto.user.UserResponseMapper;
 import com.mopl.domain.exception.user.DuplicateEmailException;
 import com.mopl.domain.exception.user.InvalidUserDataException;
 import com.mopl.domain.exception.user.SelfLockChangeException;
@@ -15,6 +22,7 @@ import com.mopl.domain.repository.user.UserQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
 import com.mopl.security.userdetails.MoplUserDetails;
+import com.mopl.storage.provider.StorageProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -59,7 +67,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UserController.class)
-@Import({ApiControllerAdvice.class, UserResponseMapper.class, TestSecurityConfig.class})
+@Import({
+    ApiControllerAdvice.class,
+    TestSecurityConfig.class
+})
 @DisplayName("UserController 슬라이스 테스트")
 class UserControllerTest {
 
@@ -69,11 +80,15 @@ class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private UserResponseMapper userResponseMapper;
-
     @MockBean
     private UserFacade userFacade;
+
+    @MockBean
+    @SuppressWarnings("unused")
+    private StorageProvider storageProvider;
+
+    @MockBean
+    private UserResponseMapper userResponseMapper;
 
     private MoplUserDetails mockAdminDetails;
     private MoplUserDetails mockUserDetails;
@@ -98,6 +113,20 @@ class UserControllerTest {
         given(mockUserDetails.getAuthorities()).willReturn(
             (Collection) List.of(new SimpleGrantedAuthority("ROLE_USER"))
         );
+
+        // UserResponseMapper mock 설정
+        given(userResponseMapper.toResponse(any(UserModel.class))).willAnswer(invocation -> {
+            UserModel model = invocation.getArgument(0);
+            return new UserResponse(
+                model.getId(),
+                model.getCreatedAt(),
+                model.getEmail(),
+                model.getName(),
+                "https://cdn.example.com/" + model.getProfileImagePath(),
+                model.getRole(),
+                model.isLocked()
+            );
+        });
     }
 
     @Nested
@@ -201,7 +230,7 @@ class UserControllerTest {
                 "P@ssw0rd!");
 
             given(userFacade.signUp(any(UserCreateRequest.class)))
-                .willThrow(new InvalidUserDataException("이메일은 비어있을 수 없습니다."));
+                .willThrow(InvalidUserDataException.withDetailMessage("이메일은 비어있을 수 없습니다."));
 
             // when & then
             mockMvc.perform(post("/api/users")
@@ -261,9 +290,9 @@ class UserControllerTest {
         @DisplayName("유효한 프로필 이미지로 수정 시 200 OK 응답")
         void withValidProfileImage_returns200OK() throws Exception {
             // given
-            String profileImageUrl = "http://localhost/api/v1/files/display?path=users/test.png";
+            String profileImagePath = "users/test.png";
             UserModel userModel = UserModelFixture.builder()
-                .set("profileImageUrl", profileImageUrl)
+                .set("profileImagePath", profileImagePath)
                 .sample();
 
             MockMultipartFile image = new MockMultipartFile(
@@ -286,7 +315,7 @@ class UserControllerTest {
                 .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(userModel.getId().toString()))
-                .andExpect(jsonPath("$.profileImageUrl").value(profileImageUrl));
+                .andExpect(jsonPath("$.profileImageUrl").value("https://cdn.example.com/" + profileImagePath));
 
             then(userFacade).should().updateProfile(
                 eq(userModel.getId()),
@@ -337,10 +366,10 @@ class UserControllerTest {
         void withNameAndImage_returns200OK() throws Exception {
             // given
             String newName = "newName";
-            String profileImageUrl = "http://localhost/api/v1/files/display?path=users/test.png";
+            String profileImagePath = "users/test.png";
             UserModel userModel = UserModelFixture.builder()
                 .set("name", newName)
-                .set("profileImageUrl", profileImageUrl)
+                .set("profileImagePath", profileImagePath)
                 .sample();
 
             UserUpdateRequest request = new UserUpdateRequest(newName);
@@ -373,7 +402,7 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(userModel.getId().toString()))
                 .andExpect(jsonPath("$.name").value(newName))
-                .andExpect(jsonPath("$.profileImageUrl").value(profileImageUrl));
+                .andExpect(jsonPath("$.profileImageUrl").value("https://cdn.example.com/" + profileImagePath));
 
             then(userFacade).should().updateProfile(
                 eq(userModel.getId()),
@@ -427,11 +456,8 @@ class UserControllerTest {
                 .set("name", "User2")
                 .sample();
 
-            UserResponse response1 = userResponseMapper.toResponse(user1);
-            UserResponse response2 = userResponseMapper.toResponse(user2);
-
-            CursorResponse<UserResponse> cursorResponse = CursorResponse.of(
-                List.of(response1, response2),
+            CursorResponse<UserModel> cursorResponse = CursorResponse.of(
+                List.of(user1, user2),
                 "User2",
                 user2.getId(),
                 true,
@@ -466,7 +492,7 @@ class UserControllerTest {
         @DisplayName("필터 파라미터가 적용된 요청 처리")
         void withFilterParams_appliesFilters() throws Exception {
             // given
-            CursorResponse<UserResponse> emptyResponse = CursorResponse.empty("name",
+            CursorResponse<UserModel> emptyResponse = CursorResponse.empty("name",
                 SortDirection.ASCENDING);
 
             given(userFacade.getUsers(any(UserQueryRequest.class))).willReturn(emptyResponse);
@@ -491,10 +517,9 @@ class UserControllerTest {
             // given
             UUID idAfter = UUID.randomUUID();
             UserModel userModel = UserModelFixture.create();
-            UserResponse response = userResponseMapper.toResponse(userModel);
 
-            CursorResponse<UserResponse> cursorResponse = CursorResponse.of(
-                List.of(response),
+            CursorResponse<UserModel> cursorResponse = CursorResponse.of(
+                List.of(userModel),
                 null,
                 null,
                 false,
@@ -523,7 +548,7 @@ class UserControllerTest {
         @DisplayName("빈 결과 시 빈 목록 반환")
         void withNoResults_returnsEmptyList() throws Exception {
             // given
-            CursorResponse<UserResponse> emptyResponse = CursorResponse.empty("name",
+            CursorResponse<UserModel> emptyResponse = CursorResponse.empty("name",
                 SortDirection.DESCENDING);
 
             given(userFacade.getUsers(any(UserQueryRequest.class))).willReturn(emptyResponse);

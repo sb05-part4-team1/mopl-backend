@@ -1,7 +1,7 @@
 package com.mopl.api.config;
 
 import com.mopl.api.application.user.UserFacade;
-import com.mopl.api.interfaces.api.user.UserCreateRequest;
+import com.mopl.api.interfaces.api.user.dto.UserCreateRequest;
 import com.mopl.domain.exception.user.DuplicateEmailException;
 import com.mopl.domain.fixture.UserModelFixture;
 import com.mopl.domain.model.user.UserModel;

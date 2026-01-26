@@ -1,5 +1,6 @@
 package com.mopl.domain.service.review;
 
+import com.mopl.domain.exception.review.ReviewAlreadyExistsException;
 import com.mopl.domain.exception.review.ReviewForbiddenException;
 import com.mopl.domain.exception.review.ReviewNotFoundException;
 import com.mopl.domain.fixture.ReviewModelFixture;
@@ -7,7 +8,11 @@ import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.review.ReviewModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.content.ContentRepository;
+import com.mopl.domain.repository.review.ReviewQueryRepository;
+import com.mopl.domain.repository.review.ReviewQueryRequest;
 import com.mopl.domain.repository.review.ReviewRepository;
+import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.domain.support.cursor.SortDirection;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,6 +38,9 @@ import static org.mockito.Mockito.never;
 class ReviewServiceTest {
 
     @Mock
+    private ReviewQueryRepository reviewQueryRepository;
+
+    @Mock
     private ReviewRepository reviewRepository;
 
     @Mock
@@ -41,6 +50,62 @@ class ReviewServiceTest {
     private ReviewService reviewService;
 
     @Nested
+    @DisplayName("getAll()")
+    class GetAllTest {
+
+        @Test
+        @DisplayName("Repository에 위임하여 결과 반환")
+        void delegatesToRepository() {
+            // given
+            ReviewQueryRequest request = new ReviewQueryRequest(
+                null, null, null, null, null, null
+            );
+            CursorResponse<ReviewModel> expectedResponse = CursorResponse.empty(
+                "createdAt", SortDirection.DESCENDING
+            );
+
+            given(reviewQueryRepository.findAll(request)).willReturn(expectedResponse);
+
+            // when
+            CursorResponse<ReviewModel> result = reviewService.getAll(request);
+
+            // then
+            assertThat(result).isEqualTo(expectedResponse);
+            then(reviewQueryRepository).should().findAll(request);
+        }
+
+        @Test
+        @DisplayName("리뷰 목록이 있으면 결과 반환")
+        void withReviews_returnsReviewList() {
+            // given
+            ReviewModel review1 = ReviewModelFixture.create();
+            ReviewModel review2 = ReviewModelFixture.create();
+            ReviewQueryRequest request = new ReviewQueryRequest(
+                null, null, null, 20, null, null
+            );
+            CursorResponse<ReviewModel> expectedResponse = CursorResponse.of(
+                List.of(review1, review2),
+                null,
+                null,
+                false,
+                2L,
+                "createdAt",
+                SortDirection.DESCENDING
+            );
+
+            given(reviewQueryRepository.findAll(request)).willReturn(expectedResponse);
+
+            // when
+            CursorResponse<ReviewModel> result = reviewService.getAll(request);
+
+            // then
+            assertThat(result.data()).hasSize(2);
+            assertThat(result.totalCount()).isEqualTo(2L);
+            then(reviewQueryRepository).should().findAll(request);
+        }
+    }
+
+    @Nested
     @DisplayName("create()")
     class CreateTest {
 
@@ -48,17 +113,20 @@ class ReviewServiceTest {
         @DisplayName("유효한 정보가 주어지면 리뷰를 생성하고 저장한다")
         void withValidData_createsAndSavesReview() {
             // given
-            // ReviewService.create는 ContentModel과 UserModel 객체를 받습니다.
+            UUID contentId = UUID.randomUUID();
+            UUID authorId = UUID.randomUUID();
+
             ContentModel content = mock(ContentModel.class);
-            given(content.getId()).willReturn(UUID.randomUUID());
+            given(content.getId()).willReturn(contentId);
 
             UserModel author = mock(UserModel.class);
-            given(author.getId()).willReturn(UUID.randomUUID());
+            given(author.getId()).willReturn(authorId);
 
             String text = "리뷰 내용입니다.";
             double rating = 5.0;
 
-            // save 호출 시 넘어온 객체를 그대로 반환하도록 설정 (Service의 리턴값 검증용)
+            given(reviewRepository.existsByContentIdAndAuthorId(contentId, authorId))
+                .willReturn(false);
             given(reviewRepository.save(any(ReviewModel.class)))
                 .willAnswer(invocation -> invocation.getArgument(0));
 
@@ -71,7 +139,32 @@ class ReviewServiceTest {
             assertThat(result.getText()).isEqualTo(text);
             assertThat(result.getRating()).isEqualTo(rating);
 
+            then(reviewRepository).should().existsByContentIdAndAuthorId(contentId, authorId);
             then(reviewRepository).should().save(any(ReviewModel.class));
+        }
+
+        @Test
+        @DisplayName("이미 동일한 콘텐츠에 리뷰가 있으면 ReviewAlreadyExistsException 발생")
+        void withExistingReview_throwsReviewAlreadyExistsException() {
+            // given
+            UUID contentId = UUID.randomUUID();
+            UUID authorId = UUID.randomUUID();
+
+            ContentModel content = mock(ContentModel.class);
+            given(content.getId()).willReturn(contentId);
+
+            UserModel author = mock(UserModel.class);
+            given(author.getId()).willReturn(authorId);
+
+            given(reviewRepository.existsByContentIdAndAuthorId(contentId, authorId))
+                .willReturn(true);
+
+            // when & then
+            assertThatThrownBy(() -> reviewService.create(content, author, "리뷰 내용", 5.0))
+                .isInstanceOf(ReviewAlreadyExistsException.class);
+
+            then(reviewRepository).should().existsByContentIdAndAuthorId(contentId, authorId);
+            then(reviewRepository).should(never()).save(any());
         }
     }
 
@@ -103,7 +196,7 @@ class ReviewServiceTest {
             assertThat(updatedReview.getText()).isEqualTo(newText);
             assertThat(updatedReview.getRating()).isEqualTo(newRating);
 
-            then(reviewRepository).should().save(existingReview);
+            then(reviewRepository).should().save(any(ReviewModel.class));
             then(contentRepository).should().save(any(ContentModel.class));
         }
 
@@ -129,7 +222,7 @@ class ReviewServiceTest {
             assertThat(updatedReview.getText()).isEqualTo(newText);
             assertThat(updatedReview.getRating()).isEqualTo(originalRating);
 
-            then(reviewRepository).should().save(existingReview);
+            then(reviewRepository).should().save(any(ReviewModel.class));
             then(contentRepository).should(never()).save(any());
         }
 
@@ -156,7 +249,7 @@ class ReviewServiceTest {
             assertThat(updatedReview.getText()).isEqualTo(originalText);
             assertThat(updatedReview.getRating()).isEqualTo(newRating);
 
-            then(reviewRepository).should().save(existingReview);
+            then(reviewRepository).should().save(any(ReviewModel.class));
             then(contentRepository).should().save(any(ContentModel.class));
         }
 
@@ -178,7 +271,7 @@ class ReviewServiceTest {
             reviewService.update(reviewId, authorId, null, originalRating);
 
             // then
-            then(reviewRepository).should().save(existingReview);
+            then(reviewRepository).should().save(any(ReviewModel.class));
             then(contentRepository).should(never()).save(any());
         }
 
@@ -233,11 +326,11 @@ class ReviewServiceTest {
             given(reviewRepository.findById(reviewId)).willReturn(Optional.of(existingReview));
 
             // when
-            reviewService.delete(reviewId, authorId);
+            reviewService.deleteAndGetContentId(reviewId, authorId);
 
             // then
             assertThat(existingReview.getDeletedAt()).isNotNull();
-            then(reviewRepository).should().save(existingReview);
+            then(reviewRepository).should().save(any(ReviewModel.class));
         }
 
         @Test
@@ -251,7 +344,7 @@ class ReviewServiceTest {
                 existingReview));
 
             // when & then
-            assertThatThrownBy(() -> reviewService.delete(existingReview.getId(), requesterId))
+            assertThatThrownBy(() -> reviewService.deleteAndGetContentId(existingReview.getId(), requesterId))
                 .isInstanceOf(ReviewForbiddenException.class);
 
             then(reviewRepository).should(never()).save(any());

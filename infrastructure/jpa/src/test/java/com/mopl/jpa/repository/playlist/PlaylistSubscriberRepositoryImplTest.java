@@ -23,7 +23,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @Import({
     JpaConfig.class,
     PlaylistSubscriberRepositoryImpl.class,
@@ -54,7 +54,6 @@ class PlaylistSubscriberRepositoryImplTest {
     void setUp() {
         UserModel owner = userRepository.save(
             UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "owner@example.com",
                 "소유자",
                 "encodedPassword"
@@ -63,7 +62,6 @@ class PlaylistSubscriberRepositoryImplTest {
 
         subscriber = userRepository.save(
             UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "subscriber@example.com",
                 "구독자",
                 "encodedPassword"
@@ -72,9 +70,9 @@ class PlaylistSubscriberRepositoryImplTest {
 
         playlist = playlistRepository.save(
             PlaylistModel.create(
-                owner,
                 "테스트 플레이리스트",
-                "설명"
+                "설명",
+                owner
             )
         );
     }
@@ -161,8 +159,8 @@ class PlaylistSubscriberRepositoryImplTest {
             List<PlaylistSubscriberEntity> subscriptions = jpaPlaylistSubscriberRepository
                 .findAll();
             assertThat(subscriptions).hasSize(1);
-            assertThat(subscriptions.get(0).getPlaylist().getId()).isEqualTo(playlist.getId());
-            assertThat(subscriptions.get(0).getSubscriber().getId()).isEqualTo(subscriber.getId());
+            assertThat(subscriptions.getFirst().getPlaylist().getId()).isEqualTo(playlist.getId());
+            assertThat(subscriptions.getFirst().getSubscriber().getId()).isEqualTo(subscriber.getId());
         }
 
         @Test
@@ -171,7 +169,6 @@ class PlaylistSubscriberRepositoryImplTest {
             // given
             UserModel anotherSubscriber = userRepository.save(
                 UserModel.create(
-                    UserModel.AuthProvider.EMAIL,
                     "another@example.com",
                     "다른 구독자",
                     "encodedPassword"
@@ -217,7 +214,6 @@ class PlaylistSubscriberRepositoryImplTest {
             // given
             UserModel anotherSubscriber = userRepository.save(
                 UserModel.create(
-                    UserModel.AuthProvider.EMAIL,
                     "another@example.com",
                     "다른 구독자",
                     "encodedPassword"
@@ -237,7 +233,7 @@ class PlaylistSubscriberRepositoryImplTest {
             assertThat(deleted).isTrue();
             List<PlaylistSubscriberEntity> remaining = jpaPlaylistSubscriberRepository.findAll();
             assertThat(remaining).hasSize(1);
-            assertThat(remaining.get(0).getSubscriber().getId()).isEqualTo(anotherSubscriber
+            assertThat(remaining.getFirst().getSubscriber().getId()).isEqualTo(anotherSubscriber
                 .getId());
         }
 

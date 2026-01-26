@@ -1,6 +1,7 @@
 package com.mopl.api.interfaces.api.notification;
 
 import com.mopl.api.application.notification.NotificationFacade;
+import com.mopl.dto.notification.NotificationResponse;
 import com.mopl.domain.repository.notification.NotificationQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.security.userdetails.MoplUserDetails;

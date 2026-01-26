@@ -1,13 +1,19 @@
 package com.mopl.domain.exception.review;
 
+import com.mopl.domain.exception.ErrorCode;
+
 import java.util.Map;
 import java.util.UUID;
 
 public class ReviewNotFoundException extends ReviewException {
 
-    public ReviewNotFoundException(UUID reviewId) {
-        super(ReviewErrorCode.REVIEW_NOT_FOUND, Map.of(
-            "reviewId", reviewId
-        ));
+    private static final ErrorCode ERROR_CODE = ReviewErrorCode.REVIEW_NOT_FOUND;
+
+    private ReviewNotFoundException(Map<String, Object> details) {
+        super(ERROR_CODE, details);
+    }
+
+    public static ReviewNotFoundException withId(UUID id) {
+        return new ReviewNotFoundException(Map.of("id", id));
     }
 }

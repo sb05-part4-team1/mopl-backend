@@ -3,6 +3,7 @@ package com.mopl.api.interfaces.api.auth;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.api.application.auth.AuthFacade;
 import com.mopl.api.interfaces.api.ApiControllerAdvice;
+import com.mopl.api.interfaces.api.auth.dto.ResetPasswordRequest;
 import com.mopl.domain.exception.auth.AccountLockedException;
 import com.mopl.domain.exception.auth.InvalidTokenException;
 import com.mopl.domain.exception.user.UserNotFoundException;
@@ -109,7 +110,7 @@ class AuthControllerTest {
             String invalidToken = "invalid-refresh-token";
 
             given(tokenRefreshService.refresh(invalidToken))
-                .willThrow(new InvalidTokenException());
+                .willThrow(InvalidTokenException.create());
 
             // when & then
             mockMvc.perform(post("/api/auth/refresh")
@@ -124,7 +125,7 @@ class AuthControllerTest {
             String refreshToken = "valid-refresh-token";
 
             given(tokenRefreshService.refresh(refreshToken))
-                .willThrow(new AccountLockedException());
+                .willThrow(AccountLockedException.withEmail("locked@example.com"));
 
             // when & then
             mockMvc.perform(post("/api/auth/refresh")

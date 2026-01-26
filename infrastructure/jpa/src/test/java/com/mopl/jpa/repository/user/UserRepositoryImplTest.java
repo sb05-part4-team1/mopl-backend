@@ -1,6 +1,5 @@
 package com.mopl.jpa.repository.user;
 
-import com.mopl.domain.model.user.UserModel.AuthProvider;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.user.UserRepository;
 import com.mopl.jpa.config.JpaConfig;
@@ -17,7 +16,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @Import({
     JpaConfig.class,
     UserRepositoryImpl.class,
@@ -39,7 +38,6 @@ class UserRepositoryImplTest {
             // given
             UserModel savedUser = userRepository.save(
                 UserModel.create(
-                    AuthProvider.EMAIL,
                     "test@example.com",
                     "홍길동",
                     "encodedPassword"
@@ -81,7 +79,6 @@ class UserRepositoryImplTest {
             String email = "test@example.com";
             UserModel savedUser = userRepository.save(
                 UserModel.create(
-                    AuthProvider.EMAIL,
                     email,
                     "홍길동",
                     "encodedPassword"
@@ -120,7 +117,6 @@ class UserRepositoryImplTest {
             String email = "existing@example.com";
             userRepository.save(
                 UserModel.create(
-                    AuthProvider.EMAIL,
                     email,
                     "홍길동",
                     "encodedPassword"
@@ -154,7 +150,6 @@ class UserRepositoryImplTest {
         void withNewUser_savesAndReturnsUser() {
             // given
             UserModel userModel = UserModel.create(
-                AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "encodedPassword"
@@ -175,7 +170,6 @@ class UserRepositoryImplTest {
         void withExistingUser_updatesAndReturnsUser() {
             // given
             UserModel userModel = UserModel.create(
-                AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "encodedPassword"
@@ -183,8 +177,7 @@ class UserRepositoryImplTest {
             UserModel savedUser = userRepository.save(userModel);
 
             // when
-            savedUser.updateRole(UserModel.Role.ADMIN);
-            UserModel updatedUser = userRepository.save(savedUser);
+            UserModel updatedUser = userRepository.save(savedUser.updateRole(UserModel.Role.ADMIN));
 
             // then
             assertThat(updatedUser.getId()).isEqualTo(savedUser.getId());

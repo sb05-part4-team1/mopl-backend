@@ -1,5 +1,6 @@
 package com.mopl.api.interfaces.api;
 
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import com.mopl.domain.exception.ApiErrorCode;
 import com.mopl.domain.exception.ErrorCode;
 import com.mopl.domain.exception.ErrorResponse;
@@ -7,6 +8,7 @@ import com.mopl.domain.exception.MoplException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.elasticsearch.UncategorizedElasticsearchException;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -189,7 +191,40 @@ public class ApiControllerAdvice {
             .body(ErrorResponse.from(exception));
     }
 
-    // --- 6. 서버 에러 ---
+    // --- 6. 인프라 예외 ---
+
+    @ExceptionHandler({
+        UncategorizedElasticsearchException.class,
+        ElasticsearchException.class
+    })
+    public ResponseEntity<ErrorResponse> handleElasticsearchException(
+        Exception exception,
+        HttpServletRequest request
+    ) {
+        Throwable root = exception;
+        while (root.getCause() != null && root.getCause() != root) {
+            root = root.getCause();
+        }
+
+        log.error("[ElasticsearchError] {} {} : {}",
+            request.getMethod(),
+            request.getRequestURI(),
+            exception.getMessage(),
+            exception
+        );
+
+        log.error("[ElasticsearchRootCause] {}",
+            root.getMessage(),
+            root
+        );
+
+        return buildResponse(ApiErrorCode.ELASTICSEARCH_UNAVAILABLE, "ElasticsearchError", Map.of(
+            "rootCause", root.getClass().getSimpleName(),
+            "rootMessage", root.getMessage()
+        ));
+    }
+
+    // --- 7. 서버 에러 ---
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(

@@ -15,52 +15,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("BaseModel 단위 테스트")
 class BaseModelTest {
 
-    @SuperBuilder
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @SuperBuilder(toBuilder = true)
     static class TestModel extends BaseModel {
-    }
-
-    @Nested
-    @DisplayName("기본 생성자")
-    class DefaultConstructorTest {
-
-        @Test
-        @DisplayName("모든 필드가 null로 초기화됨")
-        void withDefaultConstructor_initializesAllFieldsToNull() {
-            // when
-            TestModel model = new TestModel();
-
-            // then
-            assertThat(model.getId()).isNull();
-            assertThat(model.getCreatedAt()).isNull();
-            assertThat(model.getDeletedAt()).isNull();
-        }
-    }
-
-    @Nested
-    @DisplayName("SuperBuilder")
-    class SuperBuilderTest {
-
-        @Test
-        @DisplayName("모든 필드가 주어진 값으로 초기화됨")
-        void withBuilder_initializesAllFields() {
-            // given
-            UUID id = UUID.randomUUID();
-            Instant createdAt = Instant.now();
-            Instant deletedAt = null;
-
-            // when
-            TestModel model = TestModel.builder()
-                .id(id)
-                .createdAt(createdAt)
-                .deletedAt(deletedAt)
-                .build();
-
-            // then
-            assertThat(model.getId()).isEqualTo(id);
-            assertThat(model.getCreatedAt()).isEqualTo(createdAt);
-            assertThat(model.getDeletedAt()).isNull();
-        }
     }
 
     @Nested

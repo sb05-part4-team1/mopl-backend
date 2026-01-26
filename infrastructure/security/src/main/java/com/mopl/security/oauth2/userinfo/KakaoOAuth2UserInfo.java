@@ -1,6 +1,6 @@
 package com.mopl.security.oauth2.userinfo;
 
-import com.mopl.domain.model.user.UserModel.AuthProvider;
+import com.mopl.domain.model.user.UserModel;
 
 import java.util.Map;
 
@@ -21,8 +21,8 @@ public class KakaoOAuth2UserInfo implements OAuth2UserInfo {
     }
 
     @Override
-    public AuthProvider getProvider() {
-        return AuthProvider.KAKAO;
+    public UserModel.AuthProvider getProvider() {
+        return UserModel.AuthProvider.KAKAO;
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.mopl.jpa.repository.user.query;
 
 import com.mopl.domain.model.user.UserModel;
-import com.mopl.domain.model.user.UserModel.AuthProvider;
 import com.mopl.domain.model.user.UserModel.Role;
 import com.mopl.domain.repository.user.UserQueryRepository;
 import com.mopl.domain.repository.user.UserQueryRequest;
@@ -27,7 +26,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @Import({
     JpaConfig.class,
     QuerydslConfig.class,
@@ -69,7 +68,7 @@ class UserQueryRepositoryImplTest {
         UserEntity entity = UserEntity.builder()
             .createdAt(createdAt)
             .updatedAt(createdAt)
-            .authProvider(AuthProvider.EMAIL)
+            .authProvider(UserModel.AuthProvider.EMAIL)
             .email(email)
             .name(name)
             .password("encodedPassword")
@@ -188,7 +187,7 @@ class UserQueryRepositoryImplTest {
 
             // then
             assertThat(response.data()).hasSize(1);
-            assertThat(response.data().get(0).getName()).isEqualTo("Charlie");
+            assertThat(response.data().getFirst().getName()).isEqualTo("Charlie");
         }
 
         @Test
@@ -398,7 +397,7 @@ class UserQueryRepositoryImplTest {
 
             // then
             assertThat(thirdResponse.data()).hasSize(1);
-            assertThat(thirdResponse.data().get(0).getName()).isEqualTo("Eve");
+            assertThat(thirdResponse.data().getFirst().getName()).isEqualTo("Eve");
             assertThat(thirdResponse.hasNext()).isFalse();
             assertThat(thirdResponse.nextCursor()).isNull();
         }

@@ -30,14 +30,14 @@ public class TokenRefreshService {
 
         if (jwtRegistry.isRefreshTokenNotInWhitelist(payload.sub(), payload.jti())) {
             log.debug("리프레시 토큰이 화이트리스트에 없음: userId={}, jti={}", payload.sub(), payload.jti());
-            throw new InvalidTokenException();
+            throw InvalidTokenException.create();
         }
 
         UserModel user = userService.getById(payload.sub());
 
         if (user.isLocked()) {
             log.debug("차단된 사용자의 토큰 갱신 시도: userId={}", payload.sub());
-            throw new AccountLockedException();
+            throw AccountLockedException.withId(user.getId());
         }
 
         MoplUserDetails userDetails = MoplUserDetails.from(user);

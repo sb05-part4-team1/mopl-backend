@@ -19,19 +19,14 @@ public class ContentRepositoryImpl implements ContentRepository {
 
     @Override
     public Optional<ContentModel> findById(UUID contentId) {
-        Optional<ContentEntity> entity = jpaContentRepository.findById(contentId);
-        return entity.map(contentEntityMapper::toModel);
-    }
-
-    @Override
-    public boolean existsById(UUID contentId) {
-        return jpaContentRepository.existsById(contentId);
+        return jpaContentRepository.findById(contentId)
+            .map(contentEntityMapper::toModel);
     }
 
     @Override
     public ContentModel save(ContentModel contentModel) {
-        ContentEntity entity = contentEntityMapper.toEntity(contentModel);
-        ContentEntity saved = jpaContentRepository.save(entity);
-        return contentEntityMapper.toModel(saved);
+        ContentEntity contentEntity = contentEntityMapper.toEntity(contentModel);
+        ContentEntity savedContentEntity = jpaContentRepository.save(contentEntity);
+        return contentEntityMapper.toModel(savedContentEntity);
     }
 }

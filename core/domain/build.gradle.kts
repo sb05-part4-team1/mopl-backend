@@ -6,6 +6,8 @@ plugins {
 dependencies {
     // spring cache
     implementation("org.springframework:spring-context")
+    // jackson for event serialization
+    implementation("com.fasterxml.jackson.core:jackson-databind")
     // Test
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.assertj:assertj-core")

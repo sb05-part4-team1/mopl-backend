@@ -29,11 +29,10 @@ public class ReviewQueryRepositoryImpl implements ReviewQueryRepository {
     public CursorResponse<ReviewModel> findAll(ReviewQueryRequest request) {
         ReviewSortFieldJpa sortFieldJpa = ReviewSortFieldJpa.from(request.sortBy());
 
-        JPAQuery<ReviewEntity> jpaQuery = queryFactory
-            .selectFrom(reviewEntity)
-            .where(
-                contentIdEqual(request.contentId())
-            );
+        JPAQuery<ReviewEntity> jpaQuery = baseQuery(request.contentId())
+            .select(reviewEntity)
+            .join(reviewEntity.author).fetchJoin()
+            .join(reviewEntity.content).fetchJoin();
 
         CursorPaginationHelper.applyCursorPagination(
             request,
@@ -43,6 +42,14 @@ public class ReviewQueryRepositoryImpl implements ReviewQueryRepository {
         );
 
         List<ReviewEntity> rows = jpaQuery.fetch();
+
+        if (rows.isEmpty()) {
+            return CursorResponse.empty(
+                sortFieldJpa.getFieldName(),
+                request.sortDirection()
+            );
+        }
+
         long totalCount = countTotal(request.contentId());
 
         return CursorPaginationHelper.buildResponse(
@@ -56,13 +63,15 @@ public class ReviewQueryRepositoryImpl implements ReviewQueryRepository {
         );
     }
 
-    private long countTotal(UUID contentId) {
-        Long total = queryFactory
-            .select(reviewEntity.count())
+    private JPAQuery<?> baseQuery(UUID contentId) {
+        return queryFactory
             .from(reviewEntity)
-            .where(
-                contentIdEqual(contentId)
-            )
+            .where(contentIdEqual(contentId));
+    }
+
+    private long countTotal(UUID contentId) {
+        Long total = baseQuery(contentId)
+            .select(reviewEntity.count())
             .fetchOne();
         return total != null ? total : 0;
     }

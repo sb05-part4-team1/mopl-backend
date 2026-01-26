@@ -20,12 +20,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @Import({
     JpaConfig.class,
     ReviewRepositoryImpl.class,
@@ -63,7 +65,6 @@ class ReviewRepositoryImplTest {
 
         savedAuthor = userRepository.save(
             UserModel.create(
-                UserModel.AuthProvider.EMAIL,
                 "reviewer@example.com",
                 "리뷰어",
                 "encodedPassword"
@@ -201,8 +202,8 @@ class ReviewRepositoryImplTest {
             ReviewModel savedReview = reviewRepository.save(reviewModel);
 
             // when
-            savedReview.update("수정된 리뷰 내용", 4.5);
-            ReviewModel updatedReview = reviewRepository.save(savedReview);
+            ReviewModel modifiedReview = savedReview.update("수정된 리뷰 내용", 4.5);
+            ReviewModel updatedReview = reviewRepository.save(modifiedReview);
 
             // then
             assertThat(updatedReview.getId()).isEqualTo(savedReview.getId());
@@ -266,6 +267,281 @@ class ReviewRepositoryImplTest {
             // then
             assertThat(savedReview.getId()).isNotNull();
             assertThat(savedReview.getRating()).isEqualTo(5.0);
+        }
+    }
+
+    @Nested
+    @DisplayName("existsByContentIdAndAuthorId()")
+    class ExistsByContentIdAndAuthorIdTest {
+
+        @Test
+        @DisplayName("동일한 콘텐츠와 작성자로 리뷰가 존재하면 true를 반환한다")
+        void withExistingReview_returnsTrue() {
+            // given
+            reviewRepository.save(
+                ReviewModel.create(savedContent, savedAuthor, "리뷰 내용", 4.0)
+            );
+
+            // when
+            boolean exists = reviewRepository.existsByContentIdAndAuthorId(
+                savedContent.getId(),
+                savedAuthor.getId()
+            );
+
+            // then
+            assertThat(exists).isTrue();
+        }
+
+        @Test
+        @DisplayName("동일한 콘텐츠와 작성자로 리뷰가 없으면 false를 반환한다")
+        void withNoReview_returnsFalse() {
+            // when
+            boolean exists = reviewRepository.existsByContentIdAndAuthorId(
+                savedContent.getId(),
+                savedAuthor.getId()
+            );
+
+            // then
+            assertThat(exists).isFalse();
+        }
+
+        @Test
+        @DisplayName("다른 작성자의 리뷰가 있어도 false를 반환한다")
+        void withDifferentAuthor_returnsFalse() {
+            // given
+            UserModel anotherAuthor = userRepository.save(
+                UserModel.create("another@example.com", "다른 리뷰어", "encodedPassword")
+            );
+            reviewRepository.save(
+                ReviewModel.create(savedContent, anotherAuthor, "다른 리뷰", 3.0)
+            );
+
+            // when
+            boolean exists = reviewRepository.existsByContentIdAndAuthorId(
+                savedContent.getId(),
+                savedAuthor.getId()
+            );
+
+            // then
+            assertThat(exists).isFalse();
+        }
+
+        @Test
+        @DisplayName("삭제된 리뷰는 존재하지 않는 것으로 처리한다")
+        void withDeletedReview_returnsFalse() {
+            // given
+            ReviewModel review = reviewRepository.save(
+                ReviewModel.create(savedContent, savedAuthor, "리뷰 내용", 4.0)
+            );
+            review.delete();
+            reviewRepository.save(review);
+
+            // when
+            boolean exists = reviewRepository.existsByContentIdAndAuthorId(
+                savedContent.getId(),
+                savedAuthor.getId()
+            );
+
+            // then
+            assertThat(exists).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteByIdIn()")
+    class DeleteByIdInTest {
+
+        @Test
+        @DisplayName("ID 목록에 해당하는 활성 리뷰를 삭제하고 삭제된 개수를 반환한다")
+        void withActiveReviewIds_deletesAndReturnsCount() {
+            // given
+            ReviewModel review1 = reviewRepository.save(
+                ReviewModel.create(savedContent, savedAuthor, "리뷰1", 4.0)
+            );
+
+            UserModel author2 = userRepository.save(
+                UserModel.create("author2@example.com", "작성자2", "encodedPassword")
+            );
+            ReviewModel review2 = reviewRepository.save(
+                ReviewModel.create(savedContent, author2, "리뷰2", 3.0)
+            );
+
+            List<UUID> idsToDelete = List.of(review1.getId(), review2.getId());
+
+            // when
+            int deletedCount = reviewRepository.deleteByIdIn(idsToDelete);
+
+            // then
+            assertThat(deletedCount).isEqualTo(2);
+            assertThat(reviewRepository.findById(review1.getId())).isEmpty();
+            assertThat(reviewRepository.findById(review2.getId())).isEmpty();
+        }
+
+        @Test
+        @DisplayName("빈 목록이면 0을 반환한다")
+        void withEmptyList_returnsZero() {
+            // when
+            int deletedCount = reviewRepository.deleteByIdIn(List.of());
+
+            // then
+            assertThat(deletedCount).isZero();
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 ID가 포함되어 있으면 존재하는 것만 삭제한다")
+        void withNonExistingIds_deletesOnlyExisting() {
+            // given
+            ReviewModel review = reviewRepository.save(
+                ReviewModel.create(savedContent, savedAuthor, "리뷰", 4.0)
+            );
+
+            List<UUID> idsToDelete = List.of(review.getId(), UUID.randomUUID());
+
+            // when
+            int deletedCount = reviewRepository.deleteByIdIn(idsToDelete);
+
+            // then
+            assertThat(deletedCount).isEqualTo(1);
+            assertThat(reviewRepository.findById(review.getId())).isEmpty();
+        }
+
+        @Test
+        @DisplayName("soft deleted된 리뷰를 hard delete한다")
+        void withSoftDeletedReviews_hardDeletes() {
+            // given
+            ReviewModel review1 = reviewRepository.save(
+                ReviewModel.create(savedContent, savedAuthor, "리뷰1", 4.0)
+            );
+            review1.delete();
+            reviewRepository.save(review1);
+
+            UserModel author2 = userRepository.save(
+                UserModel.create("author2@example.com", "작성자2", "encodedPassword")
+            );
+            ReviewModel review2 = reviewRepository.save(
+                ReviewModel.create(savedContent, author2, "리뷰2", 3.0)
+            );
+            review2.delete();
+            reviewRepository.save(review2);
+
+            List<UUID> idsToDelete = List.of(review1.getId(), review2.getId());
+
+            // when
+            int deletedCount = reviewRepository.deleteByIdIn(idsToDelete);
+
+            // then
+            assertThat(deletedCount).isEqualTo(2);
+        }
+    }
+
+    @Nested
+    @DisplayName("softDeleteByContentIdIn()")
+    class SoftDeleteByContentIdInTest {
+
+        @Test
+        @DisplayName("콘텐츠 ID 목록에 해당하는 리뷰를 soft delete하고 개수를 반환한다")
+        void withContentIds_softDeletesAndReturnsCount() {
+            // given
+            reviewRepository.save(
+                ReviewModel.create(savedContent, savedAuthor, "리뷰1", 4.0)
+            );
+
+            UserModel author2 = userRepository.save(
+                UserModel.create("author2@example.com", "작성자2", "encodedPassword")
+            );
+            reviewRepository.save(
+                ReviewModel.create(savedContent, author2, "리뷰2", 3.0)
+            );
+
+            Instant now = Instant.now();
+
+            // when
+            int deletedCount = reviewRepository.softDeleteByContentIdIn(
+                List.of(savedContent.getId()),
+                now
+            );
+
+            // then
+            assertThat(deletedCount).isEqualTo(2);
+            assertThat(reviewRepository.existsByContentIdAndAuthorId(
+                savedContent.getId(),
+                savedAuthor.getId()
+            )).isFalse();
+        }
+
+        @Test
+        @DisplayName("이미 삭제된 리뷰는 영향받지 않는다")
+        void withAlreadyDeletedReviews_doesNotAffect() {
+            // given
+            ReviewModel review = reviewRepository.save(
+                ReviewModel.create(savedContent, savedAuthor, "리뷰", 4.0)
+            );
+            review.delete();
+            reviewRepository.save(review);
+
+            Instant now = Instant.now();
+
+            // when
+            int deletedCount = reviewRepository.softDeleteByContentIdIn(
+                List.of(savedContent.getId()),
+                now
+            );
+
+            // then
+            assertThat(deletedCount).isZero();
+        }
+
+        @Test
+        @DisplayName("빈 콘텐츠 ID 목록이면 0을 반환한다")
+        void withEmptyContentIds_returnsZero() {
+            // given
+            reviewRepository.save(
+                ReviewModel.create(savedContent, savedAuthor, "리뷰", 4.0)
+            );
+
+            Instant now = Instant.now();
+
+            // when
+            int deletedCount = reviewRepository.softDeleteByContentIdIn(List.of(), now);
+
+            // then
+            assertThat(deletedCount).isZero();
+        }
+
+        @Test
+        @DisplayName("다른 콘텐츠의 리뷰는 영향받지 않는다")
+        void withDifferentContent_doesNotAffect() {
+            // given
+            ContentModel anotherContent = contentRepository.save(
+                ContentModel.create(
+                    ContentModel.ContentType.movie,
+                    "다른 영화",
+                    "설명",
+                    "thumbnail.png"
+                )
+            );
+
+            reviewRepository.save(
+                ReviewModel.create(savedContent, savedAuthor, "리뷰1", 4.0)
+            );
+            reviewRepository.save(
+                ReviewModel.create(anotherContent, savedAuthor, "리뷰2", 3.0)
+            );
+
+            Instant now = Instant.now();
+
+            // when
+            int deletedCount = reviewRepository.softDeleteByContentIdIn(
+                List.of(anotherContent.getId()),
+                now
+            );
+
+            // then
+            assertThat(deletedCount).isEqualTo(1);
+            assertThat(reviewRepository.existsByContentIdAndAuthorId(
+                savedContent.getId(),
+                savedAuthor.getId()
+            )).isTrue();
         }
     }
 }

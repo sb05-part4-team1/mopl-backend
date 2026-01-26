@@ -1,174 +1,118 @@
 package com.mopl.api.interfaces.api.review;
 
-import com.mopl.domain.exception.ErrorResponse;
+import com.mopl.api.interfaces.api.ApiErrorResponse;
+import com.mopl.api.interfaces.api.review.dto.ReviewCreateRequest;
+import com.mopl.api.interfaces.api.review.dto.ReviewUpdateRequest;
 import com.mopl.domain.repository.review.ReviewQueryRequest;
+import com.mopl.domain.repository.review.ReviewSortField;
 import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.domain.support.cursor.SortDirection;
+import com.mopl.dto.review.ReviewResponse;
 import com.mopl.security.userdetails.MoplUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.UUID;
 
-@Tag(name = "Review API", description = "리뷰 API")
+@Tag(name = "Review API")
 public interface ReviewApiSpec {
 
-    @Operation(summary = "리뷰 목록 조회")
+    @Operation(summary = "리뷰 목록 조회 (커서 페이지네이션)")
+    @Parameters({
+        @Parameter(
+            name = "contentId",
+            description = "콘텐츠 ID",
+            in = ParameterIn.QUERY,
+            schema = @Schema(implementation = UUID.class)
+        ),
+        @Parameter(
+            name = "cursor",
+            description = "커서 (다음 페이지 시작점)",
+            in = ParameterIn.QUERY,
+            schema = @Schema(implementation = String.class)
+        ),
+        @Parameter(
+            name = "idAfter",
+            description = "보조 커서 (현재 페이지 마지막 요소 ID)",
+            in = ParameterIn.QUERY,
+            schema = @Schema(implementation = UUID.class)
+        ),
+        @Parameter(
+            name = "limit",
+            description = "한 번에 가져올 개수 (1~100)",
+            in = ParameterIn.QUERY,
+            required = true,
+            schema = @Schema(implementation = Integer.class, minimum = "1", maximum = "100")
+        ),
+        @Parameter(
+            name = "sortDirection",
+            description = "정렬 방향",
+            in = ParameterIn.QUERY,
+            required = true,
+            schema = @Schema(implementation = SortDirection.class)
+        ),
+        @Parameter(
+            name = "sortBy",
+            description = "정렬 기준",
+            in = ParameterIn.QUERY,
+            required = true,
+            schema = @Schema(implementation = ReviewSortField.class)
+        )
+    })
     @ApiResponse(
         responseCode = "200",
-        description = "성공"
+        content = @Content(schema = @Schema(implementation = CursorResponse.class))
     )
-    @ApiResponse(
-        responseCode = "400",
-        description = "잘못된 요청",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "401",
-        description = "인증 오류",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "500",
-        description = "서버 오류",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    CursorResponse<ReviewResponse> getReviews(ReviewQueryRequest request);
+    @ApiErrorResponse.Default
+    CursorResponse<ReviewResponse> getReviews(@Parameter(hidden = true) ReviewQueryRequest request);
 
-    @Operation(summary = "리뷰 생성")
-    @RequestBody(
-        required = true,
-        content = @Content(schema = @Schema(implementation = ReviewCreateRequest.class))
+    @Operation(
+        summary = "리뷰 생성",
+        description = "생성한 리뷰는 API 요청자 본인의 리뷰로 생성됩니다."
     )
     @ApiResponse(
         responseCode = "201",
-        description = "생성 성공",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ReviewResponse.class)
-        )
+        content = @Content(schema = @Schema(implementation = ReviewResponse.class))
     )
-    @ApiResponse(
-        responseCode = "400",
-        description = "잘못된 요청",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "401",
-        description = "인증 오류",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "404",
-        description = "콘텐츠를 찾을 수 없음",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
+    @ApiErrorResponse.Default
     ReviewResponse createReview(
         @Parameter(hidden = true) MoplUserDetails userDetails,
-        ReviewCreateRequest request
+        @Parameter(required = true) ReviewCreateRequest request
     );
 
-    @Operation(summary = "리뷰 수정")
-    @Parameter(name = "reviewId", description = "수정할 리뷰 ID", required = true)
-    @RequestBody(
-        required = true,
-        content = @Content(schema = @Schema(implementation = ReviewUpdateRequest.class))
+    @Operation(
+        summary = "리뷰 수정",
+        description = "리뷰 작성자만 수정할 수 있습니다."
     )
+    @Parameter(name = "reviewId", required = true)
     @ApiResponse(
         responseCode = "200",
-        description = "수정 성공",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ReviewResponse.class)
-        )
+        content = @Content(schema = @Schema(implementation = ReviewResponse.class))
     )
-    @ApiResponse(
-        responseCode = "400",
-        description = "잘못된 요청",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "401",
-        description = "인증 오류",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "403",
-        description = "권한 없음",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "404",
-        description = "리뷰를 찾을 수 없음",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
+    @ApiErrorResponse.Default
+    @ApiErrorResponse.Forbidden
+    @ApiErrorResponse.NotFound
     ReviewResponse updateReview(
         @Parameter(hidden = true) MoplUserDetails userDetails,
         UUID reviewId,
-        ReviewUpdateRequest request
+        @Parameter(required = true) ReviewUpdateRequest request
     );
 
-    @Operation(summary = "리뷰 삭제")
-    @Parameter(name = "reviewId", description = "삭제할 리뷰 ID", required = true)
-    @ApiResponse(responseCode = "204", description = "삭제 성공")
-    @ApiResponse(
-        responseCode = "401",
-        description = "인증 오류",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
+    @Operation(
+        summary = "리뷰 삭제",
+        description = "리뷰 작성자만 삭제할 수 있습니다."
     )
-    @ApiResponse(
-        responseCode = "403",
-        description = "권한 없음",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "404",
-        description = "리뷰를 찾을 수 없음",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
+    @Parameter(name = "reviewId", required = true)
+    @ApiResponse(responseCode = "204")
+    @ApiErrorResponse.Default
+    @ApiErrorResponse.Forbidden
+    @ApiErrorResponse.NotFound
     void deleteReview(
         @Parameter(hidden = true) MoplUserDetails userDetails,
         UUID reviewId

@@ -11,15 +11,34 @@ import java.util.UUID;
 
 public interface JpaContentTagRepository extends JpaRepository<ContentTagEntity, Long> {
 
-    // @Query를 사용하여 Tag 엔티티까지 한 번에 조회
-    @Query("select ct from ContentTagEntity ct join fetch ct.tag where ct.content.id = :contentId")
+    @Query("""
+            select ct
+            from ContentTagEntity ct
+            join fetch ct.tag
+            where ct.content.id = :contentId
+        """)
     List<ContentTagEntity> findAllByContentId(@Param("contentId") UUID contentId);
 
-    @Query("select ct from ContentTagEntity ct join fetch ct.tag where ct.content.id in :contentIds")
+    @Query("""
+            select ct
+            from ContentTagEntity ct
+            join fetch ct.tag
+            where ct.content.id in :contentIds
+        """)
     List<ContentTagEntity> findAllByContentIdIn(@Param("contentIds") List<UUID> contentIds);
 
-    // 벌크 삭제 수행 (주의: 영속성 컨텍스트를 무시하고 DB에 직접 쿼리함)
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query("DELETE FROM ContentTagEntity ct WHERE ct.content.id = :contentId")
+    @Query("""
+            delete from ContentTagEntity ct
+            where ct.content.id = :contentId
+        """)
     void deleteAllByContentId(@Param("contentId") UUID contentId);
+
+    // 이하 메서드들 cleanup batch 전용
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("""
+            delete from ContentTagEntity ct
+            where ct.content.id in :contentIds
+        """)
+    int deleteAllByContentIds(@Param("contentIds") List<UUID> contentIds);
 }

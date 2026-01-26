@@ -3,8 +3,11 @@ package com.mopl.domain.service.user;
 import com.mopl.domain.exception.user.DuplicateEmailException;
 import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.domain.model.user.UserModel;
-import com.mopl.domain.model.user.UserModel.AuthProvider;
+import com.mopl.domain.repository.user.UserQueryRepository;
+import com.mopl.domain.repository.user.UserQueryRequest;
 import com.mopl.domain.repository.user.UserRepository;
+import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.domain.support.cursor.SortDirection;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -28,61 +31,44 @@ import static org.mockito.Mockito.never;
 class UserServiceTest {
 
     @Mock
+    private UserQueryRepository userQueryRepository;
+
+    @Mock
     private UserRepository userRepository;
 
     @InjectMocks
     private UserService userService;
 
     @Nested
-    @DisplayName("create()")
-    class CreateTest {
+    @DisplayName("getAll()")
+    class GetAllTest {
 
         @Test
-        @DisplayName("유효한 사용자 생성")
-        void withValidUser_createsUser() {
+        @DisplayName("Repository에 위임하여 결과 반환")
+        void delegatesToRepository() {
             // given
-            UserModel userModel = UserModel.create(
-                AuthProvider.EMAIL,
-                "test@example.com",
-                "홍길동",
-                "encodedPassword"
+            UserQueryRequest request = new UserQueryRequest(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            );
+            CursorResponse<UserModel> expectedResponse = CursorResponse.empty(
+                "name", SortDirection.ASCENDING
             );
 
-            given(userRepository.existsByEmail("test@example.com")).willReturn(false);
-            given(userRepository.save(userModel)).willReturn(userModel);
+            given(userQueryRepository.findAll(request)).willReturn(expectedResponse);
 
             // when
-            UserModel result = userService.create(userModel);
+            CursorResponse<UserModel> result = userService.getAll(request);
 
             // then
-            assertThat(result).isEqualTo(userModel);
-            then(userRepository).should().existsByEmail("test@example.com");
-            then(userRepository).should().save(userModel);
-        }
-
-        @Test
-        @DisplayName("중복 이메일이면 예외 발생")
-        void withDuplicateEmail_throwsException() {
-            // given
-            UserModel userModel = UserModel.create(
-                AuthProvider.EMAIL,
-                "duplicate@example.com",
-                "홍길동",
-                "encodedPassword"
-            );
-
-            given(userRepository.existsByEmail("duplicate@example.com")).willReturn(true);
-
-            // when & then
-            assertThatThrownBy(() -> userService.create(userModel))
-                .isInstanceOf(DuplicateEmailException.class)
-                .satisfies(e -> {
-                    DuplicateEmailException ex = (DuplicateEmailException) e;
-                    assertThat(ex.getDetails().get("email")).isEqualTo("duplicate@example.com");
-                });
-
-            then(userRepository).should().existsByEmail("duplicate@example.com");
-            then(userRepository).should(never()).save(any(UserModel.class));
+            assertThat(result).isEqualTo(expectedResponse);
+            then(userQueryRepository).should().findAll(request);
         }
     }
 
@@ -96,7 +82,6 @@ class UserServiceTest {
             // given
             UUID userId = UUID.randomUUID();
             UserModel userModel = UserModel.create(
-                AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "encodedPassword"
@@ -142,7 +127,6 @@ class UserServiceTest {
             // given
             String email = "test@example.com";
             UserModel userModel = UserModel.create(
-                AuthProvider.EMAIL,
                 email,
                 "홍길동",
                 "encodedPassword"
@@ -179,6 +163,57 @@ class UserServiceTest {
     }
 
     @Nested
+    @DisplayName("create()")
+    class CreateTest {
+
+        @Test
+        @DisplayName("유효한 사용자 생성")
+        void withValidUser_createsUser() {
+            // given
+            UserModel userModel = UserModel.create(
+                "test@example.com",
+                "홍길동",
+                "encodedPassword"
+            );
+
+            given(userRepository.existsByEmail("test@example.com")).willReturn(false);
+            given(userRepository.save(userModel)).willReturn(userModel);
+
+            // when
+            UserModel result = userService.create(userModel);
+
+            // then
+            assertThat(result).isEqualTo(userModel);
+            then(userRepository).should().existsByEmail("test@example.com");
+            then(userRepository).should().save(userModel);
+        }
+
+        @Test
+        @DisplayName("중복 이메일이면 예외 발생")
+        void withDuplicateEmail_throwsException() {
+            // given
+            UserModel userModel = UserModel.create(
+                "duplicate@example.com",
+                "홍길동",
+                "encodedPassword"
+            );
+
+            given(userRepository.existsByEmail("duplicate@example.com")).willReturn(true);
+
+            // when & then
+            assertThatThrownBy(() -> userService.create(userModel))
+                .isInstanceOf(DuplicateEmailException.class)
+                .satisfies(e -> {
+                    DuplicateEmailException ex = (DuplicateEmailException) e;
+                    assertThat(ex.getDetails().get("email")).isEqualTo("duplicate@example.com");
+                });
+
+            then(userRepository).should().existsByEmail("duplicate@example.com");
+            then(userRepository).should(never()).save(any(UserModel.class));
+        }
+    }
+
+    @Nested
     @DisplayName("update()")
     class UpdateTest {
 
@@ -187,7 +222,6 @@ class UserServiceTest {
         void withValidUser_updatesUser() {
             // given
             UserModel userModel = UserModel.create(
-                AuthProvider.EMAIL,
                 "test@example.com",
                 "홍길동",
                 "encodedPassword"

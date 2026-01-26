@@ -1,11 +1,10 @@
 package com.mopl.api.application.user;
 
-import com.mopl.api.interfaces.api.user.UserCreateRequest;
-import com.mopl.api.interfaces.api.user.UserLockUpdateRequest;
-import com.mopl.api.interfaces.api.user.UserResponse;
-import com.mopl.api.interfaces.api.user.UserResponseMapper;
-import com.mopl.api.interfaces.api.user.UserRoleUpdateRequest;
-import com.mopl.api.interfaces.api.user.UserUpdateRequest;
+import com.mopl.dto.outbox.DomainEventOutboxMapper;
+import com.mopl.api.interfaces.api.user.dto.UserCreateRequest;
+import com.mopl.api.interfaces.api.user.dto.UserLockUpdateRequest;
+import com.mopl.api.interfaces.api.user.dto.UserRoleUpdateRequest;
+import com.mopl.api.interfaces.api.user.dto.UserUpdateRequest;
 import com.mopl.domain.exception.user.SelfLockChangeException;
 import com.mopl.domain.exception.user.SelfRoleChangeException;
 import com.mopl.domain.fixture.UserModelFixture;
@@ -13,20 +12,23 @@ import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.user.TemporaryPasswordRepository;
 import com.mopl.domain.repository.user.UserQueryRequest;
 import com.mopl.domain.repository.user.UserSortField;
+import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
 import com.mopl.security.jwt.registry.JwtRegistry;
-import com.mopl.storage.provider.FileStorageProvider;
+import com.mopl.storage.provider.StorageProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
@@ -39,9 +41,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 
@@ -52,11 +56,8 @@ class UserFacadeTest {
     @Mock
     private UserService userService;
 
-    @Spy
-    private UserResponseMapper userResponseMapper = new UserResponseMapper();
-
     @Mock
-    private FileStorageProvider fileStorageProvider;
+    private StorageProvider storageProvider;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -66,6 +67,17 @@ class UserFacadeTest {
 
     @Mock
     private JwtRegistry jwtRegistry;
+
+    @Mock
+    @SuppressWarnings("unused")
+    private OutboxService outboxService;
+
+    @Mock
+    @SuppressWarnings("unused")
+    private DomainEventOutboxMapper domainEventOutboxMapper;
+
+    @Mock
+    private TransactionTemplate transactionTemplate;
 
     @InjectMocks
     private UserFacade userFacade;
@@ -107,7 +119,7 @@ class UserFacadeTest {
         }
 
         @Test
-        @DisplayName("이메일과 이름의 공백이 제거되고 이메일이 소문자로 처리된다")
+        @DisplayName("이메일과 이름의 공백 제거 및 이메일 소문자 처리")
         void withWhitespace_shouldTrimAndLowercase() {
             // given
             String email = "  TEST@EXAMPLE.COM  ";
@@ -183,6 +195,9 @@ class UserFacadeTest {
 
             given(userService.getById(targetUser.getId())).willReturn(targetUser);
             given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
+            willAnswer(invocation -> invocation.<TransactionCallback<?>>getArgument(0)
+                .doInTransaction(mock(TransactionStatus.class)))
+                .given(transactionTemplate).execute(any());
 
             // when
             UserModel result = userFacade.updateRole(requesterId, request, targetUser.getId());
@@ -220,6 +235,9 @@ class UserFacadeTest {
 
             given(userService.getById(targetUser.getId())).willReturn(targetUser);
             given(userService.update(any(UserModel.class))).willReturn(targetUser);
+            willAnswer(invocation -> invocation.<TransactionCallback<?>>getArgument(0)
+                .doInTransaction(mock(TransactionStatus.class)))
+                .given(transactionTemplate).execute(any());
 
             // when & then
             assertThatNoException()
@@ -316,33 +334,23 @@ class UserFacadeTest {
         void withValidProfileImage_updateProfileSuccess() throws IOException {
             // given
             UserModel userModel = UserModelFixture.create();
-            String storedPath = "users/" + userModel.getId() + "/test.png";
-            String profileImageUrl = "http://localhost/api/v1/files/display?path=" + storedPath;
 
             MultipartFile image = mock(MultipartFile.class);
             given(image.isEmpty()).willReturn(false);
             given(image.getInputStream()).willReturn(new ByteArrayInputStream("test".getBytes()));
             given(image.getOriginalFilename()).willReturn("test.png");
 
-            UserModel updatedUserModel = UserModelFixture.builder()
-                .set("id", userModel.getId())
-                .set("profileImageUrl", profileImageUrl)
-                .sample();
-
             given(userService.getById(userModel.getId())).willReturn(userModel);
-            given(fileStorageProvider.upload(any(), anyString())).willReturn(storedPath);
-            given(fileStorageProvider.getUrl(storedPath)).willReturn(profileImageUrl);
-            given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
+            given(userService.update(any(UserModel.class))).willAnswer(inv -> inv.getArgument(0));
 
             // when
             UserModel result = userFacade.updateProfile(userModel.getId(), null, image);
 
             // then
-            assertThat(result.getProfileImageUrl()).isEqualTo(profileImageUrl);
+            assertThat(result.getProfileImagePath()).startsWith("users/" + userModel.getId() + "/");
 
             then(userService).should().getById(userModel.getId());
-            then(fileStorageProvider).should().upload(any(), anyString());
-            then(fileStorageProvider).should().getUrl(storedPath);
+            then(storageProvider).should().upload(any(), anyLong(), anyString());
             then(userService).should().update(any(UserModel.class));
         }
 
@@ -370,7 +378,7 @@ class UserFacadeTest {
             assertThat(result.getName()).isEqualTo(newName);
 
             then(userService).should().getById(userModel.getId());
-            then(fileStorageProvider).should(never()).upload(any(), anyString());
+            then(storageProvider).should(never()).upload(any(), anyLong(), anyString());
             then(userService).should().update(any(UserModel.class));
         }
 
@@ -380,8 +388,6 @@ class UserFacadeTest {
             // given
             UserModel userModel = UserModelFixture.create();
             String newName = "newName";
-            String storedPath = "users/" + userModel.getId() + "/test.png";
-            String profileImageUrl = "http://localhost/api/v1/files/display?path=" + storedPath;
 
             UserUpdateRequest request = new UserUpdateRequest(newName);
 
@@ -390,27 +396,18 @@ class UserFacadeTest {
             given(image.getInputStream()).willReturn(new ByteArrayInputStream("test".getBytes()));
             given(image.getOriginalFilename()).willReturn("test.png");
 
-            UserModel updatedUserModel = UserModelFixture.builder()
-                .set("id", userModel.getId())
-                .set("name", newName)
-                .set("profileImageUrl", profileImageUrl)
-                .sample();
-
             given(userService.getById(userModel.getId())).willReturn(userModel);
-            given(fileStorageProvider.upload(any(), anyString())).willReturn(storedPath);
-            given(fileStorageProvider.getUrl(storedPath)).willReturn(profileImageUrl);
-            given(userService.update(any(UserModel.class))).willReturn(updatedUserModel);
+            given(userService.update(any(UserModel.class))).willAnswer(inv -> inv.getArgument(0));
 
             // when
             UserModel result = userFacade.updateProfile(userModel.getId(), request, image);
 
             // then
             assertThat(result.getName()).isEqualTo(newName);
-            assertThat(result.getProfileImageUrl()).isEqualTo(profileImageUrl);
+            assertThat(result.getProfileImagePath()).startsWith("users/" + userModel.getId() + "/");
 
             then(userService).should().getById(userModel.getId());
-            then(fileStorageProvider).should().upload(any(), anyString());
-            then(fileStorageProvider).should().getUrl(storedPath);
+            then(storageProvider).should().upload(any(), anyLong(), anyString());
             then(userService).should().update(any(UserModel.class));
         }
 
@@ -430,7 +427,7 @@ class UserFacadeTest {
             assertThat(result.getId()).isEqualTo(userModel.getId());
 
             then(userService).should().getById(userModel.getId());
-            then(fileStorageProvider).should(never()).upload(any(), anyString());
+            then(storageProvider).should(never()).upload(any(), anyLong(), anyString());
             then(userService).should().update(any(UserModel.class));
         }
 
@@ -453,7 +450,7 @@ class UserFacadeTest {
             assertThat(result.getId()).isEqualTo(userModel.getId());
 
             then(userService).should().getById(userModel.getId());
-            then(fileStorageProvider).should(never()).upload(any(), anyString());
+            then(storageProvider).should(never()).upload(any(), anyLong(), anyString());
             then(userService).should().update(any(UserModel.class));
         }
 
@@ -474,7 +471,7 @@ class UserFacadeTest {
                 .isInstanceOf(UncheckedIOException.class)
                 .hasMessageContaining("파일 스트림 읽기 실패");
 
-            then(fileStorageProvider).should(never()).upload(any(), anyString());
+            then(storageProvider).should(never()).upload(any(), anyLong(), anyString());
             then(userService).should(never()).update(any(UserModel.class));
         }
     }
@@ -513,12 +510,12 @@ class UserFacadeTest {
             given(userService.getAll(request)).willReturn(serviceResponse);
 
             // when
-            CursorResponse<UserResponse> result = userFacade.getUsers(request);
+            CursorResponse<UserModel> result = userFacade.getUsers(request);
 
             // then
             assertThat(result.data()).hasSize(2);
-            assertThat(result.data().get(0).email()).isEqualTo("user1@example.com");
-            assertThat(result.data().get(1).email()).isEqualTo("user2@example.com");
+            assertThat(result.data().getFirst().getEmail()).isEqualTo("user1@example.com");
+            assertThat(result.data().get(1).getEmail()).isEqualTo("user2@example.com");
             assertThat(result.hasNext()).isTrue();
             assertThat(result.nextCursor()).isEqualTo("User2");
             assertThat(result.totalCount()).isEqualTo(10);
@@ -549,7 +546,7 @@ class UserFacadeTest {
             given(userService.getAll(request)).willReturn(emptyResponse);
 
             // when
-            CursorResponse<UserResponse> result = userFacade.getUsers(request);
+            CursorResponse<UserModel> result = userFacade.getUsers(request);
 
             // then
             assertThat(result.data()).isEmpty();
@@ -586,11 +583,11 @@ class UserFacadeTest {
             given(userService.getAll(request)).willReturn(serviceResponse);
 
             // when
-            CursorResponse<UserResponse> result = userFacade.getUsers(request);
+            CursorResponse<UserModel> result = userFacade.getUsers(request);
 
             // then
             assertThat(result.data()).hasSize(1);
-            assertThat(result.data().get(0).role()).isEqualTo(UserModel.Role.ADMIN);
+            assertThat(result.data().getFirst().getRole()).isEqualTo(UserModel.Role.ADMIN);
             assertThat(result.hasNext()).isFalse();
 
             then(userService).should().getAll(request);
@@ -624,7 +621,7 @@ class UserFacadeTest {
         }
 
         @Test
-        @DisplayName("비밀번호 변경 후 임시 비밀번호가 삭제된다")
+        @DisplayName("비밀번호 변경 후 임시 비밀번호 삭제")
         void afterPasswordChange_temporaryPasswordIsDeleted() {
             // given
             String email = "test@example.com";

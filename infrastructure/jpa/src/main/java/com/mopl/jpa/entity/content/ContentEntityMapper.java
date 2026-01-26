@@ -13,15 +13,15 @@ public class ContentEntityMapper {
 
         return ContentModel.builder()
             .id(entity.getId())
+            .createdAt(entity.getCreatedAt())
+            .deletedAt(entity.getDeletedAt())
+            .updatedAt(entity.getUpdatedAt())
             .type(entity.getType())
             .title(entity.getTitle())
             .description(entity.getDescription())
-            .thumbnailUrl(entity.getThumbnailUrl())
+            .thumbnailPath(entity.getThumbnailPath())
             .reviewCount(entity.getReviewCount())
             .averageRating(entity.getAverageRating())
-            .createdAt(entity.getCreatedAt())
-            .updatedAt(entity.getUpdatedAt())
-            .deletedAt(entity.getDeletedAt())
             .build();
     }
 
@@ -32,15 +32,15 @@ public class ContentEntityMapper {
 
         return ContentEntity.builder()
             .id(model.getId())
+            .createdAt(model.getCreatedAt())
+            .deletedAt(model.getDeletedAt())
+            .updatedAt(model.getUpdatedAt())
             .type(model.getType())
             .title(model.getTitle())
             .description(model.getDescription())
-            .thumbnailUrl(model.getThumbnailUrl())
+            .thumbnailPath(model.getThumbnailPath())
             .reviewCount(model.getReviewCount())
             .averageRating(model.getAverageRating())
-            .createdAt(model.getCreatedAt())
-            .updatedAt(model.getUpdatedAt())
-            .deletedAt(model.getDeletedAt())
             .build();
     }
 }

@@ -1,16 +1,18 @@
 dependencies {
     // project modules
     implementation(project(":core:domain"))
+    implementation(project(":infrastructure:cache"))
     implementation(project(":infrastructure:jpa"))
+    implementation(project(":infrastructure:kafka"))
+    implementation(project(":infrastructure:mail"))
+    implementation(project(":infrastructure:redis"))
+    implementation(project(":infrastructure:search"))
     implementation(project(":infrastructure:security"))
     implementation(project(":infrastructure:storage"))
-    implementation(project(":infrastructure:redis"))
-    implementation(project(":infrastructure:cache"))
-    implementation(project(":infrastructure:mail"))
+    implementation(project(":shared:dto"))
     implementation(project(":shared:jackson"))
-    implementation(project(":applications:sse"))
-    implementation (project(":shared:monitoring"))
-
+    implementation(project(":shared:logging"))
+    implementation(project(":shared:monitoring"))
     // web
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")

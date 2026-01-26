@@ -21,13 +21,20 @@ public interface JpaPlaylistContentRepository extends JpaRepository<PlaylistCont
 
     boolean existsByPlaylistIdAndContentId(UUID playlistId, UUID contentId);
 
-    @Modifying
+    int deleteByPlaylistIdAndContentId(UUID playlistId, UUID contentId);
+
+    // 이하 메서드들 cleanup batch 전용
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
-        DELETE FROM PlaylistContentEntity pc
-        WHERE pc.playlist.id = :playlistId AND pc.content.id = :contentId
+            delete from PlaylistContentEntity pc
+            where pc.content.id in :contentIds
         """)
-    int deleteByPlaylistIdAndContentId(
-        @Param("playlistId") UUID playlistId,
-        @Param("contentId") UUID contentId
-    );
+    int deleteAllByContentIds(@Param("contentIds") List<UUID> contentIds);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            delete from PlaylistContentEntity pc
+            where pc.playlist.id in :playlistIds
+        """)
+    int deleteAllByPlaylistIds(@Param("playlistIds") List<UUID> playlistIds);
 }

@@ -13,6 +13,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,15 +27,14 @@ public class NotificationQueryRepositoryImpl implements NotificationQueryReposit
     private final NotificationEntityMapper notificationEntityMapper;
 
     @Override
-    public CursorResponse<NotificationModel> findAll(UUID receiverId,
-        NotificationQueryRequest request) {
+    public CursorResponse<NotificationModel> findAll(
+        UUID receiverId,
+        NotificationQueryRequest request
+    ) {
         NotificationSortFieldJpa sortFieldJpa = NotificationSortFieldJpa.from(request.sortBy());
 
-        JPAQuery<NotificationEntity> jpaQuery = queryFactory
-            .selectFrom(notificationEntity)
-            .where(
-                receiverIdEqual(receiverId)
-            );
+        JPAQuery<NotificationEntity> jpaQuery = baseQuery(receiverId)
+            .select(notificationEntity);
 
         CursorPaginationHelper.applyCursorPagination(
             request,
@@ -44,6 +44,14 @@ public class NotificationQueryRepositoryImpl implements NotificationQueryReposit
         );
 
         List<NotificationEntity> rows = jpaQuery.fetch();
+
+        if (rows.isEmpty()) {
+            return CursorResponse.empty(
+                sortFieldJpa.getFieldName(),
+                request.sortDirection()
+            );
+        }
+
         long totalCount = countTotal(receiverId);
 
         return CursorPaginationHelper.buildResponse(
@@ -57,18 +65,36 @@ public class NotificationQueryRepositoryImpl implements NotificationQueryReposit
         );
     }
 
-    private long countTotal(UUID receiverId) {
-        Long total = queryFactory
-            .select(notificationEntity.count())
+    private JPAQuery<?> baseQuery(UUID receiverId) {
+        return queryFactory
             .from(notificationEntity)
-            .where(
-                receiverIdEqual(receiverId)
-            )
+            .where(receiverIdEqual(receiverId));
+    }
+
+    private long countTotal(UUID receiverId) {
+        Long total = baseQuery(receiverId)
+            .select(notificationEntity.count())
             .fetchOne();
         return total != null ? total : 0;
     }
 
+    @Override
+    public List<NotificationModel> findByReceiverIdAndCreatedAtAfter(UUID receiverId, Instant createdAfter) {
+        List<NotificationEntity> entities = queryFactory
+            .selectFrom(notificationEntity)
+            .where(
+                receiverIdEqual(receiverId),
+                notificationEntity.createdAt.after(createdAfter)
+            )
+            .orderBy(notificationEntity.createdAt.asc())
+            .fetch();
+
+        return entities.stream()
+            .map(notificationEntityMapper::toModel)
+            .toList();
+    }
+
     private BooleanExpression receiverIdEqual(UUID receiverId) {
-        return receiverId != null ? notificationEntity.receiver.id.eq(receiverId) : null;
+        return receiverId != null ? notificationEntity.receiverId.eq(receiverId) : null;
     }
 }

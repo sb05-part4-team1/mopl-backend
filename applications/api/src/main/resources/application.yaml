@@ -11,12 +11,14 @@ spring:
   config:
     import:
       - optional:file:.env[.properties]
+      - cache.yaml
       - jpa.yaml
+      - kafka.yaml
+      - mail.yaml
+      - redis.yaml
+      - search.yaml
       - security.yaml
       - storage.yaml
-      - redis.yaml
-      - cache.yaml
-      - mail.yaml
   threads:
     virtual:
       enabled: true
@@ -27,6 +29,7 @@ spring:
 
 logging:
   level:
+    root: INFO
     com.mopl.cache: DEBUG
 
 mopl:
@@ -36,7 +39,6 @@ mopl:
     name: 관리자
     password: ${ADMIN_PASSWORD:}
 
-#===============================
 management:
   endpoints:
     web:

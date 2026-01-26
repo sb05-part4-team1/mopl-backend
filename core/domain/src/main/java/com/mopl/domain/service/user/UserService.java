@@ -18,17 +18,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
     private final UserQueryRepository userQueryRepository;
-
-    @Caching(put = {
-        @CachePut(cacheNames = CacheName.USERS, key = "#result.id"),
-        @CachePut(cacheNames = CacheName.USERS_BY_EMAIL, key = "#result.email")
-    })
-    public UserModel create(UserModel userModel) {
-        validateDuplicateEmail(userModel.getEmail());
-        return userRepository.save(userModel);
-    }
+    private final UserRepository userRepository;
 
     public CursorResponse<UserModel> getAll(UserQueryRequest request) {
         return userQueryRepository.findAll(request);
@@ -44,6 +35,15 @@ public class UserService {
     public UserModel getByEmail(String email) {
         return userRepository.findByEmail(email)
             .orElseThrow(() -> UserNotFoundException.withEmail(email));
+    }
+
+    @Caching(put = {
+        @CachePut(cacheNames = CacheName.USERS, key = "#result.id"),
+        @CachePut(cacheNames = CacheName.USERS_BY_EMAIL, key = "#result.email")
+    })
+    public UserModel create(UserModel userModel) {
+        validateDuplicateEmail(userModel.getEmail());
+        return userRepository.save(userModel);
     }
 
     @Caching(put = {

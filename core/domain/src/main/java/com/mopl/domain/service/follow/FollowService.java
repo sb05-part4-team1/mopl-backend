@@ -1,5 +1,6 @@
 package com.mopl.domain.service.follow;
 
+import java.util.List;
 import java.util.UUID;
 
 import com.mopl.domain.exception.follow.FollowNotFoundException;
@@ -17,7 +18,7 @@ public class FollowService {
     public FollowModel create(FollowModel followModel) {
 
         if (followModel.getFollowerId().equals(followModel.getFolloweeId())) {
-            throw new SelfFollowException(followModel.getFollowerId());
+            throw SelfFollowException.withUserId(followModel.getFollowerId());
         }
 
         return followRepository.findByFollowerIdAndFolloweeId(followModel.getFollowerId(),
@@ -31,7 +32,7 @@ public class FollowService {
 
     public FollowModel getById(UUID followId) {
         return followRepository.findById(followId)
-            .orElseThrow(() -> new FollowNotFoundException(followId));
+            .orElseThrow(() -> FollowNotFoundException.withId(followId));
     }
 
     public long getFollowerCount(UUID followeeId) {
@@ -40,5 +41,9 @@ public class FollowService {
 
     public boolean isFollow(UUID followerId, UUID followeeId) {
         return followRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
+    }
+
+    public List<UUID> getFollowerIds(UUID followeeId) {
+        return followRepository.findFollowerIdsByFolloweeId(followeeId);
     }
 }

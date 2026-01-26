@@ -1,5 +1,6 @@
 package com.mopl.domain.service.review;
 
+import com.mopl.domain.exception.review.ReviewAlreadyExistsException;
 import com.mopl.domain.exception.review.ReviewForbiddenException;
 import com.mopl.domain.exception.review.ReviewNotFoundException;
 import com.mopl.domain.model.content.ContentModel;
@@ -17,9 +18,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ReviewService {
 
-    private final ReviewRepository reviewRepository;
     private final ReviewQueryRepository reviewQueryRepository;
+    private final ReviewRepository reviewRepository;
     private final ContentRepository contentRepository;
+
+    public CursorResponse<ReviewModel> getAll(ReviewQueryRequest request) {
+        return reviewQueryRepository.findAll(request);
+    }
 
     public ReviewModel create(
         ContentModel content,
@@ -27,10 +32,14 @@ public class ReviewService {
         String text,
         double rating
     ) {
+        if (reviewRepository.existsByContentIdAndAuthorId(content.getId(), author.getId())) {
+            throw ReviewAlreadyExistsException.withContentIdAndAuthorId(content.getId(), author.getId());
+        }
+
         ReviewModel reviewModel = ReviewModel.create(content, author, text, rating);
         ReviewModel savedReviewModel = reviewRepository.save(reviewModel);
 
-        ContentModel updatedContent = content.applyReview(rating);
+        ContentModel updatedContent = content.addReview(rating);
         contentRepository.save(updatedContent);
 
         return savedReviewModel;
@@ -47,46 +56,42 @@ public class ReviewService {
 
         double oldRating = review.getRating();
 
-        review.update(text, rating);
-        ReviewModel saved = reviewRepository.save(review);
+        ReviewModel updatedReview = review.update(text, rating);
+        ReviewModel savedReview = reviewRepository.save(updatedReview);
 
-        if (rating != null && rating != oldRating) {
-            ContentModel content = saved.getContent();
+        if (rating != null && Double.compare(rating, oldRating) != 0) {
+            ContentModel content = savedReview.getContent();
             contentRepository.save(content.updateReview(oldRating, rating));
         }
 
-        return saved;
+        return savedReview;
     }
 
-    public void delete(
-        UUID reviewId,
-        UUID requesterId
-    ) {
+    public UUID deleteAndGetContentId(UUID reviewId, UUID requesterId) {
         ReviewModel review = getById(reviewId);
         validateAuthor(review, requesterId);
+
+        ContentModel content = review.getContent();
 
         double rating = review.getRating();
 
         review.delete();
         reviewRepository.save(review);
 
-        ContentModel content = review.getContent();
         contentRepository.save(content.removeReview(rating));
-    }
 
-    public CursorResponse<ReviewModel> getAll(ReviewQueryRequest request) {
-        return reviewQueryRepository.findAll(request);
+        return content.getId();
     }
 
     private ReviewModel getById(UUID reviewId) {
         return reviewRepository.findById(reviewId)
-            .orElseThrow(() -> new ReviewNotFoundException(reviewId));
+            .orElseThrow(() -> ReviewNotFoundException.withId(reviewId));
     }
 
     private void validateAuthor(ReviewModel review, UUID requesterId) {
         UUID authorId = review.getAuthor() != null ? review.getAuthor().getId() : null;
         if (authorId == null || !authorId.equals(requesterId)) {
-            throw new ReviewForbiddenException(review.getId(), requesterId, authorId);
+            throw ReviewForbiddenException.withReviewIdAndRequesterIdAndAuthorId(review.getId(), requesterId, authorId);
         }
     }
 }

@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder(toBuilder = true)
 public class ReviewModel extends BaseUpdatableModel {
 
     public static final int TEXT_MAX_LENGTH = 10_000;
@@ -28,10 +28,10 @@ public class ReviewModel extends BaseUpdatableModel {
         double rating
     ) {
         if (content == null || content.getId() == null) {
-            throw new InvalidReviewDataException("콘텐츠 정보는 null일 수 없습니다.");
+            throw InvalidReviewDataException.withDetailMessage("콘텐츠 정보는 null일 수 없습니다.");
         }
         if (author == null || author.getId() == null) {
-            throw new InvalidReviewDataException("작성자 정보는 null일 수 없습니다.");
+            throw InvalidReviewDataException.withDetailMessage("작성자 정보는 null일 수 없습니다.");
         }
 
         validateText(text);
@@ -49,22 +49,32 @@ public class ReviewModel extends BaseUpdatableModel {
         String newText,
         Double newRating
     ) {
+        String updatedText = this.text;
+        double updatedRating = this.rating;
+
         if (newText != null) {
             validateText(newText);
-            this.text = newText;
+            updatedText = newText;
         }
 
         if (newRating != null) {
             validateRating(newRating);
-            this.rating = newRating;
+            updatedRating = newRating;
         }
 
-        return this;
+        return this.toBuilder()
+            .text(updatedText)
+            .rating(updatedRating)
+            .build();
     }
 
     private static void validateText(String text) {
+        if (text == null) {
+            throw InvalidReviewDataException.withDetailMessage("리뷰 내용은 null일 수 없습니다.");
+        }
+
         if (text.length() > TEXT_MAX_LENGTH) {
-            throw new InvalidReviewDataException(
+            throw InvalidReviewDataException.withDetailMessage(
                 "리뷰 내용은 " + TEXT_MAX_LENGTH + "자를 초과할 수 없습니다."
             );
         }
@@ -72,7 +82,7 @@ public class ReviewModel extends BaseUpdatableModel {
 
     private static void validateRating(double rating) {
         if (rating < 0.0 || rating > 5.0) {
-            throw new InvalidReviewDataException("평점은 0.0 이상 5.0 이하만 가능합니다.");
+            throw InvalidReviewDataException.withDetailMessage("평점은 0.0 이상 5.0 이하만 가능합니다.");
         }
     }
 }

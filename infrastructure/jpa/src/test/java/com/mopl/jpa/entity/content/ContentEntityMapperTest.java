@@ -31,7 +31,7 @@ class ContentEntityMapperTest {
                 .type(ContentModel.ContentType.movie)
                 .title("인셉션")
                 .description("꿈속의 꿈")
-                .thumbnailUrl("https://mopl.com/inception.png")
+                .thumbnailPath("contents/inception.png")
                 .createdAt(now)
                 .updatedAt(now)
                 .deletedAt(null)
@@ -45,11 +45,10 @@ class ContentEntityMapperTest {
             assertThat(result.getType()).isEqualTo(ContentModel.ContentType.movie);
             assertThat(result.getTitle()).isEqualTo("인셉션");
             assertThat(result.getDescription()).isEqualTo("꿈속의 꿈");
-            assertThat(result.getThumbnailUrl()).isEqualTo("https://mopl.com/inception.png");
+            assertThat(result.getThumbnailPath()).isEqualTo("contents/inception.png");
             assertThat(result.getCreatedAt()).isEqualTo(now);
             assertThat(result.getUpdatedAt()).isEqualTo(now);
             assertThat(result.getDeletedAt()).isNull();
-            assertThat(result.getTags()).isEmpty();
         }
 
         @Test
@@ -79,7 +78,7 @@ class ContentEntityMapperTest {
                 .type(ContentModel.ContentType.movie)
                 .title("인셉션")
                 .description("꿈속의 꿈")
-                .thumbnailUrl("https://mopl.com/inception.png")
+                .thumbnailPath("contents/inception.png")
                 .createdAt(now)
                 .updatedAt(now)
                 .build();
@@ -92,9 +91,19 @@ class ContentEntityMapperTest {
             assertThat(result.getType()).isEqualTo(ContentModel.ContentType.movie);
             assertThat(result.getTitle()).isEqualTo("인셉션");
             assertThat(result.getDescription()).isEqualTo("꿈속의 꿈");
-            assertThat(result.getThumbnailUrl()).isEqualTo("https://mopl.com/inception.png");
+            assertThat(result.getThumbnailPath()).isEqualTo("contents/inception.png");
             assertThat(result.getCreatedAt()).isEqualTo(now);
             assertThat(result.getUpdatedAt()).isEqualTo(now);
+        }
+
+        @Test
+        @DisplayName("null 입력 시 null 반환")
+        void withNull_returnsNull() {
+            // when
+            ContentEntity result = mapper.toEntity(null);
+
+            // then
+            assertThat(result).isNull();
         }
     }
 
@@ -111,7 +120,7 @@ class ContentEntityMapperTest {
                 .id(id)
                 .type(ContentModel.ContentType.movie)
                 .title("인셉션")
-                .thumbnailUrl("https://mopl.com/inception.png")
+                .thumbnailPath("contents/inception.png")
                 .build();
 
             // when

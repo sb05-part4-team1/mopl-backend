@@ -29,24 +29,23 @@ public class SignInFailureHandler implements AuthenticationFailureHandler {
         HttpServletResponse response,
         AuthenticationException exception
     ) throws IOException {
-        log.warn("로그인 실패: email={}, message={}",
-            request.getParameter("email"),
-            exception.getMessage()
-        );
+        String email = request.getParameter("email");
 
-        MoplException domainException = convertToDomainException(exception);
+        log.warn("로그인 실패: email={}, message={}", email, exception.getMessage());
+
+        MoplException domainException = convertToDomainException(exception, email);
 
         apiResponseHandler.writeError(response, domainException);
     }
 
-    private MoplException convertToDomainException(AuthenticationException exception) {
+    private MoplException convertToDomainException(AuthenticationException exception, String email) {
         if (exception instanceof LockedException) {
-            return new AccountLockedException();
+            return AccountLockedException.withEmail(email);
         }
         if (exception instanceof AuthenticationServiceException
             || exception instanceof ProviderNotFoundException) {
-            return new InternalServerException();
+            return InternalServerException.create();
         }
-        return new InvalidCredentialsException();
+        return InvalidCredentialsException.create();
     }
 }

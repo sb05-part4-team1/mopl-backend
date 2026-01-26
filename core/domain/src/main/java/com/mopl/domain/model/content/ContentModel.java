@@ -3,17 +3,19 @@ package com.mopl.domain.model.content;
 import com.mopl.domain.exception.content.InvalidContentDataException;
 import com.mopl.domain.model.base.BaseUpdatableModel;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
-
 @Getter
-@SuperBuilder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder(toBuilder = true)
 public class ContentModel extends BaseUpdatableModel {
+
+    public static final int CONTENT_TYPE_MAX_LENGTH = 20;
+    public static final int TITLE_MAX_LENGTH = 255;
+    public static final int DESCRIPTION_MAX_LENGTH = 10_000;
+    public static final int THUMBNAIL_PATH_MAX_LENGTH = 1024;
 
     public enum ContentType {
         movie,
@@ -21,66 +23,82 @@ public class ContentModel extends BaseUpdatableModel {
         sport
     }
 
-    public static final int TITLE_MAX_LENGTH = 255;
-    public static final int THUMBNAIL_URL_MAX_LENGTH = 1024;
-
     private ContentType type;
     private String title;
     private String description;
-    private String thumbnailUrl;
+    private String thumbnailPath;
 
-    @Builder.Default
-    private List<String> tags = List.of();
-
-    private double averageRating;
     private int reviewCount;
+    private double averageRating;
 
     public static ContentModel create(
         ContentType type,
         String title,
         String description,
-        String thumbnailUrl
+        String thumbnailPath
     ) {
-        validateRequiredFields(type, title, description, thumbnailUrl);
+        if (type == null) {
+            throw InvalidContentDataException.withDetailMessage("콘텐츠 타입은 null일 수 없습니다.");
+        }
+        if (title == null) {
+            throw InvalidContentDataException.withDetailMessage("제목은 null일 수 없습니다.");
+        }
+        if (description == null) {
+            throw InvalidContentDataException.withDetailMessage("설명은 null일 수 없습니다.");
+        }
+        if (thumbnailPath == null) {
+            throw InvalidContentDataException.withDetailMessage("썸네일 경로는 null일 수 없습니다.");
+        }
+
         validateTitle(title);
-        validateThumbnailUrl(thumbnailUrl);
+        validateDescription(description);
+        validateThumbnailPath(thumbnailPath);
 
         return ContentModel.builder()
             .type(type)
             .title(title)
             .description(description)
-            .thumbnailUrl(thumbnailUrl)
+            .thumbnailPath(thumbnailPath)
             .reviewCount(0)
             .averageRating(0.0)
             .build();
     }
 
     public ContentModel update(
-        String title,
-        String description,
-        String thumbnailUrl
+        String newTitle,
+        String newDescription,
+        String newThumbnailPath
     ) {
-        validateRequiredFields(this.type, title, description, thumbnailUrl);
-        validateTitle(title);
-        validateThumbnailUrl(thumbnailUrl);
+        String updatedTitle = this.title;
+        String updatedDescription = this.description;
+        String updatedThumbnailPath = this.thumbnailPath;
+
+        if (newTitle != null) {
+            validateTitle(newTitle);
+            updatedTitle = newTitle;
+        }
+
+        if (newDescription != null) {
+            validateDescription(newDescription);
+            updatedDescription = newDescription;
+        }
+
+        if (newThumbnailPath != null) {
+            validateThumbnailPath(newThumbnailPath);
+            updatedThumbnailPath = newThumbnailPath;
+        }
 
         return this.toBuilder()
-            .title(title)
-            .description(description)
-            .thumbnailUrl(thumbnailUrl)
+            .title(updatedTitle)
+            .description(updatedDescription)
+            .thumbnailPath(updatedThumbnailPath)
             .build();
     }
 
-    public ContentModel withTags(List<String> tags) {
-        return this.toBuilder()
-            .tags(tags)
-            .build();
-    }
-
-    public ContentModel applyReview(double rating) {
+    public ContentModel addReview(double rating) {
         int newCount = this.reviewCount + 1;
-
-        double newAverage = ((this.averageRating * this.reviewCount) + rating) / newCount;
+        double total = this.averageRating * this.reviewCount;
+        double newAverage = (total + rating) / newCount;
 
         return this.toBuilder()
             .reviewCount(newCount)
@@ -90,7 +108,9 @@ public class ContentModel extends BaseUpdatableModel {
 
     public ContentModel updateReview(double oldRating, double newRating) {
         if (this.reviewCount == 0) {
-            return this;
+            throw InvalidContentDataException.withDetailMessage(
+                "리뷰가 없는 콘텐츠의 리뷰를 수정할 수 없습니다."
+            );
         }
 
         double total = this.averageRating * this.reviewCount;
@@ -102,9 +122,13 @@ public class ContentModel extends BaseUpdatableModel {
     }
 
     public ContentModel removeReview(double rating) {
+        if (this.reviewCount <= 0) {
+            throw InvalidContentDataException.withDetailMessage("삭제할 리뷰가 없습니다.");
+        }
+
         int newCount = this.reviewCount - 1;
 
-        if (newCount <= 0) {
+        if (newCount == 0) {
             return this.toBuilder()
                 .reviewCount(0)
                 .averageRating(0.0)
@@ -120,36 +144,33 @@ public class ContentModel extends BaseUpdatableModel {
             .build();
     }
 
-    private static void validateRequiredFields(
-        ContentType type,
-        String title,
-        String description,
-        String thumbnailUrl
-    ) {
-        if (type == null) {
-            throw new InvalidContentDataException("컨텐츠 타입은 필수입니다.");
-        }
-        if (title == null || title.isBlank()) {
-            throw new InvalidContentDataException("제목은 비어있을 수 없습니다.");
-        }
-        if (description == null || description.isBlank()) {
-            throw new InvalidContentDataException("설명은 비어있을 수 없습니다.");
-        }
-        if (thumbnailUrl == null || thumbnailUrl.isBlank()) {
-            throw new InvalidContentDataException("썸네일 URL은 비어있을 수 없습니다.");
-        }
-    }
-
     private static void validateTitle(String title) {
+        if (title.isBlank()) {
+            throw InvalidContentDataException.withDetailMessage("제목은 비어있을 수 없습니다.");
+        }
         if (title.length() > TITLE_MAX_LENGTH) {
-            throw new InvalidContentDataException("제목은 " + TITLE_MAX_LENGTH + "자를 초과할 수 없습니다.");
+            throw InvalidContentDataException.withDetailMessage(
+                "제목은 " + TITLE_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 
-    private static void validateThumbnailUrl(String thumbnailUrl) {
-        if (thumbnailUrl.length() > THUMBNAIL_URL_MAX_LENGTH) {
-            throw new InvalidContentDataException("썸네일 URL은 " + THUMBNAIL_URL_MAX_LENGTH
-                + "자를 초과할 수 없습니다.");
+    private static void validateDescription(String description) {
+        if (description.isBlank()) {
+            throw InvalidContentDataException.withDetailMessage("설명은 비어있을 수 없습니다.");
+        }
+        if (description.length() > DESCRIPTION_MAX_LENGTH) {
+            throw InvalidContentDataException.withDetailMessage(
+                "설명은 " + DESCRIPTION_MAX_LENGTH + "자를 초과할 수 없습니다.");
+        }
+    }
+
+    private static void validateThumbnailPath(String thumbnailPath) {
+        if (thumbnailPath.isBlank()) {
+            throw InvalidContentDataException.withDetailMessage("썸네일 경로는 비어있을 수 없습니다.");
+        }
+        if (thumbnailPath.length() > THUMBNAIL_PATH_MAX_LENGTH) {
+            throw InvalidContentDataException.withDetailMessage(
+                "썸네일 경로는 " + THUMBNAIL_PATH_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 }

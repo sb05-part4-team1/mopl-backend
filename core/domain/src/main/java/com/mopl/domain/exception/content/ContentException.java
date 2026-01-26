@@ -7,10 +7,6 @@ import java.util.Map;
 
 public abstract class ContentException extends MoplException {
 
-    protected ContentException(ErrorCode errorCode) {
-        super(errorCode);
-    }
-
     protected ContentException(ErrorCode errorCode, Map<String, Object> details) {
         super(errorCode, details);
     }

@@ -9,71 +9,100 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Getter
-@SuperBuilder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder(toBuilder = true)
 public class PlaylistModel extends BaseUpdatableModel {
 
     public static final int TITLE_MAX_LENGTH = 255;
     public static final int DESCRIPTION_MAX_LENGTH = 10_000;
 
-    private UserModel owner;
     private String title;
     private String description;
+    private UserModel owner;
+    private int subscriberCount;
 
     public static PlaylistModel create(
-        UserModel owner,
         String title,
-        String description
+        String description,
+        UserModel owner
     ) {
-        if (owner == null || owner.getId() == null) {
-            throw new InvalidPlaylistDataException("소유자 정보는 null일 수 없습니다.");
-        }
         if (title == null) {
-            throw new InvalidPlaylistDataException("제목은 null일 수 없습니다.");
+            throw InvalidPlaylistDataException.withDetailMessage("제목은 null일 수 없습니다.");
+        }
+        if (owner == null) {
+            throw InvalidPlaylistDataException.withDetailMessage("소유자는 null일 수 없습니다.");
+        }
+        if (owner.getId() == null) {
+            throw InvalidPlaylistDataException.withDetailMessage("소유자 ID는 null일 수 없습니다.");
         }
 
         validateTitle(title);
-        validateDescription(description);
+        if (description != null) {
+            validateDescription(description);
+        }
 
         return PlaylistModel.builder()
             .owner(owner)
             .title(title)
             .description(description)
             .build();
-
     }
 
     public PlaylistModel update(
         String newTitle,
         String newDescription
     ) {
+        String updatedTitle = this.title;
+        String updatedDescription = this.description;
+
         if (newTitle != null) {
             validateTitle(newTitle);
-            this.title = newTitle;
+            updatedTitle = newTitle;
         }
 
         if (newDescription != null) {
             validateDescription(newDescription);
-            this.description = newDescription;
+            updatedDescription = newDescription;
         }
 
-        return this;
+        return this.toBuilder()
+            .title(updatedTitle)
+            .description(updatedDescription)
+            .build();
+    }
+
+    public PlaylistModel addSubscriber() {
+        return this.toBuilder()
+            .subscriberCount(this.subscriberCount + 1)
+            .build();
+    }
+
+    public PlaylistModel removeSubscriber() {
+        if (this.subscriberCount <= 0) {
+            throw InvalidPlaylistDataException.withDetailMessage("구독자가 없는 플레이리스트의 구독자를 제거할 수 없습니다.");
+        }
+        return this.toBuilder()
+            .subscriberCount(this.subscriberCount - 1)
+            .build();
     }
 
     private static void validateTitle(String title) {
         if (title.isBlank()) {
-            throw new InvalidPlaylistDataException("제목은 공백일 수 없습니다.");
+            throw InvalidPlaylistDataException.withDetailMessage("제목은 비어있을 수 없습니다.");
         }
         if (title.length() > TITLE_MAX_LENGTH) {
-            throw new InvalidPlaylistDataException("제목은 " + TITLE_MAX_LENGTH
-                + "자를 초과할 수 없습니다.");
+            throw InvalidPlaylistDataException.withDetailMessage(
+                "제목은 " + TITLE_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 
     private static void validateDescription(String description) {
-        if (description != null && description.length() > DESCRIPTION_MAX_LENGTH) {
-            throw new InvalidPlaylistDataException("설명은 " + DESCRIPTION_MAX_LENGTH
-                + "자를 초과할 수 없습니다.");
+        if (description.isBlank()) {
+            throw InvalidPlaylistDataException.withDetailMessage("설명은 비어있을 수 없습니다.");
+        }
+        if (description.length() > DESCRIPTION_MAX_LENGTH) {
+            throw InvalidPlaylistDataException.withDetailMessage(
+                "설명은 " + DESCRIPTION_MAX_LENGTH + "자를 초과할 수 없습니다.");
         }
     }
 }

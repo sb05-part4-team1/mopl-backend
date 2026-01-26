@@ -12,16 +12,10 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class RedisTemporaryPasswordRepository implements TemporaryPasswordRepository {
 
-    private static final String KEY_PREFIX = "user:temp-password:";
-    private static final Duration TTL = Duration.ofMinutes(3);
+    public static final String KEY_PREFIX = "user:temp-password:";
+    public static final Duration TTL = Duration.ofMinutes(3);
 
     private final RedisTemplate<String, Object> redisTemplate;
-
-    @Override
-    public void save(String email, String encodedPassword) {
-        String key = buildKey(email);
-        redisTemplate.opsForValue().set(key, encodedPassword, TTL);
-    }
 
     @Override
     public Optional<String> findByEmail(String email) {
@@ -31,6 +25,12 @@ public class RedisTemporaryPasswordRepository implements TemporaryPasswordReposi
             return Optional.empty();
         }
         return Optional.of(value.toString());
+    }
+
+    @Override
+    public void save(String email, String encodedPassword) {
+        String key = buildKey(email);
+        redisTemplate.opsForValue().set(key, encodedPassword, TTL);
     }
 
     @Override

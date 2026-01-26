@@ -7,6 +7,7 @@ import com.mopl.jpa.entity.tag.TagEntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,10 +24,14 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    public TagModel save(TagModel tagModel) {
-        TagEntity tagEntity = tagEntityMapper.toEntity(tagModel);
-        TagEntity savedTagEntity = jpaTagRepository.save(tagEntity);
-        return tagEntityMapper.toModel(savedTagEntity);
+    public List<TagModel> findByNameIn(Collection<String> tagNames) {
+        if (tagNames == null || tagNames.isEmpty()) {
+            return List.of();
+        }
+
+        return jpaTagRepository.findByNameIn(tagNames).stream()
+            .map(tagEntityMapper::toModel)
+            .toList();
     }
 
     @Override
@@ -40,5 +45,12 @@ public class TagRepositoryImpl implements TagRepository {
         return savedEntities.stream()
             .map(tagEntityMapper::toModel)
             .toList();
+    }
+
+    @Override
+    public TagModel save(TagModel tagModel) {
+        TagEntity tagEntity = tagEntityMapper.toEntity(tagModel);
+        TagEntity savedTagEntity = jpaTagRepository.save(tagEntity);
+        return tagEntityMapper.toModel(savedTagEntity);
     }
 }

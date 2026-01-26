@@ -189,7 +189,7 @@ class CursorPaginationHelperTest {
 
             // then
             assertThat(response.data()).hasSize(2);
-            assertThat(response.data().get(0).displayName()).isEqualTo("Alice");
+            assertThat(response.data().getFirst().displayName()).isEqualTo("Alice");
             assertThat(response.data().get(1).displayName()).isEqualTo("Bob");
             assertThat(response.hasNext()).isTrue();
             assertThat(response.nextCursor()).isEqualTo("Bob"); // 마지막 포함된 행의 커서

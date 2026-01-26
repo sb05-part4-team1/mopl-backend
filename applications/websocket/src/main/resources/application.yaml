@@ -1,5 +1,9 @@
 server:
   port: 8081
+  shutdown: graceful
+
+websocket:
+  allowed-origins: ${WEBSOCKET_ALLOWED_ORIGINS:http://localhost:*}
 
 spring:
   main:
@@ -12,18 +16,13 @@ spring:
     import:
       - optional:file:.env[.properties]
       - jpa.yaml
+      - redis.yaml
       - security.yaml
       - storage.yaml
-      - redis.yaml
-      - cache.yaml
   threads:
     virtual:
       enabled: true
 
-  cache:
-    type: redis
-
-#===============================
 management:
   endpoints:
     web:

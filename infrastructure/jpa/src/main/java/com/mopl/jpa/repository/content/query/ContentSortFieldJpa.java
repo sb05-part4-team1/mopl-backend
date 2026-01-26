@@ -1,6 +1,6 @@
 package com.mopl.jpa.repository.content.query;
 
-import com.mopl.domain.repository.content.ContentSortField;
+import com.mopl.domain.repository.content.query.ContentSortField;
 import com.mopl.jpa.entity.content.ContentEntity;
 import com.mopl.jpa.support.cursor.SortField;
 import com.querydsl.core.types.dsl.ComparableExpression;
@@ -17,14 +17,6 @@ import static com.mopl.jpa.entity.content.QContentEntity.contentEntity;
 @RequiredArgsConstructor
 public enum ContentSortFieldJpa implements SortField<Comparable<?>> {
 
-    CREATED_AT(
-        ContentSortField.createdAt,
-        cast(contentEntity.createdAt),
-        ContentEntity::getCreatedAt,
-        Object::toString,
-        Instant::parse
-    ),
-
     WATCHER_COUNT(
         ContentSortField.watcherCount,
         Expressions.comparableTemplate(
@@ -35,6 +27,14 @@ public enum ContentSortFieldJpa implements SortField<Comparable<?>> {
         ContentEntity::getReviewCount,
         Object::toString,
         Integer::parseInt
+    ),
+
+    CREATED_AT(
+        ContentSortField.createdAt,
+        cast(contentEntity.createdAt),
+        ContentEntity::getCreatedAt,
+        Object::toString,
+        Instant::parse
     ),
 
     RATE(

@@ -7,9 +7,7 @@ import java.util.UUID;
 
 public interface ContentRepository {
 
-    ContentModel save(ContentModel contentModel);
-
-    boolean existsById(UUID contentId);
-
     Optional<ContentModel> findById(UUID contentId);
+
+    ContentModel save(ContentModel contentModel);
 }
