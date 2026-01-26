@@ -190,6 +190,25 @@ class RedisEmitterRepositoryTest {
             // then
             then(zSetOperations).should().removeRange(eq("sse:events:" + userId), eq(0L), anyLong());
         }
+
+        @Test
+        @DisplayName("캐시 크기가 null이면 오래된 이벤트 삭제를 하지 않음")
+        void whenCacheSizeIsNull_doesNotRemoveOldEvents() {
+            // given
+            UUID userId = UUID.randomUUID();
+            UUID eventId = UUID.fromString("01934567-89ab-7def-0123-456789abcdef");
+            Object eventData = "test data";
+
+            given(redisTemplate.opsForZSet()).willReturn(zSetOperations);
+            given(zSetOperations.size(anyString())).willReturn(null);
+
+            // when
+            redisEmitterRepository.cacheEvent(userId, eventId, eventData);
+
+            // then
+            then(zSetOperations).should().add(eq("sse:events:" + userId), any(), anyDouble());
+            then(zSetOperations).shouldHaveNoMoreInteractions();
+        }
     }
 
     @Nested
@@ -218,8 +237,8 @@ class RedisEmitterRepositoryTest {
         }
 
         @Test
-        @DisplayName("캐시된 이벤트가 없으면 빈 리스트 반환")
-        void whenNoEvents_returnsEmptyList() {
+        @DisplayName("결과가 null이면 빈 리스트 반환")
+        void whenResultIsNull_returnsEmptyList() {
             // given
             UUID userId = UUID.randomUUID();
             UUID lastEventId = UUID.fromString("01934567-89ab-7def-0123-456789abcdef");
@@ -227,6 +246,24 @@ class RedisEmitterRepositoryTest {
             given(redisTemplate.opsForZSet()).willReturn(zSetOperations);
             given(zSetOperations.rangeByScoreWithScores(anyString(), anyDouble(), anyDouble()))
                 .willReturn(null);
+
+            // when
+            List<RedisEmitterRepository.CachedEvent> result = redisEmitterRepository.getEventsAfter(userId, lastEventId);
+
+            // then
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("결과가 빈 Set이면 빈 리스트 반환")
+        void whenResultIsEmpty_returnsEmptyList() {
+            // given
+            UUID userId = UUID.randomUUID();
+            UUID lastEventId = UUID.fromString("01934567-89ab-7def-0123-456789abcdef");
+
+            given(redisTemplate.opsForZSet()).willReturn(zSetOperations);
+            given(zSetOperations.rangeByScoreWithScores(anyString(), anyDouble(), anyDouble()))
+                .willReturn(Set.of());
 
             // when
             List<RedisEmitterRepository.CachedEvent> result = redisEmitterRepository.getEventsAfter(userId, lastEventId);

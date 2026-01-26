@@ -30,6 +30,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("SseEmitterManager 단위 테스트")
@@ -88,6 +89,62 @@ class SseEmitterManagerTest {
             assertThat(result).isNotNull();
             then(existingEmitter).should().complete();
             then(emitterRepository).should().save(eq(userId), any(SseEmitter.class));
+        }
+
+        @Test
+        @DisplayName("emitter onCompletion 콜백이 호출되면 repository에서 삭제")
+        void onCompletion_deletesFromRepository() throws Exception {
+            // given
+            UUID userId = UUID.randomUUID();
+            given(emitterRepository.findByUserId(userId)).willReturn(Optional.empty());
+            SseEmitter emitter = sseEmitterManager.createEmitter(userId);
+
+            // when - 리플렉션으로 onCompletion 콜백 직접 실행
+            var field = SseEmitter.class.getSuperclass().getDeclaredField("completionCallback");
+            field.setAccessible(true);
+            Runnable callback = (Runnable) field.get(emitter);
+            callback.run();
+
+            // then
+            then(emitterRepository).should().deleteByUserId(userId);
+        }
+
+        @Test
+        @DisplayName("emitter onTimeout 콜백이 호출되면 repository에서 삭제")
+        void onTimeout_deletesFromRepository() throws Exception {
+            // given
+            UUID userId = UUID.randomUUID();
+            given(emitterRepository.findByUserId(userId)).willReturn(Optional.empty());
+            SseEmitter emitter = sseEmitterManager.createEmitter(userId);
+
+            // when - 리플렉션으로 onTimeout 콜백 직접 실행
+            var field = SseEmitter.class.getSuperclass().getDeclaredField("timeoutCallback");
+            field.setAccessible(true);
+            Runnable callback = (Runnable) field.get(emitter);
+            callback.run();
+
+            // then
+            then(emitterRepository).should().deleteByUserId(userId);
+        }
+
+        @Test
+        @DisplayName("emitter onError 콜백이 호출되면 repository에서 삭제")
+        @SuppressWarnings("unchecked")
+        void onError_deletesFromRepository() throws Exception {
+            // given
+            UUID userId = UUID.randomUUID();
+            given(emitterRepository.findByUserId(userId)).willReturn(Optional.empty());
+            SseEmitter emitter = sseEmitterManager.createEmitter(userId);
+
+            // when - 리플렉션으로 onError 콜백 직접 실행
+            var field = SseEmitter.class.getSuperclass().getDeclaredField("errorCallback");
+            field.setAccessible(true);
+            java.util.function.Consumer<Throwable> callback =
+                (java.util.function.Consumer<Throwable>) field.get(emitter);
+            callback.accept(new IOException("Connection reset"));
+
+            // then
+            then(emitterRepository).should().deleteByUserId(userId);
         }
     }
 
@@ -327,7 +384,7 @@ class SseEmitterManagerTest {
 
         @Test
         @DisplayName("모든 로컬 emitter에 heartbeat 전송")
-        void sendsHeartbeatToAllEmitters() throws IOException, InterruptedException {
+        void sendsHeartbeatToAllEmitters() throws IOException {
             // given
             UUID userId = UUID.randomUUID();
             SseEmitter emitter = mock(SseEmitter.class);
@@ -339,16 +396,13 @@ class SseEmitterManagerTest {
             // when
             sseEmitterManager.sendHeartbeat();
 
-            // Virtual thread executor로 heartbeat 전송 완료 대기
-            Thread.sleep(100);
-
-            // then
-            then(emitter).should().send(any(SseEmitter.SseEventBuilder.class));
+            // then - timeout으로 비동기 완료 대기
+            then(emitter).should(timeout(1000)).send(any(SseEmitter.SseEventBuilder.class));
         }
 
         @Test
         @DisplayName("heartbeat 전송 실패 시 emitter 삭제")
-        void withHeartbeatFailure_deletesEmitter() throws IOException, InterruptedException {
+        void withHeartbeatFailure_deletesEmitter() throws IOException {
             // given
             UUID userId = UUID.randomUUID();
             SseEmitter emitter = mock(SseEmitter.class);
@@ -362,11 +416,8 @@ class SseEmitterManagerTest {
             // when
             sseEmitterManager.sendHeartbeat();
 
-            // Virtual thread executor로 heartbeat 전송 완료 대기
-            Thread.sleep(100);
-
-            // then
-            then(emitterRepository).should().deleteByUserId(userId);
+            // then - timeout으로 비동기 완료 대기
+            then(emitterRepository).should(timeout(1000)).deleteByUserId(userId);
         }
 
         @Test
