@@ -26,8 +26,8 @@ import lombok.experimental.SuperBuilder;
     }
 )
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 public class ContentExternalMappingEntity extends BaseEntity {
 
     @Enumerated(EnumType.STRING)

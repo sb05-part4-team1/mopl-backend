@@ -10,6 +10,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,14 +20,13 @@ import lombok.experimental.SuperBuilder;
 @Table(
     name = "content_tags",
     indexes = {
-        @Index(name = "idx_content_tags_content_id", columnList = "content_id"),
         @Index(name = "idx_content_tags_tag_id", columnList = "tag_id"),
-        @Index(name = "idx_content_tags_created_at", columnList = "created_at")
-    }
+    },
+    uniqueConstraints = @UniqueConstraint(columnNames = {"content_id", "tag_id"})
 )
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 public class ContentTagEntity extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

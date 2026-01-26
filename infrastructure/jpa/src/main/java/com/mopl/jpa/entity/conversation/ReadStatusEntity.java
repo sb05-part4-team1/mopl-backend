@@ -11,6 +11,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,13 +23,13 @@ import java.time.Instant;
 @Table(
     name = "read_statuses",
     indexes = {
-        @Index(name = "idx_read_statuses_participant_conversation", columnList = "participant_id, conversation_id"),
-        @Index(name = "idx_read_statuses_created_at", columnList = "created_at")
-    }
+        @Index(name = "idx_read_statuses_conversation_id", columnList = "conversation_id")
+    },
+    uniqueConstraints = @UniqueConstraint(columnNames = {"participant_id", "conversation_id"})
 )
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 public class ReadStatusEntity extends BaseEntity {
 
     @Column(nullable = false)
