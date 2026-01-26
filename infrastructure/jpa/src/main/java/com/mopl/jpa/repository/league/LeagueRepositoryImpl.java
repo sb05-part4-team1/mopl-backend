@@ -4,21 +4,28 @@ import com.mopl.domain.model.league.LeagueModel;
 import com.mopl.domain.repository.league.LeagueRepository;
 import com.mopl.jpa.entity.league.LeagueEntity;
 import com.mopl.jpa.entity.league.LeagueEntityMapper;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
 public class LeagueRepositoryImpl implements LeagueRepository {
 
     private final JpaLeagueRepository jpaLeagueRepository;
-    private final LeagueEntityMapper mapper;
+    private final LeagueEntityMapper leagueEntityMapper;
 
     @Override
-    public LeagueModel save(LeagueModel model) {
-        LeagueEntity entity = mapper.toEntity(model);
-        return mapper.toModel(jpaLeagueRepository.save(entity));
+    public List<LeagueModel> findAll() {
+        return jpaLeagueRepository.findAll().stream()
+            .map(leagueEntityMapper::toModel)
+            .toList();
+    }
+
+    @Override
+    public long count() {
+        return jpaLeagueRepository.count();
     }
 
     @Override
@@ -27,14 +34,9 @@ public class LeagueRepositoryImpl implements LeagueRepository {
     }
 
     @Override
-    public List<LeagueModel> findAll() {
-        return jpaLeagueRepository.findAll().stream()
-            .map(mapper::toModel)
-            .toList();
-    }
-
-    @Override
-    public long count() {
-        return jpaLeagueRepository.count();
+    public LeagueModel save(LeagueModel model) {
+        LeagueEntity leagueEntity = leagueEntityMapper.toEntity(model);
+        LeagueEntity savedLeagueEntity = jpaLeagueRepository.save(leagueEntity);
+        return leagueEntityMapper.toModel(savedLeagueEntity);
     }
 }

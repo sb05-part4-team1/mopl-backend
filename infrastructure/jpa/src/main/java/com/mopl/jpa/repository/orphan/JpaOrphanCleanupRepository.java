@@ -1,10 +1,9 @@
 package com.mopl.jpa.repository.orphan;
 
+import com.mopl.jpa.entity.notification.NotificationEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-
-import com.mopl.jpa.entity.notification.NotificationEntity;
 
 import java.time.Instant;
 import java.util.List;
@@ -171,8 +170,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
             SELECT BIN_TO_UUID(n.id)
             FROM notifications n
             LEFT JOIN users u ON n.receiver_id = u.id
-            WHERE n.deleted_at IS NULL
-              AND n.created_at < :threshold
+            WHERE n.created_at < :threshold
               AND u.id IS NULL
             ORDER BY n.created_at
             LIMIT :limit

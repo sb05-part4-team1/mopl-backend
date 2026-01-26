@@ -12,7 +12,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.SQLRestriction;
 
 import java.util.UUID;
 
@@ -23,14 +22,12 @@ import static com.mopl.domain.model.notification.NotificationModel.TITLE_MAX_LEN
 @Table(
     name = "notifications",
     indexes = {
-        @Index(name = "idx_notifications_receiver_created_at", columnList = "receiver_id, created_at DESC"),
-        @Index(name = "idx_notifications_deleted_at", columnList = "deleted_at")
+        @Index(name = "idx_notifications_receiver_created_at", columnList = "receiver_id, created_at DESC")
     }
 )
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLRestriction("deleted_at IS NULL")
 public class NotificationEntity extends BaseEntity {
 
     @Column(nullable = false, length = TITLE_MAX_LENGTH)
