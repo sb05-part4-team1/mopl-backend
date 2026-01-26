@@ -1,6 +1,5 @@
 package com.mopl.api.application.user;
 
-import com.mopl.dto.outbox.DomainEventOutboxMapper;
 import com.mopl.api.interfaces.api.user.dto.UserCreateRequest;
 import com.mopl.api.interfaces.api.user.dto.UserLockUpdateRequest;
 import com.mopl.api.interfaces.api.user.dto.UserRoleUpdateRequest;
@@ -16,6 +15,7 @@ import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
+import com.mopl.dto.outbox.DomainEventOutboxMapper;
 import com.mopl.security.jwt.registry.JwtRegistry;
 import com.mopl.storage.provider.StorageProvider;
 import org.junit.jupiter.api.DisplayName;
@@ -473,6 +473,50 @@ class UserFacadeTest {
 
             then(storageProvider).should(never()).upload(any(), anyLong(), anyString());
             then(userService).should(never()).update(any(UserModel.class));
+        }
+
+        @Test
+        @DisplayName("request의 name이 null이면 이름 업데이트 없이 진행")
+        void withNullName_doesNotUpdateName() {
+            // given
+            UserModel userModel = UserModelFixture.create();
+            String originalName = userModel.getName();
+
+            UserUpdateRequest request = new UserUpdateRequest(null);
+
+            given(userService.getById(userModel.getId())).willReturn(userModel);
+            given(userService.update(any(UserModel.class))).willAnswer(inv -> inv.getArgument(0));
+
+            // when
+            UserModel result = userFacade.updateProfile(userModel.getId(), request, null);
+
+            // then
+            assertThat(result.getName()).isEqualTo(originalName);
+
+            then(userService).should().getById(userModel.getId());
+            then(userService).should().update(any(UserModel.class));
+        }
+
+        @Test
+        @DisplayName("request의 name이 빈 문자열이면 이름 업데이트 없이 진행")
+        void withBlankName_doesNotUpdateName() {
+            // given
+            UserModel userModel = UserModelFixture.create();
+            String originalName = userModel.getName();
+
+            UserUpdateRequest request = new UserUpdateRequest("   ");
+
+            given(userService.getById(userModel.getId())).willReturn(userModel);
+            given(userService.update(any(UserModel.class))).willAnswer(inv -> inv.getArgument(0));
+
+            // when
+            UserModel result = userFacade.updateProfile(userModel.getId(), request, null);
+
+            // then
+            assertThat(result.getName()).isEqualTo(originalName);
+
+            then(userService).should().getById(userModel.getId());
+            then(userService).should().update(any(UserModel.class));
         }
     }
 
