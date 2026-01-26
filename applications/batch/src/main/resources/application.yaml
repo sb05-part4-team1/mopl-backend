@@ -11,16 +11,10 @@ spring:
   profiles:
     active: batch, local, cleanup-deletion-log
 
-  data:
-    redis:
-      host: localhost  # 로컬이 아니면 IP 입력
-      port: 6379
-
   config:
     import:
       - optional:file:.env[.properties]
       - jpa.yaml
-      - redis.yaml
       - storage.yaml
       - openapi.yaml
       - search.yaml

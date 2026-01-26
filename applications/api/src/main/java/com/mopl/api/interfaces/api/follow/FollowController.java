@@ -3,6 +3,7 @@ package com.mopl.api.interfaces.api.follow;
 import com.mopl.api.application.follow.FollowFacade;
 import com.mopl.api.interfaces.api.follow.dto.FollowRequest;
 import com.mopl.dto.follow.FollowResponse;
+import com.mopl.dto.follow.FollowStatusResponse;
 import com.mopl.security.userdetails.MoplUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -51,10 +52,10 @@ public class FollowController implements FollowApiSpec {
     }
 
     @GetMapping("/followed-by-me")
-    public boolean getFollowStatus(
+    public FollowStatusResponse getFollowStatus(
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @RequestParam UUID followeeId
     ) {
-        return followFacade.isFollow(userDetails.userId(), followeeId);
+        return followFacade.getFollowStatus(userDetails.userId(), followeeId);
     }
 }

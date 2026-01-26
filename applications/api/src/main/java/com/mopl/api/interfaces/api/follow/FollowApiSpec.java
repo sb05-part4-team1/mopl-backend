@@ -3,6 +3,7 @@ package com.mopl.api.interfaces.api.follow;
 import com.mopl.api.interfaces.api.ApiErrorResponse;
 import com.mopl.api.interfaces.api.follow.dto.FollowRequest;
 import com.mopl.dto.follow.FollowResponse;
+import com.mopl.dto.follow.FollowStatusResponse;
 import com.mopl.security.userdetails.MoplUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -48,10 +49,10 @@ public interface FollowApiSpec {
     @Operation(summary = "특정 유저를 내가 팔로우하는지 여부 조회")
     @ApiResponse(
         responseCode = "200",
-        content = @Content(schema = @Schema(implementation = Boolean.class))
+        content = @Content(schema = @Schema(implementation = FollowStatusResponse.class))
     )
     @ApiErrorResponse.Default
-    boolean getFollowStatus(
+    FollowStatusResponse getFollowStatus(
         @Parameter(hidden = true) MoplUserDetails userDetails,
         @Parameter(name = "followeeId", required = true) UUID followeeId
     );
