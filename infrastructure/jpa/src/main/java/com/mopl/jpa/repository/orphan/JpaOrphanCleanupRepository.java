@@ -44,8 +44,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
             FROM reviews r
             LEFT JOIN users u ON r.author_id = u.id
             LEFT JOIN contents c ON r.content_id = c.id
-            WHERE r.deleted_at IS NULL
-              AND r.created_at < :threshold
+            WHERE r.created_at < :threshold
               AND (u.id IS NULL OR c.id IS NULL)
             ORDER BY r.created_at
             LIMIT :limit
@@ -53,6 +52,17 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
         nativeQuery = true
     )
     List<UUID> findOrphanReviewIds(Instant threshold, int limit);
+
+    @Query(
+        value = """
+            SELECT DISTINCT BIN_TO_UUID(r.content_id)
+            FROM reviews r
+            INNER JOIN contents c ON r.content_id = c.id
+            WHERE r.id IN (:ids)
+            """,
+        nativeQuery = true
+    )
+    Set<UUID> findExistingContentIdsByReviewIdIn(List<UUID> ids);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "DELETE FROM reviews WHERE id IN (:ids)", nativeQuery = true)

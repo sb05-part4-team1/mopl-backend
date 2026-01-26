@@ -384,36 +384,4 @@ class ReviewModelTest {
         }
     }
 
-    @Nested
-    @DisplayName("deleteReview()")
-    class DeleteTest {
-
-        @Test
-        @DisplayName("삭제 요청 시 deletedAt 필드가 설정된다")
-        void deletesReview() {
-            // given
-            ReviewModel review = ReviewModelFixture.create();
-
-            // when
-            review.delete();
-
-            // then
-            assertThat(review.getDeletedAt()).isNotNull();
-        }
-
-        @Test
-        @DisplayName("이미 삭제된 리뷰를 다시 삭제해도 에러 없이 멱등성이 보장된다")
-        void deleteAlreadyDeletedReview_isIdempotent() {
-            // given
-            ReviewModel review = ReviewModelFixture.create();
-            review.delete(); // 1차 삭제
-
-            // when
-            review.delete(); // 2차 삭제
-
-            // then
-            assertThat(review).isNotNull();
-            assertThat(review.getDeletedAt()).isNotNull();
-        }
-    }
 }

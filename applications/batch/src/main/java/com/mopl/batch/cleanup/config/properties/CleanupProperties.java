@@ -13,7 +13,6 @@ public class CleanupProperties {
     private CleanupPolicyProperties defaults = new CleanupPolicyProperties();
 
     private CleanupPolicyProperties content = new CleanupPolicyProperties();
-    private CleanupPolicyProperties review = new CleanupPolicyProperties();
     private CleanupPolicyProperties playlist = new CleanupPolicyProperties();
     private CleanupPolicyProperties notification = new CleanupPolicyProperties();
     private CleanupPolicyProperties storage = new CleanupPolicyProperties();

@@ -316,12 +316,12 @@ class ReviewServiceTest {
     class DeleteTest {
 
         @Test
-        @DisplayName("작성자가 본인의 리뷰를 삭제 요청하면 정상적으로 처리되고 저장된다")
-        void withOwner_deletesAndSavesReview() {
+        @DisplayName("작성자가 본인의 리뷰를 삭제 요청하면 정상적으로 삭제된다")
+        void withOwner_deletesReview() {
             // given
             ReviewModel existingReview = ReviewModelFixture.create();
             UUID reviewId = existingReview.getId();
-            UUID authorId = existingReview.getAuthor().getId(); // 본인 ID 추출
+            UUID authorId = existingReview.getAuthor().getId();
 
             given(reviewRepository.findById(reviewId)).willReturn(Optional.of(existingReview));
 
@@ -329,8 +329,8 @@ class ReviewServiceTest {
             reviewService.deleteAndGetContentId(reviewId, authorId);
 
             // then
-            assertThat(existingReview.getDeletedAt()).isNotNull();
-            then(reviewRepository).should().save(any(ReviewModel.class));
+            then(reviewRepository).should().delete(reviewId);
+            then(contentRepository).should().save(any(ContentModel.class));
         }
 
         @Test
