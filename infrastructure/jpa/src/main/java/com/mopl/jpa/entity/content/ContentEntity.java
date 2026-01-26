@@ -24,10 +24,10 @@ import static com.mopl.domain.model.content.ContentModel.THUMBNAIL_PATH_MAX_LENG
         @Index(name = "idx_contents_deleted_at", columnList = "deleted_at")
     }
 )
+@SQLRestriction("deleted_at IS NULL")
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLRestriction("deleted_at IS NULL")
 public class ContentEntity extends BaseUpdatableEntity {
 
     @Enumerated(EnumType.STRING)
