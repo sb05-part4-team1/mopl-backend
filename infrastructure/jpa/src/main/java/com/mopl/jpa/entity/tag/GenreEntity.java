@@ -14,8 +14,8 @@ import static com.mopl.domain.model.tag.TagModel.NAME_MAX_LENGTH;
 @Entity
 @Table(name = "genres")
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 public class GenreEntity extends BaseEntity {
 
     @Column(nullable = false, unique = true)

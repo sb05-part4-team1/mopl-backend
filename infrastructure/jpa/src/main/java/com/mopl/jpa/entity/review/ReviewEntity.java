@@ -12,6 +12,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,14 +23,15 @@ import lombok.experimental.SuperBuilder;
     name = "reviews",
     indexes = {
         @Index(name = "idx_reviews_content_created_at", columnList = "content_id, created_at DESC"),
-        @Index(name = "idx_reviews_content_rating", columnList = "content_id, rating DESC"),
-        @Index(name = "idx_reviews_author_id", columnList = "author_id"),
-        @Index(name = "idx_reviews_created_at", columnList = "created_at")
+        @Index(name = "idx_reviews_content_rating", columnList = "content_id, rating DESC")
+    },
+    uniqueConstraints = {
+        @UniqueConstraint(name = "uk_reviews_content_author", columnNames = {"content_id", "author_id"})
     }
 )
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 public class ReviewEntity extends BaseUpdatableEntity {
 
     @Column(columnDefinition = "TEXT")
