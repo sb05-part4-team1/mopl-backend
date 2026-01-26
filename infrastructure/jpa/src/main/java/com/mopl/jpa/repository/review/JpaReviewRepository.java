@@ -27,6 +27,7 @@ public interface JpaReviewRepository extends JpaRepository<ReviewEntity, UUID> {
     @Query("""
         SELECT r.content.id AS contentId, COUNT(r) AS reviewCount, AVG(r.rating) AS averageRating
         FROM ReviewEntity r
+        JOIN r.author
         WHERE r.content.id = :contentId AND r.deletedAt IS NULL
         GROUP BY r.content.id
         """)

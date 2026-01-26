@@ -23,7 +23,12 @@ public interface JpaPlaylistSubscriberRepository extends
         Collection<UUID> playlistIds
     );
 
-    @Query("SELECT ps.subscriber.id FROM PlaylistSubscriberEntity ps WHERE ps.playlist.id = :playlistId")
+    @Query("""
+        SELECT ps.subscriber.id
+        FROM PlaylistSubscriberEntity ps
+        JOIN ps.subscriber
+        WHERE ps.playlist.id = :playlistId
+        """)
     List<UUID> findSubscriberIdsByPlaylistId(UUID playlistId);
 
     boolean existsByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId);

@@ -12,10 +12,21 @@ public interface JpaFollowRepository extends JpaRepository<FollowEntity, UUID> {
 
     Optional<FollowEntity> findByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId);
 
-    @Query("SELECT f.follower.id FROM FollowEntity f WHERE f.followee.id = :followeeId")
+    @Query("""
+        SELECT f.follower.id
+        FROM FollowEntity f
+        JOIN f.follower
+        WHERE f.followee.id = :followeeId
+        """)
     List<UUID> findFollowerIdsByFolloweeId(UUID followeeId);
 
     boolean existsByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId);
 
+    @Query("""
+        SELECT COUNT(f)
+        FROM FollowEntity f
+        JOIN f.follower
+        WHERE f.followee.id = :followeeId
+        """)
     long countByFolloweeId(UUID followeeId);
 }
