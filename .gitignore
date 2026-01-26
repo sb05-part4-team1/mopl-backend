@@ -193,6 +193,7 @@ cypress/screenshots/
 *.env.local
 *.secret
 *.config
+!lombok.config
 secret.*
 private.*
 *.crt
