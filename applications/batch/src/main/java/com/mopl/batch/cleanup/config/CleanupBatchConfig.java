@@ -3,7 +3,6 @@ package com.mopl.batch.cleanup.config;
 import com.mopl.batch.cleanup.service.content.ContentCleanupService;
 import com.mopl.batch.cleanup.service.log.ContentDeletionLogCleanupService;
 import com.mopl.batch.cleanup.service.notification.NotificationCleanupService;
-import com.mopl.batch.cleanup.service.playlist.PlaylistCleanupService;
 import com.mopl.batch.cleanup.service.storage.StorageCleanupService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +23,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class CleanupBatchConfig {
 
     private final ContentCleanupService contentCleanupService;
-    private final PlaylistCleanupService playlistCleanupService;
     private final NotificationCleanupService notificationCleanupService;
     private final StorageCleanupService storageCleanupService;
     private final ContentDeletionLogCleanupService contentDeletionLogCleanupService;
@@ -34,7 +32,6 @@ public class CleanupBatchConfig {
         return new JobBuilder("cleanupJob", jobRepository)
             // 1. 부모 엔티티 삭제
             .start(contentStep(jobRepository, txManager))
-            .next(playlistStep(jobRepository, txManager))
             // 2. 자식 엔티티 삭제 (soft delete된 것 정리)
             .next(notificationStep(jobRepository, txManager))
             // 3. 기타 정리
@@ -63,27 +60,7 @@ public class CleanupBatchConfig {
         };
     }
 
-    // ==================== 2. Playlist ====================
-    @Bean
-    public Step playlistStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
-        return new StepBuilder("playlistStep", jobRepository)
-            .tasklet(playlistTasklet(), txManager)
-            .build();
-    }
-
-    @Bean
-    public Tasklet playlistTasklet() {
-        return (contribution, chunkContext) -> {
-            long start = System.currentTimeMillis();
-            log.info("[Cleanup] playlist start");
-            int processed = playlistCleanupService.cleanup();
-            log.info("[Cleanup] playlist end processed={} durationMs={}",
-                processed, System.currentTimeMillis() - start);
-            return RepeatStatus.FINISHED;
-        };
-    }
-
-    // ==================== 3. Notification ====================
+    // ==================== 2. Notification ====================
     @Bean
     public Step notificationStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
         return new StepBuilder("notificationStep", jobRepository)

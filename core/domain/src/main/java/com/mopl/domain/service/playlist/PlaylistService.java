@@ -48,9 +48,8 @@ public class PlaylistService {
         return playlistCacheService.save(playlistModel);
     }
 
-    public void delete(PlaylistModel playlistModel) {
-        playlistModel.delete();
-        playlistCacheService.saveAndEvict(playlistModel);
+    public void delete(UUID playlistId) {
+        playlistCacheService.deleteAndEvict(playlistId);
     }
 
     @CacheEvict(cacheNames = CacheName.PLAYLIST_CONTENTS, key = "#playlistId")

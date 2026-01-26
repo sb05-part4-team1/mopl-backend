@@ -1,8 +1,8 @@
 package com.mopl.api.config;
 
-import com.mopl.domain.repository.content.query.ContentQueryRepository;
 import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.content.ContentTagRepository;
+import com.mopl.domain.repository.content.query.ContentQueryRepository;
 import com.mopl.domain.repository.conversation.ConversationQueryRepository;
 import com.mopl.domain.repository.conversation.ConversationRepository;
 import com.mopl.domain.repository.conversation.DirectMessageQueryRepository;
@@ -99,9 +99,10 @@ public class DomainServiceConfig {
     @Bean
     public PlaylistCacheService playlistCacheService(
         PlaylistRepository playlistRepository,
-        PlaylistContentRepository playlistContentRepository
+        PlaylistContentRepository playlistContentRepository,
+        PlaylistSubscriberRepository playlistSubscriberRepository
     ) {
-        return new PlaylistCacheService(playlistRepository, playlistContentRepository);
+        return new PlaylistCacheService(playlistRepository, playlistContentRepository, playlistSubscriberRepository);
     }
 
     @Bean

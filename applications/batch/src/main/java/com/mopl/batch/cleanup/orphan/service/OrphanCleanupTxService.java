@@ -22,6 +22,8 @@ public class OrphanCleanupTxService {
     // ==================== 1. Playlist ====================
     @Transactional
     public int cleanupPlaylists(List<UUID> playlistIds) {
+        orphanCleanupRepository.deletePlaylistContentsByPlaylistIdIn(playlistIds);
+        orphanCleanupRepository.deletePlaylistSubscribersByPlaylistIdIn(playlistIds);
         return orphanCleanupRepository.deletePlaylistsByIdIn(playlistIds);
     }
 

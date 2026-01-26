@@ -23,8 +23,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
             SELECT BIN_TO_UUID(p.id)
             FROM playlists p
             LEFT JOIN users u ON p.owner_id = u.id
-            WHERE p.deleted_at IS NULL
-              AND p.created_at < :threshold
+            WHERE p.created_at < :threshold
               AND u.id IS NULL
             ORDER BY p.created_at
             LIMIT :limit
@@ -32,6 +31,14 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
         nativeQuery = true
     )
     List<UUID> findOrphanPlaylistIds(Instant threshold, int limit);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "DELETE FROM playlist_contents WHERE playlist_id IN (:playlistIds)", nativeQuery = true)
+    int deletePlaylistContentsByPlaylistIdIn(List<UUID> playlistIds);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "DELETE FROM playlist_subscribers WHERE playlist_id IN (:playlistIds)", nativeQuery = true)
+    int deletePlaylistSubscribersByPlaylistIdIn(List<UUID> playlistIds);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "DELETE FROM playlists WHERE id IN (:ids)", nativeQuery = true)

@@ -7,6 +7,7 @@ import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.domain.repository.playlist.PlaylistRepository;
+import com.mopl.domain.repository.playlist.PlaylistSubscriberRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,9 @@ class PlaylistCacheServiceTest {
 
     @Mock
     private PlaylistContentRepository playlistContentRepository;
+
+    @Mock
+    private PlaylistSubscriberRepository playlistSubscriberRepository;
 
     @InjectMocks
     private PlaylistCacheService playlistCacheService;
@@ -139,21 +143,23 @@ class PlaylistCacheServiceTest {
         }
     }
 
-    @DisplayName("saveAndEvict()")
+    @DisplayName("deleteAndEvict()")
     @Nested
-    class SaveAndEvictTest {
+    class DeleteAndEvictTest {
 
-        @DisplayName("플레이리스트 저장 후 캐시 evict")
+        @DisplayName("플레이리스트 삭제 후 캐시 evict")
         @Test
-        void savesPlaylistAndEvictsCache() {
+        void deletesPlaylistAndEvictsCache() {
             // given
-            PlaylistModel playlistModel = PlaylistModelFixture.create();
+            UUID playlistId = UUID.randomUUID();
 
             // when
-            playlistCacheService.saveAndEvict(playlistModel);
+            playlistCacheService.deleteAndEvict(playlistId);
 
             // then
-            then(playlistRepository).should().save(playlistModel);
+            then(playlistContentRepository).should().deleteAllByPlaylistIds(List.of(playlistId));
+            then(playlistSubscriberRepository).should().deleteAllByPlaylistIds(List.of(playlistId));
+            then(playlistRepository).should().delete(playlistId);
         }
     }
 }

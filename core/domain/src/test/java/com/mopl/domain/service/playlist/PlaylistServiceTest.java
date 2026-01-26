@@ -265,13 +265,13 @@ class PlaylistServiceTest {
             // given
             UserModel owner = UserModelFixture.create();
             PlaylistModel playlistModel = PlaylistModelFixture.create(owner);
+            UUID playlistId = playlistModel.getId();
 
             // when
-            playlistService.delete(playlistModel);
+            playlistService.delete(playlistId);
 
             // then
-            assertThat(playlistModel.isDeleted()).isTrue();
-            then(playlistCacheService).should().saveAndEvict(playlistModel);
+            then(playlistCacheService).should().deleteAndEvict(playlistId);
         }
     }
 
