@@ -213,7 +213,7 @@ class ContentTagRepositoryImplTest {
 
             assertThat(jpaContentTagRepository.findAll()).hasSize(3);
 
-            contentTagRepository.deleteAllByContentId(content1.getId());
+            contentTagRepository.deleteByContentId(content1.getId());
 
             List<ContentTagEntity> remaining = jpaContentTagRepository.findAll();
 
@@ -229,7 +229,7 @@ class ContentTagRepositoryImplTest {
                 ContentModel.create(ContentModel.ContentType.movie, "인셉션", "꿈", "url")
             );
 
-            contentTagRepository.deleteAllByContentId(savedContent.getId());
+            contentTagRepository.deleteByContentId(savedContent.getId());
 
             assertThat(jpaContentTagRepository.findAll()).isEmpty();
         }

@@ -52,12 +52,6 @@ public interface JpaContentRepository extends JpaRepository<ContentEntity, UUID>
     List<ContentThumbnailRow> findThumbnailPathsByIds(@Param("contentIds") List<UUID> contentIds);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(
-        value = """
-                delete from contents
-                where id in (:contentIds)
-            """,
-        nativeQuery = true
-    )
-    int deleteByIdIn(List<UUID> contentIds);
+    @Query(value = "delete from contents where id in (:contentIds)", nativeQuery = true)
+    int deleteByIdIn(@Param("contentIds") List<UUID> contentIds);
 }

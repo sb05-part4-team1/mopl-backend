@@ -9,12 +9,13 @@ import java.util.UUID;
 
 public interface ReviewRepository {
 
-    ReviewModel save(ReviewModel reviewModel);
-
     Optional<ReviewModel> findById(UUID reviewId);
 
     boolean existsByContentIdAndAuthorId(UUID contentId, UUID authorId);
 
+    ReviewModel save(ReviewModel reviewModel);
+
+    // cleanup batch 전용
     List<UUID> findCleanupTargets(Instant threshold, int limit);
 
     int deleteByIdIn(List<UUID> reviewIds);
