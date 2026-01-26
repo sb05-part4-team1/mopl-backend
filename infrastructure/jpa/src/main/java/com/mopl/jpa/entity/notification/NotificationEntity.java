@@ -23,7 +23,8 @@ import static com.mopl.domain.model.notification.NotificationModel.TITLE_MAX_LEN
 @Table(
     name = "notifications",
     indexes = {
-        @Index(name = "idx_notifications_receiver_created_at", columnList = "receiver_id, created_at DESC")
+        @Index(name = "idx_notifications_receiver_created_at", columnList = "receiver_id, created_at DESC"),
+        @Index(name = "idx_notifications_deleted_at", columnList = "deleted_at")
     }
 )
 @Getter

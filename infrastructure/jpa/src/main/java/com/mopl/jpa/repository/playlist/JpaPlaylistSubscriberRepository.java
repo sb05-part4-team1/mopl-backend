@@ -13,9 +13,6 @@ import java.util.UUID;
 public interface JpaPlaylistSubscriberRepository extends
     JpaRepository<PlaylistSubscriberEntity, UUID> {
 
-    @Query("SELECT DISTINCT ps.playlist.id FROM PlaylistSubscriberEntity ps")
-    Set<UUID> findAllPlaylistIds();
-
     @Query("""
         SELECT ps.playlist.id
         FROM PlaylistSubscriberEntity ps
@@ -29,20 +26,18 @@ public interface JpaPlaylistSubscriberRepository extends
     @Query("SELECT ps.subscriber.id FROM PlaylistSubscriberEntity ps WHERE ps.playlist.id = :playlistId")
     List<UUID> findSubscriberIdsByPlaylistId(UUID playlistId);
 
-    long countByPlaylistId(UUID playlistId);
-
-    @Query("""
-        SELECT ps.playlist.id, COUNT(ps)
-        FROM PlaylistSubscriberEntity ps
-        WHERE ps.playlist.id IN :playlistIds
-        GROUP BY ps.playlist.id
-        """)
-    List<Object[]> countByPlaylistIdIn(Collection<UUID> playlistIds);
-
     boolean existsByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId);
 
     int deleteByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId);
 
+    // denormalized sync batch 전용
+    @Query("SELECT DISTINCT ps.playlist.id FROM PlaylistSubscriberEntity ps")
+    Set<UUID> findAllPlaylistIds();
+
+    @Query("SELECT COUNT(ps) FROM PlaylistSubscriberEntity ps WHERE ps.playlist.id = :playlistId")
+    int countByPlaylistId(UUID playlistId);
+
+    // cleanup batch 전용
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
             delete from PlaylistSubscriberEntity ps

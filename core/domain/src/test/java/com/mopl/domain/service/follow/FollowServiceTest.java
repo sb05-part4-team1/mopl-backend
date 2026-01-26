@@ -1,6 +1,8 @@
 package com.mopl.domain.service.follow;
 
+import com.mopl.domain.exception.follow.FollowAlreadyExistsException;
 import com.mopl.domain.exception.follow.FollowErrorCode;
+import com.mopl.domain.exception.follow.FollowNotFoundException;
 import com.mopl.domain.exception.follow.SelfFollowException;
 import com.mopl.domain.model.follow.FollowModel;
 import com.mopl.domain.repository.follow.FollowRepository;
@@ -12,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -49,8 +52,8 @@ class FollowServiceTest {
                 .followerId(followerId)
                 .build();
 
-            given(followRepository.findByFollowerIdAndFolloweeId(followerId, followeeId))
-                .willReturn(Optional.empty());
+            given(followRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId))
+                .willReturn(false);
             given(followRepository.save(followModel))
                 .willReturn(savedFollow);
 
@@ -63,35 +66,27 @@ class FollowServiceTest {
             assertThat(result.getFollowerId()).isEqualTo(followerId);
             assertThat(result.getFolloweeId()).isEqualTo(followeeId);
 
-            then(followRepository).should().findByFollowerIdAndFolloweeId(followerId, followeeId);
+            then(followRepository).should().existsByFollowerIdAndFolloweeId(followerId, followeeId);
             then(followRepository).should().save(followModel);
         }
 
         @Test
-        @DisplayName("이미 팔로우 중이면 예외 없이 기존 관계 반환")
-        void givenAlreadyExistingFollow_whenCreate_thenReturnExistingFollow() {
+        @DisplayName("이미 팔로우 중이면 FollowAlreadyExistsException 발생")
+        void givenAlreadyExistingFollow_whenCreate_thenThrowsFollowAlreadyExistsException() {
             // given
             UUID followerId = UUID.randomUUID();
             UUID followeeId = UUID.randomUUID();
             FollowModel followModel = FollowModel.create(followeeId, followerId);
-            FollowModel existingFollow = FollowModel.builder()
-                .id(UUID.randomUUID())
-                .followeeId(followeeId)
-                .followerId(followerId)
-                .deletedAt(null)
-                .build();
 
-            given(followRepository.findByFollowerIdAndFolloweeId(followerId, followeeId))
-                .willReturn(Optional.of(existingFollow));
+            given(followRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId))
+                .willReturn(true);
 
-            // when
-            FollowModel result = followService.create(followModel);
+            // when & then
+            assertThatThrownBy(() -> followService.create(followModel))
+                .isInstanceOf(FollowAlreadyExistsException.class)
+                .hasMessage(FollowErrorCode.FOLLOW_ALREADY_EXISTS.getMessage());
 
-            // then
-            assertThat(result).isEqualTo(existingFollow);
-            assertThat(result.getId()).isEqualTo(existingFollow.getId());
-
-            then(followRepository).should().findByFollowerIdAndFolloweeId(followerId, followeeId);
+            then(followRepository).should().existsByFollowerIdAndFolloweeId(followerId, followeeId);
             then(followRepository).should(never()).save(any());
         }
 
@@ -107,8 +102,185 @@ class FollowServiceTest {
                 .isInstanceOf(SelfFollowException.class)
                 .hasMessage(FollowErrorCode.SELF_FOLLOW_NOT_ALLOWED.getMessage());
 
-            then(followRepository).should(never()).findByFollowerIdAndFolloweeId(any(), any());
+            then(followRepository).should(never()).existsByFollowerIdAndFolloweeId(any(), any());
             then(followRepository).should(never()).save(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("getById()")
+    class GetByIdTest {
+
+        @Test
+        @DisplayName("존재하는 팔로우 ID로 조회하면 FollowModel 반환")
+        void withExistingId_returnsFollowModel() {
+            // given
+            UUID followId = UUID.randomUUID();
+            FollowModel followModel = FollowModel.builder()
+                .id(followId)
+                .followerId(UUID.randomUUID())
+                .followeeId(UUID.randomUUID())
+                .build();
+
+            given(followRepository.findById(followId)).willReturn(Optional.of(followModel));
+
+            // when
+            FollowModel result = followService.getById(followId);
+
+            // then
+            assertThat(result).isEqualTo(followModel);
+            then(followRepository).should().findById(followId);
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 팔로우 ID로 조회하면 FollowNotFoundException 발생")
+        void withNonExistingId_throwsFollowNotFoundException() {
+            // given
+            UUID followId = UUID.randomUUID();
+
+            given(followRepository.findById(followId)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> followService.getById(followId))
+                .isInstanceOf(FollowNotFoundException.class)
+                .hasMessage(FollowErrorCode.FOLLOW_NOT_FOUND.getMessage());
+        }
+    }
+
+    @Nested
+    @DisplayName("getFollowerIds()")
+    class GetFollowerIdsTest {
+
+        @Test
+        @DisplayName("팔로워 ID 목록 반환")
+        void returnsFollowerIds() {
+            // given
+            UUID followeeId = UUID.randomUUID();
+            UUID followerId1 = UUID.randomUUID();
+            UUID followerId2 = UUID.randomUUID();
+            List<UUID> followerIds = List.of(followerId1, followerId2);
+
+            given(followRepository.findFollowerIdsByFolloweeId(followeeId)).willReturn(followerIds);
+
+            // when
+            List<UUID> result = followService.getFollowerIds(followeeId);
+
+            // then
+            assertThat(result).containsExactly(followerId1, followerId2);
+            then(followRepository).should().findFollowerIdsByFolloweeId(followeeId);
+        }
+
+        @Test
+        @DisplayName("팔로워가 없으면 빈 목록 반환")
+        void withNoFollowers_returnsEmptyList() {
+            // given
+            UUID followeeId = UUID.randomUUID();
+
+            given(followRepository.findFollowerIdsByFolloweeId(followeeId)).willReturn(List.of());
+
+            // when
+            List<UUID> result = followService.getFollowerIds(followeeId);
+
+            // then
+            assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("getFollowerCount()")
+    class GetFollowerCountTest {
+
+        @Test
+        @DisplayName("팔로워 수 반환")
+        void returnsFollowerCount() {
+            // given
+            UUID followeeId = UUID.randomUUID();
+
+            given(followRepository.countByFolloweeId(followeeId)).willReturn(42L);
+
+            // when
+            long result = followService.getFollowerCount(followeeId);
+
+            // then
+            assertThat(result).isEqualTo(42L);
+            then(followRepository).should().countByFolloweeId(followeeId);
+        }
+
+        @Test
+        @DisplayName("팔로워가 없으면 0 반환")
+        void withNoFollowers_returnsZero() {
+            // given
+            UUID followeeId = UUID.randomUUID();
+
+            given(followRepository.countByFolloweeId(followeeId)).willReturn(0L);
+
+            // when
+            long result = followService.getFollowerCount(followeeId);
+
+            // then
+            assertThat(result).isZero();
+        }
+    }
+
+    @Nested
+    @DisplayName("isFollow()")
+    class IsFollowTest {
+
+        @Test
+        @DisplayName("팔로우 관계가 존재하면 true 반환")
+        void withExistingFollow_returnsTrue() {
+            // given
+            UUID followerId = UUID.randomUUID();
+            UUID followeeId = UUID.randomUUID();
+
+            given(followRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId))
+                .willReturn(true);
+
+            // when
+            boolean result = followService.isFollow(followerId, followeeId);
+
+            // then
+            assertThat(result).isTrue();
+            then(followRepository).should().existsByFollowerIdAndFolloweeId(followerId, followeeId);
+        }
+
+        @Test
+        @DisplayName("팔로우 관계가 없으면 false 반환")
+        void withNoFollow_returnsFalse() {
+            // given
+            UUID followerId = UUID.randomUUID();
+            UUID followeeId = UUID.randomUUID();
+
+            given(followRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId))
+                .willReturn(false);
+
+            // when
+            boolean result = followService.isFollow(followerId, followeeId);
+
+            // then
+            assertThat(result).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("delete()")
+    class DeleteTest {
+
+        @Test
+        @DisplayName("팔로우 삭제")
+        void deletesFollow() {
+            // given
+            FollowModel followModel = FollowModel.builder()
+                .id(UUID.randomUUID())
+                .followerId(UUID.randomUUID())
+                .followeeId(UUID.randomUUID())
+                .build();
+
+            // when
+            followService.delete(followModel);
+
+            // then
+            then(followRepository).should().delete(followModel);
         }
     }
 }

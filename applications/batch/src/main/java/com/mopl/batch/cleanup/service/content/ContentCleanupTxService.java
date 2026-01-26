@@ -41,7 +41,7 @@ public class ContentCleanupTxService {
 
         int deletedMappings = externalMappingRepository.deleteAllByContentIds(contentIds);
 
-        int deletedTags = contentTagRepository.deleteAllByContentIds(contentIds);
+        int deletedTags = contentTagRepository.deleteByContentIdIn(contentIds);
         int deletedPlaylistContents = playlistContentRepository.deleteAllByContentIds(contentIds);
 
         int softDeletedReviews = reviewRepository.softDeleteByContentIdIn(contentIds, now);

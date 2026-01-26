@@ -22,7 +22,8 @@ import java.time.Instant;
 @Table(
     name = "read_statuses",
     indexes = {
-        @Index(name = "idx_read_statuses_participant_conversation", columnList = "participant_id, conversation_id")
+        @Index(name = "idx_read_statuses_participant_conversation", columnList = "participant_id, conversation_id"),
+        @Index(name = "idx_read_statuses_created_at", columnList = "created_at")
     }
 )
 @Getter

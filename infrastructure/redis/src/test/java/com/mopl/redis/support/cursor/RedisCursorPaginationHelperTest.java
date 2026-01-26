@@ -266,6 +266,37 @@ class RedisCursorPaginationHelperTest {
         }
 
         @Test
+        @DisplayName("ASC 정렬에서 필드값만 커서보다 큰 경우 포함")
+        void withAscendingOrder_includesItemWithGreaterFieldOnly() {
+            // given
+            Instant cursor = Instant.parse("2024-01-01T12:00:00Z");
+            UUID cursorId = UUID.fromString("00000000-0000-0000-0000-000000000005");
+
+            UUID id1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+
+            List<TestItem> items = List.of(
+                new TestItem(id1, Instant.parse("2024-01-01T13:00:00Z"), "Greater time, smaller id")
+            );
+
+            CursorRequest<TestSortField> request = createRequest(
+                cursor.toString(), cursorId, 10, SortDirection.ASCENDING
+            );
+
+            // when
+            List<TestItem> result = RedisCursorPaginationHelper.applyCursor(
+                items,
+                request,
+                sortField,
+                TestItem::createdAt,
+                TestItem::id
+            );
+
+            // then - cmp > 0 이므로 ID 비교 없이 포함됨
+            assertThat(result).hasSize(1);
+            assertThat(result.getFirst().name()).isEqualTo("Greater time, smaller id");
+        }
+
+        @Test
         @DisplayName("cursor 역직렬화가 null을 반환하면 원본 리스트 반환")
         void withInvalidCursor_returnsOriginalList() {
             // given

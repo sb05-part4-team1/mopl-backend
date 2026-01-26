@@ -1,6 +1,5 @@
 package com.mopl.api.application.playlist;
 
-import com.mopl.dto.outbox.DomainEventOutboxMapper;
 import com.mopl.api.interfaces.api.playlist.dto.PlaylistCreateRequest;
 import com.mopl.api.interfaces.api.playlist.dto.PlaylistUpdateRequest;
 import com.mopl.domain.event.playlist.PlaylistContentAddedEvent;
@@ -18,6 +17,7 @@ import com.mopl.domain.service.playlist.PlaylistService;
 import com.mopl.domain.service.playlist.PlaylistSubscriptionService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.dto.outbox.DomainEventOutboxMapper;
 import com.mopl.dto.playlist.PlaylistResponse;
 import com.mopl.dto.playlist.PlaylistResponseMapper;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +48,8 @@ public class PlaylistFacade {
         UUID requesterId,
         PlaylistQueryRequest request
     ) {
+        userService.getById(requesterId);
+
         CursorResponse<PlaylistModel> playlistPage = playlistService.getAll(request);
         List<PlaylistModel> playlists = playlistPage.data();
 
@@ -132,7 +134,11 @@ public class PlaylistFacade {
 
         PlaylistModel updatedPlaylist = playlist.update(request.title(), request.description());
 
-        PlaylistModel playlistModel = transactionTemplate.execute(status -> {
+        return transactionTemplate.execute(status -> {
+            boolean subscribedByMe = playlistSubscriptionService
+                .isSubscribedByPlaylistIdAndSubscriberId(playlistId, requesterId);
+            List<ContentModel> contents = playlistService.getContentsByPlaylistId(playlistId);
+
             PlaylistModel updated = playlistService.update(updatedPlaylist);
 
             PlaylistUpdatedEvent event = PlaylistUpdatedEvent.builder()
@@ -143,10 +149,13 @@ public class PlaylistFacade {
                 .build();
             outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
 
-            return updated;
+            return playlistResponseMapper.toResponse(
+                updated,
+                subscribedByMe,
+                contents,
+                Map.of()
+            );
         });
-
-        return playlistResponseMapper.toResponse(playlistModel);
     }
 
     public void deletePlaylist(
@@ -154,12 +163,10 @@ public class PlaylistFacade {
         UUID playlistId
     ) {
         userService.getById(requesterId);
+        PlaylistModel playlist = playlistService.getById(playlistId);
+        validateOwner(playlist, requesterId);
 
-        transactionTemplate.executeWithoutResult(status -> {
-            PlaylistModel playlist = playlistService.getById(playlistId);
-            validateOwner(playlist, requesterId);
-            playlistService.delete(playlist);
-        });
+        transactionTemplate.executeWithoutResult(status -> playlistService.delete(playlist));
     }
 
     public void addContentToPlaylist(
@@ -170,7 +177,6 @@ public class PlaylistFacade {
         UserModel owner = userService.getById(requesterId);
         PlaylistModel playlist = playlistService.getById(playlistId);
         validateOwner(playlist, owner.getId());
-        contentService.getById(contentId);
 
         ContentModel content = contentService.getById(contentId);
 
@@ -189,7 +195,6 @@ public class PlaylistFacade {
         });
     }
 
-    @Transactional
     public void deleteContentFromPlaylist(
         UUID requesterId,
         UUID playlistId,
@@ -199,9 +204,10 @@ public class PlaylistFacade {
         PlaylistModel playlist = playlistService.getById(playlistId);
         validateOwner(playlist, requesterId);
 
-        playlistService.deleteContentFromPlaylist(playlistId, contentId);
+        transactionTemplate.executeWithoutResult(status -> playlistService.deleteContentFromPlaylist(playlistId, contentId));
     }
 
+    @Transactional
     public void subscribePlaylist(
         UUID requesterId,
         UUID playlistId
@@ -217,10 +223,9 @@ public class PlaylistFacade {
             .ownerId(playlist.getOwner().getId())
             .build();
 
-        transactionTemplate.executeWithoutResult(status -> {
-            playlistSubscriptionService.subscribe(playlistId, requesterId);
-            outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
-        });
+        playlistSubscriptionService.subscribe(playlistId, requesterId);
+        playlistService.update(playlist.withSubscriberAdded());
+        outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
     }
 
     @Transactional
@@ -229,9 +234,10 @@ public class PlaylistFacade {
         UUID playlistId
     ) {
         userService.getById(requesterId);
-        playlistService.getById(playlistId);
+        PlaylistModel playlist = playlistService.getById(playlistId);
 
         playlistSubscriptionService.unsubscribe(playlistId, requesterId);
+        playlistService.update(playlist.withSubscriberRemoved());
     }
 
     private void validateOwner(PlaylistModel playlist, UUID requesterId) {

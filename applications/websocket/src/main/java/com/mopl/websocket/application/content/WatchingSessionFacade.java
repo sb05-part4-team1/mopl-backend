@@ -51,7 +51,7 @@ public class WatchingSessionFacade {
 
         return new WatchingSessionChangeResponse(
             WatchingSessionChangeType.JOIN,
-            watchingSessionResponseMapper.toDto(session),
+            watchingSessionResponseMapper.toResponse(session),
             watchingSessionRepository.countByContentId(contentId)
         );
     }
@@ -59,7 +59,7 @@ public class WatchingSessionFacade {
     private void broadcastLeave(WatchingSessionModel session) {
         WatchingSessionChangeResponse leaveResponse = new WatchingSessionChangeResponse(
             WatchingSessionChangeType.LEAVE,
-            watchingSessionResponseMapper.toDto(session),
+            watchingSessionResponseMapper.toResponse(session),
             watchingSessionRepository.countByContentId(session.getContentId()) - 1
         );
         messagingTemplate.convertAndSend(buildWatchDestination(session.getContentId()), leaveResponse);
@@ -82,7 +82,7 @@ public class WatchingSessionFacade {
             watchingSessionRepository.delete(existingOpt.get());
             return new WatchingSessionChangeResponse(
                 WatchingSessionChangeType.LEAVE,
-                watchingSessionResponseMapper.toDto(existingOpt.get()),
+                watchingSessionResponseMapper.toResponse(existingOpt.get()),
                 watchingSessionRepository.countByContentId(contentId)
             );
         }

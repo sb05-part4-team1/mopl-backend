@@ -7,6 +7,7 @@ import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -17,7 +18,14 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
-@Table(name = "playlists")
+@Table(
+    name = "playlists",
+    indexes = {
+        @Index(name = "idx_playlists_deleted_at", columnList = "deleted_at"),
+        @Index(name = "idx_playlists_owner_id", columnList = "owner_id"),
+        @Index(name = "idx_playlists_created_at", columnList = "created_at")
+    }
+)
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

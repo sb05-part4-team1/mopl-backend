@@ -101,7 +101,7 @@ class WatchingSessionFacadeTest {
             given(watchingSessionRepository.save(any(WatchingSessionModel.class)))
                 .willAnswer(inv -> inv.getArgument(0));
             given(watchingSessionRepository.countByContentId(contentId)).willReturn(1L);
-            given(watchingSessionResponseMapper.toDto(any(WatchingSessionModel.class)))
+            given(watchingSessionResponseMapper.toResponse(any(WatchingSessionModel.class)))
                 .willReturn(mockResponse);
 
             // when
@@ -130,7 +130,7 @@ class WatchingSessionFacadeTest {
             given(watchingSessionRepository.save(any(WatchingSessionModel.class)))
                 .willAnswer(inv -> inv.getArgument(0));
             given(watchingSessionRepository.countByContentId(contentId)).willReturn(1L);
-            given(watchingSessionResponseMapper.toDto(any(WatchingSessionModel.class)))
+            given(watchingSessionResponseMapper.toResponse(any(WatchingSessionModel.class)))
                 .willReturn(mockResponse);
 
             // when
@@ -159,7 +159,7 @@ class WatchingSessionFacadeTest {
                 .sample();
 
             given(watchingSessionRepository.findByWatcherId(userId)).willReturn(Optional.of(existingSession));
-            given(watchingSessionResponseMapper.toDto(existingSession)).willReturn(mockResponse);
+            given(watchingSessionResponseMapper.toResponse(existingSession)).willReturn(mockResponse);
             given(watchingSessionRepository.countByContentId(oldContentId)).willReturn(1L);
             given(contentService.getById(contentId)).willReturn(content);
             given(userService.getById(userId)).willReturn(user);
@@ -194,7 +194,7 @@ class WatchingSessionFacadeTest {
                 .sample();
 
             given(watchingSessionRepository.findByWatcherId(userId)).willReturn(Optional.of(existingSession));
-            given(watchingSessionResponseMapper.toDto(existingSession)).willReturn(mockResponse);
+            given(watchingSessionResponseMapper.toResponse(existingSession)).willReturn(mockResponse);
             given(watchingSessionRepository.countByContentId(oldContentId)).willReturn(2L);
             given(contentService.getById(contentId)).willReturn(content);
             given(userService.getById(userId)).willReturn(user);
@@ -272,7 +272,7 @@ class WatchingSessionFacadeTest {
 
             given(watchingSessionRepository.findByWatcherId(userId)).willReturn(Optional.of(existingSession));
             given(watchingSessionRepository.countByContentId(contentId)).willReturn(0L);
-            given(watchingSessionResponseMapper.toDto(existingSession)).willReturn(mockResponse);
+            given(watchingSessionResponseMapper.toResponse(existingSession)).willReturn(mockResponse);
 
             // when
             WatchingSessionChangeResponse result = watchingSessionFacade.leaveSession(contentId, userId);
@@ -325,7 +325,7 @@ class WatchingSessionFacadeTest {
 
             given(watchingSessionRepository.findByWatcherId(userId)).willReturn(Optional.of(existingSession));
             given(watchingSessionRepository.countByContentId(contentId)).willReturn(5L);
-            given(watchingSessionResponseMapper.toDto(existingSession)).willReturn(mockResponse);
+            given(watchingSessionResponseMapper.toResponse(existingSession)).willReturn(mockResponse);
 
             // when
             WatchingSessionChangeResponse result = watchingSessionFacade.leaveSession(contentId, userId);

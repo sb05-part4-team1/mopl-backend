@@ -1,12 +1,12 @@
 package com.mopl.api.interfaces.api.follow;
 
-import java.util.UUID;
-
+import com.mopl.api.application.follow.FollowFacade;
 import com.mopl.api.interfaces.api.follow.dto.FollowRequest;
 import com.mopl.dto.follow.FollowResponse;
-import com.mopl.dto.follow.FollowResponseMapper;
+import com.mopl.security.userdetails.MoplUserDetails;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,14 +15,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mopl.api.application.follow.FollowFacade;
-import com.mopl.domain.model.follow.FollowModel;
-import com.mopl.security.userdetails.MoplUserDetails;
-
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/follows")
@@ -30,43 +26,35 @@ import lombok.RequiredArgsConstructor;
 public class FollowController implements FollowApiSpec {
 
     private final FollowFacade followFacade;
-    private final FollowResponseMapper followResponseMapper;
 
-    @Override
     @PostMapping
-    public ResponseEntity<FollowResponse> follow(
+    @ResponseStatus(HttpStatus.CREATED)
+    public FollowResponse follow(
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @RequestBody @Valid FollowRequest request
     ) {
-        FollowModel follow = followFacade.follow(userDetails.userId(), request.followeeId());
-        return ResponseEntity.status(HttpStatus.CREATED)
-            .body(followResponseMapper.toResponse(follow));
+        return followFacade.follow(userDetails.userId(), request.followeeId());
     }
 
-    @Override
     @DeleteMapping("/{followId}")
-    public ResponseEntity<Void> unFollow(
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void unFollow(
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @PathVariable UUID followId
     ) {
         followFacade.unFollow(userDetails.userId(), followId);
-        return ResponseEntity.noContent().build();
     }
 
-    @Override
     @GetMapping("/count")
-    public ResponseEntity<Long> getFollowCount(@RequestParam UUID followeeId) {
-        long count = followFacade.getFollowerCount(followeeId);
-        return ResponseEntity.ok(count);
+    public long getFollowCount(@RequestParam UUID followeeId) {
+        return followFacade.getFollowerCount(followeeId);
     }
 
-    @Override
     @GetMapping("/followed-by-me")
-    public ResponseEntity<Boolean> getFollowStatus(
+    public boolean getFollowStatus(
         @AuthenticationPrincipal MoplUserDetails userDetails,
         @RequestParam UUID followeeId
     ) {
-        boolean follow = followFacade.isFollow(userDetails.userId(), followeeId);
-        return ResponseEntity.ok(follow);
+        return followFacade.isFollow(userDetails.userId(), followeeId);
     }
 }

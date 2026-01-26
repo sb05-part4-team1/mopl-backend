@@ -58,7 +58,7 @@ class WatchingSessionFacadeTest {
 
             given(watchingSessionService.getWatchingSessionByWatcherId(watcherId))
                 .willReturn(Optional.of(watchingSessionModel));
-            given(watchingSessionResponseMapper.toDto(watchingSessionModel))
+            given(watchingSessionResponseMapper.toResponse(watchingSessionModel))
                 .willReturn(expectedResponse);
 
             // when
@@ -69,7 +69,7 @@ class WatchingSessionFacadeTest {
             assertThat(result.get().id()).isEqualTo(watcherId);
 
             then(watchingSessionService).should().getWatchingSessionByWatcherId(watcherId);
-            then(watchingSessionResponseMapper).should().toDto(watchingSessionModel);
+            then(watchingSessionResponseMapper).should().toResponse(watchingSessionModel);
         }
 
         @Test
@@ -137,8 +137,8 @@ class WatchingSessionFacadeTest {
 
             given(watchingSessionService.getWatchingSessions(contentId, request))
                 .willReturn(serviceResponse);
-            given(watchingSessionResponseMapper.toDto(session1)).willReturn(response1);
-            given(watchingSessionResponseMapper.toDto(session2)).willReturn(response2);
+            given(watchingSessionResponseMapper.toResponse(session1)).willReturn(response1);
+            given(watchingSessionResponseMapper.toResponse(session2)).willReturn(response2);
 
             // when
             CursorResponse<WatchingSessionResponse> result = watchingSessionFacade.getWatchingSessions(contentId, request);
@@ -218,7 +218,7 @@ class WatchingSessionFacadeTest {
 
             given(watchingSessionService.getWatchingSessions(contentId, request))
                 .willReturn(serviceResponse);
-            given(watchingSessionResponseMapper.toDto(session)).willReturn(response);
+            given(watchingSessionResponseMapper.toResponse(session)).willReturn(response);
 
             // when
             CursorResponse<WatchingSessionResponse> result = watchingSessionFacade.getWatchingSessions(contentId, request);

@@ -4,21 +4,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.api.application.playlist.PlaylistFacade;
 import com.mopl.api.config.TestSecurityConfig;
 import com.mopl.api.interfaces.api.ApiControllerAdvice;
-import com.mopl.dto.content.ContentSummaryMapper;
 import com.mopl.api.interfaces.api.playlist.dto.PlaylistCreateRequest;
-import com.mopl.dto.playlist.PlaylistResponse;
 import com.mopl.api.interfaces.api.playlist.dto.PlaylistUpdateRequest;
-import com.mopl.dto.playlist.PlaylistResponseMapper;
-import com.mopl.dto.user.UserSummary;
-import com.mopl.dto.user.UserSummaryMapper;
 import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.exception.playlist.PlaylistContentAlreadyExistsException;
 import com.mopl.domain.exception.playlist.PlaylistContentNotFoundException;
 import com.mopl.domain.exception.playlist.PlaylistForbiddenException;
 import com.mopl.domain.exception.playlist.PlaylistNotFoundException;
 import com.mopl.domain.exception.playlist.PlaylistSubscriptionAlreadyExistsException;
+import com.mopl.domain.exception.playlist.PlaylistSubscriptionNotFoundException;
+import com.mopl.domain.exception.playlist.SelfSubscriptionNotAllowedException;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
+import com.mopl.dto.content.ContentSummaryMapper;
+import com.mopl.dto.playlist.PlaylistResponse;
+import com.mopl.dto.playlist.PlaylistResponseMapper;
+import com.mopl.dto.user.UserSummary;
+import com.mopl.dto.user.UserSummaryMapper;
 import com.mopl.security.userdetails.MoplUserDetails;
 import com.mopl.storage.provider.StorageProvider;
 import org.junit.jupiter.api.BeforeEach;
@@ -265,7 +267,9 @@ class PlaylistControllerTest {
             return Stream.of(
                 Arguments.of("제목이 비어있음", "", "설명"),
                 Arguments.of("제목이 null", null, "설명"),
-                Arguments.of("제목이 255자 초과", "a".repeat(256), "설명")
+                Arguments.of("제목이 255자 초과", "a".repeat(256), "설명"),
+                Arguments.of("설명이 비어있음", "제목", ""),
+                Arguments.of("설명이 null", "제목", null)
             );
         }
 
@@ -629,6 +633,22 @@ class PlaylistControllerTest {
                 .with(csrf()))
                 .andExpect(status().isConflict());
         }
+
+        @Test
+        @DisplayName("자기 자신의 플레이리스트 구독 시 400 Bad Request 응답")
+        void withSelfSubscription_returns400BadRequest() throws Exception {
+            // given
+            UUID playlistId = UUID.randomUUID();
+
+            willThrow(SelfSubscriptionNotAllowedException.withPlaylistIdAndUserId(playlistId, userId))
+                .given(playlistFacade).subscribePlaylist(userId, playlistId);
+
+            // when & then
+            mockMvc.perform(post("/api/playlists/{playlistId}/subscription", playlistId)
+                .with(user(mockUserDetails))
+                .with(csrf()))
+                .andExpect(status().isBadRequest());
+        }
     }
 
     @Nested
@@ -659,6 +679,22 @@ class PlaylistControllerTest {
             UUID playlistId = UUID.randomUUID();
 
             willThrow(PlaylistNotFoundException.withId(playlistId))
+                .given(playlistFacade).unsubscribePlaylist(userId, playlistId);
+
+            // when & then
+            mockMvc.perform(delete("/api/playlists/{playlistId}/subscription", playlistId)
+                .with(user(mockUserDetails))
+                .with(csrf()))
+                .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("구독 중이 아닌 플레이리스트 구독 취소 시 404 Not Found 응답")
+        void withNotSubscribed_returns404NotFound() throws Exception {
+            // given
+            UUID playlistId = UUID.randomUUID();
+
+            willThrow(PlaylistSubscriptionNotFoundException.withPlaylistIdAndSubscriberId(playlistId, userId))
                 .given(playlistFacade).unsubscribePlaylist(userId, playlistId);
 
             // when & then

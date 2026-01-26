@@ -58,7 +58,7 @@ public class ContentTagService {
 
     @CacheEvict(cacheNames = CacheName.CONTENT_TAGS, key = "#contentId")
     public void deleteAllByContentId(UUID contentId) {
-        contentTagRepository.deleteAllByContentId(contentId);
+        contentTagRepository.deleteByContentId(contentId);
     }
 
     private Set<String> normalizeTagNames(List<String> tagNames) {

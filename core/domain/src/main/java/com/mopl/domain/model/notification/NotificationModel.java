@@ -10,8 +10,8 @@ import lombok.experimental.SuperBuilder;
 import java.util.UUID;
 
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder(toBuilder = true)
 public class NotificationModel extends BaseModel {
 
     public static final int TITLE_MAX_LENGTH = 500;
