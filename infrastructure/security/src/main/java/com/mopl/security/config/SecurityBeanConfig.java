@@ -29,7 +29,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
@@ -78,10 +78,11 @@ public class SecurityBeanConfig {
     )
     @ConditionalOnMissingBean(JwtRegistry.class)
     public JwtRegistry redisJwtRegistry(
-        RedisTemplate<String, Object> redisTemplate,
+        StringRedisTemplate redisTemplate,
+        ObjectMapper objectMapper,
         JwtProperties jwtProperties
     ) {
-        return new RedisJwtRegistry(redisTemplate, jwtProperties);
+        return new RedisJwtRegistry(redisTemplate, objectMapper, jwtProperties);
     }
 
     @Bean

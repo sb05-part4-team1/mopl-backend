@@ -1,5 +1,6 @@
 package com.mopl.security.jwt.registry;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.domain.exception.auth.InvalidTokenException;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.security.config.JwtProperties;
@@ -10,26 +11,28 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.script.RedisScript;
 
 import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -43,21 +46,24 @@ import static org.mockito.Mockito.never;
 class RedisJwtRegistryTest {
 
     @Mock
-    private RedisTemplate<String, Object> redisTemplate;
+    private StringRedisTemplate redisTemplate;
 
     @Mock
     private HashOperations<String, Object, Object> hashOperations;
 
     @Mock
-    private ValueOperations<String, Object> valueOperations;
+    private ValueOperations<String, String> valueOperations;
 
     private RedisJwtRegistry redisJwtRegistry;
+    private ObjectMapper objectMapper;
 
     private static final int MAX_SESSIONS = 3;
     private static final Duration REFRESH_TOKEN_EXPIRATION = Duration.ofDays(7);
 
     @BeforeEach
     void setUp() {
+        objectMapper = new ObjectMapper();
+
         JwtProperties jwtProperties = new JwtProperties(
             new JwtProperties.Config("access-secret", Duration.ofMinutes(30), null),
             new JwtProperties.Config("refresh-secret", REFRESH_TOKEN_EXPIRATION, null),
@@ -69,7 +75,7 @@ class RedisJwtRegistryTest {
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
         given(redisTemplate.opsForValue()).willReturn(valueOperations);
 
-        redisJwtRegistry = new RedisJwtRegistry(redisTemplate, jwtProperties);
+        redisJwtRegistry = new RedisJwtRegistry(redisTemplate, objectMapper, jwtProperties);
     }
 
     @Nested
@@ -77,54 +83,76 @@ class RedisJwtRegistryTest {
     class RegisterTest {
 
         @Test
-        @DisplayName("새 세션을 등록한다")
-        void registersNewSession() {
+        @DisplayName("Lua 스크립트를 사용하여 새 세션을 원자적으로 등록한다")
+        @SuppressWarnings("unchecked")
+        void registersNewSessionAtomically() {
             // given
             UUID userId = UUID.randomUUID();
             JwtInformation jwtInfo = createJwtInformation(userId);
-            String whitelistKey = "jwt:whitelist:" + userId;
 
-            given(hashOperations.size(whitelistKey)).willReturn(0L);
+            given(redisTemplate.execute(
+                any(RedisScript.class),
+                anyList(),
+                anyString(), anyString(), anyString(), anyString()
+            )).willReturn(null);
 
             // when
             redisJwtRegistry.register(jwtInfo);
 
             // then
-            then(hashOperations).should().put(
-                eq(whitelistKey),
+            ArgumentCaptor<List<String>> keysCaptor = ArgumentCaptor.forClass(List.class);
+            then(redisTemplate).should().execute(
+                any(RedisScript.class),
+                keysCaptor.capture(),
                 eq(jwtInfo.refreshTokenJti().toString()),
-                any(RedisJwtRegistry.SessionInfo.class)
+                anyString(),
+                eq(String.valueOf(MAX_SESSIONS)),
+                eq(String.valueOf(REFRESH_TOKEN_EXPIRATION.toSeconds()))
             );
-            then(redisTemplate).should().expire(whitelistKey, REFRESH_TOKEN_EXPIRATION);
+
+            assertThat(keysCaptor.getValue()).containsExactly("jwt:whitelist:" + userId);
         }
 
         @Test
-        @DisplayName("최대 세션 초과 시 가장 오래된 세션을 제거한다")
-        void evictsOldestSessionWhenMaxExceeded() {
+        @DisplayName("세션 퇴출 시 퇴출된 세션의 액세스 토큰을 블랙리스트에 추가한다")
+        @SuppressWarnings("unchecked")
+        void addsEvictedSessionToBlacklistWhenMaxExceeded() throws Exception {
             // given
             UUID userId = UUID.randomUUID();
             JwtInformation jwtInfo = createJwtInformation(userId);
-            String whitelistKey = "jwt:whitelist:" + userId;
+            UUID evictedAccessTokenJti = UUID.randomUUID();
+            long futureExpTime = System.currentTimeMillis() + 60000;
 
-            given(hashOperations.size(whitelistKey)).willReturn((long) MAX_SESSIONS);
+            // Lua cjson.encode 결과 시뮬레이션
+            // evictedSession은 Redis에서 가져온 JSON 문자열이므로, 결과에서도 문자열로 반환됨
+            Map<String, Object> evictedSessionMap = Map.of(
+                "accessTokenJti", evictedAccessTokenJti.toString(),
+                "accessTokenExp", futureExpTime,
+                "createdAt", 1704067200000L  // 2024-01-01T00:00:00Z
+            );
+            String evictedSessionJson = objectMapper.writeValueAsString(evictedSessionMap);
 
-            Set<Object> existingKeys = new HashSet<>();
-            UUID oldJti = UUID.randomUUID();
-            existingKeys.add(oldJti.toString());
-            given(hashOperations.keys(whitelistKey)).willReturn(existingKeys);
+            Map<String, Object> luaResultMap = Map.of(
+                "evictedJti", "old-jti",
+                "evictedSession", evictedSessionJson  // 문자열로 저장 (Lua cjson 동작)
+            );
+            String luaResult = objectMapper.writeValueAsString(luaResultMap);
 
-            RedisJwtRegistry.SessionInfo oldSession = createSessionInfo();
-            given(hashOperations.get(whitelistKey, oldJti.toString())).willReturn(oldSession);
+            given(redisTemplate.execute(
+                any(RedisScript.class),
+                anyList(),
+                anyString(), anyString(), anyString(), anyString()
+            )).willReturn(luaResult);
 
             // when
             redisJwtRegistry.register(jwtInfo);
 
             // then
-            then(hashOperations).should().delete(whitelistKey, oldJti.toString());
-            then(hashOperations).should().put(
-                eq(whitelistKey),
-                eq(jwtInfo.refreshTokenJti().toString()),
-                any(RedisJwtRegistry.SessionInfo.class)
+            then(valueOperations).should().set(
+                eq("jwt:blacklist:" + evictedAccessTokenJti),
+                eq("revoked"),
+                anyLong(),
+                eq(TimeUnit.MILLISECONDS)
             );
         }
     }
@@ -134,46 +162,93 @@ class RedisJwtRegistryTest {
     class RotateTest {
 
         @Test
-        @DisplayName("유효한 리프레시 토큰으로 로테이션을 수행한다")
-        void rotatesWithValidRefreshToken() {
+        @DisplayName("Lua 스크립트를 사용하여 토큰을 원자적으로 로테이션한다")
+        @SuppressWarnings("unchecked")
+        void rotatesTokenAtomically() throws Exception {
             // given
             UUID userId = UUID.randomUUID();
             UUID oldJti = UUID.randomUUID();
             JwtInformation newJwtInfo = createJwtInformation(userId);
-            String whitelistKey = "jwt:whitelist:" + userId;
+            UUID oldAccessTokenJti = UUID.randomUUID();
+            long futureExpTime = System.currentTimeMillis() + 60000;
 
-            RedisJwtRegistry.SessionInfo oldSession = createSessionInfo();
-            given(hashOperations.get(whitelistKey, oldJti.toString())).willReturn(oldSession);
+            // Lua cjson.encode 결과 시뮬레이션
+            // 실제 Lua에서는 oldSession이 이미 JSON 문자열이므로 cjson.encode 결과도 문자열로 래핑됨
+            Map<String, Object> oldSessionMap = new HashMap<>();
+            oldSessionMap.put("accessTokenJti", oldAccessTokenJti.toString());
+            oldSessionMap.put("accessTokenExp", futureExpTime);
+            oldSessionMap.put("createdAt", 1704067200000L);  // 2024-01-01T00:00:00Z
+            String oldSessionJson = objectMapper.writeValueAsString(oldSessionMap);
+
+            Map<String, Object> luaResultMap = new HashMap<>();
+            luaResultMap.put("oldSession", oldSessionJson);  // 문자열로 저장 (Lua cjson 동작)
+            String luaResult = objectMapper.writeValueAsString(luaResultMap);
+
+            System.out.println("Test luaResult: " + luaResult);
+
+            given(redisTemplate.execute(
+                any(RedisScript.class),
+                anyList(),
+                anyString(), anyString(), anyString(), anyString()
+            )).willReturn(luaResult);
 
             // when
             redisJwtRegistry.rotate(oldJti, newJwtInfo);
 
             // then
-            then(hashOperations).should().delete(whitelistKey, oldJti.toString());
-            then(hashOperations).should().put(
-                eq(whitelistKey),
-                eq(newJwtInfo.refreshTokenJti().toString()),
-                any(RedisJwtRegistry.SessionInfo.class)
+            then(valueOperations).should().set(
+                eq("jwt:blacklist:" + oldAccessTokenJti),
+                eq("revoked"),
+                anyLong(),
+                eq(TimeUnit.MILLISECONDS)
             );
         }
 
         @Test
-        @DisplayName("유효하지 않은 리프레시 토큰으로 로테이션 시도 시 모든 세션을 무효화하고 예외 발생")
-        void throwsExceptionAndRevokesAllWhenInvalidToken() {
+        @DisplayName("유효하지 않은 리프레시 토큰으로 로테이션 시 모든 세션을 무효화하고 예외 발생")
+        @SuppressWarnings("unchecked")
+        void throwsExceptionAndRevokesAllWhenInvalidToken() throws Exception {
             // given
             UUID userId = UUID.randomUUID();
             UUID invalidJti = UUID.randomUUID();
             JwtInformation newJwtInfo = createJwtInformation(userId);
-            String whitelistKey = "jwt:whitelist:" + userId;
 
-            given(hashOperations.get(whitelistKey, invalidJti.toString())).willReturn(null);
-            given(hashOperations.entries(whitelistKey)).willReturn(new HashMap<>());
+            Map<String, Object> errorResult = Map.of("error", "INVALID_TOKEN");
+            String luaResult = objectMapper.writeValueAsString(errorResult);
+
+            given(redisTemplate.execute(
+                any(RedisScript.class),
+                anyList(),
+                anyString(), anyString(), anyString(), anyString()
+            )).willReturn(luaResult);
+            given(hashOperations.entries(anyString())).willReturn(new HashMap<>());
 
             // when & then
             assertThatThrownBy(() -> redisJwtRegistry.rotate(invalidJti, newJwtInfo))
                 .isInstanceOf(InvalidTokenException.class);
 
-            then(redisTemplate).should().delete(whitelistKey);
+            then(redisTemplate).should().delete("jwt:whitelist:" + userId);
+        }
+
+        @Test
+        @DisplayName("Lua 스크립트 결과가 null이면 모든 세션을 무효화하고 예외 발생")
+        @SuppressWarnings("unchecked")
+        void throwsExceptionWhenLuaResultIsNull() {
+            // given
+            UUID userId = UUID.randomUUID();
+            UUID invalidJti = UUID.randomUUID();
+            JwtInformation newJwtInfo = createJwtInformation(userId);
+
+            given(redisTemplate.execute(
+                any(RedisScript.class),
+                anyList(),
+                anyString(), anyString(), anyString(), anyString()
+            )).willReturn(null);
+            given(hashOperations.entries(anyString())).willReturn(new HashMap<>());
+
+            // when & then
+            assertThatThrownBy(() -> redisJwtRegistry.rotate(invalidJti, newJwtInfo))
+                .isInstanceOf(InvalidTokenException.class);
         }
     }
 
@@ -336,17 +411,30 @@ class RedisJwtRegistryTest {
     class RevokeAllByUserIdTest {
 
         @Test
-        @DisplayName("사용자의 모든 세션을 무효화한다")
-        void revokesAllSessionsForUser() {
+        @DisplayName("사용자의 모든 세션을 무효화하고 액세스 토큰을 블랙리스트에 추가한다")
+        void revokesAllSessionsAndBlacklistsAccessTokens() throws Exception {
             // given
             UUID userId = UUID.randomUUID();
             String whitelistKey = "jwt:whitelist:" + userId;
 
+            UUID accessTokenJti1 = UUID.randomUUID();
+            UUID accessTokenJti2 = UUID.randomUUID();
+            long futureExpTime = System.currentTimeMillis() + 60000;
+
+            String session1Json = objectMapper.writeValueAsString(Map.of(
+                "accessTokenJti", accessTokenJti1.toString(),
+                "accessTokenExp", futureExpTime,
+                "createdAt", 1704067200000L
+            ));
+            String session2Json = objectMapper.writeValueAsString(Map.of(
+                "accessTokenJti", accessTokenJti2.toString(),
+                "accessTokenExp", futureExpTime,
+                "createdAt", 1704070800000L
+            ));
+
             Map<Object, Object> sessions = new HashMap<>();
-            RedisJwtRegistry.SessionInfo session1 = createSessionInfo();
-            RedisJwtRegistry.SessionInfo session2 = createSessionInfo();
-            sessions.put(UUID.randomUUID().toString(), session1);
-            sessions.put(UUID.randomUUID().toString(), session2);
+            sessions.put("jti1", session1Json);
+            sessions.put("jti2", session2Json);
 
             given(hashOperations.entries(whitelistKey)).willReturn(sessions);
 
@@ -355,6 +443,49 @@ class RedisJwtRegistryTest {
 
             // then
             then(redisTemplate).should().delete(whitelistKey);
+            then(valueOperations).should().set(
+                eq("jwt:blacklist:" + accessTokenJti1),
+                eq("revoked"),
+                anyLong(),
+                eq(TimeUnit.MILLISECONDS)
+            );
+            then(valueOperations).should().set(
+                eq("jwt:blacklist:" + accessTokenJti2),
+                eq("revoked"),
+                anyLong(),
+                eq(TimeUnit.MILLISECONDS)
+            );
+        }
+
+        @Test
+        @DisplayName("세션이 없어도 화이트리스트 키를 삭제한다")
+        void deletesWhitelistKeyEvenWhenNoSessions() {
+            // given
+            UUID userId = UUID.randomUUID();
+            String whitelistKey = "jwt:whitelist:" + userId;
+
+            given(hashOperations.entries(whitelistKey)).willReturn(new HashMap<>());
+
+            // when
+            redisJwtRegistry.revokeAllByUserId(userId);
+
+            // then
+            then(redisTemplate).should().delete(whitelistKey);
+        }
+    }
+
+    @Nested
+    @DisplayName("clearExpired()")
+    class ClearExpiredTest {
+
+        @Test
+        @DisplayName("Redis TTL이 자동 처리하므로 아무 작업도 하지 않는다")
+        void doesNothingAsRedisTtlHandlesExpiration() {
+            // when
+            redisJwtRegistry.clearExpired();
+
+            // then
+            then(redisTemplate).shouldHaveNoMoreInteractions();
         }
     }
 
@@ -378,13 +509,5 @@ class RedisJwtRegistryTest {
             UserModel.Role.USER
         );
         return new JwtInformation("access-token", "refresh-token", accessPayload, refreshPayload);
-    }
-
-    private RedisJwtRegistry.SessionInfo createSessionInfo() {
-        return new RedisJwtRegistry.SessionInfo(
-            UUID.randomUUID(),
-            new Date(System.currentTimeMillis() + 1800_000),
-            java.time.Instant.now()
-        );
     }
 }
