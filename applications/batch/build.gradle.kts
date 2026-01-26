@@ -7,6 +7,7 @@ dependencies {
     implementation(project(":infrastructure:openapi"))
     implementation(project(":infrastructure:storage"))
     implementation(project(":shared:jackson"))
+    implementation (project(":shared:monitoring"))
 
     // batch
     implementation("org.springframework.boot:spring-boot-starter-batch")
@@ -19,6 +20,11 @@ dependencies {
 
     // test
     testImplementation(testFixtures(project(":core:domain")))
+
+    // 👇 이 줄을 추가해주세요!
+    implementation ("org.springframework.boot:spring-boot-starter-web")
+    implementation ("org.springframework.boot:spring-boot-starter-actuator")
+    implementation ("io.micrometer:micrometer-registry-prometheus")
 
 
 }

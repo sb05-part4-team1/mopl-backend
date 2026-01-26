@@ -21,6 +21,7 @@ services:
       - grafana-data:/var/lib/grafana
     depends_on:
       - prometheus
+      - influxdb  # InfluxDB가 먼저 켜지도록 순서 보장
     networks:
       - mopl-net
 
@@ -36,9 +37,23 @@ services:
     depends_on:
       - prometheus
 
+  influxdb:
+    image: influxdb:1.8
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      - INFLUXDB_DB=k6  # 실행 시 'k6'라는 DB 자동 생성
+    volumes:
+      - influxdb-data:/var/lib/influxdb # 데이터 영구 저장
+    networks:
+      - mopl-net
+
 networks:
   mopl-net:
+    external: true
     name: mopl-net
 
 volumes:
   grafana-data:
+  influxdb-data:
