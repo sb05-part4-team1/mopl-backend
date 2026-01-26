@@ -11,6 +11,8 @@ import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.follow.FollowService;
 import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.domain.service.user.UserService;
+import com.mopl.dto.follow.FollowResponse;
+import com.mopl.dto.follow.FollowResponseMapper;
 import com.mopl.dto.outbox.DomainEventOutboxMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -23,9 +25,8 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.function.Consumer;
-
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -53,6 +54,9 @@ class FollowFacadeTest {
     private DomainEventOutboxMapper domainEventOutboxMapper;
 
     @Mock
+    private FollowResponseMapper followResponseMapper;
+
+    @Mock
     private TransactionTemplate transactionTemplate;
 
     @InjectMocks
@@ -75,28 +79,36 @@ class FollowFacadeTest {
                 .sample();
 
             OutboxModel outboxModel = mock(OutboxModel.class);
+            FollowResponse followResponse = new FollowResponse(
+                savedFollow.getId(),
+                followee.getId(),
+                follower.getId()
+            );
 
             given(userService.getById(follower.getId())).willReturn(follower);
             given(userService.getById(followee.getId())).willReturn(followee);
             given(followService.create(any(FollowModel.class))).willReturn(savedFollow);
             given(domainEventOutboxMapper.toOutboxModel(any(UserFollowedEvent.class)))
                 .willReturn(outboxModel);
-            willAnswer(invocation -> invocation.<TransactionCallback<?>>getArgument(0)
-                .doInTransaction(mock(TransactionStatus.class)))
-                .given(transactionTemplate).execute(any());
+            given(followResponseMapper.toResponse(savedFollow)).willReturn(followResponse);
+            given(transactionTemplate.execute(any())).willAnswer(invocation -> {
+                TransactionCallback<?> callback = invocation.getArgument(0);
+                return callback.doInTransaction(mock(TransactionStatus.class));
+            });
 
             // when
-            FollowModel result = followFacade.follow(follower.getId(), followee.getId());
+            FollowResponse result = followFacade.follow(follower.getId(), followee.getId());
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getFollowerId()).isEqualTo(follower.getId());
-            assertThat(result.getFolloweeId()).isEqualTo(followee.getId());
+            assertThat(result.followeeId()).isEqualTo(followee.getId());
+            assertThat(result.followerId()).isEqualTo(follower.getId());
 
             then(userService).should().getById(follower.getId());
             then(userService).should().getById(followee.getId());
             then(followService).should().create(any(FollowModel.class));
             then(outboxService).should().save(outboxModel);
+            then(followResponseMapper).should().toResponse(savedFollow);
         }
 
         @Test
@@ -116,9 +128,12 @@ class FollowFacadeTest {
             given(userService.getById(follower.getId())).willReturn(follower);
             given(userService.getById(followee.getId())).willReturn(followee);
             given(followService.create(any(FollowModel.class))).willReturn(savedFollow);
-            willAnswer(invocation -> invocation.<TransactionCallback<?>>getArgument(0)
-                .doInTransaction(mock(TransactionStatus.class)))
-                .given(transactionTemplate).execute(any());
+            given(followResponseMapper.toResponse(any(FollowModel.class)))
+                .willReturn(mock(FollowResponse.class));
+            given(transactionTemplate.execute(any())).willAnswer(invocation -> {
+                TransactionCallback<?> callback = invocation.getArgument(0);
+                return callback.doInTransaction(mock(TransactionStatus.class));
+            });
 
             // when
             followFacade.follow(follower.getId(), followee.getId());
