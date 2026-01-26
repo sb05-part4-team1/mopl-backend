@@ -2,6 +2,7 @@ package com.mopl.domain.exception.review;
 
 import com.mopl.domain.exception.ErrorCode;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -18,10 +19,10 @@ public class ReviewForbiddenException extends ReviewException {
         UUID requesterId,
         UUID authorId
     ) {
-        return new ReviewForbiddenException(Map.of(
-            "reviewId", reviewId,
-            "requesterId", requesterId,
-            "authorId", authorId
-        ));
+        Map<String, Object> details = new HashMap<>();
+        details.put("reviewId", reviewId);
+        details.put("requesterId", requesterId);
+        details.put("authorId", authorId);
+        return new ReviewForbiddenException(details);
     }
 }

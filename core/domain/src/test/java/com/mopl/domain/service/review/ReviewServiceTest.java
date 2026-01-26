@@ -349,5 +349,42 @@ class ReviewServiceTest {
 
             then(reviewRepository).should(never()).save(any());
         }
+
+        @Test
+        @DisplayName("존재하지 않는 리뷰 삭제 시 ReviewNotFoundException 발생")
+        void withNonExistingId_throwsNotFoundException() {
+            // given
+            UUID reviewId = UUID.randomUUID();
+            UUID requesterId = UUID.randomUUID();
+
+            given(reviewRepository.findById(reviewId)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> reviewService.deleteAndGetContentId(reviewId, requesterId))
+                .isInstanceOf(ReviewNotFoundException.class);
+
+            then(reviewRepository).should(never()).delete(any());
+        }
+
+        @Test
+        @DisplayName("작성자가 soft delete된 경우 ReviewForbiddenException 발생")
+        void withNullAuthor_throwsForbiddenException() {
+            // given
+            UUID reviewId = UUID.randomUUID();
+            UUID requesterId = UUID.randomUUID();
+
+            ReviewModel reviewWithNullAuthor = ReviewModelFixture.builder()
+                .set("id", reviewId)
+                .setNull("author")
+                .sample();
+
+            given(reviewRepository.findById(reviewId)).willReturn(Optional.of(reviewWithNullAuthor));
+
+            // when & then
+            assertThatThrownBy(() -> reviewService.deleteAndGetContentId(reviewId, requesterId))
+                .isInstanceOf(ReviewForbiddenException.class);
+
+            then(reviewRepository).should(never()).delete(any());
+        }
     }
 }
