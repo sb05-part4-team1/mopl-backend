@@ -34,7 +34,7 @@ public class ReadStatusEntity extends BaseEntity {
     @Column(nullable = false)
     private Instant lastReadAt;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "participant_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private UserEntity participant;
 

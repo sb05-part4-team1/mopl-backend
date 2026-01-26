@@ -34,7 +34,7 @@ public class PlaylistQueryRepositoryImpl implements PlaylistQueryRepository {
 
         JPAQuery<PlaylistEntity> jpaQuery = baseQuery(request)
             .select(playlistEntity)
-            .leftJoin(playlistEntity.owner).fetchJoin();
+            .join(playlistEntity.owner).fetchJoin();
 
         CursorPaginationHelper.applyCursorPagination(
             request,
