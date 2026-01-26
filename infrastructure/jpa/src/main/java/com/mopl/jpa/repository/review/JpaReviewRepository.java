@@ -56,13 +56,4 @@ public interface JpaReviewRepository extends JpaRepository<ReviewEntity, UUID> {
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "delete from reviews where id in :reviewIds", nativeQuery = true)
     int deleteByIdIn(List<UUID> reviewIds);
-
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("""
-            update ReviewEntity r
-            set r.deletedAt = :now
-            where r.content.id in :contentIds
-              and r.deletedAt is null
-        """)
-    int softDeleteByContentIdIn(List<UUID> contentIds, Instant now);
 }

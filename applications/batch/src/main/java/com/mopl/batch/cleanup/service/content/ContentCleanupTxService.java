@@ -1,11 +1,10 @@
 package com.mopl.batch.cleanup.service.content;
 
 import com.mopl.batch.cleanup.strategy.content.ContentDeletionStrategy;
+import com.mopl.domain.repository.content.ContentTagRepository;
 import com.mopl.domain.repository.content.batch.ContentCleanupRepository;
 import com.mopl.domain.repository.content.batch.ContentExternalMappingRepository;
-import com.mopl.domain.repository.content.ContentTagRepository;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
-import com.mopl.domain.repository.review.ReviewRepository;
 import com.mopl.domain.support.search.ContentSearchSyncPort;
 import com.mopl.domain.support.transaction.AfterCommitExecutor;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -26,7 +24,6 @@ public class ContentCleanupTxService {
     private final ContentTagRepository contentTagRepository;
     private final PlaylistContentRepository playlistContentRepository;
     private final ContentCleanupRepository contentCleanupRepository;
-    private final ReviewRepository reviewRepository;
     private final ContentExternalMappingRepository externalMappingRepository;
     private final ContentDeletionStrategy deletionStrategy;
 
@@ -35,8 +32,6 @@ public class ContentCleanupTxService {
 
     @Transactional
     public int cleanupBatch(List<UUID> contentIds) {
-        Instant now = Instant.now();
-
         Map<UUID, String> thumbnailPaths = contentCleanupRepository.findThumbnailPathsByIdIn(contentIds);
 
         int deletedMappings = externalMappingRepository.deleteAllByContentIds(contentIds);
@@ -44,7 +39,6 @@ public class ContentCleanupTxService {
         int deletedTags = contentTagRepository.deleteByContentIdIn(contentIds);
         int deletedPlaylistContents = playlistContentRepository.deleteAllByContentIds(contentIds);
 
-        int softDeletedReviews = reviewRepository.softDeleteByContentIdIn(contentIds, now);
         int affectedThumbnails = deletionStrategy.onDeleted(thumbnailPaths);
 
         int deletedContents = contentCleanupRepository.deleteByIdIn(contentIds);
@@ -60,13 +54,12 @@ public class ContentCleanupTxService {
         afterCommitExecutor.execute(() -> contentSearchSyncPort.deleteAll(contentIds));
 
         log.info(
-            "content cleanup batch done. requested={} deletedContents={} deletedMappings={} deletedTags={} deletedPlaylistContents={} softDeletedReviews={} affectedThumbnails={}/{}",
+            "content cleanup batch done. requested={} deletedContents={} deletedMappings={} deletedTags={} deletedPlaylistContents={} affectedThumbnails={}/{}",
             contentIds.size(),
             deletedContents,
             deletedMappings,
             deletedTags,
             deletedPlaylistContents,
-            softDeletedReviews,
             affectedThumbnails,
             thumbnailPaths.size()
         );

@@ -46,9 +46,4 @@ public class ReviewRepositoryImpl implements ReviewRepository {
     public int deleteByIdIn(List<UUID> reviewIds) {
         return jpaReviewRepository.deleteByIdIn(reviewIds);
     }
-
-    @Override
-    public int softDeleteByContentIdIn(List<UUID> contentIds, Instant now) {
-        return jpaReviewRepository.softDeleteByContentIdIn(contentIds, now);
-    }
 }
