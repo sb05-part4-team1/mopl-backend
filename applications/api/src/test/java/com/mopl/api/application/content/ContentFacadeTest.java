@@ -78,7 +78,6 @@ class ContentFacadeTest {
     private ContentSearchSyncPort contentSearchSyncPort;
 
     @Mock
-    @SuppressWarnings("unused")
     private AfterCommitExecutor afterCommitExecutor;
 
     @Mock
@@ -88,8 +87,15 @@ class ContentFacadeTest {
     private ContentFacade contentFacade;
 
     @BeforeEach
-    void resetMocks() {
+    void setUp() {
         reset(multipartFile);
+    }
+
+    private void setupAfterCommitExecutor() {
+        willAnswer(invocation -> {
+            invocation.<Runnable>getArgument(0).run();
+            return null;
+        }).given(afterCommitExecutor).execute(any());
     }
 
     private static final String DEFAULT_TITLE = "시빌엄";
@@ -702,6 +708,7 @@ class ContentFacadeTest {
                 return null;
             }).given(transactionTemplate).executeWithoutResult(any());
 
+            setupAfterCommitExecutor();
             given(contentService.getById(contentId)).willReturn(contentModel);
 
             // when
