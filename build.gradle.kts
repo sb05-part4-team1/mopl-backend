@@ -80,7 +80,8 @@ fun Project.configureJarTasks() {
     tasks.withType<Jar> { enabled = true }
     tasks.withType<BootJar> { enabled = false }
 
-    if (parent?.name == "applications" && name != "api") {
+    if (parent?.name == "applications") {
+        apply(plugin = "org.springframework.boot")
         tasks.withType<Jar> { enabled = false }
         tasks.withType<BootJar> { enabled = true }
     }
