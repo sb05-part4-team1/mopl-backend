@@ -34,7 +34,12 @@ public interface JpaPlaylistSubscriberRepository extends
     @Query("SELECT DISTINCT ps.playlist.id FROM PlaylistSubscriberEntity ps")
     Set<UUID> findAllPlaylistIds();
 
-    @Query("SELECT COUNT(ps) FROM PlaylistSubscriberEntity ps WHERE ps.playlist.id = :playlistId")
+    @Query("""
+        SELECT COUNT(ps)
+        FROM PlaylistSubscriberEntity ps
+        JOIN ps.subscriber
+        WHERE ps.playlist.id = :playlistId
+        """)
     int countByPlaylistId(UUID playlistId);
 
     // cleanup batch 전용

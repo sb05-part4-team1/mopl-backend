@@ -44,6 +44,13 @@ public class OrphanCleanupBatchConfig {
     }
 
     @Bean
+    public Step orphanPlaylistContentStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
+        return new StepBuilder("orphanPlaylistContentStep", jobRepository)
+            .tasklet(orphanPlaylistContentTasklet(), txManager)
+            .build();
+    }
+
+    @Bean
     public Step orphanNotificationStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
         return new StepBuilder("orphanNotificationStep", jobRepository)
             .tasklet(orphanNotificationTasklet(), txManager)
@@ -98,13 +105,6 @@ public class OrphanCleanupBatchConfig {
                 processed, System.currentTimeMillis() - start);
             return RepeatStatus.FINISHED;
         };
-    }
-
-    @Bean
-    public Step orphanPlaylistContentStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
-        return new StepBuilder("orphanPlaylistContentStep", jobRepository)
-            .tasklet(orphanPlaylistContentTasklet(), txManager)
-            .build();
     }
 
     @Bean

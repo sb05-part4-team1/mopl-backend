@@ -8,6 +8,7 @@ import com.mopl.jpa.entity.notification.NotificationEntity;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -72,6 +73,17 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
         nativeQuery = true
     )
     List<UUID> findOrphanPlaylistSubscriberIds(Instant threshold, int limit);
+
+    @Query(
+        value = """
+            SELECT DISTINCT BIN_TO_UUID(ps.playlist_id)
+            FROM playlist_subscribers ps
+            INNER JOIN playlists p ON ps.playlist_id = p.id
+            WHERE ps.id IN (:ids)
+            """,
+        nativeQuery = true
+    )
+    Set<UUID> findExistingPlaylistIdsBySubscriberIdIn(List<UUID> ids);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "DELETE FROM playlist_subscribers WHERE id IN (:ids)", nativeQuery = true)

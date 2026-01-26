@@ -1,6 +1,7 @@
 package com.mopl.batch.cleanup.orphan.service;
 
 import com.mopl.batch.sync.denormalized.service.ContentReviewStatsSyncTxService;
+import com.mopl.batch.sync.denormalized.service.PlaylistSubscriberCountSyncTxService;
 import com.mopl.jpa.repository.orphan.JpaOrphanCleanupRepository;
 import com.mopl.jpa.repository.review.JpaReviewRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ public class OrphanCleanupTxService {
     private final JpaOrphanCleanupRepository orphanCleanupRepository;
     private final JpaReviewRepository jpaReviewRepository;
     private final ContentReviewStatsSyncTxService contentReviewStatsSyncTxService;
+    private final PlaylistSubscriberCountSyncTxService playlistSubscriberCountSyncTxService;
 
     @Transactional
     public int cleanupNotifications(List<UUID> notificationIds) {
@@ -30,8 +32,17 @@ public class OrphanCleanupTxService {
     }
 
     @Transactional
-    public int cleanupPlaylistSubscribers(List<UUID> playlistSubscribersByIds) {
-        return orphanCleanupRepository.deletePlaylistSubscribersByIdIn(playlistSubscribersByIds);
+    public int cleanupPlaylistSubscribers(List<UUID> playlistSubscriberIds) {
+        // 1. 삭제 전 존재하는 playlistId 조회 (Playlist가 존재하는 경우만)
+        Set<UUID> playlistIds = orphanCleanupRepository.findExistingPlaylistIdsBySubscriberIdIn(playlistSubscriberIds);
+
+        // 2. PlaylistSubscriber hard delete
+        int deleted = orphanCleanupRepository.deletePlaylistSubscribersByIdIn(playlistSubscriberIds);
+
+        // 3. Playlist subscriberCount 재계산
+        playlistIds.forEach(playlistSubscriberCountSyncTxService::syncOne);
+
+        return deleted;
     }
 
     @Transactional
