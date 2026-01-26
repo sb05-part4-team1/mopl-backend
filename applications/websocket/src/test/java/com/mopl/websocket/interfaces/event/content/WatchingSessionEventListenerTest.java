@@ -5,11 +5,11 @@ import com.mopl.domain.model.user.UserModel;
 import com.mopl.dto.content.ContentSummary;
 import com.mopl.dto.user.UserSummary;
 import com.mopl.dto.watchingsession.WatchingSessionResponse;
-import com.mopl.redis.pubsub.WebSocketMessagePublisher;
 import com.mopl.security.userdetails.MoplUserDetails;
 import com.mopl.websocket.application.content.WatchingSessionFacade;
 import com.mopl.websocket.interfaces.event.content.dto.WatchingSessionChangeResponse;
 import com.mopl.websocket.interfaces.event.content.dto.WatchingSessionChangeType;
+import com.mopl.websocket.messaging.WebSocketBroadcaster;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -46,7 +46,7 @@ class WatchingSessionEventListenerTest {
     private WatchingSessionFacade watchingSessionFacade;
 
     @Mock
-    private WebSocketMessagePublisher webSocketMessagePublisher;
+    private WebSocketBroadcaster webSocketBroadcaster;
 
     @Captor
     private ArgumentCaptor<String> destinationCaptor;
@@ -62,7 +62,7 @@ class WatchingSessionEventListenerTest {
 
     @BeforeEach
     void setUp() {
-        listener = new WatchingSessionEventListener(watchingSessionFacade, webSocketMessagePublisher);
+        listener = new WatchingSessionEventListener(watchingSessionFacade, webSocketBroadcaster);
 
         userId = UUID.randomUUID();
         contentId = UUID.randomUUID();
@@ -105,7 +105,7 @@ class WatchingSessionEventListenerTest {
 
             // then
             then(watchingSessionFacade).should().joinSession(contentId, userId);
-            then(webSocketMessagePublisher).should().publish(
+            then(webSocketBroadcaster).should().broadcast(
                 destinationCaptor.capture(),
                 responseCaptor.capture()
             );
@@ -126,7 +126,7 @@ class WatchingSessionEventListenerTest {
 
             // then
             then(watchingSessionFacade).should(never()).joinSession(contentId, userId);
-            then(webSocketMessagePublisher).shouldHaveNoInteractions();
+            then(webSocketBroadcaster).shouldHaveNoInteractions();
         }
 
         @Test
@@ -140,7 +140,7 @@ class WatchingSessionEventListenerTest {
 
             // then
             then(watchingSessionFacade).shouldHaveNoInteractions();
-            then(webSocketMessagePublisher).shouldHaveNoInteractions();
+            then(webSocketBroadcaster).shouldHaveNoInteractions();
         }
 
         @Test
@@ -155,7 +155,7 @@ class WatchingSessionEventListenerTest {
 
             // then
             then(watchingSessionFacade).shouldHaveNoInteractions();
-            then(webSocketMessagePublisher).shouldHaveNoInteractions();
+            then(webSocketBroadcaster).shouldHaveNoInteractions();
         }
 
         @Test
@@ -170,7 +170,7 @@ class WatchingSessionEventListenerTest {
 
             // then
             then(watchingSessionFacade).shouldHaveNoInteractions();
-            then(webSocketMessagePublisher).shouldHaveNoInteractions();
+            then(webSocketBroadcaster).shouldHaveNoInteractions();
         }
 
         @Test
@@ -185,7 +185,7 @@ class WatchingSessionEventListenerTest {
 
             // then
             then(watchingSessionFacade).shouldHaveNoInteractions();
-            then(webSocketMessagePublisher).shouldHaveNoInteractions();
+            then(webSocketBroadcaster).shouldHaveNoInteractions();
         }
     }
 
@@ -219,7 +219,7 @@ class WatchingSessionEventListenerTest {
 
             // then
             then(watchingSessionFacade).should().leaveSession(contentId, userId);
-            then(webSocketMessagePublisher).should().publish(
+            then(webSocketBroadcaster).should().broadcast(
                 destinationCaptor.capture(),
                 responseCaptor.capture()
             );
@@ -240,7 +240,7 @@ class WatchingSessionEventListenerTest {
 
             // then
             then(watchingSessionFacade).shouldHaveNoInteractions();
-            then(webSocketMessagePublisher).shouldHaveNoInteractions();
+            then(webSocketBroadcaster).shouldHaveNoInteractions();
         }
 
         @Test
@@ -258,7 +258,7 @@ class WatchingSessionEventListenerTest {
 
             // then
             then(watchingSessionFacade).should().leaveSession(contentId, userId);
-            then(webSocketMessagePublisher).shouldHaveNoInteractions();
+            then(webSocketBroadcaster).shouldHaveNoInteractions();
         }
     }
 
@@ -292,7 +292,7 @@ class WatchingSessionEventListenerTest {
 
             // then
             then(watchingSessionFacade).should().leaveSession(contentId, userId);
-            then(webSocketMessagePublisher).should().publish(
+            then(webSocketBroadcaster).should().broadcast(
                 destinationCaptor.capture(),
                 responseCaptor.capture()
             );
@@ -313,7 +313,7 @@ class WatchingSessionEventListenerTest {
 
             // then
             then(watchingSessionFacade).shouldHaveNoInteractions();
-            then(webSocketMessagePublisher).shouldHaveNoInteractions();
+            then(webSocketBroadcaster).shouldHaveNoInteractions();
         }
 
         @Test
@@ -327,7 +327,7 @@ class WatchingSessionEventListenerTest {
 
             // then
             then(watchingSessionFacade).shouldHaveNoInteractions();
-            then(webSocketMessagePublisher).shouldHaveNoInteractions();
+            then(webSocketBroadcaster).shouldHaveNoInteractions();
         }
 
         @Test
@@ -343,7 +343,7 @@ class WatchingSessionEventListenerTest {
 
             // then
             then(watchingSessionFacade).shouldHaveNoInteractions();
-            then(webSocketMessagePublisher).shouldHaveNoInteractions();
+            then(webSocketBroadcaster).shouldHaveNoInteractions();
         }
     }
 

@@ -13,10 +13,10 @@ import com.mopl.dto.user.UserSummary;
 import com.mopl.dto.user.UserSummaryMapper;
 import com.mopl.dto.watchingsession.WatchingSessionResponse;
 import com.mopl.dto.watchingsession.WatchingSessionResponseMapper;
-import com.mopl.redis.pubsub.WebSocketMessagePublisher;
 import com.mopl.websocket.interfaces.api.content.dto.ContentChatResponse;
 import com.mopl.websocket.interfaces.event.content.dto.WatchingSessionChangeResponse;
 import com.mopl.websocket.interfaces.event.content.dto.WatchingSessionChangeType;
+import com.mopl.websocket.messaging.WebSocketBroadcaster;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -58,7 +58,7 @@ class ContentChatFacadeTest {
     private WatchingSessionResponseMapper watchingSessionResponseMapper;
 
     @Mock
-    private WebSocketMessagePublisher webSocketMessagePublisher;
+    private WebSocketBroadcaster webSocketBroadcaster;
 
     @InjectMocks
     private ContentChatFacade contentChatFacade;
@@ -123,7 +123,7 @@ class ContentChatFacadeTest {
 
             then(watchingSessionRepository).should(never()).save(any());
             then(watchingSessionRepository).should(never()).delete(any());
-            then(webSocketMessagePublisher).shouldHaveNoInteractions();
+            then(webSocketBroadcaster).shouldHaveNoInteractions();
         }
 
         @Test
@@ -150,7 +150,7 @@ class ContentChatFacadeTest {
             assertThat(result.content()).isEqualTo(message);
 
             then(watchingSessionRepository).should().save(any(WatchingSessionModel.class));
-            then(webSocketMessagePublisher).should().publish(
+            then(webSocketBroadcaster).should().broadcast(
                 eq("/sub/contents/" + contentId + "/watch"),
                 any(WatchingSessionChangeResponse.class)
             );
@@ -214,7 +214,7 @@ class ContentChatFacadeTest {
 
             // then
             ArgumentCaptor<WatchingSessionChangeResponse> responseCaptor = ArgumentCaptor.forClass(WatchingSessionChangeResponse.class);
-            then(webSocketMessagePublisher).should().publish(
+            then(webSocketBroadcaster).should().broadcast(
                 eq("/sub/contents/" + oldContentId + "/watch"),
                 responseCaptor.capture()
             );
@@ -245,7 +245,7 @@ class ContentChatFacadeTest {
 
             // then
             ArgumentCaptor<WatchingSessionChangeResponse> responseCaptor = ArgumentCaptor.forClass(WatchingSessionChangeResponse.class);
-            then(webSocketMessagePublisher).should().publish(
+            then(webSocketBroadcaster).should().broadcast(
                 eq("/sub/contents/" + contentId + "/watch"),
                 responseCaptor.capture()
             );

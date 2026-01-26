@@ -11,9 +11,9 @@ import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.dto.watchingsession.WatchingSessionResponse;
 import com.mopl.dto.watchingsession.WatchingSessionResponseMapper;
-import com.mopl.redis.pubsub.WebSocketMessagePublisher;
 import com.mopl.websocket.interfaces.event.content.dto.WatchingSessionChangeResponse;
 import com.mopl.websocket.interfaces.event.content.dto.WatchingSessionChangeType;
+import com.mopl.websocket.messaging.WebSocketBroadcaster;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -52,7 +52,7 @@ class WatchingSessionFacadeTest {
     private WatchingSessionResponseMapper watchingSessionResponseMapper;
 
     @Mock
-    private WebSocketMessagePublisher webSocketMessagePublisher;
+    private WebSocketBroadcaster webSocketBroadcaster;
 
     @InjectMocks
     private WatchingSessionFacade watchingSessionFacade;
@@ -174,7 +174,7 @@ class WatchingSessionFacadeTest {
             assertThat(result.type()).isEqualTo(WatchingSessionChangeType.JOIN);
 
             then(watchingSessionRepository).should().delete(existingSession);
-            then(webSocketMessagePublisher).should().publish(
+            then(webSocketBroadcaster).should().broadcast(
                 eq("/sub/contents/" + oldContentId + "/watch"),
                 any(WatchingSessionChangeResponse.class)
             );
@@ -207,7 +207,7 @@ class WatchingSessionFacadeTest {
 
             // then
             ArgumentCaptor<WatchingSessionChangeResponse> responseCaptor = ArgumentCaptor.forClass(WatchingSessionChangeResponse.class);
-            then(webSocketMessagePublisher).should().publish(
+            then(webSocketBroadcaster).should().broadcast(
                 eq("/sub/contents/" + oldContentId + "/watch"),
                 responseCaptor.capture()
             );

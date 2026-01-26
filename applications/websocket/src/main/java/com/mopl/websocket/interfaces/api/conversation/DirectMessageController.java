@@ -1,9 +1,9 @@
 package com.mopl.websocket.interfaces.api.conversation;
 
 import com.mopl.dto.conversation.DirectMessageResponse;
-import com.mopl.redis.pubsub.WebSocketMessagePublisher;
 import com.mopl.websocket.application.conversation.DirectMessageFacade;
 import com.mopl.websocket.interfaces.api.conversation.dto.DirectMessageSendRequest;
+import com.mopl.websocket.messaging.WebSocketBroadcaster;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -20,7 +20,7 @@ public class DirectMessageController {
     private static final String DM_DESTINATION_SUFFIX = "/direct-messages";
 
     private final DirectMessageFacade directMessageFacade;
-    private final WebSocketMessagePublisher webSocketMessagePublisher;
+    private final WebSocketBroadcaster webSocketBroadcaster;
 
     @MessageMapping("/conversations/{conversationId}/direct-messages")
     public void sendDirectMessage(
@@ -30,6 +30,6 @@ public class DirectMessageController {
     ) {
         UUID senderId = UUID.fromString(principal.getName());
         DirectMessageResponse response = directMessageFacade.sendDirectMessage(senderId, conversationId, request);
-        webSocketMessagePublisher.publish(DM_DESTINATION_PREFIX + conversationId + DM_DESTINATION_SUFFIX, response);
+        webSocketBroadcaster.broadcast(DM_DESTINATION_PREFIX + conversationId + DM_DESTINATION_SUFFIX, response);
     }
 }

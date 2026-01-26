@@ -1,9 +1,9 @@
 package com.mopl.websocket.interfaces.api.content;
 
-import com.mopl.redis.pubsub.WebSocketMessagePublisher;
 import com.mopl.websocket.application.content.ContentChatFacade;
 import com.mopl.websocket.interfaces.api.content.dto.ContentChatRequest;
 import com.mopl.websocket.interfaces.api.content.dto.ContentChatResponse;
+import com.mopl.websocket.messaging.WebSocketBroadcaster;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -20,7 +20,7 @@ public class ContentChatController {
     private static final String CHAT_DESTINATION_SUFFIX = "/chat";
 
     private final ContentChatFacade contentChatFacade;
-    private final WebSocketMessagePublisher webSocketMessagePublisher;
+    private final WebSocketBroadcaster webSocketBroadcaster;
 
     @MessageMapping("/contents/{contentId}/chat")
     public void sendChat(
@@ -30,6 +30,6 @@ public class ContentChatController {
     ) {
         UUID senderId = UUID.fromString(principal.getName());
         ContentChatResponse response = contentChatFacade.sendChatMessage(senderId, contentId, request.content());
-        webSocketMessagePublisher.publish(CHAT_DESTINATION_PREFIX + contentId + CHAT_DESTINATION_SUFFIX, response);
+        webSocketBroadcaster.broadcast(CHAT_DESTINATION_PREFIX + contentId + CHAT_DESTINATION_SUFFIX, response);
     }
 }

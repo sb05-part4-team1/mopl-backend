@@ -6,6 +6,7 @@ import com.mopl.redis.pubsub.WebSocketMessagePublisher;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.listener.ChannelTopic;
@@ -15,6 +16,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnBean(RedisMessageListenerContainer.class)
 @RequiredArgsConstructor
 @Slf4j
 public class RedisWebSocketMessageSubscriber implements MessageListener {

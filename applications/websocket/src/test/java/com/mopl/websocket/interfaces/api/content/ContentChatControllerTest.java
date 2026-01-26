@@ -1,10 +1,10 @@
 package com.mopl.websocket.interfaces.api.content;
 
 import com.mopl.dto.user.UserSummary;
-import com.mopl.redis.pubsub.WebSocketMessagePublisher;
 import com.mopl.websocket.application.content.ContentChatFacade;
 import com.mopl.websocket.interfaces.api.content.dto.ContentChatRequest;
 import com.mopl.websocket.interfaces.api.content.dto.ContentChatResponse;
+import com.mopl.websocket.messaging.WebSocketBroadcaster;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -30,7 +30,7 @@ class ContentChatControllerTest {
     private ContentChatFacade contentChatFacade;
 
     @Mock
-    private WebSocketMessagePublisher webSocketMessagePublisher;
+    private WebSocketBroadcaster webSocketBroadcaster;
 
     @Mock
     private Principal principal;
@@ -42,7 +42,7 @@ class ContentChatControllerTest {
 
     @BeforeEach
     void setUp() {
-        contentChatController = new ContentChatController(contentChatFacade, webSocketMessagePublisher);
+        contentChatController = new ContentChatController(contentChatFacade, webSocketBroadcaster);
 
         senderId = UUID.randomUUID();
         contentId = UUID.randomUUID();
@@ -74,7 +74,7 @@ class ContentChatControllerTest {
             then(contentChatFacade).should().sendChatMessage(senderId, contentId, content);
 
             ArgumentCaptor<ContentChatResponse> responseCaptor = ArgumentCaptor.forClass(ContentChatResponse.class);
-            then(webSocketMessagePublisher).should().publish(
+            then(webSocketBroadcaster).should().broadcast(
                 eq("/sub/contents/" + contentId + "/chat"),
                 responseCaptor.capture()
             );
@@ -102,7 +102,7 @@ class ContentChatControllerTest {
 
             // then
             then(contentChatFacade).should().sendChatMessage(senderId, contentId, content);
-            then(webSocketMessagePublisher).should().publish(
+            then(webSocketBroadcaster).should().broadcast(
                 eq("/sub/contents/" + contentId + "/chat"),
                 eq(expectedResponse)
             );
@@ -126,7 +126,7 @@ class ContentChatControllerTest {
 
             // then
             ArgumentCaptor<ContentChatResponse> responseCaptor = ArgumentCaptor.forClass(ContentChatResponse.class);
-            then(webSocketMessagePublisher).should().publish(
+            then(webSocketBroadcaster).should().broadcast(
                 eq("/sub/contents/" + contentId + "/chat"),
                 responseCaptor.capture()
             );

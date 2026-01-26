@@ -8,10 +8,10 @@ import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.dto.user.UserSummaryMapper;
 import com.mopl.dto.watchingsession.WatchingSessionResponseMapper;
-import com.mopl.redis.pubsub.WebSocketMessagePublisher;
 import com.mopl.websocket.interfaces.api.content.dto.ContentChatResponse;
 import com.mopl.websocket.interfaces.event.content.dto.WatchingSessionChangeResponse;
 import com.mopl.websocket.interfaces.event.content.dto.WatchingSessionChangeType;
+import com.mopl.websocket.messaging.WebSocketBroadcaster;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +30,7 @@ public class ContentChatFacade {
     private final WatchingSessionRepository watchingSessionRepository;
     private final UserSummaryMapper userSummaryMapper;
     private final WatchingSessionResponseMapper watchingSessionResponseMapper;
-    private final WebSocketMessagePublisher webSocketMessagePublisher;
+    private final WebSocketBroadcaster webSocketBroadcaster;
 
     public ContentChatResponse sendChatMessage(UUID userId, UUID contentId, String message) {
         ensureWatchingSession(contentId, userId);
@@ -73,7 +73,7 @@ public class ContentChatFacade {
             watchingSessionResponseMapper.toResponse(session),
             watchingSessionRepository.countByContentId(session.getContentId())
         );
-        webSocketMessagePublisher.publish(buildWatchDestination(session.getContentId()), response);
+        webSocketBroadcaster.broadcast(buildWatchDestination(session.getContentId()), response);
     }
 
     private void broadcastLeave(WatchingSessionModel session) {
@@ -82,7 +82,7 @@ public class ContentChatFacade {
             watchingSessionResponseMapper.toResponse(session),
             watchingSessionRepository.countByContentId(session.getContentId()) - 1
         );
-        webSocketMessagePublisher.publish(buildWatchDestination(session.getContentId()), response);
+        webSocketBroadcaster.broadcast(buildWatchDestination(session.getContentId()), response);
     }
 
     private String buildWatchDestination(UUID contentId) {

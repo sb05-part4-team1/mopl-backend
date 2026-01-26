@@ -2,9 +2,9 @@ package com.mopl.websocket.interfaces.api.conversation;
 
 import com.mopl.dto.conversation.DirectMessageResponse;
 import com.mopl.dto.user.UserSummary;
-import com.mopl.redis.pubsub.WebSocketMessagePublisher;
 import com.mopl.websocket.application.conversation.DirectMessageFacade;
 import com.mopl.websocket.interfaces.api.conversation.dto.DirectMessageSendRequest;
+import com.mopl.websocket.messaging.WebSocketBroadcaster;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -31,7 +31,7 @@ class DirectMessageControllerTest {
     private DirectMessageFacade directMessageFacade;
 
     @Mock
-    private WebSocketMessagePublisher webSocketMessagePublisher;
+    private WebSocketBroadcaster webSocketBroadcaster;
 
     @Mock
     private Principal principal;
@@ -44,7 +44,7 @@ class DirectMessageControllerTest {
 
     @BeforeEach
     void setUp() {
-        directMessageController = new DirectMessageController(directMessageFacade, webSocketMessagePublisher);
+        directMessageController = new DirectMessageController(directMessageFacade, webSocketBroadcaster);
 
         senderId = UUID.randomUUID();
         receiverId = UUID.randomUUID();
@@ -88,7 +88,7 @@ class DirectMessageControllerTest {
             then(directMessageFacade).should().sendDirectMessage(senderId, conversationId, request);
 
             ArgumentCaptor<DirectMessageResponse> responseCaptor = ArgumentCaptor.forClass(DirectMessageResponse.class);
-            then(webSocketMessagePublisher).should().publish(
+            then(webSocketBroadcaster).should().broadcast(
                 eq("/sub/conversations/" + conversationId + "/direct-messages"),
                 responseCaptor.capture()
             );
@@ -130,7 +130,7 @@ class DirectMessageControllerTest {
 
             // then
             then(directMessageFacade).should().sendDirectMessage(senderId, conversationId, request);
-            then(webSocketMessagePublisher).should().publish(
+            then(webSocketBroadcaster).should().broadcast(
                 eq("/sub/conversations/" + conversationId + "/direct-messages"),
                 eq(expectedResponse)
             );
@@ -164,7 +164,7 @@ class DirectMessageControllerTest {
 
             // then
             ArgumentCaptor<DirectMessageResponse> responseCaptor = ArgumentCaptor.forClass(DirectMessageResponse.class);
-            then(webSocketMessagePublisher).should().publish(
+            then(webSocketBroadcaster).should().broadcast(
                 eq("/sub/conversations/" + conversationId + "/direct-messages"),
                 responseCaptor.capture()
             );
@@ -202,7 +202,7 @@ class DirectMessageControllerTest {
 
             // then
             ArgumentCaptor<DirectMessageResponse> responseCaptor = ArgumentCaptor.forClass(DirectMessageResponse.class);
-            then(webSocketMessagePublisher).should().publish(
+            then(webSocketBroadcaster).should().broadcast(
                 eq("/sub/conversations/" + conversationId + "/direct-messages"),
                 responseCaptor.capture()
             );

@@ -1,9 +1,9 @@
 package com.mopl.websocket.interfaces.event.content;
 
-import com.mopl.redis.pubsub.WebSocketMessagePublisher;
 import com.mopl.security.userdetails.MoplUserDetails;
 import com.mopl.websocket.application.content.WatchingSessionFacade;
 import com.mopl.websocket.interfaces.event.content.dto.WatchingSessionChangeResponse;
+import com.mopl.websocket.messaging.WebSocketBroadcaster;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -24,7 +24,7 @@ public class WatchingSessionEventListener {
     private static final String SESSION_ATTR_CONTENT_ID = "watchingContentId";
 
     private final WatchingSessionFacade watchingSessionFacade;
-    private final WebSocketMessagePublisher webSocketMessagePublisher;
+    private final WebSocketBroadcaster webSocketBroadcaster;
 
     @EventListener
     public void handleSubscribe(SessionSubscribeEvent event) {
@@ -48,7 +48,7 @@ public class WatchingSessionEventListener {
         accessor.getSessionAttributes().put(SESSION_ATTR_CONTENT_ID, contentId);
 
         WatchingSessionChangeResponse change = watchingSessionFacade.joinSession(contentId, user.userId());
-        webSocketMessagePublisher.publish(destination, change);
+        webSocketBroadcaster.broadcast(destination, change);
     }
 
     @EventListener
@@ -75,7 +75,7 @@ public class WatchingSessionEventListener {
         WatchingSessionChangeResponse change = watchingSessionFacade.leaveSession(contentId, user.userId());
 
         if (change != null) {
-            webSocketMessagePublisher.publish(buildWatchDestination(contentId), change);
+            webSocketBroadcaster.broadcast(buildWatchDestination(contentId), change);
         }
     }
 
