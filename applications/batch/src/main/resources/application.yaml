@@ -1,6 +1,6 @@
 spring:
   main:
-    web-application-type: servlet
+    web-application-type: none
     keep-alive: true
   application:
     name: mopl-batch
