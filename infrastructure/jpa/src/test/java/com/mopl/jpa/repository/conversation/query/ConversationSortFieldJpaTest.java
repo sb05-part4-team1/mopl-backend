@@ -38,7 +38,7 @@ class ConversationSortFieldJpaTest {
 
         static Stream<Arguments> domainToJpaMapping() {
             return Stream.of(
-                Arguments.of(ConversationSortField.createdAt, ConversationSortFieldJpa.CREATED_AT)
+                Arguments.of(ConversationSortField.CREATED_AT, ConversationSortFieldJpa.CREATED_AT)
             );
         }
     }

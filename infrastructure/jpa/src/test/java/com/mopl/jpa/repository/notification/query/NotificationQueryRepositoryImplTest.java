@@ -115,7 +115,7 @@ class NotificationQueryRepositoryImplTest {
         void withReceiverId_filtersNotifications() {
             // given
             NotificationQueryRequest request = new NotificationQueryRequest(
-                null, null, 100, SortDirection.ASCENDING, NotificationSortField.createdAt
+                null, null, 100, SortDirection.ASCENDING, NotificationSortField.CREATED_AT
             );
 
             // when
@@ -135,7 +135,7 @@ class NotificationQueryRepositoryImplTest {
         void withOtherReceiverId_returnsOtherUserNotifications() {
             // given
             NotificationQueryRequest request = new NotificationQueryRequest(
-                null, null, 100, SortDirection.ASCENDING, NotificationSortField.createdAt
+                null, null, 100, SortDirection.ASCENDING, NotificationSortField.CREATED_AT
             );
 
             // when
@@ -156,7 +156,7 @@ class NotificationQueryRepositoryImplTest {
             // given
             UUID nonExistentUserId = UUID.randomUUID();
             NotificationQueryRequest request = new NotificationQueryRequest(
-                null, null, 100, SortDirection.ASCENDING, NotificationSortField.createdAt
+                null, null, 100, SortDirection.ASCENDING, NotificationSortField.CREATED_AT
             );
 
             // when
@@ -188,7 +188,7 @@ class NotificationQueryRepositoryImplTest {
             entityManager.clear();
 
             NotificationQueryRequest request = new NotificationQueryRequest(
-                null, null, 100, SortDirection.ASCENDING, NotificationSortField.createdAt
+                null, null, 100, SortDirection.ASCENDING, NotificationSortField.CREATED_AT
             );
 
             // when
@@ -212,7 +212,7 @@ class NotificationQueryRepositoryImplTest {
         void sortByCreatedAtAscending() {
             // given
             NotificationQueryRequest request = new NotificationQueryRequest(
-                null, null, 100, SortDirection.ASCENDING, NotificationSortField.createdAt
+                null, null, 100, SortDirection.ASCENDING, NotificationSortField.CREATED_AT
             );
 
             // when
@@ -233,7 +233,7 @@ class NotificationQueryRepositoryImplTest {
         void sortByCreatedAtDescending() {
             // given
             NotificationQueryRequest request = new NotificationQueryRequest(
-                null, null, 100, SortDirection.DESCENDING, NotificationSortField.createdAt
+                null, null, 100, SortDirection.DESCENDING, NotificationSortField.CREATED_AT
             );
 
             // when
@@ -257,7 +257,7 @@ class NotificationQueryRepositoryImplTest {
         void firstPage_hasNextIsTrue() {
             // given
             NotificationQueryRequest request = new NotificationQueryRequest(
-                null, null, 2, SortDirection.ASCENDING, NotificationSortField.createdAt
+                null, null, 2, SortDirection.ASCENDING, NotificationSortField.CREATED_AT
             );
 
             // when
@@ -281,7 +281,7 @@ class NotificationQueryRepositoryImplTest {
         void secondPage_withCursor() {
             // given
             NotificationQueryRequest firstRequest = new NotificationQueryRequest(
-                null, null, 2, SortDirection.ASCENDING, NotificationSortField.createdAt
+                null, null, 2, SortDirection.ASCENDING, NotificationSortField.CREATED_AT
             );
             CursorResponse<NotificationModel> firstResponse = notificationQueryRepository.findAll(
                 user1.getId(), firstRequest
@@ -290,7 +290,7 @@ class NotificationQueryRepositoryImplTest {
             NotificationQueryRequest secondRequest = new NotificationQueryRequest(
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.ASCENDING, NotificationSortField.createdAt
+                2, SortDirection.ASCENDING, NotificationSortField.CREATED_AT
             );
 
             // when
@@ -311,7 +311,7 @@ class NotificationQueryRepositoryImplTest {
         void lastPage_hasNextIsFalse() {
             // given
             NotificationQueryRequest firstRequest = new NotificationQueryRequest(
-                null, null, 2, SortDirection.ASCENDING, NotificationSortField.createdAt
+                null, null, 2, SortDirection.ASCENDING, NotificationSortField.CREATED_AT
             );
             CursorResponse<NotificationModel> firstResponse = notificationQueryRepository.findAll(
                 user1.getId(), firstRequest
@@ -320,7 +320,7 @@ class NotificationQueryRepositoryImplTest {
             NotificationQueryRequest secondRequest = new NotificationQueryRequest(
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.ASCENDING, NotificationSortField.createdAt
+                2, SortDirection.ASCENDING, NotificationSortField.CREATED_AT
             );
             CursorResponse<NotificationModel> secondResponse = notificationQueryRepository.findAll(
                 user1.getId(), secondRequest
@@ -329,7 +329,7 @@ class NotificationQueryRepositoryImplTest {
             NotificationQueryRequest thirdRequest = new NotificationQueryRequest(
                 secondResponse.nextCursor(),
                 secondResponse.nextIdAfter(),
-                2, SortDirection.ASCENDING, NotificationSortField.createdAt
+                2, SortDirection.ASCENDING, NotificationSortField.CREATED_AT
             );
 
             // when
@@ -349,7 +349,7 @@ class NotificationQueryRepositoryImplTest {
         void descendingPagination() {
             // given
             NotificationQueryRequest firstRequest = new NotificationQueryRequest(
-                null, null, 2, SortDirection.DESCENDING, NotificationSortField.createdAt
+                null, null, 2, SortDirection.DESCENDING, NotificationSortField.CREATED_AT
             );
             CursorResponse<NotificationModel> firstResponse = notificationQueryRepository.findAll(
                 user1.getId(), firstRequest
@@ -358,7 +358,7 @@ class NotificationQueryRepositoryImplTest {
             NotificationQueryRequest secondRequest = new NotificationQueryRequest(
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.DESCENDING, NotificationSortField.createdAt
+                2, SortDirection.DESCENDING, NotificationSortField.CREATED_AT
             );
 
             // when

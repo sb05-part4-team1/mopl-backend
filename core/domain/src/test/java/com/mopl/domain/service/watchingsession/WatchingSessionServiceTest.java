@@ -55,7 +55,7 @@ class WatchingSessionServiceTest {
                 null
             );
             CursorResponse<WatchingSessionModel> expectedResponse = CursorResponse.empty(
-                WatchingSessionSortField.createdAt.name(), SortDirection.ASCENDING
+                WatchingSessionSortField.CREATED_AT.name(), SortDirection.ASCENDING
             );
 
             given(watchingSessionQueryRepository.findAllByContentId(contentId, request))

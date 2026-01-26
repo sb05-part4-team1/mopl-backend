@@ -20,6 +20,6 @@ public record ReviewQueryRequest(
     public ReviewQueryRequest {
         limit = limit != null ? Math.min(limit, MAX_LIMIT) : DEFAULT_LIMIT;
         sortDirection = sortDirection != null ? sortDirection : SortDirection.DESCENDING;
-        sortBy = sortBy != null ? sortBy : ReviewSortField.createdAt;
+        sortBy = sortBy != null ? sortBy : ReviewSortField.CREATED_AT;
     }
 }

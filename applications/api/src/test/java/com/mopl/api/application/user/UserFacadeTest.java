@@ -504,7 +504,7 @@ class UserFacadeTest {
             );
 
             UserQueryRequest request = new UserQueryRequest(
-                null, null, null, null, null, 10, SortDirection.ASCENDING, UserSortField.name
+                null, null, null, null, null, 10, SortDirection.ASCENDING, UserSortField.NAME
             );
 
             given(userService.getAll(request)).willReturn(serviceResponse);
@@ -540,7 +540,7 @@ class UserFacadeTest {
                 null,
                 10,
                 SortDirection.ASCENDING,
-                UserSortField.name
+                UserSortField.NAME
             );
 
             given(userService.getAll(request)).willReturn(emptyResponse);
@@ -577,7 +577,7 @@ class UserFacadeTest {
 
             UserQueryRequest request = new UserQueryRequest(
                 null, UserModel.Role.ADMIN, null, null, null, 10, SortDirection.ASCENDING,
-                UserSortField.name
+                UserSortField.NAME
             );
 
             given(userService.getAll(request)).willReturn(serviceResponse);

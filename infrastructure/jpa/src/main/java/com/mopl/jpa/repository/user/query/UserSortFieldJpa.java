@@ -17,21 +17,21 @@ import static com.mopl.jpa.entity.user.QUserEntity.userEntity;
 public enum UserSortFieldJpa implements SortField<Comparable<?>> {
 
     NAME(
-        UserSortField.name,
+        UserSortField.NAME,
         cast(userEntity.name),
         UserEntity::getName,
         Object::toString, cursor -> cursor
     ),
 
     EMAIL(
-        UserSortField.email,
+        UserSortField.EMAIL,
         cast(userEntity.email),
         UserEntity::getEmail,
         Object::toString, cursor -> cursor
     ),
 
     CREATED_AT(
-        UserSortField.createdAt,
+        UserSortField.CREATED_AT,
         cast(userEntity.createdAt),
         UserEntity::getCreatedAt,
         Object::toString,
@@ -39,7 +39,7 @@ public enum UserSortFieldJpa implements SortField<Comparable<?>> {
     ),
 
     IS_LOCKED(
-        UserSortField.isLocked,
+        UserSortField.IS_LOCKED,
         cast(userEntity.locked),
         UserEntity::isLocked,
         Object::toString,
@@ -47,7 +47,7 @@ public enum UserSortFieldJpa implements SortField<Comparable<?>> {
     ),
 
     ROLE(
-        UserSortField.role,
+        UserSortField.ROLE,
         cast(userEntity.role.stringValue()), entity -> entity.getRole().name(),
         Object::toString, cursor -> cursor
     );
@@ -65,11 +65,11 @@ public enum UserSortFieldJpa implements SortField<Comparable<?>> {
 
     public static UserSortFieldJpa from(UserSortField domainField) {
         return switch (domainField) {
-            case name -> NAME;
-            case email -> EMAIL;
-            case createdAt -> CREATED_AT;
-            case isLocked -> IS_LOCKED;
-            case role -> ROLE;
+            case NAME -> NAME;
+            case EMAIL -> EMAIL;
+            case CREATED_AT -> CREATED_AT;
+            case IS_LOCKED -> IS_LOCKED;
+            case ROLE -> ROLE;
         };
     }
 

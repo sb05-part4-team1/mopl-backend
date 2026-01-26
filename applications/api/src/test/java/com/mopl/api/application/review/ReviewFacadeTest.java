@@ -142,7 +142,7 @@ class ReviewFacadeTest {
             // given
             UUID contentId = UUID.randomUUID();
             ReviewQueryRequest request = new ReviewQueryRequest(
-                contentId, null, null, 10, SortDirection.DESCENDING, ReviewSortField.createdAt
+                contentId, null, null, 10, SortDirection.DESCENDING, ReviewSortField.CREATED_AT
             );
 
             ReviewModel review1 = ReviewModelFixture.create();
@@ -183,7 +183,7 @@ class ReviewFacadeTest {
         void withNoResults_returnsEmptyResponse() {
             // given
             ReviewQueryRequest request = new ReviewQueryRequest(
-                null, null, null, 10, SortDirection.DESCENDING, ReviewSortField.createdAt
+                null, null, null, 10, SortDirection.DESCENDING, ReviewSortField.CREATED_AT
             );
 
             CursorResponse<ReviewModel> emptyResponse = CursorResponse.empty(

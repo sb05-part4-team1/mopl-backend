@@ -79,7 +79,7 @@ class NotificationFacadeTest {
             );
 
             NotificationQueryRequest request = new NotificationQueryRequest(
-                null, null, 10, SortDirection.ASCENDING, NotificationSortField.createdAt
+                null, null, 10, SortDirection.ASCENDING, NotificationSortField.CREATED_AT
             );
 
             given(userService.getById(userId)).willReturn(UserModelFixture.builder().set("id", userId).sample());
@@ -112,7 +112,7 @@ class NotificationFacadeTest {
             );
 
             NotificationQueryRequest request = new NotificationQueryRequest(
-                null, null, 10, SortDirection.ASCENDING, NotificationSortField.createdAt
+                null, null, 10, SortDirection.ASCENDING, NotificationSortField.CREATED_AT
             );
 
             given(userService.getById(userId)).willReturn(UserModelFixture.builder().set("id", userId).sample());
@@ -137,7 +137,7 @@ class NotificationFacadeTest {
             // given
             UUID userId = UUID.randomUUID();
             NotificationQueryRequest request = new NotificationQueryRequest(
-                null, null, 10, SortDirection.ASCENDING, NotificationSortField.createdAt
+                null, null, 10, SortDirection.ASCENDING, NotificationSortField.CREATED_AT
             );
 
             given(userService.getById(userId)).willThrow(UserNotFoundException.withId(userId));

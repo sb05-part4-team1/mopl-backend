@@ -19,6 +19,6 @@ public record NotificationQueryRequest(
     public NotificationQueryRequest {
         limit = limit != null ? Math.min(limit, MAX_LIMIT) : DEFAULT_LIMIT;
         sortDirection = sortDirection != null ? sortDirection : SortDirection.ASCENDING;
-        sortBy = sortBy != null ? sortBy : NotificationSortField.createdAt;
+        sortBy = sortBy != null ? sortBy : NotificationSortField.CREATED_AT;
     }
 }

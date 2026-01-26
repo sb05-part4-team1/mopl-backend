@@ -39,7 +39,7 @@ class NotificationSortFieldJpaTest {
 
         static Stream<Arguments> domainToJpaMapping() {
             return Stream.of(
-                Arguments.of(NotificationSortField.createdAt, NotificationSortFieldJpa.CREATED_AT)
+                Arguments.of(NotificationSortField.CREATED_AT, NotificationSortFieldJpa.CREATED_AT)
             );
         }
     }

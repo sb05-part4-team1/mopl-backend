@@ -14,7 +14,7 @@ import java.util.function.Function;
 public enum WatchingSessionSortFieldSupport implements RedisSortField<Instant> {
 
     CREATED_AT(
-        WatchingSessionSortField.createdAt,
+        WatchingSessionSortField.CREATED_AT,
         WatchingSessionModel::getCreatedAt
     );
 
@@ -23,7 +23,7 @@ public enum WatchingSessionSortFieldSupport implements RedisSortField<Instant> {
 
     public static WatchingSessionSortFieldSupport from(WatchingSessionSortField domainField) {
         return switch (domainField) {
-            case createdAt -> CREATED_AT;
+            case CREATED_AT -> CREATED_AT;
         };
     }
 

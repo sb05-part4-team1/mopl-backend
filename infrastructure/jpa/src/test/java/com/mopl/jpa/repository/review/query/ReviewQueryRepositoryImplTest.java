@@ -135,7 +135,7 @@ class ReviewQueryRepositoryImplTest {
         void withNoFilter_returnsAllReviews() {
             // given
             ReviewQueryRequest request = new ReviewQueryRequest(
-                null, null, null, 100, SortDirection.DESCENDING, ReviewSortField.createdAt
+                null, null, null, 100, SortDirection.DESCENDING, ReviewSortField.CREATED_AT
             );
 
             // when
@@ -152,7 +152,7 @@ class ReviewQueryRepositoryImplTest {
         void withContentId_filtersReviews() {
             // given
             ReviewQueryRequest request = new ReviewQueryRequest(
-                contentId1, null, null, 100, SortDirection.DESCENDING, ReviewSortField.createdAt
+                contentId1, null, null, 100, SortDirection.DESCENDING, ReviewSortField.CREATED_AT
             );
 
             // when
@@ -170,7 +170,7 @@ class ReviewQueryRepositoryImplTest {
         void withOtherContentId_filtersReviews() {
             // given
             ReviewQueryRequest request = new ReviewQueryRequest(
-                contentId2, null, null, 100, SortDirection.DESCENDING, ReviewSortField.createdAt
+                contentId2, null, null, 100, SortDirection.DESCENDING, ReviewSortField.CREATED_AT
             );
 
             // when
@@ -189,7 +189,7 @@ class ReviewQueryRepositoryImplTest {
             // given
             ReviewQueryRequest request = new ReviewQueryRequest(
                 UUID.randomUUID(), null, null, 100, SortDirection.DESCENDING,
-                ReviewSortField.createdAt
+                ReviewSortField.CREATED_AT
             );
 
             // when
@@ -211,7 +211,7 @@ class ReviewQueryRepositoryImplTest {
         void sortByCreatedAtDescending() {
             // given
             ReviewQueryRequest request = new ReviewQueryRequest(
-                contentId1, null, null, 100, SortDirection.DESCENDING, ReviewSortField.createdAt
+                contentId1, null, null, 100, SortDirection.DESCENDING, ReviewSortField.CREATED_AT
             );
 
             // when
@@ -230,7 +230,7 @@ class ReviewQueryRepositoryImplTest {
         void sortByCreatedAtAscending() {
             // given
             ReviewQueryRequest request = new ReviewQueryRequest(
-                contentId1, null, null, 100, SortDirection.ASCENDING, ReviewSortField.createdAt
+                contentId1, null, null, 100, SortDirection.ASCENDING, ReviewSortField.CREATED_AT
             );
 
             // when
@@ -247,7 +247,7 @@ class ReviewQueryRepositoryImplTest {
         void sortByRatingDescending() {
             // given
             ReviewQueryRequest request = new ReviewQueryRequest(
-                contentId1, null, null, 100, SortDirection.DESCENDING, ReviewSortField.rating
+                contentId1, null, null, 100, SortDirection.DESCENDING, ReviewSortField.RATING
             );
 
             // when
@@ -264,7 +264,7 @@ class ReviewQueryRepositoryImplTest {
         void sortByRatingAscending() {
             // given
             ReviewQueryRequest request = new ReviewQueryRequest(
-                contentId1, null, null, 100, SortDirection.ASCENDING, ReviewSortField.rating
+                contentId1, null, null, 100, SortDirection.ASCENDING, ReviewSortField.RATING
             );
 
             // when
@@ -286,7 +286,7 @@ class ReviewQueryRepositoryImplTest {
         void firstPage_hasNextIsTrue() {
             // given
             ReviewQueryRequest request = new ReviewQueryRequest(
-                contentId1, null, null, 2, SortDirection.DESCENDING, ReviewSortField.createdAt
+                contentId1, null, null, 2, SortDirection.DESCENDING, ReviewSortField.CREATED_AT
             );
 
             // when
@@ -308,7 +308,7 @@ class ReviewQueryRepositoryImplTest {
         void secondPage_withCursor() {
             // given
             ReviewQueryRequest firstRequest = new ReviewQueryRequest(
-                contentId1, null, null, 2, SortDirection.DESCENDING, ReviewSortField.createdAt
+                contentId1, null, null, 2, SortDirection.DESCENDING, ReviewSortField.CREATED_AT
             );
             CursorResponse<ReviewModel> firstResponse = reviewQueryRepository.findAll(firstRequest);
 
@@ -316,7 +316,7 @@ class ReviewQueryRepositoryImplTest {
                 contentId1,
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.DESCENDING, ReviewSortField.createdAt
+                2, SortDirection.DESCENDING, ReviewSortField.CREATED_AT
             );
 
             // when
@@ -336,7 +336,7 @@ class ReviewQueryRepositoryImplTest {
         void lastPage_hasNextIsFalse() {
             // given
             ReviewQueryRequest firstRequest = new ReviewQueryRequest(
-                contentId1, null, null, 3, SortDirection.DESCENDING, ReviewSortField.createdAt
+                contentId1, null, null, 3, SortDirection.DESCENDING, ReviewSortField.CREATED_AT
             );
             CursorResponse<ReviewModel> firstResponse = reviewQueryRepository.findAll(firstRequest);
 
@@ -344,7 +344,7 @@ class ReviewQueryRepositoryImplTest {
                 contentId1,
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                3, SortDirection.DESCENDING, ReviewSortField.createdAt
+                3, SortDirection.DESCENDING, ReviewSortField.CREATED_AT
             );
 
             // when
@@ -363,7 +363,7 @@ class ReviewQueryRepositoryImplTest {
         void ascendingPagination() {
             // given
             ReviewQueryRequest firstRequest = new ReviewQueryRequest(
-                contentId1, null, null, 2, SortDirection.ASCENDING, ReviewSortField.createdAt
+                contentId1, null, null, 2, SortDirection.ASCENDING, ReviewSortField.CREATED_AT
             );
             CursorResponse<ReviewModel> firstResponse = reviewQueryRepository.findAll(firstRequest);
 
@@ -371,7 +371,7 @@ class ReviewQueryRepositoryImplTest {
                 contentId1,
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.ASCENDING, ReviewSortField.createdAt
+                2, SortDirection.ASCENDING, ReviewSortField.CREATED_AT
             );
 
             // when
@@ -392,7 +392,7 @@ class ReviewQueryRepositoryImplTest {
         void paginationByRating() {
             // given
             ReviewQueryRequest firstRequest = new ReviewQueryRequest(
-                contentId1, null, null, 2, SortDirection.DESCENDING, ReviewSortField.rating
+                contentId1, null, null, 2, SortDirection.DESCENDING, ReviewSortField.RATING
             );
             CursorResponse<ReviewModel> firstResponse = reviewQueryRepository.findAll(firstRequest);
 
@@ -400,7 +400,7 @@ class ReviewQueryRepositoryImplTest {
                 contentId1,
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.DESCENDING, ReviewSortField.rating
+                2, SortDirection.DESCENDING, ReviewSortField.RATING
             );
 
             // when

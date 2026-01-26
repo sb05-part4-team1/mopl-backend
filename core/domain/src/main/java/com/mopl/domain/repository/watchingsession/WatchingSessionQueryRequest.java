@@ -20,6 +20,6 @@ public record WatchingSessionQueryRequest(
     public WatchingSessionQueryRequest {
         limit = limit != null ? Math.min(limit, MAX_LIMIT) : DEFAULT_LIMIT;
         sortDirection = sortDirection != null ? sortDirection : SortDirection.ASCENDING;
-        sortBy = sortBy != null ? sortBy : WatchingSessionSortField.createdAt;
+        sortBy = sortBy != null ? sortBy : WatchingSessionSortField.CREATED_AT;
     }
 }

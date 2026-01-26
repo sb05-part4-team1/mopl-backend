@@ -103,7 +103,7 @@ class ConversationFacadeTest {
         void withEmptyConversations_returnsEmptyCursorResponse() {
             // given
             ConversationQueryRequest request = new ConversationQueryRequest(
-                null, null, null, 20, SortDirection.DESCENDING, ConversationSortField.createdAt
+                null, null, null, 20, SortDirection.DESCENDING, ConversationSortField.CREATED_AT
             );
             CursorResponse<ConversationModel> emptyResponse = CursorResponse.empty(
                 "createdAt", SortDirection.DESCENDING
@@ -130,7 +130,7 @@ class ConversationFacadeTest {
             UUID conversationId = conversation.getId();
 
             ConversationQueryRequest request = new ConversationQueryRequest(
-                null, null, null, 20, SortDirection.DESCENDING, ConversationSortField.createdAt
+                null, null, null, 20, SortDirection.DESCENDING, ConversationSortField.CREATED_AT
             );
 
             CursorResponse<ConversationModel> serviceResponse = CursorResponse.of(
@@ -181,7 +181,7 @@ class ConversationFacadeTest {
             UUID conversationId = conversation.getId();
 
             ConversationQueryRequest request = new ConversationQueryRequest(
-                null, null, null, 20, SortDirection.DESCENDING, ConversationSortField.createdAt
+                null, null, null, 20, SortDirection.DESCENDING, ConversationSortField.CREATED_AT
             );
 
             CursorResponse<ConversationModel> serviceResponse = CursorResponse.of(
@@ -405,7 +405,7 @@ class ConversationFacadeTest {
                 .sample();
 
             DirectMessageQueryRequest request = new DirectMessageQueryRequest(
-                null, null, 20, SortDirection.DESCENDING, DirectMessageSortField.createdAt
+                null, null, 20, SortDirection.DESCENDING, DirectMessageSortField.CREATED_AT
             );
 
             ReadStatusModel requesterReadStatus = createReadStatus(requester, conversation, Instant.now());
@@ -460,7 +460,7 @@ class ConversationFacadeTest {
                 .sample();
 
             DirectMessageQueryRequest request = new DirectMessageQueryRequest(
-                null, null, 20, SortDirection.DESCENDING, DirectMessageSortField.createdAt
+                null, null, 20, SortDirection.DESCENDING, DirectMessageSortField.CREATED_AT
             );
 
             ReadStatusModel requesterReadStatus = createReadStatus(requester, conversation, Instant.now());

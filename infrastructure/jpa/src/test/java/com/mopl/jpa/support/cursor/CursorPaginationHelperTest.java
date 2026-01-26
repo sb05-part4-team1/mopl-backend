@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CursorPaginationHelperTest {
 
     enum TestSortField {
-        name, email
+        NAME, EMAIL
     }
 
     static class TestSortFieldImpl implements SortField<String> {
@@ -64,7 +64,7 @@ class CursorPaginationHelperTest {
     @DisplayName("buildResponse()")
     class BuildResponseTest {
 
-        private final SortField<?> sortField = new TestSortFieldImpl(TestSortField.name);
+        private final SortField<?> sortField = new TestSortFieldImpl(TestSortField.NAME);
 
         private CursorRequest<TestSortField> createRequest(int limit) {
             return createRequest(null, null, limit, SortDirection.ASCENDING);
@@ -97,7 +97,7 @@ class CursorPaginationHelperTest {
 
                 @Override
                 public TestSortField sortBy() {
-                    return TestSortField.name;
+                    return TestSortField.NAME;
                 }
             };
         }

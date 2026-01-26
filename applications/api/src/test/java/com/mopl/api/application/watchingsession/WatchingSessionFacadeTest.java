@@ -132,7 +132,7 @@ class WatchingSessionFacadeTest {
             );
 
             WatchingSessionQueryRequest request = new WatchingSessionQueryRequest(
-                null, null, null, 10, SortDirection.ASCENDING, WatchingSessionSortField.createdAt
+                null, null, null, 10, SortDirection.ASCENDING, WatchingSessionSortField.CREATED_AT
             );
 
             given(watchingSessionService.getWatchingSessions(contentId, request))
@@ -165,7 +165,7 @@ class WatchingSessionFacadeTest {
             );
 
             WatchingSessionQueryRequest request = new WatchingSessionQueryRequest(
-                null, null, null, 10, SortDirection.ASCENDING, WatchingSessionSortField.createdAt
+                null, null, null, 10, SortDirection.ASCENDING, WatchingSessionSortField.CREATED_AT
             );
 
             given(watchingSessionService.getWatchingSessions(contentId, request))
@@ -213,7 +213,7 @@ class WatchingSessionFacadeTest {
             );
 
             WatchingSessionQueryRequest request = new WatchingSessionQueryRequest(
-                watcherNameLike, null, null, 10, SortDirection.ASCENDING, WatchingSessionSortField.createdAt
+                watcherNameLike, null, null, 10, SortDirection.ASCENDING, WatchingSessionSortField.CREATED_AT
             );
 
             given(watchingSessionService.getWatchingSessions(contentId, request))

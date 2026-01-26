@@ -38,7 +38,7 @@ class DirectMessageSortFieldJpaTest {
 
         static Stream<Arguments> domainToJpaMapping() {
             return Stream.of(
-                Arguments.of(DirectMessageSortField.createdAt, DirectMessageSortFieldJpa.CREATED_AT)
+                Arguments.of(DirectMessageSortField.CREATED_AT, DirectMessageSortFieldJpa.CREATED_AT)
             );
         }
     }

@@ -11,8 +11,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ContentSortFieldEs {
 
-    WATCHER_COUNT(
-        ContentSortField.watcherCount,
+    POPULARITY(
+        ContentSortField.POPULARITY,
         "reviewCount",
         ContentDocument::getReviewCount,
         Object::toString,
@@ -20,7 +20,7 @@ public enum ContentSortFieldEs {
     ),
 
     CREATED_AT(
-        ContentSortField.createdAt,
+        ContentSortField.CREATED_AT,
         "createdAt",
         ContentDocument::getCreatedAt,
         Object::toString,
@@ -28,7 +28,7 @@ public enum ContentSortFieldEs {
     ),
 
     RATE(
-        ContentSortField.rate,
+        ContentSortField.RATE,
         "averageRating",
         ContentDocument::getAverageRating,
         Object::toString,
@@ -43,9 +43,9 @@ public enum ContentSortFieldEs {
 
     public static ContentSortFieldEs from(ContentSortField domainField) {
         return switch (domainField) {
-            case createdAt -> CREATED_AT;
-            case watcherCount -> WATCHER_COUNT;
-            case rate -> RATE;
+            case CREATED_AT -> CREATED_AT;
+            case POPULARITY -> POPULARITY;
+            case RATE -> RATE;
         };
     }
 

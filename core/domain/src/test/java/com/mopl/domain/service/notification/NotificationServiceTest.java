@@ -90,7 +90,7 @@ class NotificationServiceTest {
         }
 
         private NotificationQueryRequest createQueryRequest() {
-            return new NotificationQueryRequest(null, null, 10, SortDirection.ASCENDING, NotificationSortField.createdAt);
+            return new NotificationQueryRequest(null, null, 10, SortDirection.ASCENDING, NotificationSortField.CREATED_AT);
         }
     }
 

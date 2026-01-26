@@ -131,7 +131,7 @@ class ConversationQueryRepositoryImplTest {
         void withUserId_returnsOnlyParticipatingConversations() {
             // given
             ConversationQueryRequest request = new ConversationQueryRequest(
-                null, null, null, 100, SortDirection.DESCENDING, ConversationSortField.createdAt
+                null, null, null, 100, SortDirection.DESCENDING, ConversationSortField.CREATED_AT
             );
 
             // when
@@ -148,7 +148,7 @@ class ConversationQueryRepositoryImplTest {
         void withOtherUserId_returnsOnlyTheirConversations() {
             // given
             ConversationQueryRequest request = new ConversationQueryRequest(
-                null, null, null, 100, SortDirection.DESCENDING, ConversationSortField.createdAt
+                null, null, null, 100, SortDirection.DESCENDING, ConversationSortField.CREATED_AT
             );
 
             // when
@@ -164,7 +164,7 @@ class ConversationQueryRepositoryImplTest {
         void withKeywordLike_filtersConversationsByOtherUserName() {
             // given
             ConversationQueryRequest request = new ConversationQueryRequest(
-                "Ali", null, null, 100, SortDirection.DESCENDING, ConversationSortField.createdAt
+                "Ali", null, null, 100, SortDirection.DESCENDING, ConversationSortField.CREATED_AT
             );
 
             // when
@@ -180,7 +180,7 @@ class ConversationQueryRepositoryImplTest {
         void withKeywordLike_caseInsensitive() {
             // given
             ConversationQueryRequest request = new ConversationQueryRequest(
-                "bob", null, null, 100, SortDirection.DESCENDING, ConversationSortField.createdAt
+                "bob", null, null, 100, SortDirection.DESCENDING, ConversationSortField.CREATED_AT
             );
 
             // when
@@ -195,7 +195,7 @@ class ConversationQueryRepositoryImplTest {
         void withNoMatchingData_returnsEmptyResult() {
             // given
             ConversationQueryRequest request = new ConversationQueryRequest(
-                "nonexistent", null, null, 100, SortDirection.DESCENDING, ConversationSortField.createdAt
+                "nonexistent", null, null, 100, SortDirection.DESCENDING, ConversationSortField.CREATED_AT
             );
 
             // when
@@ -213,7 +213,7 @@ class ConversationQueryRepositoryImplTest {
             // given
             UUID nonParticipatingUserId = UUID.randomUUID();
             ConversationQueryRequest request = new ConversationQueryRequest(
-                null, null, null, 100, SortDirection.DESCENDING, ConversationSortField.createdAt
+                null, null, null, 100, SortDirection.DESCENDING, ConversationSortField.CREATED_AT
             );
 
             // when
@@ -234,7 +234,7 @@ class ConversationQueryRepositoryImplTest {
         void sortByCreatedAtDescending() {
             // given
             ConversationQueryRequest request = new ConversationQueryRequest(
-                null, null, null, 100, SortDirection.DESCENDING, ConversationSortField.createdAt
+                null, null, null, 100, SortDirection.DESCENDING, ConversationSortField.CREATED_AT
             );
 
             // when
@@ -257,7 +257,7 @@ class ConversationQueryRepositoryImplTest {
         void sortByCreatedAtAscending() {
             // given
             ConversationQueryRequest request = new ConversationQueryRequest(
-                null, null, null, 100, SortDirection.ASCENDING, ConversationSortField.createdAt
+                null, null, null, 100, SortDirection.ASCENDING, ConversationSortField.CREATED_AT
             );
 
             // when
@@ -283,7 +283,7 @@ class ConversationQueryRepositoryImplTest {
         void firstPage_hasNextIsTrue() {
             // given
             ConversationQueryRequest request = new ConversationQueryRequest(
-                null, null, null, 2, SortDirection.DESCENDING, ConversationSortField.createdAt
+                null, null, null, 2, SortDirection.DESCENDING, ConversationSortField.CREATED_AT
             );
 
             // when
@@ -302,7 +302,7 @@ class ConversationQueryRepositoryImplTest {
         void secondPage_withCursor() {
             // given
             ConversationQueryRequest firstRequest = new ConversationQueryRequest(
-                null, null, null, 2, SortDirection.DESCENDING, ConversationSortField.createdAt
+                null, null, null, 2, SortDirection.DESCENDING, ConversationSortField.CREATED_AT
             );
             CursorResponse<ConversationModel> firstResponse = conversationQueryRepository.findAll(userId, firstRequest);
 
@@ -310,7 +310,7 @@ class ConversationQueryRepositoryImplTest {
                 null,
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.DESCENDING, ConversationSortField.createdAt
+                2, SortDirection.DESCENDING, ConversationSortField.CREATED_AT
             );
 
             // when
@@ -327,7 +327,7 @@ class ConversationQueryRepositoryImplTest {
         void ascendingPagination() {
             // given
             ConversationQueryRequest firstRequest = new ConversationQueryRequest(
-                null, null, null, 2, SortDirection.ASCENDING, ConversationSortField.createdAt
+                null, null, null, 2, SortDirection.ASCENDING, ConversationSortField.CREATED_AT
             );
             CursorResponse<ConversationModel> firstResponse = conversationQueryRepository.findAll(userId, firstRequest);
 
@@ -335,7 +335,7 @@ class ConversationQueryRepositoryImplTest {
                 null,
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.ASCENDING, ConversationSortField.createdAt
+                2, SortDirection.ASCENDING, ConversationSortField.CREATED_AT
             );
 
             // when
@@ -355,7 +355,7 @@ class ConversationQueryRepositoryImplTest {
         void paginationWithFilter() {
             // given
             ConversationQueryRequest request = new ConversationQueryRequest(
-                "li", null, null, 1, SortDirection.DESCENDING, ConversationSortField.createdAt
+                "li", null, null, 1, SortDirection.DESCENDING, ConversationSortField.CREATED_AT
             );
 
             // when

@@ -20,6 +20,6 @@ public record ConversationQueryRequest(
     public ConversationQueryRequest {
         limit = limit != null ? Math.min(limit, MAX_LIMIT) : DEFAULT_LIMIT;
         sortDirection = sortDirection != null ? sortDirection : SortDirection.DESCENDING;
-        sortBy = sortBy != null ? sortBy : ConversationSortField.createdAt;
+        sortBy = sortBy != null ? sortBy : ConversationSortField.CREATED_AT;
     }
 }

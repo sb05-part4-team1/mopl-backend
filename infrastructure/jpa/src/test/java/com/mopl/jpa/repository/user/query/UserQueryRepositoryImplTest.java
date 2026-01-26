@@ -94,7 +94,7 @@ class UserQueryRepositoryImplTest {
                 null,
                 100,
                 SortDirection.ASCENDING,
-                UserSortField.name
+                UserSortField.NAME
             );
 
             // when
@@ -118,7 +118,7 @@ class UserQueryRepositoryImplTest {
                 null,
                 100,
                 SortDirection.ASCENDING,
-                UserSortField.name
+                UserSortField.NAME
             );
 
             // when
@@ -136,7 +136,7 @@ class UserQueryRepositoryImplTest {
         void withRoleEqual_filtersUsers() {
             // given
             UserQueryRequest request = new UserQueryRequest(
-                null, Role.ADMIN, null, null, null, 100, SortDirection.ASCENDING, UserSortField.name
+                null, Role.ADMIN, null, null, null, 100, SortDirection.ASCENDING, UserSortField.NAME
             );
 
             // when
@@ -154,7 +154,7 @@ class UserQueryRepositoryImplTest {
         void withIsLocked_filtersUsers() {
             // given
             UserQueryRequest request = new UserQueryRequest(
-                null, null, true, null, null, 100, SortDirection.ASCENDING, UserSortField.name
+                null, null, true, null, null, 100, SortDirection.ASCENDING, UserSortField.NAME
             );
 
             // when
@@ -179,7 +179,7 @@ class UserQueryRepositoryImplTest {
                 null,
                 100,
                 SortDirection.ASCENDING,
-                UserSortField.name
+                UserSortField.NAME
             );
 
             // when
@@ -202,7 +202,7 @@ class UserQueryRepositoryImplTest {
                 null,
                 100,
                 SortDirection.ASCENDING,
-                UserSortField.name
+                UserSortField.NAME
             );
 
             // when
@@ -224,7 +224,7 @@ class UserQueryRepositoryImplTest {
         void sortByNameAscending() {
             // given
             UserQueryRequest request = new UserQueryRequest(
-                null, null, null, null, null, 100, SortDirection.ASCENDING, UserSortField.name
+                null, null, null, null, null, 100, SortDirection.ASCENDING, UserSortField.NAME
             );
 
             // when
@@ -243,7 +243,7 @@ class UserQueryRepositoryImplTest {
         void sortByNameDescending() {
             // given
             UserQueryRequest request = new UserQueryRequest(
-                null, null, null, null, null, 100, SortDirection.DESCENDING, UserSortField.name
+                null, null, null, null, null, 100, SortDirection.DESCENDING, UserSortField.NAME
             );
 
             // when
@@ -260,7 +260,7 @@ class UserQueryRepositoryImplTest {
         void sortByEmail() {
             // given
             UserQueryRequest request = new UserQueryRequest(
-                null, null, null, null, null, 100, SortDirection.ASCENDING, UserSortField.email
+                null, null, null, null, null, 100, SortDirection.ASCENDING, UserSortField.EMAIL
             );
 
             // when
@@ -283,7 +283,7 @@ class UserQueryRepositoryImplTest {
         void sortByCreatedAt() {
             // given
             UserQueryRequest request = new UserQueryRequest(
-                null, null, null, null, null, 100, SortDirection.DESCENDING, UserSortField.createdAt
+                null, null, null, null, null, 100, SortDirection.DESCENDING, UserSortField.CREATED_AT
             );
 
             // when
@@ -300,7 +300,7 @@ class UserQueryRepositoryImplTest {
         void sortByRole() {
             // given
             UserQueryRequest request = new UserQueryRequest(
-                null, null, null, null, null, 100, SortDirection.ASCENDING, UserSortField.role
+                null, null, null, null, null, 100, SortDirection.ASCENDING, UserSortField.ROLE
             );
 
             // when
@@ -324,7 +324,7 @@ class UserQueryRepositoryImplTest {
         void firstPage_hasNextIsTrue() {
             // given
             UserQueryRequest request = new UserQueryRequest(
-                null, null, null, null, null, 2, SortDirection.ASCENDING, UserSortField.name
+                null, null, null, null, null, 2, SortDirection.ASCENDING, UserSortField.NAME
             );
 
             // when
@@ -346,7 +346,7 @@ class UserQueryRepositoryImplTest {
         void secondPage_withCursor() {
             // given
             UserQueryRequest firstRequest = new UserQueryRequest(
-                null, null, null, null, null, 2, SortDirection.ASCENDING, UserSortField.name
+                null, null, null, null, null, 2, SortDirection.ASCENDING, UserSortField.NAME
             );
             CursorResponse<UserModel> firstResponse = userQueryRepository.findAll(firstRequest);
 
@@ -354,7 +354,7 @@ class UserQueryRepositoryImplTest {
                 null, null, null,
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.ASCENDING, UserSortField.name
+                2, SortDirection.ASCENDING, UserSortField.NAME
             );
 
             // when
@@ -373,7 +373,7 @@ class UserQueryRepositoryImplTest {
         void lastPage_hasNextIsFalse() {
             // given
             UserQueryRequest firstRequest = new UserQueryRequest(
-                null, null, null, null, null, 2, SortDirection.ASCENDING, UserSortField.name
+                null, null, null, null, null, 2, SortDirection.ASCENDING, UserSortField.NAME
             );
             CursorResponse<UserModel> firstResponse = userQueryRepository.findAll(firstRequest);
 
@@ -381,7 +381,7 @@ class UserQueryRepositoryImplTest {
                 null, null, null,
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.ASCENDING, UserSortField.name
+                2, SortDirection.ASCENDING, UserSortField.NAME
             );
             CursorResponse<UserModel> secondResponse = userQueryRepository.findAll(secondRequest);
 
@@ -389,7 +389,7 @@ class UserQueryRepositoryImplTest {
                 null, null, null,
                 secondResponse.nextCursor(),
                 secondResponse.nextIdAfter(),
-                2, SortDirection.ASCENDING, UserSortField.name
+                2, SortDirection.ASCENDING, UserSortField.NAME
             );
 
             // when
@@ -407,7 +407,7 @@ class UserQueryRepositoryImplTest {
         void descendingPagination() {
             // given
             UserQueryRequest firstRequest = new UserQueryRequest(
-                null, null, null, null, null, 2, SortDirection.DESCENDING, UserSortField.name
+                null, null, null, null, null, 2, SortDirection.DESCENDING, UserSortField.NAME
             );
             CursorResponse<UserModel> firstResponse = userQueryRepository.findAll(firstRequest);
 
@@ -415,7 +415,7 @@ class UserQueryRepositoryImplTest {
                 null, null, null,
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.DESCENDING, UserSortField.name
+                2, SortDirection.DESCENDING, UserSortField.NAME
             );
 
             // when
@@ -442,7 +442,7 @@ class UserQueryRepositoryImplTest {
                 null,
                 2,
                 SortDirection.ASCENDING,
-                UserSortField.name
+                UserSortField.NAME
             );
 
             // when
@@ -459,7 +459,7 @@ class UserQueryRepositoryImplTest {
         void paginationByCreatedAt() {
             // given
             UserQueryRequest firstRequest = new UserQueryRequest(
-                null, null, null, null, null, 2, SortDirection.ASCENDING, UserSortField.createdAt
+                null, null, null, null, null, 2, SortDirection.ASCENDING, UserSortField.CREATED_AT
             );
             CursorResponse<UserModel> firstResponse = userQueryRepository.findAll(firstRequest);
 
@@ -467,7 +467,7 @@ class UserQueryRepositoryImplTest {
                 null, null, null,
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.ASCENDING, UserSortField.createdAt
+                2, SortDirection.ASCENDING, UserSortField.CREATED_AT
             );
 
             // when

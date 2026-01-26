@@ -39,11 +39,11 @@ class UserSortFieldJpaTest {
 
         static Stream<Arguments> domainToJpaMapping() {
             return Stream.of(
-                Arguments.of(UserSortField.name, UserSortFieldJpa.NAME),
-                Arguments.of(UserSortField.email, UserSortFieldJpa.EMAIL),
-                Arguments.of(UserSortField.createdAt, UserSortFieldJpa.CREATED_AT),
-                Arguments.of(UserSortField.isLocked, UserSortFieldJpa.IS_LOCKED),
-                Arguments.of(UserSortField.role, UserSortFieldJpa.ROLE)
+                Arguments.of(UserSortField.NAME, UserSortFieldJpa.NAME),
+                Arguments.of(UserSortField.EMAIL, UserSortFieldJpa.EMAIL),
+                Arguments.of(UserSortField.CREATED_AT, UserSortFieldJpa.CREATED_AT),
+                Arguments.of(UserSortField.IS_LOCKED, UserSortFieldJpa.IS_LOCKED),
+                Arguments.of(UserSortField.ROLE, UserSortFieldJpa.ROLE)
             );
         }
     }

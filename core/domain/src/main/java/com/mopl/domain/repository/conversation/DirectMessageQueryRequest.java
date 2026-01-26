@@ -19,6 +19,6 @@ public record DirectMessageQueryRequest(
     public DirectMessageQueryRequest {
         limit = limit != null ? Math.min(limit, MAX_LIMIT) : DEFAULT_LIMIT;
         sortDirection = sortDirection != null ? sortDirection : SortDirection.DESCENDING;
-        sortBy = sortBy != null ? sortBy : DirectMessageSortField.createdAt;
+        sortBy = sortBy != null ? sortBy : DirectMessageSortField.CREATED_AT;
     }
 }

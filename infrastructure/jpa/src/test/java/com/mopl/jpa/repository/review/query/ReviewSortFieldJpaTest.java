@@ -41,8 +41,8 @@ class ReviewSortFieldJpaTest {
 
         static Stream<Arguments> domainToJpaMapping() {
             return Stream.of(
-                Arguments.of(ReviewSortField.createdAt, ReviewSortFieldJpa.CREATED_AT),
-                Arguments.of(ReviewSortField.rating, ReviewSortFieldJpa.RATING)
+                Arguments.of(ReviewSortField.CREATED_AT, ReviewSortFieldJpa.CREATED_AT),
+                Arguments.of(ReviewSortField.RATING, ReviewSortFieldJpa.RATING)
             );
         }
     }
