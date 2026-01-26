@@ -17,6 +17,7 @@ import com.mopl.security.jwt.provider.JwtCookieProvider;
 import com.mopl.security.jwt.provider.JwtProvider;
 import com.mopl.security.jwt.registry.InMemoryJwtRegistry;
 import com.mopl.security.jwt.registry.JwtRegistry;
+import com.mopl.security.jwt.registry.RedisJwtRegistry;
 import com.mopl.security.jwt.service.TokenRefreshService;
 import com.mopl.security.oauth2.CustomOAuth2UserService;
 import com.mopl.security.oauth2.handler.OAuth2FailureHandler;
@@ -28,6 +29,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
@@ -67,6 +69,19 @@ public class SecurityBeanConfig {
     @ConditionalOnMissingBean(JwtRegistry.class)
     public JwtRegistry inMemoryJwtRegistry(JwtProperties jwtProperties) {
         return new InMemoryJwtRegistry(jwtProperties);
+    }
+
+    @Bean
+    @ConditionalOnProperty(
+        name = "mopl.jwt.registry-type",
+        havingValue = "redis"
+    )
+    @ConditionalOnMissingBean(JwtRegistry.class)
+    public JwtRegistry redisJwtRegistry(
+        RedisTemplate<String, Object> redisTemplate,
+        JwtProperties jwtProperties
+    ) {
+        return new RedisJwtRegistry(redisTemplate, jwtProperties);
     }
 
     @Bean

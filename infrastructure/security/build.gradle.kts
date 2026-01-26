@@ -15,4 +15,7 @@ dependencies {
     // servlet
     compileOnly("jakarta.servlet:jakarta.servlet-api")
     testImplementation("jakarta.servlet:jakarta.servlet-api")
+    // redis
+    compileOnly("org.springframework.boot:spring-boot-starter-data-redis")
+    testImplementation("org.springframework.boot:spring-boot-starter-data-redis")
 }
