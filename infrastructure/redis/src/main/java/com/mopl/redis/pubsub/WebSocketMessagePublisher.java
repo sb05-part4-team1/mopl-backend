@@ -1,12 +1,12 @@
 package com.mopl.redis.pubsub;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnBean(RedisTemplate.class)
+@ConditionalOnProperty(name = "websocket.broadcaster", havingValue = "redis")
 @RequiredArgsConstructor
 public class WebSocketMessagePublisher {
 

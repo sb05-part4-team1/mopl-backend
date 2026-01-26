@@ -5,11 +5,9 @@ import com.mopl.websocket.messaging.LocalWebSocketBroadcaster;
 import com.mopl.websocket.messaging.RedisWebSocketBroadcaster;
 import com.mopl.websocket.messaging.WebSocketBroadcaster;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @Configuration
@@ -17,15 +15,14 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 public class WebSocketBroadcasterConfig {
 
     @Bean
-    @Primary
-    @ConditionalOnBean(WebSocketMessagePublisher.class)
+    @ConditionalOnProperty(name = "websocket.broadcaster", havingValue = "redis")
     public WebSocketBroadcaster redisWebSocketBroadcaster(WebSocketMessagePublisher publisher) {
         log.info("Using RedisWebSocketBroadcaster for distributed WebSocket messaging");
         return new RedisWebSocketBroadcaster(publisher);
     }
 
     @Bean
-    @ConditionalOnMissingBean(WebSocketBroadcaster.class)
+    @ConditionalOnProperty(name = "websocket.broadcaster", havingValue = "local", matchIfMissing = true)
     public WebSocketBroadcaster localWebSocketBroadcaster(SimpMessagingTemplate messagingTemplate) {
         log.info("Using LocalWebSocketBroadcaster (single-server mode)");
         return new LocalWebSocketBroadcaster(messagingTemplate);

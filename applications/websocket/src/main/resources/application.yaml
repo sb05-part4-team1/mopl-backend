@@ -4,6 +4,7 @@ server:
 
 websocket:
   allowed-origins: ${WEBSOCKET_ALLOWED_ORIGINS:http://localhost:*}
+  broadcaster: ${WEBSOCKET_BROADCASTER:local}
 
 spring:
   main:
