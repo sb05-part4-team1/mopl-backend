@@ -34,7 +34,7 @@ public class DirectMessageEntityMapper {
 
         return buildDirectMessageModel(
             entity,
-            userEntityMapper.toModel(entity.getSender()),
+            toSenderIfActive(entity.getSender()),
             toConversationIdOnly(entity.getConversation())
         );
     }
@@ -69,9 +69,19 @@ public class DirectMessageEntityMapper {
     }
 
     private UserModel toSenderIdOnly(UserEntity entity) {
-        return entity != null
+        return isActiveUser(entity)
             ? UserModel.builder().id(entity.getId()).build()
             : null;
+    }
+
+    private UserModel toSenderIfActive(UserEntity entity) {
+        return isActiveUser(entity)
+            ? userEntityMapper.toModel(entity)
+            : null;
+    }
+
+    private boolean isActiveUser(UserEntity entity) {
+        return entity != null && entity.getDeletedAt() == null;
     }
 
     private ConversationModel toConversationIdOnly(ConversationEntity entity) {
