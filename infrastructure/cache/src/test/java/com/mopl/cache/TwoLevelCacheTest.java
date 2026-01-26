@@ -451,7 +451,7 @@ class TwoLevelCacheTest {
             // given
             String prefix = KEY_PREFIX + CACHE_NAME + "::";
             List<String> keys = List.of(prefix + "1", prefix + "2");
-            given(l1Cache.asMap()).willReturn(new java.util.concurrent.ConcurrentHashMap<>());
+            given(l1Cache.asMap()).willReturn(new ConcurrentHashMap<>());
             given(redisTemplate.scan(any(ScanOptions.class))).willReturn(cursor);
             given(cursor.hasNext()).willReturn(true, true, false);
             given(cursor.next()).willReturn(keys.getFirst(), keys.get(1));

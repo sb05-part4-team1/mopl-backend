@@ -15,12 +15,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -100,7 +102,7 @@ class SseEmitterManagerTest {
             SseEmitter emitter = sseEmitterManager.createEmitter(userId);
 
             // when - 리플렉션으로 onCompletion 콜백 직접 실행
-            var field = SseEmitter.class.getSuperclass().getDeclaredField("completionCallback");
+            Field field = SseEmitter.class.getSuperclass().getDeclaredField("completionCallback");
             field.setAccessible(true);
             Runnable callback = (Runnable) field.get(emitter);
             callback.run();
@@ -118,7 +120,7 @@ class SseEmitterManagerTest {
             SseEmitter emitter = sseEmitterManager.createEmitter(userId);
 
             // when - 리플렉션으로 onTimeout 콜백 직접 실행
-            var field = SseEmitter.class.getSuperclass().getDeclaredField("timeoutCallback");
+            Field field = SseEmitter.class.getSuperclass().getDeclaredField("timeoutCallback");
             field.setAccessible(true);
             Runnable callback = (Runnable) field.get(emitter);
             callback.run();
@@ -137,10 +139,9 @@ class SseEmitterManagerTest {
             SseEmitter emitter = sseEmitterManager.createEmitter(userId);
 
             // when - 리플렉션으로 onError 콜백 직접 실행
-            var field = SseEmitter.class.getSuperclass().getDeclaredField("errorCallback");
+            Field field = SseEmitter.class.getSuperclass().getDeclaredField("errorCallback");
             field.setAccessible(true);
-            java.util.function.Consumer<Throwable> callback =
-                (java.util.function.Consumer<Throwable>) field.get(emitter);
+            Consumer<Throwable> callback = (Consumer<Throwable>) field.get(emitter);
             callback.accept(new IOException("Connection reset"));
 
             // then
