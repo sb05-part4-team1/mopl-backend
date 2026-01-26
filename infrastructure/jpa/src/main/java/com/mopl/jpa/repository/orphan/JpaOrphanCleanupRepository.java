@@ -34,7 +34,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "DELETE FROM notifications WHERE id IN (:ids)", nativeQuery = true)
-    int deleteNotificationsByIdIn(List<UUID> notificationIds);
+    int deleteNotificationsByIdIn(List<UUID> ids);
 
     // ==================== Follow (follower_id, followee_id -> users) ====================
     @Query(
@@ -55,7 +55,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "DELETE FROM follows WHERE id IN (:ids)", nativeQuery = true)
-    int deleteFollowsByIdIn(List<UUID> followIds);
+    int deleteFollowsByIdIn(List<UUID> ids);
 
     // ==================== PlaylistSubscriber (playlist_id -> playlists, subscriber_id -> users) ====================
     @Query(
@@ -75,7 +75,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "DELETE FROM playlist_subscribers WHERE id IN (:ids)", nativeQuery = true)
-    int deletePlaylistSubscribersByIdIn(List<UUID> playlistSubscriberIds);
+    int deletePlaylistSubscribersByIdIn(List<UUID> ids);
 
     // ==================== PlaylistContent (playlist_id -> playlists, content_id -> contents) ====================
     @Query(
@@ -95,7 +95,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "DELETE FROM playlist_contents WHERE id IN (:ids)", nativeQuery = true)
-    int deletePlaylistContentsByIdIn(List<UUID> playlistContentIds);
+    int deletePlaylistContentsByIdIn(List<UUID> ids);
 
     // ==================== Playlist (owner_id -> users) ====================
     @Query(
@@ -115,7 +115,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "UPDATE playlists SET deleted_at = :now WHERE id IN (:ids)", nativeQuery = true)
-    int softDeletePlaylistsByIdIn(List<UUID> playlistIds, Instant now);
+    int softDeletePlaylistsByIdIn(List<UUID> ids, Instant now);
 
     // ==================== Review (author_id -> users, content_id -> contents) ====================
     @Query(
@@ -136,7 +136,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "UPDATE reviews SET deleted_at = :now WHERE id IN (:ids)", nativeQuery = true)
-    int softDeleteReviewsByIdIn(List<UUID> reviewIds, Instant now);
+    int softDeleteReviewsByIdIn(List<UUID> ids, Instant now);
 
     // ==================== ReadStatus (participant_id -> users, conversation_id -> conversations) ====================
     @Query(
@@ -156,7 +156,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "DELETE FROM read_statuses WHERE id IN (:ids)", nativeQuery = true)
-    int deleteReadStatusesByIdIn(List<UUID> reqdStatusIds);
+    int deleteReadStatusesByIdIn(List<UUID> ids);
 
     // ==================== DirectMessage (conversation_id -> conversations) ====================
     @Query(
@@ -175,7 +175,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "DELETE FROM direct_messages WHERE id IN (:ids)", nativeQuery = true)
-    int deleteDirectMessagesByIdIn(List<UUID> directMessageIds);
+    int deleteDirectMessagesByIdIn(List<UUID> ids);
 
     // ==================== ContentTag (content_id -> contents, tag_id -> tags) ====================
     @Query(
@@ -195,5 +195,5 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "DELETE FROM content_tags WHERE id IN (:ids)", nativeQuery = true)
-    int deleteContentTagsByIdIn(List<UUID> contentTagIds);
+    int deleteContentTagsByIdIn(List<UUID> ids);
 }
