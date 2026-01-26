@@ -1,10 +1,7 @@
 package com.mopl.jpa.entity.follow;
 
-import org.hibernate.annotations.SQLRestriction;
-
 import com.mopl.jpa.entity.base.BaseEntity;
 import com.mopl.jpa.entity.user.UserEntity;
-
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -24,14 +21,12 @@ import lombok.experimental.SuperBuilder;
     indexes = {
         @Index(name = "idx_follows_follower_id", columnList = "follower_id"),
         @Index(name = "idx_follows_followee_id", columnList = "followee_id"),
-        @Index(name = "idx_follows_deleted_at", columnList = "deleted_at"),
         @Index(name = "idx_follows_created_at", columnList = "created_at")
     }
 )
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLRestriction("deleted_at IS NULL")
 public class FollowEntity extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

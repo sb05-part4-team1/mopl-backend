@@ -34,11 +34,11 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "DELETE FROM playlist_contents WHERE playlist_id IN (:playlistIds)", nativeQuery = true)
-    int deletePlaylistContentsByPlaylistIdIn(List<UUID> playlistIds);
+    void deletePlaylistContentsByPlaylistIdIn(List<UUID> playlistIds);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "DELETE FROM playlist_subscribers WHERE playlist_id IN (:playlistIds)", nativeQuery = true)
-    int deletePlaylistSubscribersByPlaylistIdIn(List<UUID> playlistIds);
+    void deletePlaylistSubscribersByPlaylistIdIn(List<UUID> playlistIds);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "DELETE FROM playlists WHERE id IN (:ids)", nativeQuery = true)
@@ -192,8 +192,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
             FROM follows f
             LEFT JOIN users follower ON f.follower_id = follower.id
             LEFT JOIN users followee ON f.followee_id = followee.id
-            WHERE f.deleted_at IS NULL
-              AND f.created_at < :threshold
+            WHERE f.created_at < :threshold
               AND (follower.id IS NULL OR followee.id IS NULL)
             ORDER BY f.created_at
             LIMIT :limit
