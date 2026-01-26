@@ -62,7 +62,7 @@ public class OrphanCleanupService {
     }
 
     public int cleanupPlaylists() {
-        return cleanupWithSoftDelete(
+        return cleanup(
             "playlist",
             cleanupProperties.getPlaylist(),
             orphanCleanupRepository::findOrphanPlaylistIds,
@@ -71,7 +71,7 @@ public class OrphanCleanupService {
     }
 
     public int cleanupReviews() {
-        return cleanupWithSoftDelete(
+        return cleanup(
             "review",
             cleanupProperties.getReview(),
             orphanCleanupRepository::findOrphanReviewIds,
@@ -127,33 +127,6 @@ public class OrphanCleanupService {
             int deleted = deleteOrphans.apply(orphanIds);
             totalDeleted += deleted;
             log.debug("[OrphanCleanup] {} deleted batch={}", name, deleted);
-        }
-
-        return totalDeleted;
-    }
-
-    private int cleanupWithSoftDelete(
-        String name,
-        OrphanCleanupPolicyProperties policy,
-        BiFunction<Instant, Integer, List<UUID>> findOrphans,
-        BiFunction<List<UUID>, Instant, Integer> softDeleteOrphans
-    ) {
-        int chunkSize = policyResolver.chunkSize(policy);
-        long gracePeriodDays = policyResolver.gracePeriodDays(policy);
-        Instant threshold = Instant.now().minus(gracePeriodDays, ChronoUnit.DAYS);
-        Instant now = Instant.now();
-
-        int totalDeleted = 0;
-
-        while (true) {
-            List<UUID> orphanIds = findOrphans.apply(threshold, chunkSize);
-            if (orphanIds.isEmpty()) {
-                break;
-            }
-
-            int deleted = softDeleteOrphans.apply(orphanIds, now);
-            totalDeleted += deleted;
-            log.debug("[OrphanCleanup] {} soft-deleted batch={}", name, deleted);
         }
 
         return totalDeleted;

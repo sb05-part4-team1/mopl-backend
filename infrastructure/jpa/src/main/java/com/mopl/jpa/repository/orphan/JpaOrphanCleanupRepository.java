@@ -114,8 +114,8 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     List<UUID> findOrphanPlaylistIds(Instant threshold, int limit);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(value = "UPDATE playlists SET deleted_at = :now WHERE id IN (:ids)", nativeQuery = true)
-    int softDeletePlaylistsByIdIn(List<UUID> ids, Instant now);
+    @Query(value = "DELETE FROM playlists WHERE id IN (:ids)", nativeQuery = true)
+    int deletePlaylistsByIdIn(List<UUID> ids);
 
     // ==================== Review (author_id -> users, content_id -> contents) ====================
     @Query(
@@ -135,8 +135,8 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     List<UUID> findOrphanReviewIds(Instant threshold, int limit);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(value = "UPDATE reviews SET deleted_at = :now WHERE id IN (:ids)", nativeQuery = true)
-    int softDeleteReviewsByIdIn(List<UUID> ids, Instant now);
+    @Query(value = "DELETE FROM reviews WHERE id IN (:ids)", nativeQuery = true)
+    int deleteReviewsByIdIn(List<UUID> ids);
 
     // ==================== ReadStatus (participant_id -> users, conversation_id -> conversations) ====================
     @Query(

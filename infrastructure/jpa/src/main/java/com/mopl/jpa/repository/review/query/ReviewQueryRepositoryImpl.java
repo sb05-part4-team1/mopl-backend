@@ -70,8 +70,11 @@ public class ReviewQueryRepositoryImpl implements ReviewQueryRepository {
     }
 
     private long countTotal(UUID contentId) {
-        Long total = baseQuery(contentId)
+        Long total = queryFactory
             .select(reviewEntity.count())
+            .from(reviewEntity)
+            .join(reviewEntity.author)
+            .where(contentIdEqual(contentId))
             .fetchOne();
         return total != null ? total : 0;
     }

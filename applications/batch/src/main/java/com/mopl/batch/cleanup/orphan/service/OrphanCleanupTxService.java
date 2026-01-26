@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,13 +35,13 @@ public class OrphanCleanupTxService {
     }
 
     @Transactional
-    public int cleanupPlaylists(List<UUID> playlistIds, Instant now) {
-        return orphanCleanupRepository.softDeletePlaylistsByIdIn(playlistIds, now);
+    public int cleanupPlaylists(List<UUID> playlistIds) {
+        return orphanCleanupRepository.deletePlaylistsByIdIn(playlistIds);
     }
 
     @Transactional
-    public int cleanupReviews(List<UUID> reviewIds, Instant now) {
-        return orphanCleanupRepository.softDeleteReviewsByIdIn(reviewIds, now);
+    public int cleanupReviews(List<UUID> reviewIds) {
+        return orphanCleanupRepository.deleteReviewsByIdIn(reviewIds);
     }
 
     @Transactional

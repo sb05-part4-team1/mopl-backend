@@ -26,16 +26,20 @@ public class OrphanCleanupBatchConfig {
 
     @Bean
     public Job orphanCleanupJob(JobRepository jobRepository, PlatformTransactionManager txManager) {
+        // 부모 엔티티 먼저 삭제 → 자식 엔티티 나중에 삭제 (cascade 효율화)
         return new JobBuilder("orphanCleanupJob", jobRepository)
-            .start(orphanNotificationStep(jobRepository, txManager))
-            .next(orphanFollowStep(jobRepository, txManager))
+            // 1. 부모 엔티티 삭제 (User, Content, Playlist, Conversation 참조)
+            .start(orphanPlaylistStep(jobRepository, txManager))
+            .next(orphanReviewStep(jobRepository, txManager))
+            // 2. 자식 엔티티 삭제 (위에서 삭제된 부모의 하위 데이터)
             .next(orphanPlaylistSubscriberStep(jobRepository, txManager))
             .next(orphanPlaylistContentStep(jobRepository, txManager))
-            .next(orphanPlaylistStep(jobRepository, txManager))
-            .next(orphanReviewStep(jobRepository, txManager))
+            .next(orphanContentTagStep(jobRepository, txManager))
+            // 3. User 참조 엔티티 (User hard delete 시 orphan 발생)
+            .next(orphanNotificationStep(jobRepository, txManager))
+            .next(orphanFollowStep(jobRepository, txManager))
             .next(orphanReadStatusStep(jobRepository, txManager))
             .next(orphanDirectMessageStep(jobRepository, txManager))
-            .next(orphanContentTagStep(jobRepository, txManager))
             .build();
     }
 

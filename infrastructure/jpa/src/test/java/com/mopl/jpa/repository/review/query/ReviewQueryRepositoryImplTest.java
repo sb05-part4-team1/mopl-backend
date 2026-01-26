@@ -438,4 +438,76 @@ class ReviewQueryRepositoryImplTest {
             assertThat(response.sortBy()).isEqualTo("CREATED_AT");
         }
     }
+
+    @Nested
+    @DisplayName("findAll() - soft delete된 author 필터링")
+    class SoftDeletedAuthorTest {
+
+        @Test
+        @DisplayName("soft delete된 author의 리뷰는 조회되지 않는다")
+        void withSoftDeletedAuthor_excludesReviews() {
+            // given
+            Instant baseTime = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+            UserEntity deletedAuthor = createAndPersistUser(
+                "deleted@example.com", "DeletedAuthor", baseTime
+            );
+            ContentEntity content = createAndPersistContent("Test Content", baseTime.plusSeconds(100));
+            createAndPersistReview(content, deletedAuthor, "삭제된 작성자 리뷰", 5.0, baseTime.plusSeconds(100));
+
+            // soft delete author
+            entityManager.createQuery("UPDATE UserEntity u SET u.deletedAt = :now WHERE u.id = :id")
+                .setParameter("now", Instant.now())
+                .setParameter("id", deletedAuthor.getId())
+                .executeUpdate();
+            entityManager.flush();
+            entityManager.clear();
+
+            ReviewQueryRequest request = new ReviewQueryRequest(
+                content.getId(), null, null, 100, SortDirection.DESCENDING, ReviewSortField.CREATED_AT
+            );
+
+            // when
+            CursorResponse<ReviewModel> response = reviewQueryRepository.findAll(request);
+
+            // then
+            assertThat(response.data()).isEmpty();
+            assertThat(response.totalCount()).isZero();
+        }
+
+        @Test
+        @DisplayName("soft delete된 author와 활성 author가 섞인 콘텐츠에서 활성 author의 리뷰만 조회된다")
+        void withMixedAuthors_returnsOnlyActiveAuthorReviews() {
+            // given
+            Instant baseTime = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+            UserEntity activeAuthor = createAndPersistUser(
+                "active@example.com", "ActiveAuthor", baseTime
+            );
+            UserEntity deletedAuthor = createAndPersistUser(
+                "deleted2@example.com", "DeletedAuthor2", baseTime
+            );
+            ContentEntity content = createAndPersistContent("Mixed Content", baseTime.plusSeconds(200));
+            createAndPersistReview(content, activeAuthor, "활성 작성자 리뷰", 4.0, baseTime.plusSeconds(200));
+            createAndPersistReview(content, deletedAuthor, "삭제된 작성자 리뷰", 5.0, baseTime.plusSeconds(201));
+
+            // soft delete author
+            entityManager.createQuery("UPDATE UserEntity u SET u.deletedAt = :now WHERE u.id = :id")
+                .setParameter("now", Instant.now())
+                .setParameter("id", deletedAuthor.getId())
+                .executeUpdate();
+            entityManager.flush();
+            entityManager.clear();
+
+            ReviewQueryRequest request = new ReviewQueryRequest(
+                content.getId(), null, null, 100, SortDirection.DESCENDING, ReviewSortField.CREATED_AT
+            );
+
+            // when
+            CursorResponse<ReviewModel> response = reviewQueryRepository.findAll(request);
+
+            // then
+            assertThat(response.data()).hasSize(1);
+            assertThat(response.data().getFirst().getText()).isEqualTo("활성 작성자 리뷰");
+            assertThat(response.totalCount()).isEqualTo(1);
+        }
+    }
 }
