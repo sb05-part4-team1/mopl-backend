@@ -512,5 +512,75 @@ class RedisWatchingSessionQueryRepositoryImplTest {
             // then
             assertThat(result.data()).isEmpty();
         }
+
+        @Test
+        @DisplayName("cursor만 있고 idAfter가 null이면 처음부터 조회")
+        void withCursorButNoIdAfter_fetchesFromStart() {
+            // given
+            UUID contentId = UUID.randomUUID();
+            UUID watcherId = UUID.randomUUID();
+            Instant cursorTime = Instant.parse("2024-01-01T10:00:00Z");
+            Instant time = Instant.parse("2024-01-01T11:00:00Z");
+
+            String zsetKey = WatchingSessionRedisKeys.contentWatchersKey(contentId);
+            // cursor는 있지만 idAfter는 null
+            WatchingSessionQueryRequest request = createRequest(
+                cursorTime.toString(),
+                null,
+                10,
+                SortDirection.ASCENDING
+            );
+
+            Set<ZSetOperations.TypedTuple<Object>> tuples = new LinkedHashSet<>();
+            tuples.add(new DefaultTypedTuple<>(watcherId.toString(), (double) time.toEpochMilli()));
+
+            WatchingSessionModel model = createModel(watcherId, contentId, time);
+
+            given(redisTemplate.opsForZSet()).willReturn(zSetOperations);
+            given(zSetOperations.zCard(zsetKey)).willReturn(1L);
+            // idAfter가 null이므로 fetchFromStart가 호출되어야 함
+            given(zSetOperations.rangeWithScores(zsetKey, 0, 19)).willReturn(tuples);
+            given(redisTemplate.opsForValue()).willReturn(valueOperations);
+            given(valueOperations.multiGet(anyList())).willReturn(List.of(model));
+
+            // when
+            CursorResponse<WatchingSessionModel> result = repository.findAllByContentId(contentId, request);
+
+            // then
+            assertThat(result.data()).hasSize(1);
+            assertThat(result.data().getFirst().getWatcherId()).isEqualTo(watcherId);
+        }
+
+        @Test
+        @DisplayName("tuple 자체가 null인 경우 필터링됨")
+        void withNullTupleInSet_filtersOut() {
+            // given
+            UUID contentId = UUID.randomUUID();
+            UUID validWatcherId = UUID.randomUUID();
+            Instant time = Instant.now();
+
+            String zsetKey = WatchingSessionRedisKeys.contentWatchersKey(contentId);
+            WatchingSessionQueryRequest request = createRequest(null, null, 10, SortDirection.ASCENDING);
+
+            // HashSet은 null을 허용하므로 null tuple 추가 가능
+            Set<ZSetOperations.TypedTuple<Object>> tuples = new java.util.HashSet<>();
+            tuples.add(null);
+            tuples.add(new DefaultTypedTuple<>(validWatcherId.toString(), (double) time.toEpochMilli()));
+
+            WatchingSessionModel model = createModel(validWatcherId, contentId, time);
+
+            given(redisTemplate.opsForZSet()).willReturn(zSetOperations);
+            given(zSetOperations.zCard(zsetKey)).willReturn(2L);
+            given(zSetOperations.rangeWithScores(zsetKey, 0, 19)).willReturn(tuples);
+            given(redisTemplate.opsForValue()).willReturn(valueOperations);
+            given(valueOperations.multiGet(anyList())).willReturn(List.of(model));
+
+            // when
+            CursorResponse<WatchingSessionModel> result = repository.findAllByContentId(contentId, request);
+
+            // then
+            assertThat(result.data()).hasSize(1);
+            assertThat(result.data().getFirst().getWatcherId()).isEqualTo(validWatcherId);
+        }
     }
 }
