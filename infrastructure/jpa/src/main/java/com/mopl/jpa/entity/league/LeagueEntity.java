@@ -12,8 +12,8 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Table(name = "leagues")
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 public class LeagueEntity extends BaseEntity {
 
     @Column(name = "league_id", nullable = false, unique = true)
