@@ -21,6 +21,7 @@ public class OrphanCleanupProperties {
     private OrphanCleanupPolicyProperties readStatus = new OrphanCleanupPolicyProperties();
     private OrphanCleanupPolicyProperties directMessage = new OrphanCleanupPolicyProperties();
     private OrphanCleanupPolicyProperties contentTag = new OrphanCleanupPolicyProperties();
+    private OrphanCleanupPolicyProperties contentExternalMapping = new OrphanCleanupPolicyProperties();
 
     @PostConstruct
     public void validate() {

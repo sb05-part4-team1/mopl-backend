@@ -35,6 +35,7 @@ public class OrphanCleanupBatchConfig {
             .next(orphanPlaylistSubscriberStep(jobRepository, txManager))
             .next(orphanPlaylistContentStep(jobRepository, txManager))
             .next(orphanContentTagStep(jobRepository, txManager))
+            .next(orphanContentExternalMappingStep(jobRepository, txManager))
             // 3. User 참조 엔티티 (User hard delete 시 orphan 발생)
             .next(orphanNotificationStep(jobRepository, txManager))
             .next(orphanFollowStep(jobRepository, txManager))
@@ -143,7 +144,27 @@ public class OrphanCleanupBatchConfig {
         };
     }
 
-    // ==================== 6. Notification ====================
+    // ==================== 6. ContentExternalMapping ====================
+    @Bean
+    public Step orphanContentExternalMappingStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
+        return new StepBuilder("orphanContentExternalMappingStep", jobRepository)
+            .tasklet(orphanContentExternalMappingTasklet(), txManager)
+            .build();
+    }
+
+    @Bean
+    public Tasklet orphanContentExternalMappingTasklet() {
+        return (contribution, chunkContext) -> {
+            long start = System.currentTimeMillis();
+            log.info("[OrphanCleanup] contentExternalMapping start");
+            int processed = orphanCleanupService.cleanupContentExternalMappings();
+            log.info("[OrphanCleanup] contentExternalMapping end processed={} durationMs={}",
+                processed, System.currentTimeMillis() - start);
+            return RepeatStatus.FINISHED;
+        };
+    }
+
+    // ==================== 7. Notification ====================
     @Bean
     public Step orphanNotificationStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
         return new StepBuilder("orphanNotificationStep", jobRepository)
@@ -163,7 +184,7 @@ public class OrphanCleanupBatchConfig {
         };
     }
 
-    // ==================== 7. Follow ====================
+    // ==================== 8. Follow ====================
     @Bean
     public Step orphanFollowStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
         return new StepBuilder("orphanFollowStep", jobRepository)
@@ -183,7 +204,7 @@ public class OrphanCleanupBatchConfig {
         };
     }
 
-    // ==================== 8. ReadStatus ====================
+    // ==================== 9. ReadStatus ====================
     @Bean
     public Step orphanReadStatusStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
         return new StepBuilder("orphanReadStatusStep", jobRepository)
@@ -203,7 +224,7 @@ public class OrphanCleanupBatchConfig {
         };
     }
 
-    // ==================== 9. DirectMessage ====================
+    // ==================== 10. DirectMessage ====================
     @Bean
     public Step orphanDirectMessageStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
         return new StepBuilder("orphanDirectMessageStep", jobRepository)

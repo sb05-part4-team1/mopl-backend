@@ -69,25 +69,31 @@ public class OrphanCleanupTxService {
         return orphanCleanupRepository.deleteContentTagsByIdIn(contentTagIds);
     }
 
-    // ==================== 6. Notification ====================
+    // ==================== 6. ContentExternalMapping ====================
+    @Transactional
+    public int cleanupContentExternalMappings(List<UUID> contentExternalMappingIds) {
+        return orphanCleanupRepository.deleteContentExternalMappingsByIdIn(contentExternalMappingIds);
+    }
+
+    // ==================== 7. Notification ====================
     @Transactional
     public int cleanupNotifications(List<UUID> notificationIds) {
         return orphanCleanupRepository.deleteNotificationsByIdIn(notificationIds);
     }
 
-    // ==================== 7. Follow ====================
+    // ==================== 8. Follow ====================
     @Transactional
     public int cleanupFollows(List<UUID> followIds) {
         return orphanCleanupRepository.deleteFollowsByIdIn(followIds);
     }
 
-    // ==================== 8. ReadStatus ====================
+    // ==================== 9. ReadStatus ====================
     @Transactional
     public int cleanupReadStatuses(List<UUID> readStatusIds) {
         return orphanCleanupRepository.deleteReadStatusesByIdIn(readStatusIds);
     }
 
-    // ==================== 9. DirectMessage ====================
+    // ==================== 10. DirectMessage ====================
     @Transactional
     public int cleanupDirectMessages(List<UUID> directMessageIds) {
         return orphanCleanupRepository.deleteDirectMessagesByIdIn(directMessageIds);

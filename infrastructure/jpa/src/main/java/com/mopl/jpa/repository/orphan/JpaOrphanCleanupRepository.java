@@ -129,7 +129,26 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     @Query(value = "DELETE FROM content_tags WHERE id IN (:ids)", nativeQuery = true)
     int deleteContentTagsByIdIn(List<UUID> ids);
 
-    // ==================== 6. Notification (receiver_id -> users) ====================
+    // ==================== 6. ContentExternalMapping (content_id -> contents) ====================
+    @Query(
+        value = """
+            SELECT BIN_TO_UUID(cem.id)
+            FROM content_external_mappings cem
+            LEFT JOIN contents c ON cem.content_id = c.id
+            WHERE cem.created_at < :threshold
+              AND c.id IS NULL
+            ORDER BY cem.created_at
+            LIMIT :limit
+            """,
+        nativeQuery = true
+    )
+    List<UUID> findOrphanContentExternalMappingIds(Instant threshold, int limit);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "DELETE FROM content_external_mappings WHERE id IN (:ids)", nativeQuery = true)
+    int deleteContentExternalMappingsByIdIn(List<UUID> ids);
+
+    // ==================== 7. Notification (receiver_id -> users) ====================
     @Query(
         value = """
             SELECT BIN_TO_UUID(n.id)
@@ -149,7 +168,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     @Query(value = "DELETE FROM notifications WHERE id IN (:ids)", nativeQuery = true)
     int deleteNotificationsByIdIn(List<UUID> ids);
 
-    // ==================== 7. Follow (follower_id, followee_id -> users) ====================
+    // ==================== 8. Follow (follower_id, followee_id -> users) ====================
     @Query(
         value = """
             SELECT BIN_TO_UUID(f.id)
@@ -170,7 +189,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     @Query(value = "DELETE FROM follows WHERE id IN (:ids)", nativeQuery = true)
     int deleteFollowsByIdIn(List<UUID> ids);
 
-    // ==================== 8. ReadStatus (participant_id -> users, conversation_id -> conversations) ====================
+    // ==================== 9. ReadStatus (participant_id -> users, conversation_id -> conversations) ====================
     @Query(
         value = """
             SELECT BIN_TO_UUID(rs.id)
@@ -190,7 +209,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     @Query(value = "DELETE FROM read_statuses WHERE id IN (:ids)", nativeQuery = true)
     int deleteReadStatusesByIdIn(List<UUID> ids);
 
-    // ==================== 9. DirectMessage (conversation_id -> conversations) ====================
+    // ==================== 10. DirectMessage (conversation_id -> conversations) ====================
     @Query(
         value = """
             SELECT BIN_TO_UUID(dm.id)

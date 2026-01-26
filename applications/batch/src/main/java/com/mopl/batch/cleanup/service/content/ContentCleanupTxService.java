@@ -1,9 +1,7 @@
 package com.mopl.batch.cleanup.service.content;
 
 import com.mopl.batch.cleanup.strategy.content.ContentDeletionStrategy;
-import com.mopl.domain.repository.content.ContentTagRepository;
 import com.mopl.domain.repository.content.batch.ContentCleanupRepository;
-import com.mopl.domain.repository.content.batch.ContentExternalMappingRepository;
 import com.mopl.domain.support.search.ContentSearchSyncPort;
 import com.mopl.domain.support.transaction.AfterCommitExecutor;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +18,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ContentCleanupTxService {
 
-    private final ContentTagRepository contentTagRepository;
     private final ContentCleanupRepository contentCleanupRepository;
-    private final ContentExternalMappingRepository externalMappingRepository;
     private final ContentDeletionStrategy deletionStrategy;
 
     private final AfterCommitExecutor afterCommitExecutor;
@@ -31,9 +27,6 @@ public class ContentCleanupTxService {
     @Transactional
     public int cleanupBatch(List<UUID> contentIds) {
         Map<UUID, String> thumbnailPaths = contentCleanupRepository.findThumbnailPathsByIdIn(contentIds);
-
-        int deletedMappings = externalMappingRepository.deleteAllByContentIds(contentIds);
-        int deletedTags = contentTagRepository.deleteByContentIdIn(contentIds);
         int affectedThumbnails = deletionStrategy.onDeleted(thumbnailPaths);
 
         int deletedContents = contentCleanupRepository.deleteByIdIn(contentIds);
@@ -49,11 +42,9 @@ public class ContentCleanupTxService {
         afterCommitExecutor.execute(() -> contentSearchSyncPort.deleteAll(contentIds));
 
         log.info(
-            "content cleanup batch done. requested={} deletedContents={} deletedMappings={} deletedTags={} affectedThumbnails={}/{}",
+            "content cleanup batch done. requested={} deletedContents={} affectedThumbnails={}/{}",
             contentIds.size(),
             deletedContents,
-            deletedMappings,
-            deletedTags,
             affectedThumbnails,
             thumbnailPaths.size()
         );

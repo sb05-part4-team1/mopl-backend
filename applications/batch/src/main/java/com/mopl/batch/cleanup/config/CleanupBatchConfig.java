@@ -25,8 +25,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class CleanupBatchConfig {
 
     private final ContentCleanupService contentCleanupService;
-    private final ReviewCleanupService reviewCleanupService;
     private final PlaylistCleanupService playlistCleanupService;
+    private final ReviewCleanupService reviewCleanupService;
     private final NotificationCleanupService notificationCleanupService;
     private final StorageCleanupService storageCleanupService;
     private final ContentDeletionLogCleanupService contentDeletionLogCleanupService;
@@ -34,15 +34,19 @@ public class CleanupBatchConfig {
     @Bean
     public Job cleanupJob(JobRepository jobRepository, PlatformTransactionManager txManager) {
         return new JobBuilder("cleanupJob", jobRepository)
+            // 1. 부모 엔티티 삭제
             .start(contentStep(jobRepository, txManager))
-            .next(reviewStep(jobRepository, txManager))
             .next(playlistStep(jobRepository, txManager))
+            // 2. 자식 엔티티 삭제 (soft delete된 것 정리)
+            .next(reviewStep(jobRepository, txManager))
             .next(notificationStep(jobRepository, txManager))
+            // 3. 기타 정리
             .next(storageStep(jobRepository, txManager))
             .next(deletionLogStep(jobRepository, txManager))
             .build();
     }
 
+    // ==================== 1. Content ====================
     @Bean
     public Step contentStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
         return new StepBuilder("contentStep", jobRepository)
@@ -54,37 +58,15 @@ public class CleanupBatchConfig {
     public Tasklet contentTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-
             log.info("[Cleanup] content start");
             int processed = contentCleanupService.cleanup();
-            log.info("[Cleanup] content end processed={} durationMs={}", processed, System
-                .currentTimeMillis() - start);
-
+            log.info("[Cleanup] content end processed={} durationMs={}",
+                processed, System.currentTimeMillis() - start);
             return RepeatStatus.FINISHED;
         };
     }
 
-    @Bean
-    public Step reviewStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
-        return new StepBuilder("reviewStep", jobRepository)
-            .tasklet(reviewTasklet(), txManager)
-            .build();
-    }
-
-    @Bean
-    public Tasklet reviewTasklet() {
-        return (contribution, chunkContext) -> {
-            long start = System.currentTimeMillis();
-
-            log.info("[Cleanup] review start");
-            int processed = reviewCleanupService.cleanup();
-            log.info("[Cleanup] review end processed={} durationMs={}", processed, System
-                .currentTimeMillis() - start);
-
-            return RepeatStatus.FINISHED;
-        };
-    }
-
+    // ==================== 2. Playlist ====================
     @Bean
     public Step playlistStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
         return new StepBuilder("playlistStep", jobRepository)
@@ -96,19 +78,37 @@ public class CleanupBatchConfig {
     public Tasklet playlistTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-
             log.info("[Cleanup] playlist start");
             int processed = playlistCleanupService.cleanup();
-            log.info("[Cleanup] playlist end processed={} durationMs={}", processed, System
-                .currentTimeMillis() - start);
-
+            log.info("[Cleanup] playlist end processed={} durationMs={}",
+                processed, System.currentTimeMillis() - start);
             return RepeatStatus.FINISHED;
         };
     }
 
+    // ==================== 3. Review ====================
     @Bean
-    public Step notificationStep(JobRepository jobRepository,
-        PlatformTransactionManager txManager) {
+    public Step reviewStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
+        return new StepBuilder("reviewStep", jobRepository)
+            .tasklet(reviewTasklet(), txManager)
+            .build();
+    }
+
+    @Bean
+    public Tasklet reviewTasklet() {
+        return (contribution, chunkContext) -> {
+            long start = System.currentTimeMillis();
+            log.info("[Cleanup] review start");
+            int processed = reviewCleanupService.cleanup();
+            log.info("[Cleanup] review end processed={} durationMs={}",
+                processed, System.currentTimeMillis() - start);
+            return RepeatStatus.FINISHED;
+        };
+    }
+
+    // ==================== 4. Notification ====================
+    @Bean
+    public Step notificationStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
         return new StepBuilder("notificationStep", jobRepository)
             .tasklet(notificationTasklet(), txManager)
             .build();
@@ -118,16 +118,15 @@ public class CleanupBatchConfig {
     public Tasklet notificationTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-
             log.info("[Cleanup] notification start");
             int processed = notificationCleanupService.cleanup();
-            log.info("[Cleanup] notification end processed={} durationMs={}", processed, System
-                .currentTimeMillis() - start);
-
+            log.info("[Cleanup] notification end processed={} durationMs={}",
+                processed, System.currentTimeMillis() - start);
             return RepeatStatus.FINISHED;
         };
     }
 
+    // ==================== 5. Storage ====================
     @Bean
     public Step storageStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
         return new StepBuilder("storageStep", jobRepository)
@@ -139,16 +138,15 @@ public class CleanupBatchConfig {
     public Tasklet storageTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-
             log.info("[Cleanup] storage start");
             int deletedFiles = storageCleanupService.cleanup();
-            log.info("[Cleanup] storage end deletedFiles={} durationMs={}", deletedFiles, System
-                .currentTimeMillis() - start);
-
+            log.info("[Cleanup] storage end deletedFiles={} durationMs={}",
+                deletedFiles, System.currentTimeMillis() - start);
             return RepeatStatus.FINISHED;
         };
     }
 
+    // ==================== 6. DeletionLog ====================
     @Bean
     public Step deletionLogStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
         return new StepBuilder("deletionLogStep", jobRepository)
@@ -160,12 +158,10 @@ public class CleanupBatchConfig {
     public Tasklet deletionLogTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-
             log.info("[Cleanup] deletionLog start");
             int processed = contentDeletionLogCleanupService.cleanup();
-            log.info("[Cleanup] deletionLog end processed={} durationMs={}", processed, System
-                .currentTimeMillis() - start);
-
+            log.info("[Cleanup] deletionLog end processed={} durationMs={}",
+                processed, System.currentTimeMillis() - start);
             return RepeatStatus.FINISHED;
         };
     }

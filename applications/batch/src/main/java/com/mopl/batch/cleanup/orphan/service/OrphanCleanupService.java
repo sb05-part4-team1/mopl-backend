@@ -75,7 +75,17 @@ public class OrphanCleanupService {
         );
     }
 
-    // ==================== 6. Notification ====================
+    // ==================== 6. ContentExternalMapping ====================
+    public int cleanupContentExternalMappings() {
+        return cleanup(
+            "contentExternalMapping",
+            cleanupProperties.getContentExternalMapping(),
+            orphanCleanupRepository::findOrphanContentExternalMappingIds,
+            txService::cleanupContentExternalMappings
+        );
+    }
+
+    // ==================== 7. Notification ====================
     public int cleanupNotifications() {
         return cleanup(
             "notification",
@@ -85,7 +95,7 @@ public class OrphanCleanupService {
         );
     }
 
-    // ==================== 7. Follow ====================
+    // ==================== 8. Follow ====================
     public int cleanupFollows() {
         return cleanup(
             "follow",
@@ -95,7 +105,7 @@ public class OrphanCleanupService {
         );
     }
 
-    // ==================== 8. ReadStatus ====================
+    // ==================== 9. ReadStatus ====================
     public int cleanupReadStatuses() {
         return cleanup(
             "readStatus",
@@ -105,7 +115,7 @@ public class OrphanCleanupService {
         );
     }
 
-    // ==================== 9. DirectMessage ====================
+    // ==================== 10. DirectMessage ====================
     public int cleanupDirectMessages() {
         return cleanup(
             "directMessage",
