@@ -28,7 +28,7 @@ public class OrphanCleanupBatchConfig {
     public Job orphanCleanupJob(JobRepository jobRepository, PlatformTransactionManager txManager) {
         // 부모 엔티티 먼저 삭제 → 자식 엔티티 나중에 삭제 (cascade 효율화)
         return new JobBuilder("orphanCleanupJob", jobRepository)
-            // 1. 부모 엔티티 삭제 (User, Content, Playlist, Conversation 참조)
+            // 1. 부모 엔티티 삭제 (User, Content, Playlist 참조)
             .start(orphanPlaylistStep(jobRepository, txManager))
             .next(orphanReviewStep(jobRepository, txManager))
             // 2. 자식 엔티티 삭제 (위에서 삭제된 부모의 하위 데이터)
@@ -40,6 +40,8 @@ public class OrphanCleanupBatchConfig {
             .next(orphanNotificationStep(jobRepository, txManager))
             .next(orphanFollowStep(jobRepository, txManager))
             .next(orphanReadStatusStep(jobRepository, txManager))
+            // 4. Conversation 관련 (ReadStatus 삭제 후 Conversation orphan 발생)
+            .next(orphanConversationStep(jobRepository, txManager))
             .next(orphanDirectMessageStep(jobRepository, txManager))
             .build();
     }
@@ -224,7 +226,27 @@ public class OrphanCleanupBatchConfig {
         };
     }
 
-    // ==================== 10. DirectMessage ====================
+    // ==================== 10. Conversation ====================
+    @Bean
+    public Step orphanConversationStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
+        return new StepBuilder("orphanConversationStep", jobRepository)
+            .tasklet(orphanConversationTasklet(), txManager)
+            .build();
+    }
+
+    @Bean
+    public Tasklet orphanConversationTasklet() {
+        return (contribution, chunkContext) -> {
+            long start = System.currentTimeMillis();
+            log.info("[OrphanCleanup] conversation start");
+            int processed = orphanCleanupService.cleanupConversations();
+            log.info("[OrphanCleanup] conversation end processed={} durationMs={}",
+                processed, System.currentTimeMillis() - start);
+            return RepeatStatus.FINISHED;
+        };
+    }
+
+    // ==================== 11. DirectMessage ====================
     @Bean
     public Step orphanDirectMessageStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
         return new StepBuilder("orphanDirectMessageStep", jobRepository)

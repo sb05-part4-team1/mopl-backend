@@ -98,4 +98,11 @@ public class OrphanCleanupTxService {
     public int cleanupDirectMessages(List<UUID> directMessageIds) {
         return orphanCleanupRepository.deleteDirectMessagesByIdIn(directMessageIds);
     }
+
+    // ==================== 11. Conversation ====================
+    @Transactional
+    public int cleanupConversations(List<UUID> conversationIds) {
+        orphanCleanupRepository.deleteDirectMessagesByConversationIdIn(conversationIds);
+        return orphanCleanupRepository.deleteConversationsByIdIn(conversationIds);
+    }
 }

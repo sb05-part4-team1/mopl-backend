@@ -241,4 +241,28 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "DELETE FROM direct_messages WHERE id IN (:ids)", nativeQuery = true)
     int deleteDirectMessagesByIdIn(List<UUID> ids);
+
+    // ==================== 11. Conversation (ReadStatus가 0개인 경우 orphan) ====================
+    @Query(
+        value = """
+            SELECT BIN_TO_UUID(c.id)
+            FROM conversations c
+            LEFT JOIN read_statuses rs ON c.id = rs.conversation_id
+            WHERE c.created_at < :threshold
+            GROUP BY c.id
+            HAVING COUNT(rs.id) = 0
+            ORDER BY c.created_at
+            LIMIT :limit
+            """,
+        nativeQuery = true
+    )
+    List<UUID> findOrphanConversationIds(Instant threshold, int limit);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "DELETE FROM direct_messages WHERE conversation_id IN (:conversationIds)", nativeQuery = true)
+    void deleteDirectMessagesByConversationIdIn(List<UUID> conversationIds);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "DELETE FROM conversations WHERE id IN (:ids)", nativeQuery = true)
+    int deleteConversationsByIdIn(List<UUID> ids);
 }

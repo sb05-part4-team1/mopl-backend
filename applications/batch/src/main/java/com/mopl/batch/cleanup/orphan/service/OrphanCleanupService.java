@@ -125,6 +125,16 @@ public class OrphanCleanupService {
         );
     }
 
+    // ==================== 11. Conversation ====================
+    public int cleanupConversations() {
+        return cleanup(
+            "conversation",
+            cleanupProperties.getConversation(),
+            orphanCleanupRepository::findOrphanConversationIds,
+            txService::cleanupConversations
+        );
+    }
+
     private int cleanup(
         String name,
         OrphanCleanupPolicyProperties policy,
