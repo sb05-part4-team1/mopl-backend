@@ -26,8 +26,8 @@ import static com.mopl.domain.model.outbox.OutboxModel.TOPIC_MAX_LENGTH;
     @Index(name = "idx_outbox_status_created", columnList = "status, created_at")
 })
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 public class OutboxEntity extends BaseEntity {
 
     @Column(nullable = false, length = AGGREGATE_TYPE_MAX_LENGTH)

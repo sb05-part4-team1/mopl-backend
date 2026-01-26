@@ -6,7 +6,6 @@ import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -19,11 +18,7 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Table(
     name = "playlist_contents",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"playlist_id", "content_id"}),
-    indexes = {
-        @Index(name = "idx_playlist_contents_playlist_id", columnList = "playlist_id"),
-        @Index(name = "idx_playlist_contents_created_at", columnList = "created_at")
-    }
+    uniqueConstraints = @UniqueConstraint(columnNames = {"playlist_id", "content_id"})
 )
 @Getter
 @SuperBuilder
