@@ -130,7 +130,7 @@ class DirectMessageQueryRepositoryImplTest {
         void withConversationId_returnsOnlyThatConversationMessages() {
             // given
             DirectMessageQueryRequest request = new DirectMessageQueryRequest(
-                null, null, 100, SortDirection.DESCENDING, DirectMessageSortField.createdAt
+                null, null, 100, SortDirection.DESCENDING, DirectMessageSortField.CREATED_AT
             );
 
             // when
@@ -149,7 +149,7 @@ class DirectMessageQueryRepositoryImplTest {
         void withNoMessages_returnsEmptyResult() {
             // given
             DirectMessageQueryRequest request = new DirectMessageQueryRequest(
-                null, null, 100, SortDirection.DESCENDING, DirectMessageSortField.createdAt
+                null, null, 100, SortDirection.DESCENDING, DirectMessageSortField.CREATED_AT
             );
 
             // when
@@ -169,7 +169,7 @@ class DirectMessageQueryRepositoryImplTest {
             // given
             UUID nonExistingConversationId = UUID.randomUUID();
             DirectMessageQueryRequest request = new DirectMessageQueryRequest(
-                null, null, 100, SortDirection.DESCENDING, DirectMessageSortField.createdAt
+                null, null, 100, SortDirection.DESCENDING, DirectMessageSortField.CREATED_AT
             );
 
             // when
@@ -192,7 +192,7 @@ class DirectMessageQueryRepositoryImplTest {
         void sortByCreatedAtDescending() {
             // given
             DirectMessageQueryRequest request = new DirectMessageQueryRequest(
-                null, null, 100, SortDirection.DESCENDING, DirectMessageSortField.createdAt
+                null, null, 100, SortDirection.DESCENDING, DirectMessageSortField.CREATED_AT
             );
 
             // when
@@ -202,7 +202,7 @@ class DirectMessageQueryRepositoryImplTest {
 
             // then
             assertThat(response.data()).hasSize(3);
-            assertThat(response.sortBy()).isEqualTo("createdAt");
+            assertThat(response.sortBy()).isEqualTo("CREATED_AT");
             assertThat(response.sortDirection()).isEqualTo(SortDirection.DESCENDING);
 
             // 시간순 내림차순 확인
@@ -217,7 +217,7 @@ class DirectMessageQueryRepositoryImplTest {
         void sortByCreatedAtAscending() {
             // given
             DirectMessageQueryRequest request = new DirectMessageQueryRequest(
-                null, null, 100, SortDirection.ASCENDING, DirectMessageSortField.createdAt
+                null, null, 100, SortDirection.ASCENDING, DirectMessageSortField.CREATED_AT
             );
 
             // when
@@ -245,7 +245,7 @@ class DirectMessageQueryRepositoryImplTest {
         void firstPage_hasNextIsTrue() {
             // given
             DirectMessageQueryRequest request = new DirectMessageQueryRequest(
-                null, null, 2, SortDirection.DESCENDING, DirectMessageSortField.createdAt
+                null, null, 2, SortDirection.DESCENDING, DirectMessageSortField.CREATED_AT
             );
 
             // when
@@ -266,7 +266,7 @@ class DirectMessageQueryRepositoryImplTest {
         void secondPage_withCursor() {
             // given
             DirectMessageQueryRequest firstRequest = new DirectMessageQueryRequest(
-                null, null, 2, SortDirection.DESCENDING, DirectMessageSortField.createdAt
+                null, null, 2, SortDirection.DESCENDING, DirectMessageSortField.CREATED_AT
             );
             CursorResponse<DirectMessageModel> firstResponse = directMessageQueryRepository.findAll(
                 conversationId, firstRequest
@@ -275,7 +275,7 @@ class DirectMessageQueryRepositoryImplTest {
             DirectMessageQueryRequest secondRequest = new DirectMessageQueryRequest(
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.DESCENDING, DirectMessageSortField.createdAt
+                2, SortDirection.DESCENDING, DirectMessageSortField.CREATED_AT
             );
 
             // when
@@ -294,7 +294,7 @@ class DirectMessageQueryRepositoryImplTest {
         void ascendingPagination() {
             // given
             DirectMessageQueryRequest firstRequest = new DirectMessageQueryRequest(
-                null, null, 2, SortDirection.ASCENDING, DirectMessageSortField.createdAt
+                null, null, 2, SortDirection.ASCENDING, DirectMessageSortField.CREATED_AT
             );
             CursorResponse<DirectMessageModel> firstResponse = directMessageQueryRepository.findAll(
                 conversationId, firstRequest
@@ -303,7 +303,7 @@ class DirectMessageQueryRepositoryImplTest {
             DirectMessageQueryRequest secondRequest = new DirectMessageQueryRequest(
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.ASCENDING, DirectMessageSortField.createdAt
+                2, SortDirection.ASCENDING, DirectMessageSortField.CREATED_AT
             );
 
             // when
@@ -341,7 +341,7 @@ class DirectMessageQueryRepositoryImplTest {
             // then
             assertThat(response.data()).hasSize(3);
             assertThat(response.sortDirection()).isEqualTo(SortDirection.DESCENDING);
-            assertThat(response.sortBy()).isEqualTo("createdAt");
+            assertThat(response.sortBy()).isEqualTo("CREATED_AT");
         }
     }
 
@@ -354,7 +354,7 @@ class DirectMessageQueryRepositoryImplTest {
         void includesSenderInfo() {
             // given
             DirectMessageQueryRequest request = new DirectMessageQueryRequest(
-                null, null, 100, SortDirection.DESCENDING, DirectMessageSortField.createdAt
+                null, null, 100, SortDirection.DESCENDING, DirectMessageSortField.CREATED_AT
             );
 
             // when

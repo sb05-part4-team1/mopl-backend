@@ -39,7 +39,7 @@ class NotificationSortFieldJpaTest {
 
         static Stream<Arguments> domainToJpaMapping() {
             return Stream.of(
-                Arguments.of(NotificationSortField.createdAt, NotificationSortFieldJpa.CREATED_AT)
+                Arguments.of(NotificationSortField.CREATED_AT, NotificationSortFieldJpa.CREATED_AT)
             );
         }
     }
@@ -125,7 +125,7 @@ class NotificationSortFieldJpaTest {
             String fieldName = NotificationSortFieldJpa.CREATED_AT.getFieldName();
 
             // then
-            assertThat(fieldName).isEqualTo("createdAt");
+            assertThat(fieldName).isEqualTo("CREATED_AT");
         }
     }
 }

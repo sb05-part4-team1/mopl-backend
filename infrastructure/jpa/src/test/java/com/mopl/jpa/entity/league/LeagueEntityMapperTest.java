@@ -1,6 +1,6 @@
-package com.mopl.jpa.entity.tag;
+package com.mopl.jpa.entity.league;
 
-import com.mopl.domain.model.tag.TagModel;
+import com.mopl.domain.model.league.LeagueModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -10,34 +10,38 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("TagEntityMapper 단위 테스트")
-class TagEntityMapperTest {
+@DisplayName("LeagueEntityMapper 단위 테스트")
+class LeagueEntityMapperTest {
 
-    private final TagEntityMapper mapper = new TagEntityMapper();
+    private final LeagueEntityMapper mapper = new LeagueEntityMapper();
 
     @Nested
     @DisplayName("toModel()")
     class ToModelTest {
 
         @Test
-        @DisplayName("TagEntity를 TagModel로 변환")
-        void withTagEntity_returnsTagModel() {
+        @DisplayName("LeagueEntity를 LeagueModel로 변환")
+        void withLeagueEntity_returnsLeagueModel() {
             // given
             UUID id = UUID.randomUUID();
             Instant createdAt = Instant.now();
-            TagEntity entity = TagEntity.builder()
+            LeagueEntity entity = LeagueEntity.builder()
                 .id(id)
-                .name("SF")
+                .leagueId(4328L)
+                .name("Premier League")
+                .sport("Soccer")
                 .createdAt(createdAt)
                 .deletedAt(null)
                 .build();
 
             // when
-            TagModel result = mapper.toModel(entity);
+            LeagueModel result = mapper.toModel(entity);
 
             // then
             assertThat(result.getId()).isEqualTo(id);
-            assertThat(result.getName()).isEqualTo("SF");
+            assertThat(result.getLeagueId()).isEqualTo(4328L);
+            assertThat(result.getName()).isEqualTo("Premier League");
+            assertThat(result.getSport()).isEqualTo("Soccer");
             assertThat(result.getCreatedAt()).isEqualTo(createdAt);
             assertThat(result.getDeletedAt()).isNull();
             assertThat(result.isDeleted()).isFalse();
@@ -47,7 +51,7 @@ class TagEntityMapperTest {
         @DisplayName("null 입력 시 null 반환")
         void withNull_returnsNull() {
             // when
-            TagModel result = mapper.toModel(null);
+            LeagueModel result = mapper.toModel(null);
 
             // then
             assertThat(result).isNull();
@@ -59,24 +63,28 @@ class TagEntityMapperTest {
     class ToEntityTest {
 
         @Test
-        @DisplayName("TagModel을 TagEntity로 변환")
-        void withTagModel_returnsTagEntity() {
+        @DisplayName("LeagueModel을 LeagueEntity로 변환")
+        void withLeagueModel_returnsLeagueEntity() {
             // given
             UUID id = UUID.randomUUID();
             Instant createdAt = Instant.now();
-            TagModel model = TagModel.builder()
+            LeagueModel model = LeagueModel.builder()
                 .id(id)
-                .name("액션")
+                .leagueId(4387L)
+                .name("NBA")
+                .sport("Basketball")
                 .createdAt(createdAt)
                 .deletedAt(null)
                 .build();
 
             // when
-            TagEntity result = mapper.toEntity(model);
+            LeagueEntity result = mapper.toEntity(model);
 
             // then
             assertThat(result.getId()).isEqualTo(id);
-            assertThat(result.getName()).isEqualTo("액션");
+            assertThat(result.getLeagueId()).isEqualTo(4387L);
+            assertThat(result.getName()).isEqualTo("NBA");
+            assertThat(result.getSport()).isEqualTo("Basketball");
             assertThat(result.getCreatedAt()).isEqualTo(createdAt);
             assertThat(result.getDeletedAt()).isNull();
         }
@@ -85,7 +93,7 @@ class TagEntityMapperTest {
         @DisplayName("null 입력 시 null 반환")
         void withNull_returnsNull() {
             // when
-            TagEntity result = mapper.toEntity(null);
+            LeagueEntity result = mapper.toEntity(null);
 
             // then
             assertThat(result).isNull();
@@ -97,20 +105,24 @@ class TagEntityMapperTest {
             // given
             UUID id = UUID.randomUUID();
             Instant createdAt = Instant.now();
-            TagModel originalModel = TagModel.builder()
+            LeagueModel originalModel = LeagueModel.builder()
                 .id(id)
-                .name("액션")
+                .leagueId(4424L)
+                .name("KBO League")
+                .sport("Baseball")
                 .createdAt(createdAt)
                 .deletedAt(null)
                 .build();
 
             // when
-            TagEntity entity = mapper.toEntity(originalModel);
-            TagModel resultModel = mapper.toModel(entity);
+            LeagueEntity entity = mapper.toEntity(originalModel);
+            LeagueModel resultModel = mapper.toModel(entity);
 
             // then
             assertThat(resultModel.getId()).isEqualTo(originalModel.getId());
+            assertThat(resultModel.getLeagueId()).isEqualTo(originalModel.getLeagueId());
             assertThat(resultModel.getName()).isEqualTo(originalModel.getName());
+            assertThat(resultModel.getSport()).isEqualTo(originalModel.getSport());
             assertThat(resultModel.getCreatedAt()).isEqualTo(originalModel.getCreatedAt());
             assertThat(resultModel.getDeletedAt()).isNull();
         }

@@ -38,7 +38,7 @@ class DirectMessageSortFieldJpaTest {
 
         static Stream<Arguments> domainToJpaMapping() {
             return Stream.of(
-                Arguments.of(DirectMessageSortField.createdAt, DirectMessageSortFieldJpa.CREATED_AT)
+                Arguments.of(DirectMessageSortField.CREATED_AT, DirectMessageSortFieldJpa.CREATED_AT)
             );
         }
     }
@@ -117,7 +117,7 @@ class DirectMessageSortFieldJpaTest {
         @Test
         @DisplayName("도메인 필드 이름을 반환한다")
         void returnsFieldName() {
-            assertThat(DirectMessageSortFieldJpa.CREATED_AT.getFieldName()).isEqualTo("createdAt");
+            assertThat(DirectMessageSortFieldJpa.CREATED_AT.getFieldName()).isEqualTo("CREATED_AT");
         }
     }
 }

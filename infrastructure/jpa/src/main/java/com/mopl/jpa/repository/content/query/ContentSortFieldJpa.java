@@ -17,8 +17,8 @@ import static com.mopl.jpa.entity.content.QContentEntity.contentEntity;
 @RequiredArgsConstructor
 public enum ContentSortFieldJpa implements SortField<Comparable<?>> {
 
-    WATCHER_COUNT(
-        ContentSortField.watcherCount,
+    POPULARITY(
+        ContentSortField.POPULARITY,
         Expressions.comparableTemplate(
             Integer.class,
             "{0}",
@@ -30,7 +30,7 @@ public enum ContentSortFieldJpa implements SortField<Comparable<?>> {
     ),
 
     CREATED_AT(
-        ContentSortField.createdAt,
+        ContentSortField.CREATED_AT,
         cast(contentEntity.createdAt),
         ContentEntity::getCreatedAt,
         Object::toString,
@@ -38,7 +38,7 @@ public enum ContentSortFieldJpa implements SortField<Comparable<?>> {
     ),
 
     RATE(
-        ContentSortField.rate,
+        ContentSortField.RATE,
         Expressions.comparableTemplate(
             Double.class,
             "{0}",
@@ -64,9 +64,9 @@ public enum ContentSortFieldJpa implements SortField<Comparable<?>> {
 
     public static ContentSortFieldJpa from(ContentSortField domainField) {
         return switch (domainField) {
-            case createdAt -> CREATED_AT;
-            case watcherCount -> WATCHER_COUNT;
-            case rate -> RATE;
+            case CREATED_AT -> CREATED_AT;
+            case POPULARITY -> POPULARITY;
+            case RATE -> RATE;
         };
     }
 

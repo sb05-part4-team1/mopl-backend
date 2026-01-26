@@ -462,7 +462,7 @@ class UserControllerTest {
                 user2.getId(),
                 true,
                 10,
-                "name",
+                "NAME",
                 SortDirection.ASCENDING
             );
 
@@ -473,7 +473,7 @@ class UserControllerTest {
                 .with(user(mockAdminDetails))
                 .param("limit", "10")
                 .param("sortDirection", "ASCENDING")
-                .param("sortBy", "name"))
+                .param("sortBy", "NAME"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(2))
@@ -482,7 +482,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.hasNext").value(true))
                 .andExpect(jsonPath("$.nextCursor").value("User2"))
                 .andExpect(jsonPath("$.totalCount").value(10))
-                .andExpect(jsonPath("$.sortBy").value("name"))
+                .andExpect(jsonPath("$.sortBy").value("NAME"))
                 .andExpect(jsonPath("$.sortDirection").value("ASCENDING"));
 
             then(userFacade).should().getUsers(any(UserQueryRequest.class));
@@ -492,7 +492,7 @@ class UserControllerTest {
         @DisplayName("필터 파라미터가 적용된 요청 처리")
         void withFilterParams_appliesFilters() throws Exception {
             // given
-            CursorResponse<UserModel> emptyResponse = CursorResponse.empty("name",
+            CursorResponse<UserModel> emptyResponse = CursorResponse.empty("NAME",
                 SortDirection.ASCENDING);
 
             given(userFacade.getUsers(any(UserQueryRequest.class))).willReturn(emptyResponse);
@@ -524,7 +524,7 @@ class UserControllerTest {
                 null,
                 false,
                 5,
-                "name",
+                "NAME",
                 SortDirection.ASCENDING
             );
 
@@ -548,7 +548,7 @@ class UserControllerTest {
         @DisplayName("빈 결과 시 빈 목록 반환")
         void withNoResults_returnsEmptyList() throws Exception {
             // given
-            CursorResponse<UserModel> emptyResponse = CursorResponse.empty("name",
+            CursorResponse<UserModel> emptyResponse = CursorResponse.empty("NAME",
                 SortDirection.DESCENDING);
 
             given(userFacade.getUsers(any(UserQueryRequest.class))).willReturn(emptyResponse);

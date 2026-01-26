@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 public enum DirectMessageSortFieldJpa implements SortField<Comparable<?>> {
 
     CREATED_AT(
-        DirectMessageSortField.createdAt,
+        DirectMessageSortField.CREATED_AT,
         cast(directMessageEntity.createdAt),
         DirectMessageEntity::getCreatedAt,
         Object::toString,
@@ -36,7 +36,7 @@ public enum DirectMessageSortFieldJpa implements SortField<Comparable<?>> {
 
     public static DirectMessageSortFieldJpa from(DirectMessageSortField domainField) {
         return switch (domainField) {
-            case createdAt -> CREATED_AT;
+            case CREATED_AT -> CREATED_AT;
         };
     }
 

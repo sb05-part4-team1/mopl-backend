@@ -129,7 +129,7 @@ class PlaylistControllerTest {
                 null,
                 false,
                 1L,
-                "updatedAt",
+                "UPDATED_AT",
                 SortDirection.ASCENDING
             );
 
@@ -152,7 +152,7 @@ class PlaylistControllerTest {
         void withEmptyList_returns200OK() throws Exception {
             // given
             CursorResponse<PlaylistResponse> response = CursorResponse.empty(
-                "updatedAt",
+                "UPDATED_AT",
                 SortDirection.ASCENDING
             );
 

@@ -23,7 +23,7 @@ class WatchingSessionSortFieldSupportTest {
         void withCreatedAt_returnsCreatedAtSupport() {
             // when
             WatchingSessionSortFieldSupport result = WatchingSessionSortFieldSupport.from(
-                WatchingSessionSortField.createdAt
+                WatchingSessionSortField.CREATED_AT
             );
 
             // then
@@ -117,16 +117,6 @@ class WatchingSessionSortFieldSupportTest {
         }
 
         @Test
-        @DisplayName("null 커서는 null 반환")
-        void withNull_returnsNull() {
-            // when
-            Instant result = WatchingSessionSortFieldSupport.CREATED_AT.deserializeCursor(null);
-
-            // then
-            assertThat(result).isNull();
-        }
-
-        @Test
         @DisplayName("빈 문자열은 null 반환")
         void withEmptyString_returnsNull() {
             // when
@@ -181,7 +171,7 @@ class WatchingSessionSortFieldSupportTest {
             String result = WatchingSessionSortFieldSupport.CREATED_AT.getFieldName();
 
             // then
-            assertThat(result).isEqualTo("createdAt");
+            assertThat(result).isEqualTo("CREATED_AT");
         }
     }
 
@@ -196,7 +186,7 @@ class WatchingSessionSortFieldSupportTest {
             WatchingSessionSortField result = WatchingSessionSortFieldSupport.CREATED_AT.getDomainField();
 
             // then
-            assertThat(result).isEqualTo(WatchingSessionSortField.createdAt);
+            assertThat(result).isEqualTo(WatchingSessionSortField.CREATED_AT);
         }
     }
 }

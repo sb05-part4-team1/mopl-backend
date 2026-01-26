@@ -127,12 +127,12 @@ class WatchingSessionFacadeTest {
                 session2.getWatcherId(),
                 true,
                 10,
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.ASCENDING
             );
 
             WatchingSessionQueryRequest request = new WatchingSessionQueryRequest(
-                null, null, null, 10, SortDirection.ASCENDING, WatchingSessionSortField.createdAt
+                null, null, null, 10, SortDirection.ASCENDING, WatchingSessionSortField.CREATED_AT
             );
 
             given(watchingSessionService.getWatchingSessions(contentId, request))
@@ -160,12 +160,12 @@ class WatchingSessionFacadeTest {
             UUID contentId = UUID.randomUUID();
 
             CursorResponse<WatchingSessionModel> emptyResponse = CursorResponse.empty(
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.ASCENDING
             );
 
             WatchingSessionQueryRequest request = new WatchingSessionQueryRequest(
-                null, null, null, 10, SortDirection.ASCENDING, WatchingSessionSortField.createdAt
+                null, null, null, 10, SortDirection.ASCENDING, WatchingSessionSortField.CREATED_AT
             );
 
             given(watchingSessionService.getWatchingSessions(contentId, request))
@@ -208,12 +208,12 @@ class WatchingSessionFacadeTest {
                 null,
                 false,
                 1,
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.ASCENDING
             );
 
             WatchingSessionQueryRequest request = new WatchingSessionQueryRequest(
-                watcherNameLike, null, null, 10, SortDirection.ASCENDING, WatchingSessionSortField.createdAt
+                watcherNameLike, null, null, 10, SortDirection.ASCENDING, WatchingSessionSortField.CREATED_AT
             );
 
             given(watchingSessionService.getWatchingSessions(contentId, request))

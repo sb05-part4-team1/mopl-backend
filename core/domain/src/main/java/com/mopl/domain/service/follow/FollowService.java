@@ -8,6 +8,7 @@ import com.mopl.domain.repository.follow.FollowRepository;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -30,6 +31,10 @@ public class FollowService {
 
     public boolean isFollow(UUID followerId, UUID followeeId) {
         return followRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
+    }
+
+    public Optional<FollowModel> getByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId) {
+        return followRepository.findByFollowerIdAndFolloweeId(followerId, followeeId);
     }
 
     public FollowModel create(FollowModel followModel) {

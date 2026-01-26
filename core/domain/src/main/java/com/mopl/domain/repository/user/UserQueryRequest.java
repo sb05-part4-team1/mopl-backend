@@ -23,6 +23,6 @@ public record UserQueryRequest(
     public UserQueryRequest {
         limit = limit != null ? Math.min(limit, MAX_LIMIT) : DEFAULT_LIMIT;
         sortDirection = sortDirection != null ? sortDirection : SortDirection.ASCENDING;
-        sortBy = sortBy != null ? sortBy : UserSortField.name;
+        sortBy = sortBy != null ? sortBy : UserSortField.NAME;
     }
 }

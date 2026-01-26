@@ -18,15 +18,15 @@ import static com.mopl.jpa.entity.playlist.QPlaylistEntity.playlistEntity;
 public enum PlaylistSortFieldJpa implements SortField<Comparable<?>> {
 
     UPDATED_AT(
-        PlaylistSortField.updatedAt,
+        PlaylistSortField.UPDATED_AT,
         cast(playlistEntity.updatedAt),
         PlaylistEntity::getUpdatedAt,
         Object::toString,
         Instant::parse
     ),
 
-    SUBSCRIBE_COUNT(
-        PlaylistSortField.subscribeCount,
+    SUBSCRIBER_COUNT(
+        PlaylistSortField.SUBSCRIBER_COUNT,
         Expressions.comparableTemplate(
             Integer.class,
             "{0}",
@@ -50,8 +50,8 @@ public enum PlaylistSortFieldJpa implements SortField<Comparable<?>> {
 
     public static PlaylistSortFieldJpa from(PlaylistSortField domainField) {
         return switch (domainField) {
-            case updatedAt -> UPDATED_AT;
-            case subscribeCount -> SUBSCRIBE_COUNT;
+            case UPDATED_AT -> UPDATED_AT;
+            case SUBSCRIBER_COUNT -> SUBSCRIBER_COUNT;
         };
     }
 

@@ -113,7 +113,7 @@ class PlaylistFacadeTest {
             // given
             UUID requesterId = UUID.randomUUID();
             PlaylistQueryRequest request = new PlaylistQueryRequest(
-                null, null, null, null, null, 10, SortDirection.DESCENDING, PlaylistSortField.updatedAt
+                null, null, null, null, null, 10, SortDirection.DESCENDING, PlaylistSortField.UPDATED_AT
             );
             CursorResponse<PlaylistModel> emptyResponse = CursorResponse.empty(
                 "updatedAt", SortDirection.DESCENDING
@@ -142,7 +142,7 @@ class PlaylistFacadeTest {
             List<UUID> playlistIds = List.of(playlistId);
 
             PlaylistQueryRequest request = new PlaylistQueryRequest(
-                null, null, null, null, null, 10, SortDirection.DESCENDING, PlaylistSortField.updatedAt
+                null, null, null, null, null, 10, SortDirection.DESCENDING, PlaylistSortField.UPDATED_AT
             );
 
             CursorResponse<PlaylistModel> playlistPage = CursorResponse.of(
@@ -187,7 +187,7 @@ class PlaylistFacadeTest {
             List<UUID> playlistIds = List.of(playlistId);
 
             PlaylistQueryRequest request = new PlaylistQueryRequest(
-                null, null, null, null, null, 10, SortDirection.DESCENDING, PlaylistSortField.updatedAt
+                null, null, null, null, null, 10, SortDirection.DESCENDING, PlaylistSortField.UPDATED_AT
             );
 
             CursorResponse<PlaylistModel> playlistPage = CursorResponse.of(

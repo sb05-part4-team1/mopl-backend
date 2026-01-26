@@ -22,6 +22,6 @@ public record PlaylistQueryRequest(
     public PlaylistQueryRequest {
         limit = limit != null ? Math.min(limit, MAX_LIMIT) : DEFAULT_LIMIT;
         sortDirection = sortDirection != null ? sortDirection : SortDirection.ASCENDING;
-        sortBy = sortBy != null ? sortBy : PlaylistSortField.updatedAt;
+        sortBy = sortBy != null ? sortBy : PlaylistSortField.UPDATED_AT;
     }
 }

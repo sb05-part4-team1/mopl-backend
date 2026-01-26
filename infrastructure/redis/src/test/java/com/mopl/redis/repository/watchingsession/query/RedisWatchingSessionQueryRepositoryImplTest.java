@@ -57,7 +57,7 @@ class RedisWatchingSessionQueryRepositoryImplTest {
             idAfter,
             limit,
             direction,
-            WatchingSessionSortField.createdAt
+            WatchingSessionSortField.CREATED_AT
         );
     }
 

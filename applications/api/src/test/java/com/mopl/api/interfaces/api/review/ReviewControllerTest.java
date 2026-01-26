@@ -178,7 +178,7 @@ class ReviewControllerTest {
                 reviewId2,
                 true,
                 10,
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.DESCENDING
             );
 
@@ -191,7 +191,7 @@ class ReviewControllerTest {
                 .param("contentId", contentId.toString())
                 .param("limit", "10")
                 .param("sortDirection", "DESCENDING")
-                .param("sortBy", "createdAt"))
+                .param("sortBy", "CREATED_AT"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(2))
@@ -201,7 +201,7 @@ class ReviewControllerTest {
                 .andExpect(jsonPath("$.data[1].rating").value(3.0))
                 .andExpect(jsonPath("$.hasNext").value(true))
                 .andExpect(jsonPath("$.totalCount").value(10))
-                .andExpect(jsonPath("$.sortBy").value("createdAt"))
+                .andExpect(jsonPath("$.sortBy").value("CREATED_AT"))
                 .andExpect(jsonPath("$.sortDirection").value("DESCENDING"));
 
             then(reviewFacade).should().getReviews(any(ReviewQueryRequest.class));
@@ -217,7 +217,7 @@ class ReviewControllerTest {
                 null,
                 false,
                 0,
-                "rating",
+                "RATING",
                 SortDirection.DESCENDING
             );
 
@@ -227,10 +227,10 @@ class ReviewControllerTest {
             // when & then
             mockMvc.perform(get("/api/reviews")
                 .with(user(mockUserDetails))
-                .param("sortBy", "rating")
+                .param("sortBy", "RATING")
                 .param("sortDirection", "DESCENDING"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sortBy").value("rating"));
+                .andExpect(jsonPath("$.sortBy").value("RATING"));
         }
 
         @Test
@@ -244,7 +244,7 @@ class ReviewControllerTest {
                 null,
                 false,
                 5,
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.DESCENDING
             );
 
@@ -266,7 +266,7 @@ class ReviewControllerTest {
         void withNoResults_returnsEmptyList() throws Exception {
             // given
             CursorResponse<ReviewResponse> emptyResponse = CursorResponse.empty(
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.DESCENDING
             );
 

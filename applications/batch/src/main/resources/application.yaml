@@ -1,18 +1,15 @@
+server:
+  port: 8083
+
 spring:
   main:
-    web-application-type: none
+    web-application-type: servlet
     keep-alive: true
   application:
     name: mopl-batch
 
   profiles:
     active: batch, local, cleanup-deletion-log
-
-  # [1] 여기에 Redis 설정을 추가하세요!
-  data:
-    redis:
-      host: localhost  # 로컬이 아니면 IP 입력
-      port: 6379
 
   config:
     import:
@@ -66,8 +63,10 @@ mopl:
         initial-enabled: ${MOPL_BATCH_SYNC_ES_INITIAL_ENABLED:false}
         defaults:
           chunk-size: ${MOPL_BATCH_SYNC_ES_CHUNK_SIZE:500}
+      denormalized:
+        default-policy:
+          batch-size: ${MOPL_BATCH_SYNC_DENORMALIZED_BATCH_SIZE:500}
 
-  # 모니터링을 위한 설정
 management:
   endpoints:
     web:
@@ -81,6 +80,3 @@ management:
     tags:
       application: ${spring.application.name}
       environment: ${SPRING_PROFILES_ACTIVE:local}
-      denormalized:
-        default-policy:
-          batch-size: ${MOPL_BATCH_SYNC_DENORMALIZED_BATCH_SIZE:500}

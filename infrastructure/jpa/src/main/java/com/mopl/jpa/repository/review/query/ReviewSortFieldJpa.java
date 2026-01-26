@@ -18,7 +18,7 @@ import static com.mopl.jpa.entity.review.QReviewEntity.reviewEntity;
 public enum ReviewSortFieldJpa implements SortField<Comparable<?>> {
 
     CREATED_AT(
-        ReviewSortField.createdAt,
+        ReviewSortField.CREATED_AT,
         cast(reviewEntity.createdAt),
         ReviewEntity::getCreatedAt,
         Object::toString,
@@ -26,7 +26,7 @@ public enum ReviewSortFieldJpa implements SortField<Comparable<?>> {
     ),
 
     RATING(
-        ReviewSortField.rating,
+        ReviewSortField.RATING,
         Expressions.comparableTemplate(
             Double.class,
             "{0}",
@@ -50,8 +50,8 @@ public enum ReviewSortFieldJpa implements SortField<Comparable<?>> {
 
     public static ReviewSortFieldJpa from(ReviewSortField domainField) {
         return switch (domainField) {
-            case createdAt -> CREATED_AT;
-            case rating -> RATING;
+            case CREATED_AT -> CREATED_AT;
+            case RATING -> RATING;
         };
     }
 

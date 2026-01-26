@@ -126,7 +126,7 @@ class ConversationControllerTest {
                 null,
                 false,
                 1L,
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.DESCENDING
             );
 
@@ -149,7 +149,7 @@ class ConversationControllerTest {
         void withEmptyList_returns200OK() throws Exception {
             // given
             CursorResponse<ConversationResponse> response = CursorResponse.empty(
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.DESCENDING
             );
 
@@ -303,7 +303,7 @@ class ConversationControllerTest {
                 null,
                 false,
                 1L,
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.DESCENDING
             );
 
@@ -327,7 +327,7 @@ class ConversationControllerTest {
             // given
             UUID conversationId = UUID.randomUUID();
             CursorResponse<DirectMessageResponse> response = CursorResponse.empty(
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.DESCENDING
             );
 

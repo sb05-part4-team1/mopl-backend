@@ -85,7 +85,7 @@ class ContentQueryRepositoryImplTest {
         void withNoFilter_returnsAllContents() {
             // given
             ContentQueryRequest request = new ContentQueryRequest(
-                null, null, null, null, null, 100, SortDirection.ASCENDING, ContentSortField.createdAt
+                null, null, null, null, null, 100, SortDirection.ASCENDING, ContentSortField.CREATED_AT
             );
 
             // when
@@ -102,7 +102,7 @@ class ContentQueryRepositoryImplTest {
         void withTypeEqual_filtersContents() {
             // given
             ContentQueryRequest request = new ContentQueryRequest(
-                ContentType.movie, null, null, null, null, 100, SortDirection.ASCENDING, ContentSortField.createdAt
+                ContentType.movie, null, null, null, null, 100, SortDirection.ASCENDING, ContentSortField.CREATED_AT
             );
 
             // when
@@ -120,7 +120,7 @@ class ContentQueryRepositoryImplTest {
         void withKeywordLike_filtersByTitle() {
             // given
             ContentQueryRequest request = new ContentQueryRequest(
-                null, "배트맨", null, null, null, 100, SortDirection.ASCENDING, ContentSortField.createdAt
+                null, "배트맨", null, null, null, 100, SortDirection.ASCENDING, ContentSortField.CREATED_AT
             );
 
             // when
@@ -136,7 +136,7 @@ class ContentQueryRepositoryImplTest {
         void withKeywordLike_filtersByDescription() {
             // given
             ContentQueryRequest request = new ContentQueryRequest(
-                null, "드라마", null, null, null, 100, SortDirection.ASCENDING, ContentSortField.createdAt
+                null, "드라마", null, null, null, 100, SortDirection.ASCENDING, ContentSortField.CREATED_AT
             );
 
             // when
@@ -152,7 +152,7 @@ class ContentQueryRepositoryImplTest {
         void withMultipleFilters_filtersContents() {
             // given
             ContentQueryRequest request = new ContentQueryRequest(
-                ContentType.tvSeries, "드라마", null, null, null, 100, SortDirection.ASCENDING, ContentSortField.createdAt
+                ContentType.tvSeries, "드라마", null, null, null, 100, SortDirection.ASCENDING, ContentSortField.CREATED_AT
             );
 
             // when
@@ -168,7 +168,7 @@ class ContentQueryRepositoryImplTest {
         void withNoMatchingData_returnsEmptyResult() {
             // given
             ContentQueryRequest request = new ContentQueryRequest(
-                null, "존재하지않는키워드", null, null, null, 100, SortDirection.ASCENDING, ContentSortField.createdAt
+                null, "존재하지않는키워드", null, null, null, 100, SortDirection.ASCENDING, ContentSortField.CREATED_AT
             );
 
             // when
@@ -190,7 +190,7 @@ class ContentQueryRepositoryImplTest {
         void sortByCreatedAtAscending() {
             // given
             ContentQueryRequest request = new ContentQueryRequest(
-                null, null, null, null, null, 100, SortDirection.ASCENDING, ContentSortField.createdAt
+                null, null, null, null, null, 100, SortDirection.ASCENDING, ContentSortField.CREATED_AT
             );
 
             // when
@@ -200,7 +200,7 @@ class ContentQueryRepositoryImplTest {
             assertThat(response.data())
                 .extracting(ContentModel::getTitle)
                 .containsExactly("인셉션", "다크나이트", "브레이킹 배드", "왕좌의 게임", "EPL 경기");
-            assertThat(response.sortBy()).isEqualTo("createdAt");
+            assertThat(response.sortBy()).isEqualTo("CREATED_AT");
             assertThat(response.sortDirection()).isEqualTo(SortDirection.ASCENDING);
         }
 
@@ -209,7 +209,7 @@ class ContentQueryRepositoryImplTest {
         void sortByCreatedAtDescending() {
             // given
             ContentQueryRequest request = new ContentQueryRequest(
-                null, null, null, null, null, 100, SortDirection.DESCENDING, ContentSortField.createdAt
+                null, null, null, null, null, 100, SortDirection.DESCENDING, ContentSortField.CREATED_AT
             );
 
             // when
@@ -226,7 +226,7 @@ class ContentQueryRepositoryImplTest {
         void sortByWatcherCount() {
             // given
             ContentQueryRequest request = new ContentQueryRequest(
-                null, null, null, null, null, 100, SortDirection.DESCENDING, ContentSortField.watcherCount
+                null, null, null, null, null, 100, SortDirection.DESCENDING, ContentSortField.POPULARITY
             );
 
             // when
@@ -243,7 +243,7 @@ class ContentQueryRepositoryImplTest {
         void sortByRate() {
             // given
             ContentQueryRequest request = new ContentQueryRequest(
-                null, null, null, null, null, 100, SortDirection.DESCENDING, ContentSortField.rate
+                null, null, null, null, null, 100, SortDirection.DESCENDING, ContentSortField.RATE
             );
 
             // when
@@ -265,7 +265,7 @@ class ContentQueryRepositoryImplTest {
         void firstPage_hasNextIsTrue() {
             // given
             ContentQueryRequest request = new ContentQueryRequest(
-                null, null, null, null, null, 2, SortDirection.ASCENDING, ContentSortField.createdAt
+                null, null, null, null, null, 2, SortDirection.ASCENDING, ContentSortField.CREATED_AT
             );
 
             // when
@@ -287,7 +287,7 @@ class ContentQueryRepositoryImplTest {
         void secondPage_withCursor() {
             // given
             ContentQueryRequest firstRequest = new ContentQueryRequest(
-                null, null, null, null, null, 2, SortDirection.ASCENDING, ContentSortField.createdAt
+                null, null, null, null, null, 2, SortDirection.ASCENDING, ContentSortField.CREATED_AT
             );
             CursorResponse<ContentModel> firstResponse = contentQueryRepository.findAll(firstRequest);
 
@@ -295,7 +295,7 @@ class ContentQueryRepositoryImplTest {
                 null, null, null,
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.ASCENDING, ContentSortField.createdAt
+                2, SortDirection.ASCENDING, ContentSortField.CREATED_AT
             );
 
             // when
@@ -314,7 +314,7 @@ class ContentQueryRepositoryImplTest {
         void lastPage_hasNextIsFalse() {
             // given
             ContentQueryRequest firstRequest = new ContentQueryRequest(
-                null, null, null, null, null, 2, SortDirection.ASCENDING, ContentSortField.createdAt
+                null, null, null, null, null, 2, SortDirection.ASCENDING, ContentSortField.CREATED_AT
             );
             CursorResponse<ContentModel> firstResponse = contentQueryRepository.findAll(firstRequest);
 
@@ -322,7 +322,7 @@ class ContentQueryRepositoryImplTest {
                 null, null, null,
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.ASCENDING, ContentSortField.createdAt
+                2, SortDirection.ASCENDING, ContentSortField.CREATED_AT
             );
             CursorResponse<ContentModel> secondResponse = contentQueryRepository.findAll(secondRequest);
 
@@ -330,7 +330,7 @@ class ContentQueryRepositoryImplTest {
                 null, null, null,
                 secondResponse.nextCursor(),
                 secondResponse.nextIdAfter(),
-                2, SortDirection.ASCENDING, ContentSortField.createdAt
+                2, SortDirection.ASCENDING, ContentSortField.CREATED_AT
             );
 
             // when
@@ -348,7 +348,7 @@ class ContentQueryRepositoryImplTest {
         void descendingPagination() {
             // given
             ContentQueryRequest firstRequest = new ContentQueryRequest(
-                null, null, null, null, null, 2, SortDirection.DESCENDING, ContentSortField.createdAt
+                null, null, null, null, null, 2, SortDirection.DESCENDING, ContentSortField.CREATED_AT
             );
             CursorResponse<ContentModel> firstResponse = contentQueryRepository.findAll(firstRequest);
 
@@ -356,7 +356,7 @@ class ContentQueryRepositoryImplTest {
                 null, null, null,
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.DESCENDING, ContentSortField.createdAt
+                2, SortDirection.DESCENDING, ContentSortField.CREATED_AT
             );
 
             // when
@@ -376,7 +376,7 @@ class ContentQueryRepositoryImplTest {
         void paginationWithFilter() {
             // given
             ContentQueryRequest request = new ContentQueryRequest(
-                ContentType.movie, null, null, null, null, 1, SortDirection.ASCENDING, ContentSortField.createdAt
+                ContentType.movie, null, null, null, null, 1, SortDirection.ASCENDING, ContentSortField.CREATED_AT
             );
 
             // when
@@ -393,7 +393,7 @@ class ContentQueryRepositoryImplTest {
         void paginationByWatcherCount() {
             // given
             ContentQueryRequest firstRequest = new ContentQueryRequest(
-                null, null, null, null, null, 2, SortDirection.DESCENDING, ContentSortField.watcherCount
+                null, null, null, null, null, 2, SortDirection.DESCENDING, ContentSortField.POPULARITY
             );
             CursorResponse<ContentModel> firstResponse = contentQueryRepository.findAll(firstRequest);
 
@@ -401,7 +401,7 @@ class ContentQueryRepositoryImplTest {
                 null, null, null,
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.DESCENDING, ContentSortField.watcherCount
+                2, SortDirection.DESCENDING, ContentSortField.POPULARITY
             );
 
             // when
@@ -435,7 +435,7 @@ class ContentQueryRepositoryImplTest {
             // then
             assertThat(response.data()).hasSize(5);
             assertThat(response.sortDirection()).isEqualTo(SortDirection.DESCENDING);
-            assertThat(response.sortBy()).isEqualTo("watcherCount");
+            assertThat(response.sortBy()).isEqualTo("POPULARITY");
         }
     }
 }

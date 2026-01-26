@@ -499,12 +499,12 @@ class UserFacadeTest {
                 user2.getId(),
                 true,
                 10,
-                "name",
+                "NAME",
                 SortDirection.ASCENDING
             );
 
             UserQueryRequest request = new UserQueryRequest(
-                null, null, null, null, null, 10, SortDirection.ASCENDING, UserSortField.name
+                null, null, null, null, null, 10, SortDirection.ASCENDING, UserSortField.NAME
             );
 
             given(userService.getAll(request)).willReturn(serviceResponse);
@@ -528,7 +528,7 @@ class UserFacadeTest {
         void withNoUsers_returnsEmptyList() {
             // given
             CursorResponse<UserModel> emptyResponse = CursorResponse.empty(
-                "name",
+                "NAME",
                 SortDirection.ASCENDING
             );
 
@@ -540,7 +540,7 @@ class UserFacadeTest {
                 null,
                 10,
                 SortDirection.ASCENDING,
-                UserSortField.name
+                UserSortField.NAME
             );
 
             given(userService.getAll(request)).willReturn(emptyResponse);
@@ -571,13 +571,13 @@ class UserFacadeTest {
                 null,
                 false,
                 1,
-                "name",
+                "NAME",
                 SortDirection.ASCENDING
             );
 
             UserQueryRequest request = new UserQueryRequest(
                 null, UserModel.Role.ADMIN, null, null, null, 10, SortDirection.ASCENDING,
-                UserSortField.name
+                UserSortField.NAME
             );
 
             given(userService.getAll(request)).willReturn(serviceResponse);

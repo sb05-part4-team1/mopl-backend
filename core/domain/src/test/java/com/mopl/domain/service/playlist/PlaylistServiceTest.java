@@ -61,7 +61,7 @@ class PlaylistServiceTest {
                 null, null, null, null, null, 10, SortDirection.ASCENDING, null
             );
             CursorResponse<PlaylistModel> expectedResponse = CursorResponse.empty(
-                "updatedAt", SortDirection.ASCENDING
+                "UPDATED_AT", SortDirection.ASCENDING
             );
 
             given(playlistQueryRepository.findAll(request)).willReturn(expectedResponse);

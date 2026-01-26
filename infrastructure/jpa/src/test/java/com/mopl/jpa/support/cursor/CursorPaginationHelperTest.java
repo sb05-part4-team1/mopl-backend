@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CursorPaginationHelperTest {
 
     enum TestSortField {
-        name, email
+        NAME, EMAIL
     }
 
     static class TestSortFieldImpl implements SortField<String> {
@@ -64,25 +64,25 @@ class CursorPaginationHelperTest {
     @DisplayName("buildResponse()")
     class BuildResponseTest {
 
-        private final SortField<?> sortField = new TestSortFieldImpl(TestSortField.name);
+        private final SortField<?> sortField = new TestSortFieldImpl(TestSortField.NAME);
 
         private CursorRequest<TestSortField> createRequest(int limit) {
-            return createRequest(null, null, limit, SortDirection.ASCENDING);
+            return createRequest(limit, SortDirection.ASCENDING);
         }
 
         private CursorRequest<TestSortField> createRequest(
-            String cursor, UUID idAfter, int limit, SortDirection direction
+            int limit, SortDirection direction
         ) {
             return new CursorRequest<>() {
 
                 @Override
                 public String cursor() {
-                    return cursor;
+                    return null;
                 }
 
                 @Override
                 public UUID idAfter() {
-                    return idAfter;
+                    return null;
                 }
 
                 @Override
@@ -97,7 +97,7 @@ class CursorPaginationHelperTest {
 
                 @Override
                 public TestSortField sortBy() {
-                    return TestSortField.name;
+                    return TestSortField.NAME;
                 }
             };
         }
@@ -126,7 +126,7 @@ class CursorPaginationHelperTest {
             assertThat(response.nextCursor()).isNull();
             assertThat(response.nextIdAfter()).isNull();
             assertThat(response.totalCount()).isZero();
-            assertThat(response.sortBy()).isEqualTo("name");
+            assertThat(response.sortBy()).isEqualTo("NAME");
             assertThat(response.sortDirection()).isEqualTo(SortDirection.ASCENDING);
         }
 
@@ -202,8 +202,6 @@ class CursorPaginationHelperTest {
         void withDescendingDirection_reflectsInResponse() {
             // given
             CursorRequest<TestSortField> request = createRequest(
-                null,
-                null,
                 10,
                 SortDirection.DESCENDING
             );

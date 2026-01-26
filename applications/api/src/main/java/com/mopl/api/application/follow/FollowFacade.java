@@ -10,6 +10,7 @@ import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.dto.follow.FollowResponse;
 import com.mopl.dto.follow.FollowResponseMapper;
+import com.mopl.dto.follow.FollowStatusResponse;
 import com.mopl.dto.outbox.DomainEventOutboxMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -75,5 +76,13 @@ public class FollowFacade {
         userService.getById(followerId);
         userService.getById(followeeId);
         return followService.isFollow(followerId, followeeId);
+    }
+
+    public FollowStatusResponse getFollowStatus(UUID followerId, UUID followeeId) {
+        userService.getById(followerId);
+        userService.getById(followeeId);
+        return followService.getByFollowerIdAndFolloweeId(followerId, followeeId)
+            .map(follow -> new FollowStatusResponse(true, follow.getId()))
+            .orElse(new FollowStatusResponse(false, null));
     }
 }

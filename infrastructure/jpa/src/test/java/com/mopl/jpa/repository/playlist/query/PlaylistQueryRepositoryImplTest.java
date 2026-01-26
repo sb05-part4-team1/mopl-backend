@@ -137,7 +137,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest request = new PlaylistQueryRequest(
                 null, null, null, null, null, 100, SortDirection.ASCENDING,
-                PlaylistSortField.updatedAt
+                PlaylistSortField.UPDATED_AT
             );
 
             // when
@@ -155,7 +155,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest request = new PlaylistQueryRequest(
                 "모음", null, null, null, null, 100, SortDirection.ASCENDING,
-                PlaylistSortField.updatedAt
+                PlaylistSortField.UPDATED_AT
             );
 
             // when
@@ -174,7 +174,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest request = new PlaylistQueryRequest(
                 "힐링", null, null, null, null, 100, SortDirection.ASCENDING,
-                PlaylistSortField.updatedAt
+                PlaylistSortField.UPDATED_AT
             );
 
             // when
@@ -191,7 +191,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest request = new PlaylistQueryRequest(
                 null, owner1.getId(), null, null, null, 100, SortDirection.ASCENDING,
-                PlaylistSortField.updatedAt
+                PlaylistSortField.UPDATED_AT
             );
 
             // when
@@ -210,7 +210,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest request = new PlaylistQueryRequest(
                 null, null, subscriber1.getId(), null, null, 100, SortDirection.ASCENDING,
-                PlaylistSortField.updatedAt
+                PlaylistSortField.UPDATED_AT
             );
 
             // when
@@ -227,7 +227,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest request = new PlaylistQueryRequest(
                 "음악", owner2.getId(), null, null, null, 100, SortDirection.ASCENDING,
-                PlaylistSortField.updatedAt
+                PlaylistSortField.UPDATED_AT
             );
 
             // when
@@ -246,7 +246,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest request = new PlaylistQueryRequest(
                 "존재하지않는키워드", null, null, null, null, 100, SortDirection.ASCENDING,
-                PlaylistSortField.updatedAt
+                PlaylistSortField.UPDATED_AT
             );
 
             // when
@@ -269,7 +269,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest request = new PlaylistQueryRequest(
                 null, null, null, null, null, 100, SortDirection.ASCENDING,
-                PlaylistSortField.updatedAt
+                PlaylistSortField.UPDATED_AT
             );
 
             // when
@@ -279,7 +279,7 @@ class PlaylistQueryRepositoryImplTest {
             assertThat(response.data())
                 .extracting(PlaylistModel::getTitle)
                 .containsExactly("음악 모음", "영화 OST", "힐링 음악", "운동 음악");
-            assertThat(response.sortBy()).isEqualTo("updatedAt");
+            assertThat(response.sortBy()).isEqualTo("UPDATED_AT");
             assertThat(response.sortDirection()).isEqualTo(SortDirection.ASCENDING);
         }
 
@@ -289,7 +289,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest request = new PlaylistQueryRequest(
                 null, null, null, null, null, 100, SortDirection.DESCENDING,
-                PlaylistSortField.updatedAt
+                PlaylistSortField.UPDATED_AT
             );
 
             // when
@@ -312,7 +312,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest request = new PlaylistQueryRequest(
                 null, null, null, null, null, 100, SortDirection.ASCENDING,
-                PlaylistSortField.subscribeCount
+                PlaylistSortField.SUBSCRIBER_COUNT
             );
 
             // when
@@ -323,7 +323,7 @@ class PlaylistQueryRepositoryImplTest {
             assertThat(response.data())
                 .extracting(PlaylistModel::getTitle)
                 .containsExactly("운동 음악", "영화 OST", "힐링 음악", "음악 모음");
-            assertThat(response.sortBy()).isEqualTo("subscribeCount");
+            assertThat(response.sortBy()).isEqualTo("SUBSCRIBER_COUNT");
         }
 
         @Test
@@ -332,7 +332,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest request = new PlaylistQueryRequest(
                 null, null, null, null, null, 100, SortDirection.DESCENDING,
-                PlaylistSortField.subscribeCount
+                PlaylistSortField.SUBSCRIBER_COUNT
             );
 
             // when
@@ -356,7 +356,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest request = new PlaylistQueryRequest(
                 null, null, null, null, null, 2, SortDirection.ASCENDING,
-                PlaylistSortField.updatedAt
+                PlaylistSortField.UPDATED_AT
             );
 
             // when
@@ -379,7 +379,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest firstRequest = new PlaylistQueryRequest(
                 null, null, null, null, null, 2, SortDirection.ASCENDING,
-                PlaylistSortField.updatedAt
+                PlaylistSortField.UPDATED_AT
             );
             CursorResponse<PlaylistModel> firstResponse = playlistQueryRepository.findAll(
                 firstRequest);
@@ -388,7 +388,7 @@ class PlaylistQueryRepositoryImplTest {
                 null, null, null,
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.ASCENDING, PlaylistSortField.updatedAt
+                2, SortDirection.ASCENDING, PlaylistSortField.UPDATED_AT
             );
 
             // when
@@ -409,7 +409,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest firstRequest = new PlaylistQueryRequest(
                 null, null, null, null, null, 2, SortDirection.DESCENDING,
-                PlaylistSortField.updatedAt
+                PlaylistSortField.UPDATED_AT
             );
             CursorResponse<PlaylistModel> firstResponse = playlistQueryRepository.findAll(
                 firstRequest);
@@ -418,7 +418,7 @@ class PlaylistQueryRepositoryImplTest {
                 null, null, null,
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.DESCENDING, PlaylistSortField.updatedAt
+                2, SortDirection.DESCENDING, PlaylistSortField.UPDATED_AT
             );
 
             // when
@@ -445,7 +445,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest request = new PlaylistQueryRequest(
                 null, null, null, null, null, 2, SortDirection.ASCENDING,
-                PlaylistSortField.subscribeCount
+                PlaylistSortField.SUBSCRIBER_COUNT
             );
 
             // when
@@ -466,7 +466,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest firstRequest = new PlaylistQueryRequest(
                 null, null, null, null, null, 2, SortDirection.ASCENDING,
-                PlaylistSortField.subscribeCount
+                PlaylistSortField.SUBSCRIBER_COUNT
             );
             CursorResponse<PlaylistModel> firstResponse = playlistQueryRepository.findAll(
                 firstRequest);
@@ -475,7 +475,7 @@ class PlaylistQueryRepositoryImplTest {
                 null, null, null,
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.ASCENDING, PlaylistSortField.subscribeCount
+                2, SortDirection.ASCENDING, PlaylistSortField.SUBSCRIBER_COUNT
             );
 
             // when
@@ -496,7 +496,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest firstRequest = new PlaylistQueryRequest(
                 null, null, null, null, null, 2, SortDirection.DESCENDING,
-                PlaylistSortField.subscribeCount
+                PlaylistSortField.SUBSCRIBER_COUNT
             );
             CursorResponse<PlaylistModel> firstResponse = playlistQueryRepository.findAll(
                 firstRequest);
@@ -505,7 +505,7 @@ class PlaylistQueryRepositoryImplTest {
                 null, null, null,
                 firstResponse.nextCursor(),
                 firstResponse.nextIdAfter(),
-                2, SortDirection.DESCENDING, PlaylistSortField.subscribeCount
+                2, SortDirection.DESCENDING, PlaylistSortField.SUBSCRIBER_COUNT
             );
 
             // when
@@ -532,7 +532,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest request = new PlaylistQueryRequest(
                 null, owner1.getId(), null, null, null, 100, SortDirection.ASCENDING,
-                PlaylistSortField.updatedAt
+                PlaylistSortField.UPDATED_AT
             );
 
             // when
@@ -567,7 +567,7 @@ class PlaylistQueryRepositoryImplTest {
             // then
             assertThat(response.data()).hasSize(4);
             assertThat(response.sortDirection()).isEqualTo(SortDirection.ASCENDING);
-            assertThat(response.sortBy()).isEqualTo("updatedAt");
+            assertThat(response.sortBy()).isEqualTo("UPDATED_AT");
         }
     }
 
@@ -581,7 +581,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest request = new PlaylistQueryRequest(
                 "OST", null, null, null, null, 1, SortDirection.ASCENDING,
-                PlaylistSortField.updatedAt
+                PlaylistSortField.UPDATED_AT
             );
 
             // when
@@ -599,7 +599,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest request = new PlaylistQueryRequest(
                 null, owner2.getId(), null, null, null, 1, SortDirection.DESCENDING,
-                PlaylistSortField.subscribeCount
+                PlaylistSortField.SUBSCRIBER_COUNT
             );
 
             // when
@@ -623,7 +623,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest request = new PlaylistQueryRequest(
                 null, UUID.randomUUID(), null, null, null, 100, SortDirection.ASCENDING,
-                PlaylistSortField.updatedAt
+                PlaylistSortField.UPDATED_AT
             );
 
             // when
@@ -640,7 +640,7 @@ class PlaylistQueryRepositoryImplTest {
             // given
             PlaylistQueryRequest request = new PlaylistQueryRequest(
                 null, null, UUID.randomUUID(), null, null, 100, SortDirection.ASCENDING,
-                PlaylistSortField.updatedAt
+                PlaylistSortField.UPDATED_AT
             );
 
             // when

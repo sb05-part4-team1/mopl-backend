@@ -58,7 +58,7 @@ class UserServiceTest {
                 null
             );
             CursorResponse<UserModel> expectedResponse = CursorResponse.empty(
-                "name", SortDirection.ASCENDING
+                "NAME", SortDirection.ASCENDING
             );
 
             given(userQueryRepository.findAll(request)).willReturn(expectedResponse);

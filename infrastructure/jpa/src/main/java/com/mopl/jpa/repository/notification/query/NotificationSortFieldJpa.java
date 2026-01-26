@@ -17,7 +17,7 @@ import static com.mopl.jpa.entity.notification.QNotificationEntity.notificationE
 public enum NotificationSortFieldJpa implements SortField<Comparable<?>> {
 
     CREATED_AT(
-        NotificationSortField.createdAt,
+        NotificationSortField.CREATED_AT,
         cast(notificationEntity.createdAt),
         NotificationEntity::getCreatedAt,
         Object::toString,
@@ -37,7 +37,7 @@ public enum NotificationSortFieldJpa implements SortField<Comparable<?>> {
 
     public static NotificationSortFieldJpa from(NotificationSortField domainField) {
         return switch (domainField) {
-            case createdAt -> CREATED_AT;
+            case CREATED_AT -> CREATED_AT;
         };
     }
 

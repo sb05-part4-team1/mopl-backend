@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class RedisCursorPaginationHelperTest {
 
     enum TestSortField {
-        createdAt
+        CREATED_AT
     }
 
     static class TestSortFieldImpl implements RedisSortField<Instant> {
@@ -41,7 +41,7 @@ class RedisCursorPaginationHelperTest {
 
         @Override
         public String getFieldName() {
-            return "createdAt";
+            return "CREATED_AT";
         }
     }
 
@@ -81,7 +81,7 @@ class RedisCursorPaginationHelperTest {
 
             @Override
             public TestSortField sortBy() {
-                return TestSortField.createdAt;
+                return TestSortField.CREATED_AT;
             }
         };
     }
@@ -380,7 +380,7 @@ class RedisCursorPaginationHelperTest {
             assertThat(response.nextCursor()).isNull();
             assertThat(response.nextIdAfter()).isNull();
             assertThat(response.totalCount()).isZero();
-            assertThat(response.sortBy()).isEqualTo("createdAt");
+            assertThat(response.sortBy()).isEqualTo("CREATED_AT");
             assertThat(response.sortDirection()).isEqualTo(SortDirection.ASCENDING);
         }
 

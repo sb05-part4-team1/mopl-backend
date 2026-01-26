@@ -23,7 +23,7 @@ public record ContentQueryRequest(
     public ContentQueryRequest {
         limit = limit != null ? Math.min(limit, MAX_LIMIT) : DEFAULT_LIMIT;
         sortDirection = sortDirection != null ? sortDirection : SortDirection.DESCENDING;
-        sortBy = sortBy != null ? sortBy : ContentSortField.watcherCount;
+        sortBy = sortBy != null ? sortBy : ContentSortField.POPULARITY;
 
         keywordLike = normalizeKeyword(keywordLike);
     }

@@ -106,7 +106,7 @@ class NotificationControllerTest {
                 notification2.getId(),
                 true,
                 10,
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.ASCENDING
             );
 
@@ -119,7 +119,7 @@ class NotificationControllerTest {
                 .with(user(mockUserDetails))
                 .param("limit", "10")
                 .param("sortDirection", "ASCENDING")
-                .param("sortBy", "createdAt"))
+                .param("sortBy", "CREATED_AT"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(2))
@@ -129,7 +129,7 @@ class NotificationControllerTest {
                 .andExpect(jsonPath("$.data[1].level").value("WARNING"))
                 .andExpect(jsonPath("$.hasNext").value(true))
                 .andExpect(jsonPath("$.totalCount").value(10))
-                .andExpect(jsonPath("$.sortBy").value("createdAt"))
+                .andExpect(jsonPath("$.sortBy").value("CREATED_AT"))
                 .andExpect(jsonPath("$.sortDirection").value("ASCENDING"));
 
             then(notificationFacade).should().getNotifications(eq(userId), any(
@@ -155,7 +155,7 @@ class NotificationControllerTest {
                 null,
                 false,
                 5,
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.DESCENDING
             );
 
@@ -184,7 +184,7 @@ class NotificationControllerTest {
         void withNoResults_returnsEmptyList() throws Exception {
             // given
             CursorResponse<NotificationResponse> emptyResponse = CursorResponse.empty(
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.ASCENDING
             );
 

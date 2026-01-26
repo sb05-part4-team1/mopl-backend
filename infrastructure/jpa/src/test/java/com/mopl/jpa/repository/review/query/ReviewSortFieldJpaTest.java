@@ -41,8 +41,8 @@ class ReviewSortFieldJpaTest {
 
         static Stream<Arguments> domainToJpaMapping() {
             return Stream.of(
-                Arguments.of(ReviewSortField.createdAt, ReviewSortFieldJpa.CREATED_AT),
-                Arguments.of(ReviewSortField.rating, ReviewSortFieldJpa.RATING)
+                Arguments.of(ReviewSortField.CREATED_AT, ReviewSortFieldJpa.CREATED_AT),
+                Arguments.of(ReviewSortField.RATING, ReviewSortFieldJpa.RATING)
             );
         }
     }
@@ -171,7 +171,7 @@ class ReviewSortFieldJpaTest {
             String fieldName = ReviewSortFieldJpa.CREATED_AT.getFieldName();
 
             // then
-            assertThat(fieldName).isEqualTo("createdAt");
+            assertThat(fieldName).isEqualTo("CREATED_AT");
         }
 
         @Test
@@ -181,7 +181,7 @@ class ReviewSortFieldJpaTest {
             String fieldName = ReviewSortFieldJpa.RATING.getFieldName();
 
             // then
-            assertThat(fieldName).isEqualTo("rating");
+            assertThat(fieldName).isEqualTo("RATING");
         }
     }
 }
