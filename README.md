@@ -9,7 +9,7 @@
 - **프로젝트 기간**: 2025.12.18 ~ 2026.01.29
 - **목표**: 백엔드에 멀티모듈 적용
 - **주요 특징:**
-    - PostgreSQL + Spring Data JPA 기반 안정적 데이터 관리
+    - MySQL + Spring Data JPA 기반 안정적 데이터 관리
     - Spring Batch를 이용한 클린업 작업
     - WebClient를 이용한 OpenAPI 연동
     - CI/CD를 이용한 자동 배포 구현
