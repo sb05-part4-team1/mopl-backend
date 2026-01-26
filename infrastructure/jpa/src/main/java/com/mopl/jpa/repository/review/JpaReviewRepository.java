@@ -46,6 +46,12 @@ public interface JpaReviewRepository extends JpaRepository<ReviewEntity, UUID> {
     )
     List<UUID> findCleanupTargets(Instant threshold, int limit);
 
+    @Query(
+        value = "SELECT DISTINCT BIN_TO_UUID(content_id) FROM reviews WHERE id IN (:reviewIds)",
+        nativeQuery = true
+    )
+    Set<UUID> findContentIdsByIdIn(List<UUID> reviewIds);
+
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "delete from reviews where id in :reviewIds", nativeQuery = true)
     int deleteByIdIn(List<UUID> reviewIds);

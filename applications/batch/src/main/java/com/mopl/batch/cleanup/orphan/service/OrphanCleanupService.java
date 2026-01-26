@@ -15,9 +15,9 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrphanCleanupService {
 
     private final JpaOrphanCleanupRepository orphanCleanupRepository;

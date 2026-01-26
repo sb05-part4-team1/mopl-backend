@@ -1,11 +1,14 @@
 package com.mopl.batch.cleanup.orphan.service;
 
+import com.mopl.batch.sync.denormalized.service.ContentReviewStatsSyncTxService;
 import com.mopl.jpa.repository.orphan.JpaOrphanCleanupRepository;
+import com.mopl.jpa.repository.review.JpaReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -13,6 +16,8 @@ import java.util.UUID;
 public class OrphanCleanupTxService {
 
     private final JpaOrphanCleanupRepository orphanCleanupRepository;
+    private final JpaReviewRepository jpaReviewRepository;
+    private final ContentReviewStatsSyncTxService contentReviewStatsSyncTxService;
 
     @Transactional
     public int cleanupNotifications(List<UUID> notificationIds) {
@@ -41,7 +46,16 @@ public class OrphanCleanupTxService {
 
     @Transactional
     public int cleanupReviews(List<UUID> reviewIds) {
-        return orphanCleanupRepository.deleteReviewsByIdIn(reviewIds);
+        // 1. 삭제 전 영향받는 contentId 조회
+        Set<UUID> contentIds = jpaReviewRepository.findContentIdsByIdIn(reviewIds);
+
+        // 2. Review hard delete
+        int deleted = orphanCleanupRepository.deleteReviewsByIdIn(reviewIds);
+
+        // 3. Content 통계 재계산
+        contentIds.forEach(contentReviewStatsSyncTxService::syncOne);
+
+        return deleted;
     }
 
     @Transactional
