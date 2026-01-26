@@ -50,6 +50,9 @@ public class RedisConfig {
     private ObjectMapper createRedisObjectMapper(ObjectMapper objectMapper) {
         PolymorphicTypeValidator polymorphicTypeValidator = BasicPolymorphicTypeValidator.builder()
             .allowIfSubType("com.mopl.")
+            .allowIfSubType("java.util.")
+            .allowIfSubType("java.time.")
+            .allowIfSubTypeIsArray()
             .build();
 
         ObjectMapper redisObjectMapper = objectMapper.copy();
