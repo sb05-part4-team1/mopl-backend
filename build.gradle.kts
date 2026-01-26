@@ -5,9 +5,24 @@ plugins {
     id("org.springframework.boot") version "3.3.3" apply false
     id("io.spring.dependency-management") version "1.1.5"
     id("com.diffplug.spotless") version "6.23.3"
-    id("checkstyle")
-    id("jacoco")
+    checkstyle
+    jacoco
 }
+
+val springBootVersion: String by project
+val checkstyleVersion = "10.12.3"
+
+val jacocoExclusions = listOf(
+    "**/entity/**/Q*.class",
+    "**/*Application.class"
+)
+
+val jacocoAggregateExclusions = jacocoExclusions + listOf(
+    "**/*Config.class",
+    "**/*Config$*.class",
+    "**/*Properties.class",
+    "**/*Properties$*.class"
+)
 
 java {
     toolchain {
@@ -31,27 +46,20 @@ subprojects {
     apply(plugin = "checkstyle")
     apply(plugin = "jacoco")
 
-    tasks.withType<JavaCompile> {
-        options.compilerArgs.add("-parameters")
-    }
-
     dependencyManagement {
         imports {
-            mavenBom("org.springframework.boot:spring-boot-dependencies:${project.properties["springBootVersion"]}")
+            mavenBom("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
         }
     }
 
     dependencies {
-        // Lombok
         implementation("org.projectlombok:lombok")
         annotationProcessor("org.projectlombok:lombok")
         testCompileOnly("org.projectlombok:lombok")
         testAnnotationProcessor("org.projectlombok:lombok")
-        // Test
         testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     }
 
-    // core 모듈 제외하고 Spring 의존성 적용
     if (!project.path.startsWith(":core")) {
         dependencies {
             implementation("org.springframework.boot:spring-boot-starter")
@@ -59,13 +67,26 @@ subprojects {
         }
     }
 
-    tasks.withType(Jar::class) { enabled = true }
-    tasks.withType(BootJar::class) { enabled = false }
+    configureJarTasks()
+    configureTestTasks()
+    configureJacoco()
+    configureSpotless()
+    configureCheckstyle()
+}
 
-    // "applications 폴더 안에 있지만, 이름이 api가 아닌 것들만" 적용한다.
-    configure(allprojects.filter { it.parent?.name.equals("applications") && it.name != "api" }) {
-        tasks.withType(Jar::class) { enabled = false }
-        tasks.withType(BootJar::class) { enabled = true }
+fun Project.configureJarTasks() {
+    tasks.withType<Jar> { enabled = true }
+    tasks.withType<BootJar> { enabled = false }
+
+    if (parent?.name == "applications" && name != "api") {
+        tasks.withType<Jar> { enabled = false }
+        tasks.withType<BootJar> { enabled = true }
+    }
+}
+
+fun Project.configureTestTasks() {
+    tasks.withType<JavaCompile> {
+        options.compilerArgs.add("-parameters")
     }
 
     tasks.test {
@@ -75,7 +96,9 @@ subprojects {
         systemProperty("spring.profiles.active", "test")
         jvmArgs("-Xshare:off")
     }
+}
 
+fun Project.configureJacoco() {
     tasks.withType<JacocoReport> {
         mustRunAfter("test")
         executionData(fileTree(layout.buildDirectory.asFile).include("jacoco/*.exec"))
@@ -86,31 +109,27 @@ subprojects {
         }
         afterEvaluate {
             classDirectories.setFrom(
-                files(
-                    classDirectories.files.map {
-                        fileTree(it).exclude(
-                            "**/entity/**/Q*.class",
-                            "**/*Application.class"
-                        )
-                    },
-                ),
+                files(classDirectories.files.map { fileTree(it).exclude(jacocoExclusions) })
             )
         }
     }
+}
 
+fun Project.configureSpotless() {
     spotless {
         java {
-            eclipse()
-                .configFile("${rootDir}/config/eclipse/eclipse-java-formatter.xml")
+            eclipse().configFile("$rootDir/config/eclipse/eclipse-java-formatter.xml")
             target("src/**/*.java")
             removeUnusedImports()
             endWithNewline()
         }
     }
+}
 
+fun Project.configureCheckstyle() {
     checkstyle {
-        toolVersion = "10.12.3"
-        configFile = file("${rootDir}/config/checkstyle/google_checks.xml")
+        toolVersion = checkstyleVersion
+        configFile = file("$rootDir/config/checkstyle/google_checks.xml")
     }
 
     tasks.withType<Checkstyle>().configureEach {
@@ -118,15 +137,12 @@ subprojects {
     }
 }
 
-project("applications") { tasks.configureEach { enabled = false } }
-project("core") { tasks.configureEach { enabled = false } }
-project("infrastructure") { tasks.configureEach { enabled = false } }
-project("shared") { tasks.configureEach { enabled = false } }
-
+listOf("applications", "core", "infrastructure", "shared").forEach { name ->
+    project(name) { tasks.configureEach { enabled = false } }
+}
 
 tasks.named<JacocoReport>("jacocoTestReport") {
     description = "Generates an aggregate JaCoCo report from all subprojects"
-
     dependsOn(subprojects.mapNotNull { it.tasks.findByName("jacocoTestReport") })
 
     executionData.setFrom(
@@ -140,22 +156,13 @@ tasks.named<JacocoReport>("jacocoTestReport") {
     )
 
     sourceDirectories.setFrom(
-        files(subprojects.flatMap { subproject ->
-            subproject.the<SourceSetContainer>()["main"].allSource.srcDirs
-        })
+        files(subprojects.flatMap { it.the<SourceSetContainer>()["main"].allSource.srcDirs })
     )
 
     classDirectories.setFrom(
         files(subprojects.flatMap { subproject ->
             subproject.the<SourceSetContainer>()["main"].output.classesDirs.map {
-                fileTree(it).exclude(
-                    "**/entity/**/Q*.class",
-                    "**/*Application.class",
-                    "**/*Config.class",
-                    "**/*Config$*.class",
-                    "**/*Properties.class",
-                    "**/*Properties$*.class"
-                )
+                fileTree(it).exclude(jacocoAggregateExclusions)
             }
         })
     )
