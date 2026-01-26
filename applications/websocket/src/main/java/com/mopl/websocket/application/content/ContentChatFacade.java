@@ -11,8 +11,8 @@ import com.mopl.dto.watchingsession.WatchingSessionResponseMapper;
 import com.mopl.websocket.interfaces.api.content.dto.ContentChatResponse;
 import com.mopl.websocket.interfaces.event.content.dto.WatchingSessionChangeResponse;
 import com.mopl.websocket.interfaces.event.content.dto.WatchingSessionChangeType;
+import com.mopl.websocket.messaging.WebSocketBroadcaster;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -30,7 +30,7 @@ public class ContentChatFacade {
     private final WatchingSessionRepository watchingSessionRepository;
     private final UserSummaryMapper userSummaryMapper;
     private final WatchingSessionResponseMapper watchingSessionResponseMapper;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final WebSocketBroadcaster webSocketBroadcaster;
 
     public ContentChatResponse sendChatMessage(UUID userId, UUID contentId, String message) {
         ensureWatchingSession(contentId, userId);
@@ -73,7 +73,7 @@ public class ContentChatFacade {
             watchingSessionResponseMapper.toResponse(session),
             watchingSessionRepository.countByContentId(session.getContentId())
         );
-        messagingTemplate.convertAndSend(buildWatchDestination(session.getContentId()), response);
+        webSocketBroadcaster.broadcast(buildWatchDestination(session.getContentId()), response);
     }
 
     private void broadcastLeave(WatchingSessionModel session) {
@@ -82,7 +82,7 @@ public class ContentChatFacade {
             watchingSessionResponseMapper.toResponse(session),
             watchingSessionRepository.countByContentId(session.getContentId()) - 1
         );
-        messagingTemplate.convertAndSend(buildWatchDestination(session.getContentId()), response);
+        webSocketBroadcaster.broadcast(buildWatchDestination(session.getContentId()), response);
     }
 
     private String buildWatchDestination(UUID contentId) {

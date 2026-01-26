@@ -13,6 +13,7 @@ import com.mopl.dto.watchingsession.WatchingSessionResponse;
 import com.mopl.dto.watchingsession.WatchingSessionResponseMapper;
 import com.mopl.websocket.interfaces.event.content.dto.WatchingSessionChangeResponse;
 import com.mopl.websocket.interfaces.event.content.dto.WatchingSessionChangeType;
+import com.mopl.websocket.messaging.WebSocketBroadcaster;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -22,7 +23,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -52,7 +52,7 @@ class WatchingSessionFacadeTest {
     private WatchingSessionResponseMapper watchingSessionResponseMapper;
 
     @Mock
-    private SimpMessagingTemplate messagingTemplate;
+    private WebSocketBroadcaster webSocketBroadcaster;
 
     @InjectMocks
     private WatchingSessionFacade watchingSessionFacade;
@@ -174,7 +174,7 @@ class WatchingSessionFacadeTest {
             assertThat(result.type()).isEqualTo(WatchingSessionChangeType.JOIN);
 
             then(watchingSessionRepository).should().delete(existingSession);
-            then(messagingTemplate).should().convertAndSend(
+            then(webSocketBroadcaster).should().broadcast(
                 eq("/sub/contents/" + oldContentId + "/watch"),
                 any(WatchingSessionChangeResponse.class)
             );
@@ -207,7 +207,7 @@ class WatchingSessionFacadeTest {
 
             // then
             ArgumentCaptor<WatchingSessionChangeResponse> responseCaptor = ArgumentCaptor.forClass(WatchingSessionChangeResponse.class);
-            then(messagingTemplate).should().convertAndSend(
+            then(webSocketBroadcaster).should().broadcast(
                 eq("/sub/contents/" + oldContentId + "/watch"),
                 responseCaptor.capture()
             );

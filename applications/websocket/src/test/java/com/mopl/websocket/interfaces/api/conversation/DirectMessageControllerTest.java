@@ -4,11 +4,13 @@ import com.mopl.dto.conversation.DirectMessageResponse;
 import com.mopl.dto.user.UserSummary;
 import com.mopl.websocket.application.conversation.DirectMessageFacade;
 import com.mopl.websocket.interfaces.api.conversation.dto.DirectMessageSendRequest;
+import com.mopl.websocket.messaging.WebSocketBroadcaster;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -19,6 +21,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.eq;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("DirectMessageController 슬라이스 테스트")
@@ -26,6 +29,9 @@ class DirectMessageControllerTest {
 
     @Mock
     private DirectMessageFacade directMessageFacade;
+
+    @Mock
+    private WebSocketBroadcaster webSocketBroadcaster;
 
     @Mock
     private Principal principal;
@@ -38,7 +44,7 @@ class DirectMessageControllerTest {
 
     @BeforeEach
     void setUp() {
-        directMessageController = new DirectMessageController(directMessageFacade);
+        directMessageController = new DirectMessageController(directMessageFacade, webSocketBroadcaster);
 
         senderId = UUID.randomUUID();
         receiverId = UUID.randomUUID();
@@ -52,8 +58,8 @@ class DirectMessageControllerTest {
     class SendDirectMessageTest {
 
         @Test
-        @DisplayName("유효한 요청 시 DirectMessageResponse 반환")
-        void withValidRequest_returnsDirectMessageResponse() {
+        @DisplayName("유효한 요청 시 WebSocket 메시지 발행")
+        void withValidRequest_publishesWebSocketMessage() {
             // given
             String content = "안녕하세요";
             DirectMessageSendRequest request = new DirectMessageSendRequest(content);
@@ -76,26 +82,28 @@ class DirectMessageControllerTest {
                 .willReturn(expectedResponse);
 
             // when
-            DirectMessageResponse result = directMessageController.sendDirectMessage(
-                principal,
-                conversationId,
-                request
-            );
+            directMessageController.sendDirectMessage(principal, conversationId, request);
 
             // then
-            assertThat(result).isEqualTo(expectedResponse);
-            assertThat(result.id()).isEqualTo(messageId);
-            assertThat(result.conversationId()).isEqualTo(conversationId);
-            assertThat(result.sender()).isEqualTo(senderSummary);
-            assertThat(result.receiver()).isEqualTo(receiverSummary);
-            assertThat(result.content()).isEqualTo(content);
-
             then(directMessageFacade).should().sendDirectMessage(senderId, conversationId, request);
+
+            ArgumentCaptor<DirectMessageResponse> responseCaptor = ArgumentCaptor.forClass(DirectMessageResponse.class);
+            then(webSocketBroadcaster).should().broadcast(
+                eq("/sub/conversations/" + conversationId + "/direct-messages"),
+                responseCaptor.capture()
+            );
+
+            DirectMessageResponse publishedResponse = responseCaptor.getValue();
+            assertThat(publishedResponse.id()).isEqualTo(messageId);
+            assertThat(publishedResponse.conversationId()).isEqualTo(conversationId);
+            assertThat(publishedResponse.sender()).isEqualTo(senderSummary);
+            assertThat(publishedResponse.receiver()).isEqualTo(receiverSummary);
+            assertThat(publishedResponse.content()).isEqualTo(content);
         }
 
         @Test
-        @DisplayName("빈 내용의 메시지 전송 시에도 facade 호출")
-        void withEmptyContent_callsFacade() {
+        @DisplayName("빈 내용의 메시지 전송 시에도 facade 호출 및 메시지 발행")
+        void withEmptyContent_callsFacadeAndPublishes() {
             // given
             String content = "";
             DirectMessageSendRequest request = new DirectMessageSendRequest(content);
@@ -118,20 +126,19 @@ class DirectMessageControllerTest {
                 .willReturn(expectedResponse);
 
             // when
-            DirectMessageResponse result = directMessageController.sendDirectMessage(
-                principal,
-                conversationId,
-                request
-            );
+            directMessageController.sendDirectMessage(principal, conversationId, request);
 
             // then
-            assertThat(result.content()).isEmpty();
             then(directMessageFacade).should().sendDirectMessage(senderId, conversationId, request);
+            then(webSocketBroadcaster).should().broadcast(
+                eq("/sub/conversations/" + conversationId + "/direct-messages"),
+                eq(expectedResponse)
+            );
         }
 
         @Test
-        @DisplayName("수신자가 없는 경우에도 응답 반환")
-        void withNoReceiver_returnsResponseWithNullReceiver() {
+        @DisplayName("수신자가 없는 경우에도 메시지 발행")
+        void withNoReceiver_publishesMessageWithNullReceiver() {
             // given
             String content = "혼잣말";
             DirectMessageSendRequest request = new DirectMessageSendRequest(content);
@@ -153,21 +160,22 @@ class DirectMessageControllerTest {
                 .willReturn(expectedResponse);
 
             // when
-            DirectMessageResponse result = directMessageController.sendDirectMessage(
-                principal,
-                conversationId,
-                request
-            );
+            directMessageController.sendDirectMessage(principal, conversationId, request);
 
             // then
-            assertThat(result.receiver()).isNull();
-            assertThat(result.sender()).isEqualTo(senderSummary);
-            then(directMessageFacade).should().sendDirectMessage(senderId, conversationId, request);
+            ArgumentCaptor<DirectMessageResponse> responseCaptor = ArgumentCaptor.forClass(DirectMessageResponse.class);
+            then(webSocketBroadcaster).should().broadcast(
+                eq("/sub/conversations/" + conversationId + "/direct-messages"),
+                responseCaptor.capture()
+            );
+
+            assertThat(responseCaptor.getValue().receiver()).isNull();
+            assertThat(responseCaptor.getValue().sender()).isEqualTo(senderSummary);
         }
 
         @Test
         @DisplayName("긴 메시지 내용도 정상 처리")
-        void withLongContent_returnsResponse() {
+        void withLongContent_publishesMessage() {
             // given
             String content = "가".repeat(1000);
             DirectMessageSendRequest request = new DirectMessageSendRequest(content);
@@ -190,15 +198,16 @@ class DirectMessageControllerTest {
                 .willReturn(expectedResponse);
 
             // when
-            DirectMessageResponse result = directMessageController.sendDirectMessage(
-                principal,
-                conversationId,
-                request
-            );
+            directMessageController.sendDirectMessage(principal, conversationId, request);
 
             // then
-            assertThat(result.content()).hasSize(1000);
-            then(directMessageFacade).should().sendDirectMessage(senderId, conversationId, request);
+            ArgumentCaptor<DirectMessageResponse> responseCaptor = ArgumentCaptor.forClass(DirectMessageResponse.class);
+            then(webSocketBroadcaster).should().broadcast(
+                eq("/sub/conversations/" + conversationId + "/direct-messages"),
+                responseCaptor.capture()
+            );
+
+            assertThat(responseCaptor.getValue().content()).hasSize(1000);
         }
     }
 }

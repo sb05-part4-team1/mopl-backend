@@ -1,11 +1,5 @@
 package com.mopl.websocket.application.content;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Component;
-
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.model.watchingsession.WatchingSessionModel;
@@ -15,8 +9,12 @@ import com.mopl.domain.service.user.UserService;
 import com.mopl.dto.watchingsession.WatchingSessionResponseMapper;
 import com.mopl.websocket.interfaces.event.content.dto.WatchingSessionChangeResponse;
 import com.mopl.websocket.interfaces.event.content.dto.WatchingSessionChangeType;
-
+import com.mopl.websocket.messaging.WebSocketBroadcaster;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -29,7 +27,7 @@ public class WatchingSessionFacade {
     private final UserService userService;
     private final ContentService contentService;
     private final WatchingSessionResponseMapper watchingSessionResponseMapper;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final WebSocketBroadcaster webSocketBroadcaster;
 
     public WatchingSessionChangeResponse joinSession(UUID contentId, UUID userId) {
         Optional<WatchingSessionModel> existingOpt = watchingSessionRepository.findByWatcherId(userId);
@@ -62,7 +60,7 @@ public class WatchingSessionFacade {
             watchingSessionResponseMapper.toResponse(session),
             watchingSessionRepository.countByContentId(session.getContentId()) - 1
         );
-        messagingTemplate.convertAndSend(buildWatchDestination(session.getContentId()), leaveResponse);
+        webSocketBroadcaster.broadcast(buildWatchDestination(session.getContentId()), leaveResponse);
     }
 
     private String buildWatchDestination(UUID contentId) {
