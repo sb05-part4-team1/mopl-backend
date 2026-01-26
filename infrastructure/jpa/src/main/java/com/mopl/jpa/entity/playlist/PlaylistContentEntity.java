@@ -21,8 +21,8 @@ import lombok.experimental.SuperBuilder;
     uniqueConstraints = @UniqueConstraint(columnNames = {"playlist_id", "content_id"})
 )
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 public class PlaylistContentEntity extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
