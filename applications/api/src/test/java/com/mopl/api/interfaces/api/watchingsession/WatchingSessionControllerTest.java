@@ -109,7 +109,7 @@ class WatchingSessionControllerTest {
                 watcherId2,
                 true,
                 50,
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.DESCENDING
             );
 
@@ -121,7 +121,7 @@ class WatchingSessionControllerTest {
                 .with(user(mockUserDetails))
                 .param("limit", "20")
                 .param("sortDirection", "DESCENDING")
-                .param("sortBy", "createdAt"))
+                .param("sortBy", "CREATED_AT"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(2))
@@ -130,7 +130,7 @@ class WatchingSessionControllerTest {
                 .andExpect(jsonPath("$.data[0].content.id").value(contentId.toString()))
                 .andExpect(jsonPath("$.hasNext").value(true))
                 .andExpect(jsonPath("$.totalCount").value(50))
-                .andExpect(jsonPath("$.sortBy").value("createdAt"))
+                .andExpect(jsonPath("$.sortBy").value("CREATED_AT"))
                 .andExpect(jsonPath("$.sortDirection").value("DESCENDING"));
 
             then(watchingSessionFacade).should().getWatchingSessions(eq(contentId), any(WatchingSessionQueryRequest.class));

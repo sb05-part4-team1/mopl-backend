@@ -67,22 +67,22 @@ class CursorPaginationHelperTest {
         private final SortField<?> sortField = new TestSortFieldImpl(TestSortField.NAME);
 
         private CursorRequest<TestSortField> createRequest(int limit) {
-            return createRequest(null, null, limit, SortDirection.ASCENDING);
+            return createRequest(limit, SortDirection.ASCENDING);
         }
 
         private CursorRequest<TestSortField> createRequest(
-            String cursor, UUID idAfter, int limit, SortDirection direction
+            int limit, SortDirection direction
         ) {
             return new CursorRequest<>() {
 
                 @Override
                 public String cursor() {
-                    return cursor;
+                    return null;
                 }
 
                 @Override
                 public UUID idAfter() {
-                    return idAfter;
+                    return null;
                 }
 
                 @Override
@@ -126,7 +126,7 @@ class CursorPaginationHelperTest {
             assertThat(response.nextCursor()).isNull();
             assertThat(response.nextIdAfter()).isNull();
             assertThat(response.totalCount()).isZero();
-            assertThat(response.sortBy()).isEqualTo("name");
+            assertThat(response.sortBy()).isEqualTo("NAME");
             assertThat(response.sortDirection()).isEqualTo(SortDirection.ASCENDING);
         }
 
@@ -202,8 +202,6 @@ class CursorPaginationHelperTest {
         void withDescendingDirection_reflectsInResponse() {
             // given
             CursorRequest<TestSortField> request = createRequest(
-                null,
-                null,
                 10,
                 SortDirection.DESCENDING
             );

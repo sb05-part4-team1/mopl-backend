@@ -171,7 +171,7 @@ class ReviewSortFieldJpaTest {
             String fieldName = ReviewSortFieldJpa.CREATED_AT.getFieldName();
 
             // then
-            assertThat(fieldName).isEqualTo("createdAt");
+            assertThat(fieldName).isEqualTo("CREATED_AT");
         }
 
         @Test
@@ -181,7 +181,7 @@ class ReviewSortFieldJpaTest {
             String fieldName = ReviewSortFieldJpa.RATING.getFieldName();
 
             // then
-            assertThat(fieldName).isEqualTo("rating");
+            assertThat(fieldName).isEqualTo("RATING");
         }
     }
 }

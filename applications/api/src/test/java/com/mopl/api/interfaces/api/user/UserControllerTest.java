@@ -462,7 +462,7 @@ class UserControllerTest {
                 user2.getId(),
                 true,
                 10,
-                "name",
+                "NAME",
                 SortDirection.ASCENDING
             );
 
@@ -473,7 +473,7 @@ class UserControllerTest {
                 .with(user(mockAdminDetails))
                 .param("limit", "10")
                 .param("sortDirection", "ASCENDING")
-                .param("sortBy", "name"))
+                .param("sortBy", "NAME"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(2))
@@ -482,7 +482,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.hasNext").value(true))
                 .andExpect(jsonPath("$.nextCursor").value("User2"))
                 .andExpect(jsonPath("$.totalCount").value(10))
-                .andExpect(jsonPath("$.sortBy").value("name"))
+                .andExpect(jsonPath("$.sortBy").value("NAME"))
                 .andExpect(jsonPath("$.sortDirection").value("ASCENDING"));
 
             then(userFacade).should().getUsers(any(UserQueryRequest.class));

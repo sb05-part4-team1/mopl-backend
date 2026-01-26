@@ -224,7 +224,7 @@ class NotificationQueryRepositoryImplTest {
             assertThat(response.data())
                 .extracting(NotificationModel::getTitle)
                 .containsExactly("알림1", "알림2", "알림3", "알림4", "알림5");
-            assertThat(response.sortBy()).isEqualTo("createdAt");
+            assertThat(response.sortBy()).isEqualTo("CREATED_AT");
             assertThat(response.sortDirection()).isEqualTo(SortDirection.ASCENDING);
         }
 
@@ -396,7 +396,7 @@ class NotificationQueryRepositoryImplTest {
             // then
             assertThat(response.data()).hasSize(5);
             assertThat(response.sortDirection()).isEqualTo(SortDirection.ASCENDING);
-            assertThat(response.sortBy()).isEqualTo("createdAt");
+            assertThat(response.sortBy()).isEqualTo("CREATED_AT");
         }
     }
 }

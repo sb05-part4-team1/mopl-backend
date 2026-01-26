@@ -61,7 +61,7 @@ class ReviewServiceTest {
                 null, null, null, null, null, null
             );
             CursorResponse<ReviewModel> expectedResponse = CursorResponse.empty(
-                "createdAt", SortDirection.DESCENDING
+                "CREATED_AT", SortDirection.DESCENDING
             );
 
             given(reviewQueryRepository.findAll(request)).willReturn(expectedResponse);
@@ -89,7 +89,7 @@ class ReviewServiceTest {
                 null,
                 false,
                 2L,
-                "createdAt",
+                "CREATED_AT",
                 SortDirection.DESCENDING
             );
 

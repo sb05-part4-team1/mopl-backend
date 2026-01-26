@@ -117,7 +117,7 @@ class DirectMessageSortFieldJpaTest {
         @Test
         @DisplayName("도메인 필드 이름을 반환한다")
         void returnsFieldName() {
-            assertThat(DirectMessageSortFieldJpa.CREATED_AT.getFieldName()).isEqualTo("createdAt");
+            assertThat(DirectMessageSortFieldJpa.CREATED_AT.getFieldName()).isEqualTo("CREATED_AT");
         }
     }
 }

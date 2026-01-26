@@ -200,7 +200,7 @@ class ContentQueryRepositoryImplTest {
             assertThat(response.data())
                 .extracting(ContentModel::getTitle)
                 .containsExactly("인셉션", "다크나이트", "브레이킹 배드", "왕좌의 게임", "EPL 경기");
-            assertThat(response.sortBy()).isEqualTo("createdAt");
+            assertThat(response.sortBy()).isEqualTo("CREATED_AT");
             assertThat(response.sortDirection()).isEqualTo(SortDirection.ASCENDING);
         }
 
@@ -435,7 +435,7 @@ class ContentQueryRepositoryImplTest {
             // then
             assertThat(response.data()).hasSize(5);
             assertThat(response.sortDirection()).isEqualTo(SortDirection.DESCENDING);
-            assertThat(response.sortBy()).isEqualTo("watcherCount");
+            assertThat(response.sortBy()).isEqualTo("POPULARITY");
         }
     }
 }

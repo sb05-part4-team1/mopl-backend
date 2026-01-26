@@ -134,7 +134,7 @@ class ContentControllerTest {
                 contentId2,
                 true,
                 100,
-                "watcherCount",
+                "POPULARITY",
                 SortDirection.DESCENDING
             );
 
@@ -145,7 +145,7 @@ class ContentControllerTest {
                 .with(user(mockUserDetails))
                 .param("limit", "20")
                 .param("sortDirection", "DESCENDING")
-                .param("sortBy", "watcherCount"))
+                .param("sortBy", "POPULARITY"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data.length()").value(2))
@@ -155,7 +155,7 @@ class ContentControllerTest {
                 .andExpect(jsonPath("$.data[0].tags.length()").value(2))
                 .andExpect(jsonPath("$.hasNext").value(true))
                 .andExpect(jsonPath("$.totalCount").value(100))
-                .andExpect(jsonPath("$.sortBy").value("watcherCount"))
+                .andExpect(jsonPath("$.sortBy").value("POPULARITY"))
                 .andExpect(jsonPath("$.sortDirection").value("DESCENDING"));
 
             then(contentFacade).should().getContents(any(ContentQueryRequest.class));

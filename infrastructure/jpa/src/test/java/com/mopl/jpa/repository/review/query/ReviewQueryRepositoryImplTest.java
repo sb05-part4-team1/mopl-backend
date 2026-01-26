@@ -221,7 +221,7 @@ class ReviewQueryRepositoryImplTest {
             assertThat(response.data())
                 .extracting(ReviewModel::getText)
                 .containsExactly("리뷰 4", "리뷰 3", "리뷰 2", "리뷰 1");
-            assertThat(response.sortBy()).isEqualTo("createdAt");
+            assertThat(response.sortBy()).isEqualTo("CREATED_AT");
             assertThat(response.sortDirection()).isEqualTo(SortDirection.DESCENDING);
         }
 
@@ -435,7 +435,7 @@ class ReviewQueryRepositoryImplTest {
             // then
             assertThat(response.data()).hasSize(6);
             assertThat(response.sortDirection()).isEqualTo(SortDirection.DESCENDING);
-            assertThat(response.sortBy()).isEqualTo("createdAt");
+            assertThat(response.sortBy()).isEqualTo("CREATED_AT");
         }
     }
 }

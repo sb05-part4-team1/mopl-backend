@@ -202,7 +202,7 @@ class DirectMessageQueryRepositoryImplTest {
 
             // then
             assertThat(response.data()).hasSize(3);
-            assertThat(response.sortBy()).isEqualTo("createdAt");
+            assertThat(response.sortBy()).isEqualTo("CREATED_AT");
             assertThat(response.sortDirection()).isEqualTo(SortDirection.DESCENDING);
 
             // 시간순 내림차순 확인
@@ -341,7 +341,7 @@ class DirectMessageQueryRepositoryImplTest {
             // then
             assertThat(response.data()).hasSize(3);
             assertThat(response.sortDirection()).isEqualTo(SortDirection.DESCENDING);
-            assertThat(response.sortBy()).isEqualTo("createdAt");
+            assertThat(response.sortBy()).isEqualTo("CREATED_AT");
         }
     }
 

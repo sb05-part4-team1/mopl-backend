@@ -116,7 +116,7 @@ class ConversationSortFieldJpaTest {
         @Test
         @DisplayName("도메인 필드 이름을 반환한다")
         void returnsFieldName() {
-            assertThat(ConversationSortFieldJpa.CREATED_AT.getFieldName()).isEqualTo("createdAt");
+            assertThat(ConversationSortFieldJpa.CREATED_AT.getFieldName()).isEqualTo("CREATED_AT");
         }
     }
 }

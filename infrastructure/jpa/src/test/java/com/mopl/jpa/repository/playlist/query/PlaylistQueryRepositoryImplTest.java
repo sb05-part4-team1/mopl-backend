@@ -279,7 +279,7 @@ class PlaylistQueryRepositoryImplTest {
             assertThat(response.data())
                 .extracting(PlaylistModel::getTitle)
                 .containsExactly("음악 모음", "영화 OST", "힐링 음악", "운동 음악");
-            assertThat(response.sortBy()).isEqualTo("updatedAt");
+            assertThat(response.sortBy()).isEqualTo("UPDATED_AT");
             assertThat(response.sortDirection()).isEqualTo(SortDirection.ASCENDING);
         }
 
@@ -323,7 +323,7 @@ class PlaylistQueryRepositoryImplTest {
             assertThat(response.data())
                 .extracting(PlaylistModel::getTitle)
                 .containsExactly("운동 음악", "영화 OST", "힐링 음악", "음악 모음");
-            assertThat(response.sortBy()).isEqualTo("subscribeCount");
+            assertThat(response.sortBy()).isEqualTo("SUBSCRIBER_COUNT");
         }
 
         @Test
@@ -567,7 +567,7 @@ class PlaylistQueryRepositoryImplTest {
             // then
             assertThat(response.data()).hasSize(4);
             assertThat(response.sortDirection()).isEqualTo(SortDirection.ASCENDING);
-            assertThat(response.sortBy()).isEqualTo("updatedAt");
+            assertThat(response.sortBy()).isEqualTo("UPDATED_AT");
         }
     }
 

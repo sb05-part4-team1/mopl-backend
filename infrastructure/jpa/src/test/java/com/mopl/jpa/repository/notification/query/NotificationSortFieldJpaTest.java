@@ -125,7 +125,7 @@ class NotificationSortFieldJpaTest {
             String fieldName = NotificationSortFieldJpa.CREATED_AT.getFieldName();
 
             // then
-            assertThat(fieldName).isEqualTo("createdAt");
+            assertThat(fieldName).isEqualTo("CREATED_AT");
         }
     }
 }

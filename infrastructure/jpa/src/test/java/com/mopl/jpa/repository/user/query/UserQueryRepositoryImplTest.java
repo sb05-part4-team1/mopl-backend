@@ -234,7 +234,7 @@ class UserQueryRepositoryImplTest {
             assertThat(response.data())
                 .extracting(UserModel::getName)
                 .containsExactly("Alice", "Bob", "Charlie", "David", "Eve");
-            assertThat(response.sortBy()).isEqualTo("name");
+            assertThat(response.sortBy()).isEqualTo("NAME");
             assertThat(response.sortDirection()).isEqualTo(SortDirection.ASCENDING);
         }
 
@@ -501,7 +501,7 @@ class UserQueryRepositoryImplTest {
             // then
             assertThat(response.data()).hasSize(5);
             assertThat(response.sortDirection()).isEqualTo(SortDirection.ASCENDING);
-            assertThat(response.sortBy()).isEqualTo("name");
+            assertThat(response.sortBy()).isEqualTo("NAME");
         }
     }
 }
