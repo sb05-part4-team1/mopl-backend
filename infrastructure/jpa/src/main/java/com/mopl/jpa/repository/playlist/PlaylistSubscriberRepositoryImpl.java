@@ -9,9 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -22,11 +20,6 @@ public class PlaylistSubscriberRepositoryImpl implements PlaylistSubscriberRepos
     private final JpaPlaylistSubscriberRepository jpaPlaylistSubscriberRepository;
     private final JpaPlaylistRepository jpaPlaylistRepository;
     private final JpaUserRepository jpaUserRepository;
-
-    @Override
-    public Set<UUID> findAllPlaylistIds() {
-        return jpaPlaylistSubscriberRepository.findAllPlaylistIds();
-    }
 
     @Override
     public Set<UUID> findSubscribedPlaylistIds(UUID subscriberId, Collection<UUID> playlistIds) {
@@ -42,33 +35,6 @@ public class PlaylistSubscriberRepositoryImpl implements PlaylistSubscriberRepos
     @Override
     public List<UUID> findSubscriberIdsByPlaylistId(UUID playlistId) {
         return jpaPlaylistSubscriberRepository.findSubscriberIdsByPlaylistId(playlistId);
-    }
-
-    @Override
-    public long countByPlaylistId(UUID playlistId) {
-        return jpaPlaylistSubscriberRepository.countByPlaylistId(playlistId);
-    }
-
-    @Override
-    public Map<UUID, Long> countByPlaylistIdIn(Collection<UUID> playlistIds) {
-        if (playlistIds.isEmpty()) {
-            return Map.of();
-        }
-
-        List<Object[]> results = jpaPlaylistSubscriberRepository.countByPlaylistIdIn(playlistIds);
-        Map<UUID, Long> countMap = new HashMap<>();
-
-        for (UUID playlistId : playlistIds) {
-            countMap.put(playlistId, 0L);
-        }
-
-        for (Object[] row : results) {
-            UUID playlistId = (UUID) row[0];
-            Long count = (Long) row[1];
-            countMap.put(playlistId, count);
-        }
-
-        return countMap;
     }
 
     @Override

@@ -10,8 +10,8 @@ import lombok.experimental.SuperBuilder;
 import java.time.Instant;
 
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder(toBuilder = true)
 public class OutboxModel extends BaseModel {
 
     public static final int AGGREGATE_TYPE_MAX_LENGTH = 50;

@@ -36,6 +36,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 
@@ -56,15 +57,12 @@ class ReviewFacadeTest {
     private ReviewResponseMapper reviewResponseMapper;
 
     @Mock
-    @SuppressWarnings("unused")
     private ContentSearchSyncPort contentSearchSyncPort;
 
     @Mock
-    @SuppressWarnings("unused")
     private AfterCommitExecutor afterCommitExecutor;
 
     @Mock
-    @SuppressWarnings("unused")
     private ContentCachePort contentCachePort;
 
     @InjectMocks
@@ -84,11 +82,13 @@ class ReviewFacadeTest {
 
             UserModel author = mock(UserModel.class);
             ContentModel content = mock(ContentModel.class);
+            ContentModel latestContent = mock(ContentModel.class);
             ReviewModel savedReview = ReviewModelFixture.create();
             ReviewResponse expectedResponse = mock(ReviewResponse.class);
 
             given(userService.getById(requesterId)).willReturn(author);
-            given(contentService.getById(contentId)).willReturn(content);
+            given(contentService.getById(contentId)).willReturn(content).willReturn(latestContent);
+            given(content.getId()).willReturn(contentId);
 
             given(reviewService.create(content, author, request.text(), request.rating()))
                 .willReturn(savedReview);
@@ -96,12 +96,19 @@ class ReviewFacadeTest {
             given(reviewResponseMapper.toResponse(savedReview))
                 .willReturn(expectedResponse);
 
+            willAnswer(invocation -> {
+                invocation.getArgument(0, Runnable.class).run();
+                return null;
+            }).given(afterCommitExecutor).execute(any(Runnable.class));
+
             // when
             ReviewResponse result = reviewFacade.createReview(requesterId, request);
 
             // then
             assertThat(result).isEqualTo(expectedResponse);
             then(reviewService).should().create(content, author, request.text(), request.rating());
+            then(contentCachePort).should().evict(contentId);
+            then(contentSearchSyncPort).should().upsert(latestContent);
         }
 
         @Test
@@ -208,18 +215,30 @@ class ReviewFacadeTest {
             // given
             UUID requesterId = UUID.randomUUID();
             UUID reviewId = UUID.randomUUID();
+            UUID contentId = UUID.randomUUID();
             ReviewUpdateRequest request = new ReviewUpdateRequest("수정된 내용", 4.5);
 
-            ReviewModel updatedReview = ReviewModelFixture.create();
+            ContentModel content = mock(ContentModel.class);
+            ContentModel latestContent = mock(ContentModel.class);
+            ReviewModel updatedReview = mock(ReviewModel.class);
             ReviewResponse expectedResponse = mock(ReviewResponse.class);
 
             given(userService.getById(requesterId)).willReturn(mock(UserModel.class));
 
             given(reviewService.update(reviewId, requesterId, request.text(), request.rating()))
                 .willReturn(updatedReview);
+            given(updatedReview.getContent()).willReturn(content);
+            given(content.getId()).willReturn(contentId);
+
+            given(contentService.getById(contentId)).willReturn(latestContent);
 
             given(reviewResponseMapper.toResponse(updatedReview))
                 .willReturn(expectedResponse);
+
+            willAnswer(invocation -> {
+                invocation.getArgument(0, Runnable.class).run();
+                return null;
+            }).given(afterCommitExecutor).execute(any(Runnable.class));
 
             // when
             ReviewResponse result = reviewFacade.updateReview(requesterId, reviewId, request);
@@ -229,6 +248,8 @@ class ReviewFacadeTest {
 
             then(reviewService).should().update(reviewId, requesterId, request.text(), request
                 .rating());
+            then(contentCachePort).should().evict(contentId);
+            then(contentSearchSyncPort).should().upsert(latestContent);
         }
 
         @Test
@@ -292,8 +313,18 @@ class ReviewFacadeTest {
             // given
             UUID requesterId = UUID.randomUUID();
             UUID reviewId = UUID.randomUUID();
+            UUID contentId = UUID.randomUUID();
+
+            ContentModel latestContent = mock(ContentModel.class);
 
             given(userService.getById(requesterId)).willReturn(mock(UserModel.class));
+            given(reviewService.deleteAndGetContentId(reviewId, requesterId)).willReturn(contentId);
+            given(contentService.getById(contentId)).willReturn(latestContent);
+
+            willAnswer(invocation -> {
+                invocation.getArgument(0, Runnable.class).run();
+                return null;
+            }).given(afterCommitExecutor).execute(any(Runnable.class));
 
             // when
             reviewFacade.deleteReview(requesterId, reviewId);
@@ -301,6 +332,8 @@ class ReviewFacadeTest {
             // then
             then(userService).should().getById(requesterId);
             then(reviewService).should().deleteAndGetContentId(reviewId, requesterId);
+            then(contentCachePort).should().evict(contentId);
+            then(contentSearchSyncPort).should().upsert(latestContent);
         }
     }
 }

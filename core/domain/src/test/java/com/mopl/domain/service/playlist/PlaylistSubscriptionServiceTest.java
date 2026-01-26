@@ -1,7 +1,11 @@
 package com.mopl.domain.service.playlist;
 
+import com.mopl.domain.exception.playlist.PlaylistNotFoundException;
 import com.mopl.domain.exception.playlist.PlaylistSubscriptionAlreadyExistsException;
 import com.mopl.domain.exception.playlist.PlaylistSubscriptionNotFoundException;
+import com.mopl.domain.exception.playlist.SelfSubscriptionNotAllowedException;
+import com.mopl.domain.model.playlist.PlaylistModel;
+import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.playlist.PlaylistRepository;
 import com.mopl.domain.repository.playlist.PlaylistSubscriberRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -13,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -27,10 +32,10 @@ import static org.mockito.Mockito.never;
 class PlaylistSubscriptionServiceTest {
 
     @Mock
-    private PlaylistSubscriberRepository playlistSubscriberRepository;
+    private PlaylistRepository playlistRepository;
 
     @Mock
-    private PlaylistRepository playlistRepository;
+    private PlaylistSubscriberRepository playlistSubscriberRepository;
 
     @InjectMocks
     private PlaylistSubscriptionService playlistSubscriptionService;
@@ -140,8 +145,11 @@ class PlaylistSubscriptionServiceTest {
         void withValidPlaylistIdAndSubscriberId_subscribesSuccessfully() {
             // given
             UUID playlistId = UUID.randomUUID();
+            UUID ownerId = UUID.randomUUID();
             UUID subscriberId = UUID.randomUUID();
+            PlaylistModel playlist = createPlaylistWithOwner(playlistId, ownerId);
 
+            given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlist));
             given(playlistSubscriberRepository.existsByPlaylistIdAndSubscriberId(
                 playlistId, subscriberId
             )).willReturn(false);
@@ -151,7 +159,41 @@ class PlaylistSubscriptionServiceTest {
 
             // then
             then(playlistSubscriberRepository).should().save(playlistId, subscriberId);
-            then(playlistRepository).should().incrementSubscriberCount(playlistId);
+        }
+
+        @Test
+        @DisplayName("플레이리스트가 존재하지 않으면 PlaylistNotFoundException 발생")
+        void withNonExistentPlaylist_throwsPlaylistNotFoundException() {
+            // given
+            UUID playlistId = UUID.randomUUID();
+            UUID subscriberId = UUID.randomUUID();
+
+            given(playlistRepository.findById(playlistId)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(
+                () -> playlistSubscriptionService.subscribe(playlistId, subscriberId)
+            ).isInstanceOf(PlaylistNotFoundException.class);
+
+            then(playlistSubscriberRepository).should(never()).save(playlistId, subscriberId);
+        }
+
+        @Test
+        @DisplayName("자기 자신의 플레이리스트 구독 시 SelfSubscriptionNotAllowedException 발생")
+        void withSelfSubscription_throwsSelfSubscriptionNotAllowedException() {
+            // given
+            UUID playlistId = UUID.randomUUID();
+            UUID ownerId = UUID.randomUUID();
+            PlaylistModel playlist = createPlaylistWithOwner(playlistId, ownerId);
+
+            given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlist));
+
+            // when & then
+            assertThatThrownBy(
+                () -> playlistSubscriptionService.subscribe(playlistId, ownerId)
+            ).isInstanceOf(SelfSubscriptionNotAllowedException.class);
+
+            then(playlistSubscriberRepository).should(never()).save(playlistId, ownerId);
         }
 
         @Test
@@ -159,8 +201,11 @@ class PlaylistSubscriptionServiceTest {
         void withExistingSubscription_throwsPlaylistSubscriptionAlreadyExistsException() {
             // given
             UUID playlistId = UUID.randomUUID();
+            UUID ownerId = UUID.randomUUID();
             UUID subscriberId = UUID.randomUUID();
+            PlaylistModel playlist = createPlaylistWithOwner(playlistId, ownerId);
 
+            given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlist));
             given(playlistSubscriberRepository.existsByPlaylistIdAndSubscriberId(
                 playlistId, subscriberId
             )).willReturn(true);
@@ -171,7 +216,19 @@ class PlaylistSubscriptionServiceTest {
             ).isInstanceOf(PlaylistSubscriptionAlreadyExistsException.class);
 
             then(playlistSubscriberRepository).should(never()).save(playlistId, subscriberId);
-            then(playlistRepository).should(never()).incrementSubscriberCount(playlistId);
+        }
+
+        private PlaylistModel createPlaylistWithOwner(UUID playlistId, UUID ownerId) {
+            UserModel owner = UserModel.builder()
+                .id(ownerId)
+                .name("testuser")
+                .build();
+
+            return PlaylistModel.builder()
+                .id(playlistId)
+                .title("Test Playlist")
+                .owner(owner)
+                .build();
         }
     }
 
@@ -197,7 +254,6 @@ class PlaylistSubscriptionServiceTest {
             then(playlistSubscriberRepository).should().deleteByPlaylistIdAndSubscriberId(
                 playlistId, subscriberId
             );
-            then(playlistRepository).should().decrementSubscriberCount(playlistId);
         }
 
         @Test
@@ -215,8 +271,6 @@ class PlaylistSubscriptionServiceTest {
             assertThatThrownBy(
                 () -> playlistSubscriptionService.unsubscribe(playlistId, subscriberId)
             ).isInstanceOf(PlaylistSubscriptionNotFoundException.class);
-
-            then(playlistRepository).should(never()).decrementSubscriberCount(playlistId);
         }
     }
 }

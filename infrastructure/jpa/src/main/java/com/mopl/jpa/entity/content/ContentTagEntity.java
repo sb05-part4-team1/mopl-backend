@@ -6,6 +6,7 @@ import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -15,7 +16,14 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@Table(name = "content_tags")
+@Table(
+    name = "content_tags",
+    indexes = {
+        @Index(name = "idx_content_tags_content_id", columnList = "content_id"),
+        @Index(name = "idx_content_tags_tag_id", columnList = "tag_id"),
+        @Index(name = "idx_content_tags_created_at", columnList = "created_at")
+    }
+)
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

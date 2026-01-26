@@ -9,6 +9,7 @@ import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -18,7 +19,15 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@Table(name = "follows")
+@Table(
+    name = "follows",
+    indexes = {
+        @Index(name = "idx_follows_follower_id", columnList = "follower_id"),
+        @Index(name = "idx_follows_followee_id", columnList = "followee_id"),
+        @Index(name = "idx_follows_deleted_at", columnList = "deleted_at"),
+        @Index(name = "idx_follows_created_at", columnList = "created_at")
+    }
+)
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

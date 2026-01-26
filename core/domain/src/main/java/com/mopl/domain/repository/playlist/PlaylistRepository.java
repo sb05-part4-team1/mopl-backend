@@ -13,11 +13,8 @@ public interface PlaylistRepository {
 
     PlaylistModel save(PlaylistModel playlistModel);
 
+    // cleanup batch 전용
     List<UUID> findCleanupTargets(Instant threshold, int limit);
 
     int deleteByIdIn(List<UUID> playlistIds);
-
-    void incrementSubscriberCount(UUID playlistId);
-
-    void decrementSubscriberCount(UUID playlistId);
 }

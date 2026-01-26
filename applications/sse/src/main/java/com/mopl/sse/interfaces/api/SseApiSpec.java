@@ -11,13 +11,12 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.UUID;
 
-@Tag(name = "SSE API", description = "SSE API")
+@Tag(name = "SSE API")
 public interface SseApiSpec {
 
     @Operation(summary = "SSE 구독")
     @ApiResponse(
         responseCode = "200",
-        description = "OK",
         content = @Content(
             mediaType = "text/event-stream",
             schema = @Schema(implementation = SseEmitter.class)
@@ -25,6 +24,6 @@ public interface SseApiSpec {
     )
     SseEmitter subscribe(
         @Parameter(hidden = true) MoplUserDetails userDetails,
-        @Parameter UUID lastEventId
+        @Parameter(name = "lastEventId") UUID lastEventId
     );
 }

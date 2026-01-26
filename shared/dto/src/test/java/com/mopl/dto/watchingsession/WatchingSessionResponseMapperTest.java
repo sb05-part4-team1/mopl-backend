@@ -25,8 +25,8 @@ class WatchingSessionResponseMapperTest {
     private WatchingSessionResponseMapper mapper;
 
     @Nested
-    @DisplayName("toDto()")
-    class ToDtoTest {
+    @DisplayName("toResponse()")
+    class ToResponseTest {
 
         @Test
         @DisplayName("WatchingSessionModel을 WatchingSessionResponse로 변환")
@@ -38,7 +38,7 @@ class WatchingSessionResponseMapperTest {
             given(storageProvider.getUrl(model.getWatcherProfileImagePath())).willReturn(expectedProfileUrl);
 
             // when
-            WatchingSessionResponse result = mapper.toDto(model);
+            WatchingSessionResponse result = mapper.toResponse(model);
 
             // then
             assertThat(result.id()).isEqualTo(model.getWatcherId());
@@ -61,7 +61,7 @@ class WatchingSessionResponseMapperTest {
             given(storageProvider.getUrl(null)).willReturn(null);
 
             // when
-            WatchingSessionResponse result = mapper.toDto(model);
+            WatchingSessionResponse result = mapper.toResponse(model);
 
             // then
             assertThat(result.watcher().profileImageUrl()).isNull();
@@ -77,7 +77,7 @@ class WatchingSessionResponseMapperTest {
             given(storageProvider.getUrl(model.getWatcherProfileImagePath())).willReturn(expectedProfileUrl);
 
             // when
-            WatchingSessionResponse result = mapper.toDto(model);
+            WatchingSessionResponse result = mapper.toResponse(model);
 
             // then
             assertThat(result.content().type()).isNull();

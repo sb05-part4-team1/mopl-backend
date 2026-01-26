@@ -1,11 +1,11 @@
 package com.mopl.api.interfaces.api.notification;
 
-import com.mopl.dto.notification.NotificationResponse;
-import com.mopl.domain.exception.ErrorResponse;
+import com.mopl.api.interfaces.api.ApiErrorResponse;
 import com.mopl.domain.repository.notification.NotificationQueryRequest;
 import com.mopl.domain.repository.notification.NotificationSortField;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
+import com.mopl.dto.notification.NotificationResponse;
 import com.mopl.security.userdetails.MoplUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,51 +18,23 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.UUID;
 
-@Tag(name = "Notification API", description = "알림 API")
+@Tag(name = "Notification API")
 public interface NotificationApiSpec {
 
     @Operation(
-        summary = "알림 목록 조회(커서 페이지네이션)",
+        summary = "알림 목록 조회 (커서 페이지네이션)",
         description = "API 요청자의 알림 목록만 조회할 수 있습니다."
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "성공"
-    )
-    @ApiResponse(
-        responseCode = "400",
-        description = "잘못된 요청",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "401",
-        description = "인증 오류",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "500",
-        description = "서버 오류",
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
     )
     @Parameters({
         @Parameter(
             name = "cursor",
-            description = "커서",
+            description = "커서 (다음 페이지 시작점)",
             in = ParameterIn.QUERY,
             schema = @Schema(implementation = String.class)
         ),
         @Parameter(
             name = "idAfter",
-            description = "보조 커서",
+            description = "보조 커서 (현재 페이지 마지막 요소 ID)",
             in = ParameterIn.QUERY,
             schema = @Schema(implementation = UUID.class)
         ),
@@ -85,41 +57,20 @@ public interface NotificationApiSpec {
             schema = @Schema(implementation = NotificationSortField.class, defaultValue = "createdAt")
         )
     })
+    @ApiResponse(
+        responseCode = "200",
+        content = @Content(schema = @Schema(implementation = CursorResponse.class))
+    )
+    @ApiErrorResponse.Default
     CursorResponse<NotificationResponse> getNotifications(
         @Parameter(hidden = true) MoplUserDetails userDetails,
         @Parameter(hidden = true) NotificationQueryRequest request
     );
 
-    @Operation(summary = "알림 읽음 처리")
-    @ApiResponse(
-        responseCode = "200",
-        description = "성공"
-    )
-    @ApiResponse(
-        responseCode = "204",
-        description = "성공"
-    )
-    @ApiResponse(
-        responseCode = "400",
-        description = "잘못된 요청",
-        content = @Content(
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "401",
-        description = "인증 오류",
-        content = @Content(
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "500",
-        description = "서버 오류",
-        content = @Content(
-            schema = @Schema(implementation = ErrorResponse.class)
-        )
-    )
+    @Operation(summary = "알림 읽음 처리 (소프트 삭제)")
+    @Parameter(name = "notificationId", required = true)
+    @ApiResponse(responseCode = "204")
+    @ApiErrorResponse.Default
     void readNotification(
         @Parameter(hidden = true) MoplUserDetails userDetails,
         UUID notificationId

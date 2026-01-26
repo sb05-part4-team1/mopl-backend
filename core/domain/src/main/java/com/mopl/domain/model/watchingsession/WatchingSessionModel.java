@@ -10,6 +10,7 @@ import java.util.UUID;
 
 @Getter
 @NoArgsConstructor
+@Builder(toBuilder = true)
 public class WatchingSessionModel {
 
     private UUID watcherId;
@@ -20,7 +21,6 @@ public class WatchingSessionModel {
     private Instant createdAt;
     private int connectionCount;
 
-    @Builder
     public WatchingSessionModel(
         UUID watcherId,
         String watcherName,
@@ -78,16 +78,5 @@ public class WatchingSessionModel {
 
     public boolean hasNoConnections() {
         return this.connectionCount <= 0;
-    }
-
-    private WatchingSessionModelBuilder toBuilder() {
-        return WatchingSessionModel.builder()
-            .watcherId(this.watcherId)
-            .watcherName(this.watcherName)
-            .watcherProfileImagePath(this.watcherProfileImagePath)
-            .contentId(this.contentId)
-            .contentTitle(this.contentTitle)
-            .createdAt(this.createdAt)
-            .connectionCount(this.connectionCount);
     }
 }

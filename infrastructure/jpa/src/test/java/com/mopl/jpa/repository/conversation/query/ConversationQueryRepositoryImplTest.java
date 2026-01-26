@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Import;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -397,7 +398,7 @@ class ConversationQueryRepositoryImplTest {
         @DisplayName("두 사용자가 참여한 대화가 존재하면 반환")
         void withExistingConversation_returnsConversation() {
             // when
-            var result = conversationQueryRepository.findByParticipants(userId, otherUser1Id);
+            Optional<ConversationModel> result = conversationQueryRepository.findByParticipants(userId, otherUser1Id);
 
             // then
             assertThat(result).isPresent();
@@ -408,8 +409,8 @@ class ConversationQueryRepositoryImplTest {
         @DisplayName("파라미터 순서를 바꿔도 동일한 대화 반환")
         void withReversedParameters_returnsSameConversation() {
             // when
-            var result1 = conversationQueryRepository.findByParticipants(userId, otherUser1Id);
-            var result2 = conversationQueryRepository.findByParticipants(otherUser1Id, userId);
+            Optional<ConversationModel> result1 = conversationQueryRepository.findByParticipants(userId, otherUser1Id);
+            Optional<ConversationModel> result2 = conversationQueryRepository.findByParticipants(otherUser1Id, userId);
 
             // then
             assertThat(result1).isPresent();
@@ -424,7 +425,7 @@ class ConversationQueryRepositoryImplTest {
             UUID nonExistingUserId = UUID.randomUUID();
 
             // when
-            var result = conversationQueryRepository.findByParticipants(userId, nonExistingUserId);
+            Optional<ConversationModel> result = conversationQueryRepository.findByParticipants(userId, nonExistingUserId);
 
             // then
             assertThat(result).isEmpty();
@@ -440,7 +441,7 @@ class ConversationQueryRepositoryImplTest {
             entityManager.clear();
 
             // when
-            var result = conversationQueryRepository.findByParticipants(otherUser1Id, otherUser3.getId());
+            Optional<ConversationModel> result = conversationQueryRepository.findByParticipants(otherUser1Id, otherUser3.getId());
 
             // then
             assertThat(result).isEmpty();

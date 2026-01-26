@@ -1,5 +1,6 @@
 package com.mopl.batch.common.run;
 
+import com.mopl.batch.common.config.BatchStartupProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -14,15 +15,15 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @Component
-@RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "mopl.batch", name = "run-on-startup.enabled", havingValue = "true")
+@RequiredArgsConstructor
+@Slf4j
 public class BatchStartupRunner implements ApplicationRunner {
 
     private final JobLauncher jobLauncher;
     private final Map<String, Job> jobs;
-    private final com.mopl.batch.common.config.BatchStartupProperties properties;
+    private final BatchStartupProperties properties;
 
     @Override
     public void run(ApplicationArguments args) {

@@ -313,7 +313,7 @@ class ContentTagServiceTest {
             contentTagService.deleteAllByContentId(contentId);
 
             // then
-            then(contentTagRepository).should().deleteAllByContentId(contentId);
+            then(contentTagRepository).should().deleteByContentId(contentId);
         }
     }
 }

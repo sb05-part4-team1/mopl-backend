@@ -98,7 +98,8 @@ public class SseEmitterManager {
                 log.debug("Sent {} event to user: {}", eventName, userId);
             } catch (IOException e) {
                 eventFailedCounter.increment();
-                log.error("Failed to send event to user: {}", userId, e);
+                log.debug("Failed to send event to user: {}, client disconnected", userId);
+                completeEmitterQuietly(emitter);
                 emitterRepository.deleteByUserId(userId);
             }
         });
@@ -134,7 +135,8 @@ public class SseEmitterManager {
                 log.debug("Resent from DB event {} to user: {}", eventId, userId);
             } catch (IOException e) {
                 eventFailedCounter.increment();
-                log.error("Failed to resend from DB to user: {}", userId, e);
+                log.debug("Failed to resend from DB to user: {}, client disconnected", userId);
+                completeEmitterQuietly(emitter);
                 break;
             }
         }
@@ -155,7 +157,8 @@ public class SseEmitterManager {
                 log.debug("Resent from cache event {} to user: {}", cachedEvent.eventId(), userId);
             } catch (IOException e) {
                 eventFailedCounter.increment();
-                log.error("Failed to resend from cache to user: {}", userId, e);
+                log.debug("Failed to resend from cache to user: {}, client disconnected", userId);
+                completeEmitterQuietly(emitter);
                 break;
             }
         }
@@ -176,10 +179,18 @@ public class SseEmitterManager {
                     emitter.send(SseEmitter.event().comment("heartbeat"));
                 } catch (IOException e) {
                     log.debug("Heartbeat failed for user: {}, removing emitter", userId);
+                    completeEmitterQuietly(emitter);
                     emitterRepository.deleteByUserId(userId);
                 }
             })
             );
+        }
+    }
+
+    private void completeEmitterQuietly(SseEmitter emitter) {
+        try {
+            emitter.complete();
+        } catch (Exception ignored) {
         }
     }
 }

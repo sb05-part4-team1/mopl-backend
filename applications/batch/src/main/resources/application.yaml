@@ -48,6 +48,10 @@ mopl:
         retention-days: ${MOPL_BATCH_CLEANUP_RETENTION_DAYS:30}
       storage:
         chunk-size: ${MOPL_BATCH_CLEANUP_STORAGE_CHUNK_SIZE:200}
+      orphan:
+        defaults:
+          chunk-size: ${MOPL_BATCH_CLEANUP_ORPHAN_CHUNK_SIZE:500}
+          grace-period-days: ${MOPL_BATCH_CLEANUP_ORPHAN_GRACE_PERIOD_DAYS:1}
 
     collect:
       tmdb:
@@ -77,3 +81,6 @@ management:
     tags:
       application: ${spring.application.name}
       environment: ${SPRING_PROFILES_ACTIVE:local}
+      denormalized:
+        default-policy:
+          batch-size: ${MOPL_BATCH_SYNC_DENORMALIZED_BATCH_SIZE:500}

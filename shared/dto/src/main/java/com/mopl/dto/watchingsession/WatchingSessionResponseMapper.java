@@ -15,7 +15,7 @@ public class WatchingSessionResponseMapper {
 
     private final StorageProvider storageProvider;
 
-    public WatchingSessionResponse toDto(WatchingSessionModel watchingSessionModel) {
+    public WatchingSessionResponse toResponse(WatchingSessionModel watchingSessionModel) {
         return new WatchingSessionResponse(
             watchingSessionModel.getWatcherId(),
             watchingSessionModel.getCreatedAt(),

@@ -68,12 +68,12 @@ public class ContentTagRepositoryImpl implements ContentTagRepository {
     }
 
     @Override
-    public void deleteAllByContentId(UUID contentId) {
-        jpaContentTagRepository.deleteAllByContentId(contentId);
+    public void deleteByContentId(UUID contentId) {
+        jpaContentTagRepository.deleteByContentId(contentId);
     }
 
     @Override
-    public int deleteAllByContentIds(List<UUID> contentIds) {
-        return jpaContentTagRepository.deleteAllByContentIds(contentIds);
+    public int deleteByContentIdIn(List<UUID> contentIds) {
+        return jpaContentTagRepository.deleteByContentIdIn(contentIds);
     }
 }
