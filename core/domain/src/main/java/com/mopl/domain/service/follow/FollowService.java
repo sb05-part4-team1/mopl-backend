@@ -21,6 +21,10 @@ public class FollowService {
             .orElseThrow(() -> FollowNotFoundException.withId(followId));
     }
 
+    public Optional<FollowModel> getByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId) {
+        return followRepository.findByFollowerIdAndFolloweeId(followerId, followeeId);
+    }
+
     public List<UUID> getFollowerIds(UUID followeeId) {
         return followRepository.findFollowerIdsByFolloweeId(followeeId);
     }
@@ -31,10 +35,6 @@ public class FollowService {
 
     public boolean isFollow(UUID followerId, UUID followeeId) {
         return followRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
-    }
-
-    public Optional<FollowModel> getByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId) {
-        return followRepository.findByFollowerIdAndFolloweeId(followerId, followeeId);
     }
 
     public FollowModel create(FollowModel followModel) {
