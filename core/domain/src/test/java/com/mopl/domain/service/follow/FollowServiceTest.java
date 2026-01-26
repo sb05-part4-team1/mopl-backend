@@ -102,7 +102,7 @@ class FollowServiceTest {
                 .isInstanceOf(SelfFollowException.class)
                 .hasMessage(FollowErrorCode.SELF_FOLLOW_NOT_ALLOWED.getMessage());
 
-            then(followRepository).should(never()).findByFollowerIdAndFolloweeId(any(), any());
+            then(followRepository).should(never()).existsByFollowerIdAndFolloweeId(any(), any());
             then(followRepository).should(never()).save(any());
         }
     }
@@ -204,6 +204,21 @@ class FollowServiceTest {
             // then
             assertThat(result).isEqualTo(42L);
             then(followRepository).should().countByFolloweeId(followeeId);
+        }
+
+        @Test
+        @DisplayName("팔로워가 없으면 0 반환")
+        void withNoFollowers_returnsZero() {
+            // given
+            UUID followeeId = UUID.randomUUID();
+
+            given(followRepository.countByFolloweeId(followeeId)).willReturn(0L);
+
+            // when
+            long result = followService.getFollowerCount(followeeId);
+
+            // then
+            assertThat(result).isZero();
         }
     }
 

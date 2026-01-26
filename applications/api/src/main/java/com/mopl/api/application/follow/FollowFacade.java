@@ -1,6 +1,5 @@
 package com.mopl.api.application.follow;
 
-import com.mopl.dto.outbox.DomainEventOutboxMapper;
 import com.mopl.domain.event.user.UserFollowedEvent;
 import com.mopl.domain.event.user.UserUnfollowedEvent;
 import com.mopl.domain.exception.follow.FollowNotAllowedException;
@@ -9,6 +8,7 @@ import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.follow.FollowService;
 import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.domain.service.user.UserService;
+import com.mopl.dto.outbox.DomainEventOutboxMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -29,7 +29,7 @@ public class FollowFacade {
         UserModel follower = userService.getById(followerId);
         UserModel followee = userService.getById(followeeId);
 
-        FollowModel followModel = FollowModel.create(followeeId, followerId);
+        FollowModel followModel = FollowModel.create(followee.getId(), follower.getId());
         UserFollowedEvent event = UserFollowedEvent.builder()
             .followerId(follower.getId())
             .followerName(follower.getName())
