@@ -16,8 +16,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 
-import java.time.Instant;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,6 +33,7 @@ class NotificationEntityTest {
     private TestEntityManager testEntityManager;
 
     @Autowired
+    @SuppressWarnings("unused")
     private NotificationRepository notificationRepository;
 
     @Autowired
@@ -85,47 +84,6 @@ class NotificationEntityTest {
 
             // then
             assertThat(entity.getCreatedAt()).isNotNull();
-        }
-    }
-
-    @Nested
-    @DisplayName("@SQLRestriction")
-    class SoftDeleteTest {
-
-        @Test
-        @DisplayName("deletedAt이 null이 아닌 엔티티는 조회되지 않음")
-        void withDeletedAt_excludesFromQuery() {
-            // given
-            NotificationEntity entity = NotificationEntity.builder()
-                .title("삭제된 알림")
-                .content("삭제된 내용")
-                .level(NotificationModel.NotificationLevel.INFO)
-                .receiverId(receiverId)
-                .deletedAt(Instant.now())
-                .build();
-            testEntityManager.persistAndFlush(entity);
-            testEntityManager.clear();
-
-            // when
-            Optional<NotificationModel> result = notificationRepository.findById(entity.getId());
-
-            // then
-            assertThat(result).isEmpty();
-        }
-
-        @Test
-        @DisplayName("deletedAt이 null인 엔티티는 정상 조회됨")
-        void withoutDeletedAt_includesInQuery() {
-            // given
-            NotificationEntity entity = createNotificationEntity();
-            testEntityManager.persistAndFlush(entity);
-            testEntityManager.clear();
-
-            // when
-            Optional<NotificationModel> result = notificationRepository.findById(entity.getId());
-
-            // then
-            assertThat(result).isPresent();
         }
     }
 

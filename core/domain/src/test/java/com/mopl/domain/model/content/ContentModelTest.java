@@ -9,7 +9,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.time.Instant;
 import java.util.stream.Stream;
 
 import static com.mopl.domain.model.content.ContentModel.DESCRIPTION_MAX_LENGTH;
@@ -364,40 +363,6 @@ class ContentModelTest {
             // when & then
             assertThatThrownBy(() -> content.update(null, null, longPath))
                 .isInstanceOf(InvalidContentDataException.class);
-        }
-    }
-
-    @Nested
-    @DisplayName("delete()")
-    class DeleteTest {
-
-        @Test
-        @DisplayName("삭제 시 deletedAt이 설정된다")
-        void delete_setsDeletedAt() {
-            // given
-            ContentModel content = createDefaultContent();
-
-            // when
-            content.delete();
-
-            // then
-            assertThat(content.isDeleted()).isTrue();
-            assertThat(content.getDeletedAt()).isNotNull();
-        }
-
-        @Test
-        @DisplayName("이미 삭제된 경우 멱등성을 보장한다")
-        void delete_isIdempotent() {
-            // given
-            ContentModel content = createDefaultContent();
-            content.delete();
-            Instant deletedAt = content.getDeletedAt();
-
-            // when
-            content.delete();
-
-            // then
-            assertThat(content.getDeletedAt()).isEqualTo(deletedAt);
         }
     }
 

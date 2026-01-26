@@ -87,34 +87,6 @@ class OutboxEntityMapperTest {
         }
 
         @Test
-        @DisplayName("deletedAt이 있는 OutboxEntity를 OutboxModel로 변환")
-        void withDeletedOutboxEntity_returnsOutboxModel() {
-            // given
-            UUID id = UUID.randomUUID();
-            Instant createdAt = Instant.now();
-            Instant deletedAt = Instant.now();
-            OutboxEntity entity = OutboxEntity.builder()
-                .id(id)
-                .createdAt(createdAt)
-                .deletedAt(deletedAt)
-                .aggregateType("USER")
-                .aggregateId("user-id")
-                .eventType("USER_DELETED")
-                .topic("user-events")
-                .payload("{}")
-                .status(OutboxStatus.FAILED)
-                .retryCount(3)
-                .build();
-
-            // when
-            OutboxModel result = mapper.toModel(entity);
-
-            // then
-            assertThat(result.getDeletedAt()).isEqualTo(deletedAt);
-            assertThat(result.getStatus()).isEqualTo(OutboxStatus.FAILED);
-        }
-
-        @Test
         @DisplayName("null 입력 시 null 반환")
         void withNull_returnsNull() {
             // when

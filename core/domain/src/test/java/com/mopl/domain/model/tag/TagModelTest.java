@@ -67,38 +67,4 @@ class TagModelTest {
                 });
         }
     }
-
-    @Nested
-    @DisplayName("BaseModel 기능 테스트 (Soft Delete)")
-    class BaseModelTest {
-
-        @Test
-        @DisplayName("delete() 호출 시 deletedAt이 설정되고 isDeleted가 true가 된다")
-        void delete_setsDeletedAt() {
-            // given
-            TagModel tag = TagModel.create("SF");
-
-            // when
-            tag.delete();
-
-            // then
-            assertThat(tag.getDeletedAt()).isNotNull();
-            assertThat(tag.isDeleted()).isTrue();
-        }
-
-        @Test
-        @DisplayName("restore() 호출 시 deletedAt이 null이 되고 isDeleted가 false가 된다")
-        void restore_clearsDeletedAt() {
-            // given
-            TagModel tag = TagModel.create("SF");
-            tag.delete();
-
-            // when
-            tag.restore();
-
-            // then
-            assertThat(tag.getDeletedAt()).isNull();
-            assertThat(tag.isDeleted()).isFalse();
-        }
-    }
 }

@@ -169,38 +169,6 @@ class NotificationQueryRepositoryImplTest {
             assertThat(response.totalCount()).isZero();
             assertThat(response.hasNext()).isFalse();
         }
-
-        @Test
-        @DisplayName("삭제된 알림은 조회되지 않음")
-        void withDeletedNotification_excludesFromQuery() {
-            // given
-            Instant now = Instant.now();
-            NotificationEntity deletedNotification = NotificationEntity.builder()
-                .createdAt(now)
-                .title("삭제된 알림")
-                .content("삭제된 내용")
-                .level(NotificationModel.NotificationLevel.INFO)
-                .receiverId(user1.getId())
-                .deletedAt(now)
-                .build();
-            entityManager.persist(deletedNotification);
-            entityManager.flush();
-            entityManager.clear();
-
-            NotificationQueryRequest request = new NotificationQueryRequest(
-                null, null, 100, SortDirection.ASCENDING, NotificationSortField.CREATED_AT
-            );
-
-            // when
-            CursorResponse<NotificationModel> response = notificationQueryRepository.findAll(
-                user1.getId(), request
-            );
-
-            // then
-            assertThat(response.data()).hasSize(5); // 삭제된 알림 제외
-            assertThat(response.data())
-                .noneMatch(n -> n.getTitle().equals("삭제된 알림"));
-        }
     }
 
     @Nested

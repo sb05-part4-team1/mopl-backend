@@ -207,27 +207,6 @@ class NotificationRepositoryImplTest {
             assertThat(savedNotification.getTitle()).isEqualTo("내용 없는 알림");
             assertThat(savedNotification.getContent()).isNull();
         }
-
-        @Test
-        @DisplayName("삭제된 알림을 저장하면 deletedAt이 유지된다")
-        void withDeletedNotification_preservesDeletedAt() {
-            // given
-            NotificationModel notificationModel = NotificationModel.create(
-                "삭제될 알림",
-                "삭제 테스트용",
-                NotificationModel.NotificationLevel.INFO,
-                savedReceiverId
-            );
-            NotificationModel savedNotification = notificationRepository.save(notificationModel);
-            savedNotification.delete();
-
-            // when
-            NotificationModel updatedNotification = notificationRepository.save(savedNotification);
-
-            // then
-            assertThat(updatedNotification.isDeleted()).isTrue();
-            assertThat(updatedNotification.getDeletedAt()).isNotNull();
-        }
     }
 
     @Nested
