@@ -9,6 +9,7 @@ import com.mopl.domain.exception.follow.FollowNotAllowedException;
 import com.mopl.domain.exception.follow.FollowNotFoundException;
 import com.mopl.domain.exception.user.UserNotFoundException;
 import com.mopl.dto.follow.FollowResponse;
+import com.mopl.dto.follow.FollowStatusResponse;
 import com.mopl.security.userdetails.MoplUserDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -93,10 +94,10 @@ class FollowControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/follows")
-                    .with(user(mockUserDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(followId.toString()))
                 .andExpect(jsonPath("$.followeeId").value(followeeId.toString()))
@@ -114,10 +115,10 @@ class FollowControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/follows")
-                    .with(user(mockUserDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(requestBody)))
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isBadRequest());
 
             then(followFacade).should(never()).follow(any(), any());
@@ -135,10 +136,10 @@ class FollowControllerTest {
 
             // when & then
             mockMvc.perform(post("/api/follows")
-                    .with(user(mockUserDetails))
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                .with(user(mockUserDetails))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
         }
 
@@ -158,8 +159,8 @@ class FollowControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/follows/{followId}", followId)
-                    .with(user(mockUserDetails))
-                    .with(csrf()))
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isNoContent());
 
             then(followFacade).should().unFollow(userId, followId);
@@ -176,8 +177,8 @@ class FollowControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/follows/{followId}", followId)
-                    .with(user(mockUserDetails))
-                    .with(csrf()))
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isNotFound());
         }
 
@@ -192,8 +193,8 @@ class FollowControllerTest {
 
             // when & then
             mockMvc.perform(delete("/api/follows/{followId}", followId)
-                    .with(user(mockUserDetails))
-                    .with(csrf()))
+                .with(user(mockUserDetails))
+                .with(csrf()))
                 .andExpect(status().isForbidden());
         }
 
@@ -214,8 +215,8 @@ class FollowControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/follows/count")
-                    .with(user(mockUserDetails))
-                    .param("followeeId", followeeId.toString()))
+                .with(user(mockUserDetails))
+                .param("followeeId", followeeId.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").value(followerCount));
 
@@ -227,7 +228,7 @@ class FollowControllerTest {
         void withoutFolloweeId_returns400BadRequest() throws Exception {
             // when & then
             mockMvc.perform(get("/api/follows/count")
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isBadRequest());
 
             then(followFacade).should(never()).getFollowerCount(any());
@@ -244,8 +245,8 @@ class FollowControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/follows/count")
-                    .with(user(mockUserDetails))
-                    .param("followeeId", followeeId.toString()))
+                .with(user(mockUserDetails))
+                .param("followeeId", followeeId.toString()))
                 .andExpect(status().isNotFound());
         }
     }
@@ -255,39 +256,44 @@ class FollowControllerTest {
     class GetFollowStatusTest {
 
         @Test
-        @DisplayName("팔로우 중인 경우 200 OK 응답과 true 반환")
-        void whenFollowing_returns200OKWithTrue() throws Exception {
+        @DisplayName("팔로우 중인 경우 200 OK 응답과 followed=true, followId 반환")
+        void whenFollowing_returns200OKWithFollowedTrueAndFollowId() throws Exception {
             // given
             UUID followeeId = UUID.randomUUID();
+            UUID followId = UUID.randomUUID();
+            FollowStatusResponse response = new FollowStatusResponse(true, followId);
 
-            given(followFacade.isFollow(userId, followeeId)).willReturn(true);
+            given(followFacade.getFollowStatus(userId, followeeId)).willReturn(response);
 
             // when & then
             mockMvc.perform(get("/api/follows/followed-by-me")
-                    .with(user(mockUserDetails))
-                    .param("followeeId", followeeId.toString()))
+                .with(user(mockUserDetails))
+                .param("followeeId", followeeId.toString()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(true));
+                .andExpect(jsonPath("$.followed").value(true))
+                .andExpect(jsonPath("$.followId").value(followId.toString()));
 
-            then(followFacade).should().isFollow(userId, followeeId);
+            then(followFacade).should().getFollowStatus(userId, followeeId);
         }
 
         @Test
-        @DisplayName("팔로우하지 않은 경우 200 OK 응답과 false 반환")
-        void whenNotFollowing_returns200OKWithFalse() throws Exception {
+        @DisplayName("팔로우하지 않은 경우 200 OK 응답과 followed=false, followId=null 반환")
+        void whenNotFollowing_returns200OKWithFollowedFalseAndNullFollowId() throws Exception {
             // given
             UUID followeeId = UUID.randomUUID();
+            FollowStatusResponse response = new FollowStatusResponse(false, null);
 
-            given(followFacade.isFollow(userId, followeeId)).willReturn(false);
+            given(followFacade.getFollowStatus(userId, followeeId)).willReturn(response);
 
             // when & then
             mockMvc.perform(get("/api/follows/followed-by-me")
-                    .with(user(mockUserDetails))
-                    .param("followeeId", followeeId.toString()))
+                .with(user(mockUserDetails))
+                .param("followeeId", followeeId.toString()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(false));
+                .andExpect(jsonPath("$.followed").value(false))
+                .andExpect(jsonPath("$.followId").isEmpty());
 
-            then(followFacade).should().isFollow(userId, followeeId);
+            then(followFacade).should().getFollowStatus(userId, followeeId);
         }
 
         @Test
@@ -295,10 +301,10 @@ class FollowControllerTest {
         void withoutFolloweeId_returns400BadRequest() throws Exception {
             // when & then
             mockMvc.perform(get("/api/follows/followed-by-me")
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isBadRequest());
 
-            then(followFacade).should(never()).isFollow(any(), any());
+            then(followFacade).should(never()).getFollowStatus(any(), any());
         }
 
         @Test
@@ -307,13 +313,13 @@ class FollowControllerTest {
             // given
             UUID followeeId = UUID.randomUUID();
 
-            given(followFacade.isFollow(userId, followeeId))
+            given(followFacade.getFollowStatus(userId, followeeId))
                 .willThrow(UserNotFoundException.withId(followeeId));
 
             // when & then
             mockMvc.perform(get("/api/follows/followed-by-me")
-                    .with(user(mockUserDetails))
-                    .param("followeeId", followeeId.toString()))
+                .with(user(mockUserDetails))
+                .param("followeeId", followeeId.toString()))
                 .andExpect(status().isNotFound());
         }
 

@@ -13,6 +13,7 @@ import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.dto.follow.FollowResponse;
 import com.mopl.dto.follow.FollowResponseMapper;
+import com.mopl.dto.follow.FollowStatusResponse;
 import com.mopl.dto.outbox.DomainEventOutboxMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -25,6 +26,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -335,6 +337,71 @@ class FollowFacadeTest {
 
             // then
             assertThat(result).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("getFollowStatus()")
+    class GetFollowStatusTest {
+
+        @Test
+        @DisplayName("팔로우 관계가 존재하면 followed=true와 followId 반환")
+        void withExistingFollow_returnsFollowedTrueWithFollowId() {
+            // given
+            UUID followerId = UUID.randomUUID();
+            UUID followeeId = UUID.randomUUID();
+            UserModel follower = UserModelFixture.builder()
+                .set("id", followerId)
+                .sample();
+            UserModel followee = UserModelFixture.builder()
+                .set("id", followeeId)
+                .sample();
+            FollowModel follow = FollowModelFixture.builder()
+                .set("followerId", followerId)
+                .set("followeeId", followeeId)
+                .sample();
+
+            given(userService.getById(followerId)).willReturn(follower);
+            given(userService.getById(followeeId)).willReturn(followee);
+            given(followService.getByFollowerIdAndFolloweeId(followerId, followeeId))
+                .willReturn(Optional.of(follow));
+
+            // when
+            FollowStatusResponse result = followFacade.getFollowStatus(followerId, followeeId);
+
+            // then
+            assertThat(result.followed()).isTrue();
+            assertThat(result.followId()).isEqualTo(follow.getId());
+
+            then(userService).should().getById(followerId);
+            then(userService).should().getById(followeeId);
+            then(followService).should().getByFollowerIdAndFolloweeId(followerId, followeeId);
+        }
+
+        @Test
+        @DisplayName("팔로우 관계가 없으면 followed=false와 followId=null 반환")
+        void withNoFollow_returnsFollowedFalseWithNullFollowId() {
+            // given
+            UUID followerId = UUID.randomUUID();
+            UUID followeeId = UUID.randomUUID();
+            UserModel follower = UserModelFixture.builder()
+                .set("id", followerId)
+                .sample();
+            UserModel followee = UserModelFixture.builder()
+                .set("id", followeeId)
+                .sample();
+
+            given(userService.getById(followerId)).willReturn(follower);
+            given(userService.getById(followeeId)).willReturn(followee);
+            given(followService.getByFollowerIdAndFolloweeId(followerId, followeeId))
+                .willReturn(Optional.empty());
+
+            // when
+            FollowStatusResponse result = followFacade.getFollowStatus(followerId, followeeId);
+
+            // then
+            assertThat(result.followed()).isFalse();
+            assertThat(result.followId()).isNull();
         }
     }
 }
