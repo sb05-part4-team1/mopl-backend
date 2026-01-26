@@ -184,8 +184,6 @@ class RedisJwtRegistryTest {
             luaResultMap.put("oldSession", oldSessionJson);  // 문자열로 저장 (Lua cjson 동작)
             String luaResult = objectMapper.writeValueAsString(luaResultMap);
 
-            System.out.println("Test luaResult: " + luaResult);
-
             given(redisTemplate.execute(
                 any(RedisScript.class),
                 anyList(),
