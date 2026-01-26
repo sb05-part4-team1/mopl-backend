@@ -16,47 +16,47 @@ public class OrphanCleanupTxService {
     private final JpaOrphanCleanupRepository orphanCleanupRepository;
 
     @Transactional
-    public int cleanupNotifications(List<UUID> ids) {
-        return orphanCleanupRepository.deleteNotificationsByIds(ids);
+    public int cleanupNotifications(List<UUID> notificationIds) {
+        return orphanCleanupRepository.deleteNotificationsByIdIn(notificationIds);
     }
 
     @Transactional
-    public int cleanupFollows(List<UUID> ids) {
-        return orphanCleanupRepository.deleteFollowsByIds(ids);
+    public int cleanupFollows(List<UUID> followIds) {
+        return orphanCleanupRepository.deleteFollowsByIdIn(followIds);
     }
 
     @Transactional
-    public int cleanupPlaylistSubscribers(List<UUID> ids) {
-        return orphanCleanupRepository.deletePlaylistSubscribersByIds(ids);
+    public int cleanupPlaylistSubscribers(List<UUID> playlistSubscribersByIds) {
+        return orphanCleanupRepository.deletePlaylistSubscribersByIdIn(playlistSubscribersByIds);
     }
 
     @Transactional
-    public int cleanupPlaylistContents(List<UUID> ids) {
-        return orphanCleanupRepository.deletePlaylistContentsByIds(ids);
+    public int cleanupPlaylistContents(List<UUID> playlistContentIds) {
+        return orphanCleanupRepository.deletePlaylistContentsByIdIn(playlistContentIds);
     }
 
     @Transactional
-    public int cleanupPlaylists(List<UUID> ids, Instant now) {
-        return orphanCleanupRepository.softDeletePlaylistsByIds(ids, now);
+    public int cleanupPlaylists(List<UUID> playlistIds, Instant now) {
+        return orphanCleanupRepository.softDeletePlaylistsByIdIn(playlistIds, now);
     }
 
     @Transactional
-    public int cleanupReviews(List<UUID> ids, Instant now) {
-        return orphanCleanupRepository.softDeleteReviewsByIds(ids, now);
+    public int cleanupReviews(List<UUID> reviewIds, Instant now) {
+        return orphanCleanupRepository.softDeleteReviewsByIdIn(reviewIds, now);
     }
 
     @Transactional
-    public int cleanupReadStatuses(List<UUID> ids) {
-        return orphanCleanupRepository.deleteReadStatusesByIds(ids);
+    public int cleanupReadStatuses(List<UUID> readStatusIds) {
+        return orphanCleanupRepository.deleteReadStatusesByIdIn(readStatusIds);
     }
 
     @Transactional
-    public int cleanupDirectMessages(List<UUID> ids) {
-        return orphanCleanupRepository.deleteDirectMessagesByIds(ids);
+    public int cleanupDirectMessages(List<UUID> directMessageIds) {
+        return orphanCleanupRepository.deleteDirectMessagesByIdIn(directMessageIds);
     }
 
     @Transactional
-    public int cleanupContentTags(List<UUID> ids) {
-        return orphanCleanupRepository.deleteContentTagsByIds(ids);
+    public int cleanupContentTags(List<UUID> contentTagIds) {
+        return orphanCleanupRepository.deleteContentTagsByIdIn(contentTagIds);
     }
 }
