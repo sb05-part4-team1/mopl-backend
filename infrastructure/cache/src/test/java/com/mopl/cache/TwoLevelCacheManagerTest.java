@@ -38,7 +38,8 @@ class TwoLevelCacheManagerTest {
             "mopl:",
             new L1Config(10000, Duration.ofSeconds(30), true),
             new L2Config(Duration.ofMinutes(10)),
-            false
+            false,
+            null
         );
         cacheManager = new TwoLevelCacheManager(l1Cache, redisTemplate, properties);
     }

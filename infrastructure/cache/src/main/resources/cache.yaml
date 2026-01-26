@@ -8,3 +8,5 @@ mopl:
       record-stats: true
     l2:
       default-ttl: 10m
+    ttl:
+      presigned-urls: 14m
