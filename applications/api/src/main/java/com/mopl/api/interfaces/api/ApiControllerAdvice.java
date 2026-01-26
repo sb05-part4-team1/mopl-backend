@@ -278,9 +278,11 @@ public class ApiControllerAdvice {
 
     // --- DTOs ---
 
+    @Generated
     record FieldErrorDetail(String field, String message) {
     }
 
+    @Generated
     record GlobalErrorDetail(String object, String message) {
     }
 }
