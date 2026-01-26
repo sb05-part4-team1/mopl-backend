@@ -20,7 +20,7 @@ public class WatchingSessionFacade {
 
     public Optional<WatchingSessionResponse> getWatchingSession(UUID watcherId) {
         return watchingSessionService.getWatchingSessionByWatcherId(watcherId)
-            .map(watchingSessionResponseMapper::toDto);
+            .map(watchingSessionResponseMapper::toResponse);
     }
 
     public CursorResponse<WatchingSessionResponse> getWatchingSessions(
@@ -28,6 +28,6 @@ public class WatchingSessionFacade {
         WatchingSessionQueryRequest request
     ) {
         return watchingSessionService.getWatchingSessions(contentId, request)
-            .map(watchingSessionResponseMapper::toDto);
+            .map(watchingSessionResponseMapper::toResponse);
     }
 }

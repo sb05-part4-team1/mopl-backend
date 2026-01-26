@@ -70,7 +70,7 @@ public class ContentChatFacade {
     private void broadcastJoin(WatchingSessionModel session) {
         WatchingSessionChangeResponse response = new WatchingSessionChangeResponse(
             WatchingSessionChangeType.JOIN,
-            watchingSessionResponseMapper.toDto(session),
+            watchingSessionResponseMapper.toResponse(session),
             watchingSessionRepository.countByContentId(session.getContentId())
         );
         messagingTemplate.convertAndSend(buildWatchDestination(session.getContentId()), response);
@@ -79,7 +79,7 @@ public class ContentChatFacade {
     private void broadcastLeave(WatchingSessionModel session) {
         WatchingSessionChangeResponse response = new WatchingSessionChangeResponse(
             WatchingSessionChangeType.LEAVE,
-            watchingSessionResponseMapper.toDto(session),
+            watchingSessionResponseMapper.toResponse(session),
             watchingSessionRepository.countByContentId(session.getContentId()) - 1
         );
         messagingTemplate.convertAndSend(buildWatchDestination(session.getContentId()), response);

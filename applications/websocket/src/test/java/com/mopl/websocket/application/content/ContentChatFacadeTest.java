@@ -138,7 +138,7 @@ class ContentChatFacadeTest {
             given(watchingSessionRepository.save(any(WatchingSessionModel.class)))
                 .willAnswer(inv -> inv.getArgument(0));
             given(watchingSessionRepository.countByContentId(contentId)).willReturn(1L);
-            given(watchingSessionResponseMapper.toDto(any(WatchingSessionModel.class)))
+            given(watchingSessionResponseMapper.toResponse(any(WatchingSessionModel.class)))
                 .willReturn(mockWatchingSessionResponse);
             given(userSummaryMapper.toSummary(user)).willReturn(userSummary);
 
@@ -169,7 +169,7 @@ class ContentChatFacadeTest {
 
             given(watchingSessionRepository.findByWatcherId(userId)).willReturn(Optional.of(existingSession));
             given(watchingSessionRepository.countByContentId(oldContentId)).willReturn(0L);
-            given(watchingSessionResponseMapper.toDto(existingSession)).willReturn(mockWatchingSessionResponse);
+            given(watchingSessionResponseMapper.toResponse(existingSession)).willReturn(mockWatchingSessionResponse);
             given(contentService.getById(contentId)).willReturn(content);
             given(userService.getById(userId)).willReturn(user);
             given(watchingSessionRepository.save(any(WatchingSessionModel.class)))
@@ -201,7 +201,7 @@ class ContentChatFacadeTest {
 
             given(watchingSessionRepository.findByWatcherId(userId)).willReturn(Optional.of(existingSession));
             given(watchingSessionRepository.countByContentId(oldContentId)).willReturn(3L);
-            given(watchingSessionResponseMapper.toDto(existingSession)).willReturn(mockWatchingSessionResponse);
+            given(watchingSessionResponseMapper.toResponse(existingSession)).willReturn(mockWatchingSessionResponse);
             given(contentService.getById(contentId)).willReturn(content);
             given(userService.getById(userId)).willReturn(user);
             given(watchingSessionRepository.save(any(WatchingSessionModel.class)))
@@ -236,7 +236,7 @@ class ContentChatFacadeTest {
             given(watchingSessionRepository.save(any(WatchingSessionModel.class)))
                 .willAnswer(inv -> inv.getArgument(0));
             given(watchingSessionRepository.countByContentId(contentId)).willReturn(5L);
-            given(watchingSessionResponseMapper.toDto(any(WatchingSessionModel.class)))
+            given(watchingSessionResponseMapper.toResponse(any(WatchingSessionModel.class)))
                 .willReturn(mockWatchingSessionResponse);
             given(userSummaryMapper.toSummary(user)).willReturn(userSummary);
 
