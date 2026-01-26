@@ -58,17 +58,19 @@ class ReviewQueryRepositoryImplTest {
 
         UserEntity author1 = createAndPersistUser("author1@example.com", "Author1", baseTime);
         UserEntity author2 = createAndPersistUser("author2@example.com", "Author2", baseTime);
+        UserEntity author3 = createAndPersistUser("author3@example.com", "Author3", baseTime);
+        UserEntity author4 = createAndPersistUser("author4@example.com", "Author4", baseTime);
 
         ContentEntity content1 = createAndPersistContent("Content 1", baseTime);
         ContentEntity content2 = createAndPersistContent("Content 2", baseTime);
         contentId1 = content1.getId();
         contentId2 = content2.getId();
 
-        // content1에 리뷰 4개
+        // content1에 리뷰 4개 (각각 다른 author)
         createAndPersistReview(content1, author1, "리뷰 1", 5.0, baseTime);
         createAndPersistReview(content1, author2, "리뷰 2", 4.0, baseTime.plusSeconds(1));
-        createAndPersistReview(content1, author1, "리뷰 3", 3.0, baseTime.plusSeconds(2));
-        createAndPersistReview(content1, author2, "리뷰 4", 4.5, baseTime.plusSeconds(3));
+        createAndPersistReview(content1, author3, "리뷰 3", 3.0, baseTime.plusSeconds(2));
+        createAndPersistReview(content1, author4, "리뷰 4", 4.5, baseTime.plusSeconds(3));
 
         // content2에 리뷰 2개
         createAndPersistReview(content2, author1, "리뷰 A", 5.0, baseTime.plusSeconds(4));
