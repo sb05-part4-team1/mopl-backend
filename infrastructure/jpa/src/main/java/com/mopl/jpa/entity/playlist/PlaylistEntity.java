@@ -20,13 +20,12 @@ import lombok.experimental.SuperBuilder;
 @Table(
     name = "playlists",
     indexes = {
-        @Index(name = "idx_playlists_owner_id", columnList = "owner_id"),
-        @Index(name = "idx_playlists_created_at", columnList = "created_at")
+        @Index(name = "idx_playlists_owner_updated_at", columnList = "owner_id, updated_at DESC")
     }
 )
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 public class PlaylistEntity extends BaseUpdatableEntity {
 
     @Column(nullable = false)
