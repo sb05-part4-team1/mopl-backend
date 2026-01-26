@@ -39,13 +39,11 @@ public class FollowFacade {
             .followeeId(followee.getId())
             .build();
 
-        FollowModel savedFollow = transactionTemplate.execute(status -> {
+        return transactionTemplate.execute(status -> {
             FollowModel saved = followService.create(followModel);
             outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
-            return saved;
+            return followResponseMapper.toResponse(saved);
         });
-
-        return followResponseMapper.toResponse(savedFollow);
     }
 
     public void unFollow(UUID userId, UUID followId) {
