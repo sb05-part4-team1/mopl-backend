@@ -3,11 +3,11 @@ plugins {
 }
 
 dependencies {
+    // project modules
     implementation(project(":core:domain"))
-
-    // Elasticsearch
+    implementation(project(":shared:jackson"))
+    // elasticsearch
     api("org.springframework.boot:spring-boot-starter-data-elasticsearch")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-
+    // test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
