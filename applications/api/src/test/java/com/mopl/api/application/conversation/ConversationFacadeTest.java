@@ -796,6 +796,84 @@ class ConversationFacadeTest {
             then(conversationResponseMapper).should()
                 .toResponse(eq(conversation), any(), eq(lastMessage), eq(true));
         }
+
+        @Test
+        @DisplayName("requesterReadStatus가 null이면 hasUnread = false")
+        void withNullRequesterReadStatus_hasUnreadIsFalse() {
+            // given
+            ConversationModel conversation = ConversationModelFixture.create();
+            UUID conversationId = conversation.getId();
+
+            ConversationQueryRequest request = new ConversationQueryRequest(
+                null, null, null, 20, SortDirection.DESCENDING, ConversationSortField.CREATED_AT
+            );
+
+            CursorResponse<ConversationModel> serviceResponse = CursorResponse.of(
+                List.of(conversation),
+                null, null, false, 1L,
+                "CREATED_AT", SortDirection.DESCENDING
+            );
+
+            ReadStatusModel otherReadStatus = createReadStatus(otherUser, conversation, Instant.now());
+
+            DirectMessageModel lastMessage = DirectMessageModelFixture.builder()
+                .set("conversation", conversation)
+                .set("sender", otherUser)
+                .set("createdAt", Instant.now())
+                .sample();
+
+            given(conversationService.getAll(requesterId, request)).willReturn(serviceResponse);
+            given(readStatusService.getReadStatusMap(eq(requesterId), any()))
+                .willReturn(Map.of());  // requesterReadStatus가 없음
+            given(readStatusService.getOtherReadStatusMapWithParticipant(eq(requesterId), any()))
+                .willReturn(Map.of(conversationId, otherReadStatus));
+            given(directMessageService.getLastDirectMessageMapWithSender(any()))
+                .willReturn(Map.of(conversationId, lastMessage));
+            given(conversationResponseMapper.toResponse(conversation, otherUser, lastMessage, false))
+                .willReturn(new ConversationResponse(conversationId, null, null, false));
+
+            // when
+            conversationFacade.getConversations(requesterId, request);
+
+            // then - requesterReadStatus가 null이므로 hasUnread = false
+            then(conversationResponseMapper).should()
+                .toResponse(conversation, otherUser, lastMessage, false);
+        }
+
+        @Test
+        @DisplayName("메시지 시간이 lastReadAt 이전이거나 같으면 hasUnread = false")
+        void withMessageBeforeOrEqualLastReadAt_hasUnreadIsFalse() {
+            // given
+            ConversationModel conversation = ConversationModelFixture.create();
+            UUID conversationId = conversation.getId();
+
+            Instant messageCreatedAt = Instant.now().minusSeconds(100);
+            Instant lastReadAt = Instant.now();  // 메시지 시간보다 이후
+
+            ReadStatusModel requesterReadStatus = createReadStatus(requester, conversation, lastReadAt);
+            ReadStatusModel otherReadStatus = createReadStatus(otherUser, conversation, Instant.now());
+
+            DirectMessageModel lastMessage = DirectMessageModelFixture.builder()
+                .set("conversation", conversation)
+                .set("sender", otherUser)  // 상대방이 보냄
+                .set("createdAt", messageCreatedAt)  // lastReadAt 이전
+                .sample();
+
+            given(readStatusService.getReadStatus(requesterId, conversationId)).willReturn(requesterReadStatus);
+            given(conversationService.getById(conversationId)).willReturn(conversation);
+            given(readStatusService.getOtherReadStatusWithParticipant(requesterId, conversationId))
+                .willReturn(otherReadStatus);
+            given(directMessageService.getLastDirectMessageWithSender(conversationId)).willReturn(lastMessage);
+            given(conversationResponseMapper.toResponse(eq(conversation), eq(otherUser), eq(lastMessage), eq(false)))
+                .willReturn(new ConversationResponse(conversationId, null, null, false));
+
+            // when
+            conversationFacade.getConversation(requesterId, conversationId);
+
+            // then - 메시지가 lastReadAt 이전이므로 hasUnread = false
+            then(conversationResponseMapper).should()
+                .toResponse(eq(conversation), eq(otherUser), eq(lastMessage), eq(false));
+        }
     }
 
     private ReadStatusModel createReadStatus(UserModel participant, ConversationModel conversation, Instant lastReadAt) {

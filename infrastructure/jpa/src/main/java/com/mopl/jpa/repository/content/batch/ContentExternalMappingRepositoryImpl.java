@@ -5,7 +5,6 @@ import com.mopl.domain.repository.content.batch.ContentExternalMappingRepository
 import com.mopl.jpa.entity.content.ContentEntity;
 import com.mopl.jpa.entity.content.ContentExternalMappingEntity;
 import com.mopl.jpa.repository.content.JpaContentRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -41,10 +40,5 @@ public class ContentExternalMappingRepositoryImpl implements ContentExternalMapp
         Long externalId
     ) {
         return jpaRepository.existsByProviderAndExternalId(provider, externalId);
-    }
-
-    @Override
-    public int deleteAllByContentIds(List<UUID> contentIds) {
-        return jpaRepository.deleteAllByContentIds(contentIds);
     }
 }

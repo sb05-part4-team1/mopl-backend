@@ -1,7 +1,7 @@
 package com.mopl.domain.repository.content.batch;
 
 import com.mopl.domain.model.content.ContentExternalProvider;
-import java.util.List;
+
 import java.util.UUID;
 
 public interface ContentExternalMappingRepository {
@@ -16,6 +16,4 @@ public interface ContentExternalMappingRepository {
         ContentExternalProvider provider,
         Long externalId
     );
-
-    int deleteAllByContentIds(List<UUID> contentIds);
 }
