@@ -1,12 +1,12 @@
 package com.mopl.websocket.interfaces.api.conversation;
 
 import com.mopl.dto.conversation.DirectMessageResponse;
+import com.mopl.redis.pubsub.WebSocketMessagePublisher;
 import com.mopl.websocket.application.conversation.DirectMessageFacade;
 import com.mopl.websocket.interfaces.api.conversation.dto.DirectMessageSendRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
@@ -16,16 +16,20 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DirectMessageController {
 
+    private static final String DM_DESTINATION_PREFIX = "/sub/conversations/";
+    private static final String DM_DESTINATION_SUFFIX = "/direct-messages";
+
     private final DirectMessageFacade directMessageFacade;
+    private final WebSocketMessagePublisher webSocketMessagePublisher;
 
     @MessageMapping("/conversations/{conversationId}/direct-messages")
-    @SendTo("/sub/conversations/{conversationId}/direct-messages")
-    public DirectMessageResponse sendDirectMessage(
+    public void sendDirectMessage(
         Principal principal,
         @DestinationVariable UUID conversationId,
         DirectMessageSendRequest request
     ) {
         UUID senderId = UUID.fromString(principal.getName());
-        return directMessageFacade.sendDirectMessage(senderId, conversationId, request);
+        DirectMessageResponse response = directMessageFacade.sendDirectMessage(senderId, conversationId, request);
+        webSocketMessagePublisher.publish(DM_DESTINATION_PREFIX + conversationId + DM_DESTINATION_SUFFIX, response);
     }
 }

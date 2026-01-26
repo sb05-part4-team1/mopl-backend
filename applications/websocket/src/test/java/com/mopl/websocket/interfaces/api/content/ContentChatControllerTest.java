@@ -1,6 +1,7 @@
 package com.mopl.websocket.interfaces.api.content;
 
 import com.mopl.dto.user.UserSummary;
+import com.mopl.redis.pubsub.WebSocketMessagePublisher;
 import com.mopl.websocket.application.content.ContentChatFacade;
 import com.mopl.websocket.interfaces.api.content.dto.ContentChatRequest;
 import com.mopl.websocket.interfaces.api.content.dto.ContentChatResponse;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -18,6 +20,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.eq;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ContentChatController 슬라이스 테스트")
@@ -25,6 +28,9 @@ class ContentChatControllerTest {
 
     @Mock
     private ContentChatFacade contentChatFacade;
+
+    @Mock
+    private WebSocketMessagePublisher webSocketMessagePublisher;
 
     @Mock
     private Principal principal;
@@ -36,7 +42,7 @@ class ContentChatControllerTest {
 
     @BeforeEach
     void setUp() {
-        contentChatController = new ContentChatController(contentChatFacade);
+        contentChatController = new ContentChatController(contentChatFacade, webSocketMessagePublisher);
 
         senderId = UUID.randomUUID();
         contentId = UUID.randomUUID();
@@ -49,8 +55,8 @@ class ContentChatControllerTest {
     class SendChatTest {
 
         @Test
-        @DisplayName("유효한 요청 시 ContentChatResponse 반환")
-        void withValidRequest_returnsContentChatResponse() {
+        @DisplayName("유효한 요청 시 WebSocket 메시지 발행")
+        void withValidRequest_publishesWebSocketMessage() {
             // given
             String content = "안녕하세요";
             ContentChatRequest request = new ContentChatRequest(content);
@@ -62,18 +68,20 @@ class ContentChatControllerTest {
                 .willReturn(expectedResponse);
 
             // when
-            ContentChatResponse result = contentChatController.sendChat(
-                principal,
-                contentId,
-                request
-            );
+            contentChatController.sendChat(principal, contentId, request);
 
             // then
-            assertThat(result).isEqualTo(expectedResponse);
-            assertThat(result.sender()).isEqualTo(senderSummary);
-            assertThat(result.content()).isEqualTo(content);
-
             then(contentChatFacade).should().sendChatMessage(senderId, contentId, content);
+
+            ArgumentCaptor<ContentChatResponse> responseCaptor = ArgumentCaptor.forClass(ContentChatResponse.class);
+            then(webSocketMessagePublisher).should().publish(
+                eq("/sub/contents/" + contentId + "/chat"),
+                responseCaptor.capture()
+            );
+
+            ContentChatResponse publishedResponse = responseCaptor.getValue();
+            assertThat(publishedResponse.sender()).isEqualTo(senderSummary);
+            assertThat(publishedResponse.content()).isEqualTo(content);
         }
 
         @Test
@@ -90,20 +98,19 @@ class ContentChatControllerTest {
                 .willReturn(expectedResponse);
 
             // when
-            ContentChatResponse result = contentChatController.sendChat(
-                principal,
-                contentId,
-                request
-            );
+            contentChatController.sendChat(principal, contentId, request);
 
             // then
-            assertThat(result.content()).isEmpty();
             then(contentChatFacade).should().sendChatMessage(senderId, contentId, content);
+            then(webSocketMessagePublisher).should().publish(
+                eq("/sub/contents/" + contentId + "/chat"),
+                eq(expectedResponse)
+            );
         }
 
         @Test
         @DisplayName("긴 메시지 내용도 정상 처리")
-        void withLongContent_returnsResponse() {
+        void withLongContent_publishesMessage() {
             // given
             String content = "가".repeat(1000);
             ContentChatRequest request = new ContentChatRequest(content);
@@ -115,40 +122,16 @@ class ContentChatControllerTest {
                 .willReturn(expectedResponse);
 
             // when
-            ContentChatResponse result = contentChatController.sendChat(
-                principal,
-                contentId,
-                request
-            );
+            contentChatController.sendChat(principal, contentId, request);
 
             // then
-            assertThat(result.content()).hasSize(1000);
-            then(contentChatFacade).should().sendChatMessage(senderId, contentId, content);
-        }
-
-        @Test
-        @DisplayName("sender 정보가 null인 경우에도 응답 반환")
-        void withNullSender_returnsResponse() {
-            // given
-            String content = "메시지";
-            ContentChatRequest request = new ContentChatRequest(content);
-
-            ContentChatResponse expectedResponse = new ContentChatResponse(null, content);
-
-            given(contentChatFacade.sendChatMessage(senderId, contentId, content))
-                .willReturn(expectedResponse);
-
-            // when
-            ContentChatResponse result = contentChatController.sendChat(
-                principal,
-                contentId,
-                request
+            ArgumentCaptor<ContentChatResponse> responseCaptor = ArgumentCaptor.forClass(ContentChatResponse.class);
+            then(webSocketMessagePublisher).should().publish(
+                eq("/sub/contents/" + contentId + "/chat"),
+                responseCaptor.capture()
             );
 
-            // then
-            assertThat(result.sender()).isNull();
-            assertThat(result.content()).isEqualTo(content);
-            then(contentChatFacade).should().sendChatMessage(senderId, contentId, content);
+            assertThat(responseCaptor.getValue().content()).hasSize(1000);
         }
     }
 }
