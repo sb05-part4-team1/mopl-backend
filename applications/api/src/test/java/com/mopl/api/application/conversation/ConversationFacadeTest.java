@@ -545,6 +545,53 @@ class ConversationFacadeTest {
             // then - sender가 null이면 requester가 보낸 것이 아니므로 receiver는 requester
             then(directMessageResponseMapper).should().toResponse(directMessage, requester);
         }
+
+        @Test
+        @DisplayName("상대방 ReadStatus가 없으면 otherParticipant는 null")
+        void withNoOtherReadStatus_otherParticipantIsNull() {
+            // given
+            UUID conversationId = UUID.randomUUID();
+            ConversationModel conversation = ConversationModelFixture.builder()
+                .set("id", conversationId)
+                .sample();
+
+            DirectMessageQueryRequest request = new DirectMessageQueryRequest(
+                null, null, 20, SortDirection.DESCENDING, DirectMessageSortField.CREATED_AT
+            );
+
+            ReadStatusModel requesterReadStatus = createReadStatus(requester, conversation, Instant.now());
+
+            DirectMessageModel directMessage = DirectMessageModelFixture.builder()
+                .set("conversation", conversation)
+                .set("sender", requester)  // 내가 보낸 메시지
+                .sample();
+
+            CursorResponse<DirectMessageModel> serviceResponse = CursorResponse.of(
+                List.of(directMessage),
+                null, null, false, 1L,
+                "CREATED_AT", SortDirection.DESCENDING
+            );
+
+            given(readStatusService.getReadStatusWithParticipant(requesterId, conversationId))
+                .willReturn(requesterReadStatus);
+            given(readStatusService.getOtherReadStatusWithParticipant(requesterId, conversationId))
+                .willReturn(null);  // 상대방 ReadStatus 없음
+            given(directMessageService.getDirectMessages(conversationId, request))
+                .willReturn(serviceResponse);
+            given(directMessageResponseMapper.toResponse(directMessage, null))
+                .willReturn(new DirectMessageResponse(
+                    directMessage.getId(), conversationId, directMessage.getCreatedAt(),
+                    new UserSummary(requesterId, requester.getName(), null),
+                    null,  // receiver is null (otherParticipant가 null이므로)
+                    directMessage.getContent()
+                ));
+
+            // when
+            conversationFacade.getDirectMessages(requesterId, conversationId, request);
+
+            // then - otherReadStatus가 null이면 otherParticipant도 null
+            then(directMessageResponseMapper).should().toResponse(directMessage, null);
+        }
     }
 
     @Nested
