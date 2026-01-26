@@ -21,40 +21,13 @@ public class OrphanCleanupTxService {
     private final ContentReviewStatsSyncTxService contentReviewStatsSyncTxService;
     private final PlaylistSubscriberCountSyncTxService playlistSubscriberCountSyncTxService;
 
-    @Transactional
-    public int cleanupNotifications(List<UUID> notificationIds) {
-        return orphanCleanupRepository.deleteNotificationsByIdIn(notificationIds);
-    }
-
-    @Transactional
-    public int cleanupFollows(List<UUID> followIds) {
-        return orphanCleanupRepository.deleteFollowsByIdIn(followIds);
-    }
-
-    @Transactional
-    public int cleanupPlaylistSubscribers(List<UUID> playlistSubscriberIds) {
-        // 1. 삭제 전 존재하는 playlistId 조회 (Playlist가 존재하는 경우만)
-        Set<UUID> playlistIds = orphanCleanupRepository.findExistingPlaylistIdsBySubscriberIdIn(playlistSubscriberIds);
-
-        // 2. PlaylistSubscriber hard delete
-        int deleted = orphanCleanupRepository.deletePlaylistSubscribersByIdIn(playlistSubscriberIds);
-
-        // 3. Playlist subscriberCount 재계산
-        playlistIds.forEach(playlistSubscriberCountSyncTxService::syncOne);
-
-        return deleted;
-    }
-
-    @Transactional
-    public int cleanupPlaylistContents(List<UUID> playlistContentIds) {
-        return orphanCleanupRepository.deletePlaylistContentsByIdIn(playlistContentIds);
-    }
-
+    // ==================== 1. Playlist ====================
     @Transactional
     public int cleanupPlaylists(List<UUID> playlistIds) {
         return orphanCleanupRepository.deletePlaylistsByIdIn(playlistIds);
     }
 
+    // ==================== 2. Review ====================
     @Transactional
     public int cleanupReviews(List<UUID> reviewIds) {
         // 1. 삭제 전 영향받는 contentId 조회
@@ -69,18 +42,54 @@ public class OrphanCleanupTxService {
         return deleted;
     }
 
+    // ==================== 3. PlaylistSubscriber ====================
+    @Transactional
+    public int cleanupPlaylistSubscribers(List<UUID> playlistSubscriberIds) {
+        // 1. 삭제 전 존재하는 playlistId 조회 (Playlist가 존재하는 경우만)
+        Set<UUID> playlistIds = orphanCleanupRepository.findExistingPlaylistIdsBySubscriberIdIn(playlistSubscriberIds);
+
+        // 2. PlaylistSubscriber hard delete
+        int deleted = orphanCleanupRepository.deletePlaylistSubscribersByIdIn(playlistSubscriberIds);
+
+        // 3. Playlist subscriberCount 재계산
+        playlistIds.forEach(playlistSubscriberCountSyncTxService::syncOne);
+
+        return deleted;
+    }
+
+    // ==================== 4. PlaylistContent ====================
+    @Transactional
+    public int cleanupPlaylistContents(List<UUID> playlistContentIds) {
+        return orphanCleanupRepository.deletePlaylistContentsByIdIn(playlistContentIds);
+    }
+
+    // ==================== 5. ContentTag ====================
+    @Transactional
+    public int cleanupContentTags(List<UUID> contentTagIds) {
+        return orphanCleanupRepository.deleteContentTagsByIdIn(contentTagIds);
+    }
+
+    // ==================== 6. Notification ====================
+    @Transactional
+    public int cleanupNotifications(List<UUID> notificationIds) {
+        return orphanCleanupRepository.deleteNotificationsByIdIn(notificationIds);
+    }
+
+    // ==================== 7. Follow ====================
+    @Transactional
+    public int cleanupFollows(List<UUID> followIds) {
+        return orphanCleanupRepository.deleteFollowsByIdIn(followIds);
+    }
+
+    // ==================== 8. ReadStatus ====================
     @Transactional
     public int cleanupReadStatuses(List<UUID> readStatusIds) {
         return orphanCleanupRepository.deleteReadStatusesByIdIn(readStatusIds);
     }
 
+    // ==================== 9. DirectMessage ====================
     @Transactional
     public int cleanupDirectMessages(List<UUID> directMessageIds) {
         return orphanCleanupRepository.deleteDirectMessagesByIdIn(directMessageIds);
-    }
-
-    @Transactional
-    public int cleanupContentTags(List<UUID> contentTagIds) {
-        return orphanCleanupRepository.deleteContentTagsByIdIn(contentTagIds);
     }
 }

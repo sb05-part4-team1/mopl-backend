@@ -25,42 +25,7 @@ public class OrphanCleanupService {
     private final OrphanCleanupProperties cleanupProperties;
     private final OrphanCleanupPolicyResolver policyResolver;
 
-    public int cleanupNotifications() {
-        return cleanup(
-            "notification",
-            cleanupProperties.getNotification(),
-            orphanCleanupRepository::findOrphanNotificationIds,
-            txService::cleanupNotifications
-        );
-    }
-
-    public int cleanupFollows() {
-        return cleanup(
-            "follow",
-            cleanupProperties.getFollow(),
-            orphanCleanupRepository::findOrphanFollowIds,
-            txService::cleanupFollows
-        );
-    }
-
-    public int cleanupPlaylistSubscribers() {
-        return cleanup(
-            "playlistSubscriber",
-            cleanupProperties.getPlaylistSubscriber(),
-            orphanCleanupRepository::findOrphanPlaylistSubscriberIds,
-            txService::cleanupPlaylistSubscribers
-        );
-    }
-
-    public int cleanupPlaylistContents() {
-        return cleanup(
-            "playlistContent",
-            cleanupProperties.getPlaylistContent(),
-            orphanCleanupRepository::findOrphanPlaylistContentIds,
-            txService::cleanupPlaylistContents
-        );
-    }
-
+    // ==================== 1. Playlist ====================
     public int cleanupPlaylists() {
         return cleanup(
             "playlist",
@@ -70,6 +35,7 @@ public class OrphanCleanupService {
         );
     }
 
+    // ==================== 2. Review ====================
     public int cleanupReviews() {
         return cleanup(
             "review",
@@ -79,6 +45,57 @@ public class OrphanCleanupService {
         );
     }
 
+    // ==================== 3. PlaylistSubscriber ====================
+    public int cleanupPlaylistSubscribers() {
+        return cleanup(
+            "playlistSubscriber",
+            cleanupProperties.getPlaylistSubscriber(),
+            orphanCleanupRepository::findOrphanPlaylistSubscriberIds,
+            txService::cleanupPlaylistSubscribers
+        );
+    }
+
+    // ==================== 4. PlaylistContent ====================
+    public int cleanupPlaylistContents() {
+        return cleanup(
+            "playlistContent",
+            cleanupProperties.getPlaylistContent(),
+            orphanCleanupRepository::findOrphanPlaylistContentIds,
+            txService::cleanupPlaylistContents
+        );
+    }
+
+    // ==================== 5. ContentTag ====================
+    public int cleanupContentTags() {
+        return cleanup(
+            "contentTag",
+            cleanupProperties.getContentTag(),
+            orphanCleanupRepository::findOrphanContentTagIds,
+            txService::cleanupContentTags
+        );
+    }
+
+    // ==================== 6. Notification ====================
+    public int cleanupNotifications() {
+        return cleanup(
+            "notification",
+            cleanupProperties.getNotification(),
+            orphanCleanupRepository::findOrphanNotificationIds,
+            txService::cleanupNotifications
+        );
+    }
+
+    // ==================== 7. Follow ====================
+    public int cleanupFollows() {
+        return cleanup(
+            "follow",
+            cleanupProperties.getFollow(),
+            orphanCleanupRepository::findOrphanFollowIds,
+            txService::cleanupFollows
+        );
+    }
+
+    // ==================== 8. ReadStatus ====================
     public int cleanupReadStatuses() {
         return cleanup(
             "readStatus",
@@ -88,21 +105,13 @@ public class OrphanCleanupService {
         );
     }
 
+    // ==================== 9. DirectMessage ====================
     public int cleanupDirectMessages() {
         return cleanup(
             "directMessage",
             cleanupProperties.getDirectMessage(),
             orphanCleanupRepository::findOrphanDirectMessageIds,
             txService::cleanupDirectMessages
-        );
-    }
-
-    public int cleanupContentTags() {
-        return cleanup(
-            "contentTag",
-            cleanupProperties.getContentTag(),
-            orphanCleanupRepository::findOrphanContentTagIds,
-            txService::cleanupContentTags
         );
     }
 

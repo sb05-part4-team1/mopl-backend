@@ -43,82 +43,7 @@ public class OrphanCleanupBatchConfig {
             .build();
     }
 
-    @Bean
-    public Step orphanPlaylistContentStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
-        return new StepBuilder("orphanPlaylistContentStep", jobRepository)
-            .tasklet(orphanPlaylistContentTasklet(), txManager)
-            .build();
-    }
-
-    @Bean
-    public Step orphanNotificationStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
-        return new StepBuilder("orphanNotificationStep", jobRepository)
-            .tasklet(orphanNotificationTasklet(), txManager)
-            .build();
-    }
-
-    @Bean
-    public Tasklet orphanNotificationTasklet() {
-        return (contribution, chunkContext) -> {
-            long start = System.currentTimeMillis();
-            log.info("[OrphanCleanup] notification start");
-            int processed = orphanCleanupService.cleanupNotifications();
-            log.info("[OrphanCleanup] notification end processed={} durationMs={}",
-                processed, System.currentTimeMillis() - start);
-            return RepeatStatus.FINISHED;
-        };
-    }
-
-    @Bean
-    public Step orphanFollowStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
-        return new StepBuilder("orphanFollowStep", jobRepository)
-            .tasklet(orphanFollowTasklet(), txManager)
-            .build();
-    }
-
-    @Bean
-    public Tasklet orphanFollowTasklet() {
-        return (contribution, chunkContext) -> {
-            long start = System.currentTimeMillis();
-            log.info("[OrphanCleanup] follow start");
-            int processed = orphanCleanupService.cleanupFollows();
-            log.info("[OrphanCleanup] follow end processed={} durationMs={}",
-                processed, System.currentTimeMillis() - start);
-            return RepeatStatus.FINISHED;
-        };
-    }
-
-    @Bean
-    public Step orphanPlaylistSubscriberStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
-        return new StepBuilder("orphanPlaylistSubscriberStep", jobRepository)
-            .tasklet(orphanPlaylistSubscriberTasklet(), txManager)
-            .build();
-    }
-
-    @Bean
-    public Tasklet orphanPlaylistSubscriberTasklet() {
-        return (contribution, chunkContext) -> {
-            long start = System.currentTimeMillis();
-            log.info("[OrphanCleanup] playlistSubscriber start");
-            int processed = orphanCleanupService.cleanupPlaylistSubscribers();
-            log.info("[OrphanCleanup] playlistSubscriber end processed={} durationMs={}",
-                processed, System.currentTimeMillis() - start);
-            return RepeatStatus.FINISHED;
-        };
-    }
-
-    @Bean
-    public Tasklet orphanPlaylistContentTasklet() {
-        return (contribution, chunkContext) -> {
-            long start = System.currentTimeMillis();
-            log.info("[OrphanCleanup] playlistContent start");
-            int processed = orphanCleanupService.cleanupPlaylistContents();
-            log.info("[OrphanCleanup] playlistContent end processed={} durationMs={}",
-                processed, System.currentTimeMillis() - start);
-            return RepeatStatus.FINISHED;
-        };
-    }
-
+    // ==================== 1. Playlist ====================
     @Bean
     public Step orphanPlaylistStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
         return new StepBuilder("orphanPlaylistStep", jobRepository)
@@ -138,6 +63,7 @@ public class OrphanCleanupBatchConfig {
         };
     }
 
+    // ==================== 2. Review ====================
     @Bean
     public Step orphanReviewStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
         return new StepBuilder("orphanReviewStep", jobRepository)
@@ -157,6 +83,107 @@ public class OrphanCleanupBatchConfig {
         };
     }
 
+    // ==================== 3. PlaylistSubscriber ====================
+    @Bean
+    public Step orphanPlaylistSubscriberStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
+        return new StepBuilder("orphanPlaylistSubscriberStep", jobRepository)
+            .tasklet(orphanPlaylistSubscriberTasklet(), txManager)
+            .build();
+    }
+
+    @Bean
+    public Tasklet orphanPlaylistSubscriberTasklet() {
+        return (contribution, chunkContext) -> {
+            long start = System.currentTimeMillis();
+            log.info("[OrphanCleanup] playlistSubscriber start");
+            int processed = orphanCleanupService.cleanupPlaylistSubscribers();
+            log.info("[OrphanCleanup] playlistSubscriber end processed={} durationMs={}",
+                processed, System.currentTimeMillis() - start);
+            return RepeatStatus.FINISHED;
+        };
+    }
+
+    // ==================== 4. PlaylistContent ====================
+    @Bean
+    public Step orphanPlaylistContentStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
+        return new StepBuilder("orphanPlaylistContentStep", jobRepository)
+            .tasklet(orphanPlaylistContentTasklet(), txManager)
+            .build();
+    }
+
+    @Bean
+    public Tasklet orphanPlaylistContentTasklet() {
+        return (contribution, chunkContext) -> {
+            long start = System.currentTimeMillis();
+            log.info("[OrphanCleanup] playlistContent start");
+            int processed = orphanCleanupService.cleanupPlaylistContents();
+            log.info("[OrphanCleanup] playlistContent end processed={} durationMs={}",
+                processed, System.currentTimeMillis() - start);
+            return RepeatStatus.FINISHED;
+        };
+    }
+
+    // ==================== 5. ContentTag ====================
+    @Bean
+    public Step orphanContentTagStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
+        return new StepBuilder("orphanContentTagStep", jobRepository)
+            .tasklet(orphanContentTagTasklet(), txManager)
+            .build();
+    }
+
+    @Bean
+    public Tasklet orphanContentTagTasklet() {
+        return (contribution, chunkContext) -> {
+            long start = System.currentTimeMillis();
+            log.info("[OrphanCleanup] contentTag start");
+            int processed = orphanCleanupService.cleanupContentTags();
+            log.info("[OrphanCleanup] contentTag end processed={} durationMs={}",
+                processed, System.currentTimeMillis() - start);
+            return RepeatStatus.FINISHED;
+        };
+    }
+
+    // ==================== 6. Notification ====================
+    @Bean
+    public Step orphanNotificationStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
+        return new StepBuilder("orphanNotificationStep", jobRepository)
+            .tasklet(orphanNotificationTasklet(), txManager)
+            .build();
+    }
+
+    @Bean
+    public Tasklet orphanNotificationTasklet() {
+        return (contribution, chunkContext) -> {
+            long start = System.currentTimeMillis();
+            log.info("[OrphanCleanup] notification start");
+            int processed = orphanCleanupService.cleanupNotifications();
+            log.info("[OrphanCleanup] notification end processed={} durationMs={}",
+                processed, System.currentTimeMillis() - start);
+            return RepeatStatus.FINISHED;
+        };
+    }
+
+    // ==================== 7. Follow ====================
+    @Bean
+    public Step orphanFollowStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
+        return new StepBuilder("orphanFollowStep", jobRepository)
+            .tasklet(orphanFollowTasklet(), txManager)
+            .build();
+    }
+
+    @Bean
+    public Tasklet orphanFollowTasklet() {
+        return (contribution, chunkContext) -> {
+            long start = System.currentTimeMillis();
+            log.info("[OrphanCleanup] follow start");
+            int processed = orphanCleanupService.cleanupFollows();
+            log.info("[OrphanCleanup] follow end processed={} durationMs={}",
+                processed, System.currentTimeMillis() - start);
+            return RepeatStatus.FINISHED;
+        };
+    }
+
+    // ==================== 8. ReadStatus ====================
     @Bean
     public Step orphanReadStatusStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
         return new StepBuilder("orphanReadStatusStep", jobRepository)
@@ -176,6 +203,7 @@ public class OrphanCleanupBatchConfig {
         };
     }
 
+    // ==================== 9. DirectMessage ====================
     @Bean
     public Step orphanDirectMessageStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
         return new StepBuilder("orphanDirectMessageStep", jobRepository)
@@ -190,25 +218,6 @@ public class OrphanCleanupBatchConfig {
             log.info("[OrphanCleanup] directMessage start");
             int processed = orphanCleanupService.cleanupDirectMessages();
             log.info("[OrphanCleanup] directMessage end processed={} durationMs={}",
-                processed, System.currentTimeMillis() - start);
-            return RepeatStatus.FINISHED;
-        };
-    }
-
-    @Bean
-    public Step orphanContentTagStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
-        return new StepBuilder("orphanContentTagStep", jobRepository)
-            .tasklet(orphanContentTagTasklet(), txManager)
-            .build();
-    }
-
-    @Bean
-    public Tasklet orphanContentTagTasklet() {
-        return (contribution, chunkContext) -> {
-            long start = System.currentTimeMillis();
-            log.info("[OrphanCleanup] contentTag start");
-            int processed = orphanCleanupService.cleanupContentTags();
-            log.info("[OrphanCleanup] contentTag end processed={} durationMs={}",
                 processed, System.currentTimeMillis() - start);
             return RepeatStatus.FINISHED;
         };
