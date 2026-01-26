@@ -1,5 +1,6 @@
 package com.mopl.domain.service.follow;
 
+import com.mopl.domain.exception.follow.FollowAlreadyExistsException;
 import com.mopl.domain.exception.follow.FollowErrorCode;
 import com.mopl.domain.exception.follow.FollowNotFoundException;
 import com.mopl.domain.exception.follow.SelfFollowException;
@@ -51,8 +52,8 @@ class FollowServiceTest {
                 .followerId(followerId)
                 .build();
 
-            given(followRepository.findByFollowerIdAndFolloweeId(followerId, followeeId))
-                .willReturn(Optional.empty());
+            given(followRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId))
+                .willReturn(false);
             given(followRepository.save(followModel))
                 .willReturn(savedFollow);
 
@@ -65,35 +66,27 @@ class FollowServiceTest {
             assertThat(result.getFollowerId()).isEqualTo(followerId);
             assertThat(result.getFolloweeId()).isEqualTo(followeeId);
 
-            then(followRepository).should().findByFollowerIdAndFolloweeId(followerId, followeeId);
+            then(followRepository).should().existsByFollowerIdAndFolloweeId(followerId, followeeId);
             then(followRepository).should().save(followModel);
         }
 
         @Test
-        @DisplayName("이미 팔로우 중이면 예외 없이 기존 관계 반환")
-        void givenAlreadyExistingFollow_whenCreate_thenReturnExistingFollow() {
+        @DisplayName("이미 팔로우 중이면 FollowAlreadyExistsException 발생")
+        void givenAlreadyExistingFollow_whenCreate_thenThrowsFollowAlreadyExistsException() {
             // given
             UUID followerId = UUID.randomUUID();
             UUID followeeId = UUID.randomUUID();
             FollowModel followModel = FollowModel.create(followeeId, followerId);
-            FollowModel existingFollow = FollowModel.builder()
-                .id(UUID.randomUUID())
-                .followeeId(followeeId)
-                .followerId(followerId)
-                .deletedAt(null)
-                .build();
 
-            given(followRepository.findByFollowerIdAndFolloweeId(followerId, followeeId))
-                .willReturn(Optional.of(existingFollow));
+            given(followRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId))
+                .willReturn(true);
 
-            // when
-            FollowModel result = followService.create(followModel);
+            // when & then
+            assertThatThrownBy(() -> followService.create(followModel))
+                .isInstanceOf(FollowAlreadyExistsException.class)
+                .hasMessage(FollowErrorCode.FOLLOW_ALREADY_EXISTS.getMessage());
 
-            // then
-            assertThat(result).isEqualTo(existingFollow);
-            assertThat(result.getId()).isEqualTo(existingFollow.getId());
-
-            then(followRepository).should().findByFollowerIdAndFolloweeId(followerId, followeeId);
+            then(followRepository).should().existsByFollowerIdAndFolloweeId(followerId, followeeId);
             then(followRepository).should(never()).save(any());
         }
 

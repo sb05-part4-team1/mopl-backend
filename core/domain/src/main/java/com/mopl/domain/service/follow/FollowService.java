@@ -1,5 +1,6 @@
 package com.mopl.domain.service.follow;
 
+import com.mopl.domain.exception.follow.FollowAlreadyExistsException;
 import com.mopl.domain.exception.follow.FollowNotFoundException;
 import com.mopl.domain.exception.follow.SelfFollowException;
 import com.mopl.domain.model.follow.FollowModel;
@@ -36,9 +37,14 @@ public class FollowService {
             throw SelfFollowException.withUserId(followModel.getFollowerId());
         }
 
-        return followRepository.findByFollowerIdAndFolloweeId(
-                followModel.getFollowerId(), followModel.getFolloweeId())
-            .orElseGet(() -> followRepository.save(followModel));
+        if (isFollow(followModel.getFollowerId(), followModel.getFolloweeId())) {
+            throw FollowAlreadyExistsException.withIds(
+                followModel.getFollowerId(),
+                followModel.getFolloweeId()
+            );
+        }
+
+        return followRepository.save(followModel);
     }
 
     public void delete(FollowModel followModel) {
