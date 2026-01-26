@@ -39,8 +39,7 @@ class WebSocketMessagePublisherTest {
             publisher.publish(destination, payload);
 
             // then
-            ArgumentCaptor<WebSocketMessagePublisher.WebSocketMessage> messageCaptor =
-                ArgumentCaptor.forClass(WebSocketMessagePublisher.WebSocketMessage.class);
+            ArgumentCaptor<WebSocketMessagePublisher.WebSocketMessage> messageCaptor = ArgumentCaptor.forClass(WebSocketMessagePublisher.WebSocketMessage.class);
             then(redisTemplate).should().convertAndSend(
                 org.mockito.Mockito.eq(CHANNEL),
                 messageCaptor.capture()
