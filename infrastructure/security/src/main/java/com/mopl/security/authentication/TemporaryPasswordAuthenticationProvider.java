@@ -13,8 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-@Slf4j
 @RequiredArgsConstructor
+@Slf4j
 public class TemporaryPasswordAuthenticationProvider extends DaoAuthenticationProvider {
 
     private final TemporaryPasswordRepository temporaryPasswordRepository;

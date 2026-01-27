@@ -11,8 +11,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 
-@Slf4j
 @RequiredArgsConstructor
+@Slf4j
 public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
     private final OAuth2Properties oAuth2Properties;
@@ -34,3 +34,4 @@ public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler 
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 }
+

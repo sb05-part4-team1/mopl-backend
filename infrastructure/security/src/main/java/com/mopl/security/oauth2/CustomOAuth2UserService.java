@@ -18,8 +18,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import java.util.Locale;
 import java.util.Optional;
 
-@Slf4j
 @RequiredArgsConstructor
+@Slf4j
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;

@@ -1,18 +1,15 @@
 package com.mopl.kafka.dlq;
 
-import lombok.extern.slf4j.Slf4j;
+import com.mopl.logging.context.LogContext;
 
-@Slf4j
 public class LoggingDlqAlertPublisher implements DlqAlertPublisher {
 
     @Override
     public void publish(DlqEvent event) {
-        log.error(
-            "[DLQ Alert] Failed message - topic: {}, key: {}, payload: {}, exception: {}",
-            event.originalTopic(),
-            event.key(),
-            event.payload(),
-            event.exceptionMessage()
-        );
+        LogContext.with("topic", event.originalTopic())
+            .and("key", event.key())
+            .and("payload", event.payload())
+            .and("exception", event.exceptionMessage())
+            .error("[DLQ Alert] Failed message");
     }
 }
