@@ -22,8 +22,7 @@ public class ReviewService {
     private final ReviewQueryRepository reviewQueryRepository;
     private final ReviewRepository reviewRepository;
     private final ContentRepository contentRepository;
-
-    private final ContentPopularityPolicyPort contentPopularityPolicyPort;
+    private final ContentPopularityPolicyPort popularityPolicy;
 
     public CursorResponse<ReviewModel> getAll(ReviewQueryRequest request) {
         return reviewQueryRepository.findAll(request);
@@ -39,18 +38,12 @@ public class ReviewService {
             throw ReviewAlreadyExistsException.withContentIdAndAuthorId(content.getId(), author.getId());
         }
 
-        ReviewModel reviewModel = ReviewModel.create(content, author, text, rating);
-        ReviewModel savedReviewModel = reviewRepository.save(reviewModel);
+        ReviewModel savedReview = reviewRepository.save(
+            ReviewModel.create(content, author, text, rating)
+        );
 
-        ContentModel aggregated = content.addReview(rating);
-
-        double c = contentPopularityPolicyPort.globalAverageRating();
-        int m = contentPopularityPolicyPort.minimumReviewCount();
-
-        ContentModel updatedContent = aggregated.recalculatePopularity(c, m);
-        contentRepository.save(updatedContent);
-
-        return savedReviewModel;
+        recalculateAndSavePopularity(content.addReview(rating));
+        return savedReview;
     }
 
     public ReviewModel update(
@@ -63,19 +56,12 @@ public class ReviewService {
         validateAuthor(review, requesterId);
 
         double oldRating = review.getRating();
+        ReviewModel savedReview = reviewRepository.save(review.update(text, rating));
 
-        ReviewModel updatedReview = review.update(text, rating);
-        ReviewModel savedReview = reviewRepository.save(updatedReview);
-
-        if (rating != null && Double.compare(rating, oldRating) != 0) {
-            ContentModel content = savedReview.getContent();
-            ContentModel aggregated = content.updateReview(oldRating, rating);
-
-            double c = contentPopularityPolicyPort.globalAverageRating();
-            int m = contentPopularityPolicyPort.minimumReviewCount();
-
-            ContentModel updatedContent = aggregated.recalculatePopularity(c, m);
-            contentRepository.save(updatedContent);
+        if (rating != null && Double.compare(oldRating, rating) != 0) {
+            recalculateAndSavePopularity(
+                savedReview.getContent().updateReview(oldRating, rating)
+            );
         }
 
         return savedReview;
@@ -85,20 +71,24 @@ public class ReviewService {
         ReviewModel review = getById(reviewId);
         validateAuthor(review, requesterId);
 
-        ContentModel content = review.getContent();
-        double rating = review.getRating();
-
-        ContentModel aggregated = content.removeReview(rating);
-
-        double c = contentPopularityPolicyPort.globalAverageRating();
-        int m = contentPopularityPolicyPort.minimumReviewCount();
-
-        ContentModel updatedContent = aggregated.recalculatePopularity(c, m);
-        contentRepository.save(updatedContent);
+        recalculateAndSavePopularity(
+            review.getContent().removeReview(review.getRating())
+        );
 
         reviewRepository.delete(reviewId);
+        return review.getContent().getId();
+    }
 
-        return content.getId();
+    private void recalculateAndSavePopularity(ContentModel aggregated) {
+        double globalAverageRating = popularityPolicy.globalAverageRating();
+        int minimumReviewCount = popularityPolicy.minimumReviewCount();
+
+        ContentModel updatedContent = aggregated.recalculatePopularity(
+            globalAverageRating,
+            minimumReviewCount
+        );
+
+        contentRepository.save(updatedContent);
     }
 
     private ReviewModel getById(UUID reviewId) {
@@ -108,8 +98,10 @@ public class ReviewService {
 
     private void validateAuthor(ReviewModel review, UUID requesterId) {
         UUID authorId = review.getAuthor() != null ? review.getAuthor().getId() : null;
-        if (authorId == null || !authorId.equals(requesterId)) {
-            throw ReviewForbiddenException.withReviewIdAndRequesterIdAndAuthorId(review.getId(), requesterId, authorId);
+        if (!requesterId.equals(authorId)) {
+            throw ReviewForbiddenException.withReviewIdAndRequesterIdAndAuthorId(
+                review.getId(), requesterId, authorId
+            );
         }
     }
 }

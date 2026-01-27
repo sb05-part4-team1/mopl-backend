@@ -147,19 +147,21 @@ public class ContentModel extends BaseUpdatableModel {
     }
 
     public ContentModel recalculatePopularity(double globalAvgRating, int minReviewCount) {
-        double v = this.reviewCount;
-        double m = Math.max(minReviewCount, 1);
-        double r = this.averageRating;
-        double c = globalAvgRating;
+        double reviewCountAsDouble = this.reviewCount;
+        double effectiveMinReviewCount = Math.max(minReviewCount, 1);
+        double contentAverageRating = this.averageRating;
+        double globalAverageRating = globalAvgRating;
 
-        double score = ((v / (v + m)) * r) + ((m / (v + m)) * c);
+        double popularityScore =
+            ((reviewCountAsDouble / (reviewCountAsDouble + effectiveMinReviewCount)) * contentAverageRating)
+                + ((effectiveMinReviewCount / (reviewCountAsDouble + effectiveMinReviewCount)) * globalAverageRating);
 
         return this.toBuilder()
-            .popularityScore(score)
+            .popularityScore(popularityScore)
             .build();
     }
 
-        private static void validateTitle(String title) {
+    private static void validateTitle(String title) {
         if (title.isBlank()) {
             throw InvalidContentDataException.withDetailMessage("제목은 비어있을 수 없습니다.");
         }

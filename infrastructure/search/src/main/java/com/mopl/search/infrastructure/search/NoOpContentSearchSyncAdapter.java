@@ -1,4 +1,4 @@
-package com.mopl.search.intrastructure.search;
+package com.mopl.search.infrastructure.search;
 
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.support.search.ContentSearchSyncPort;
