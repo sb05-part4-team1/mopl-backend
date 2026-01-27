@@ -64,16 +64,16 @@ public final class LogContext {
         executeWithContext(() -> log.warn(formatMessage(message)));
     }
 
-    public void warn(String message, Throwable t) {
-        executeWithContext(() -> log.warn(formatMessage(message), t));
+    public void warn(String message, Throwable throwable) {
+        executeWithContext(() -> log.warn(formatMessage(message), throwable));
     }
 
     public void error(String message) {
         executeWithContext(() -> log.error(formatMessage(message)));
     }
 
-    public void error(String message, Throwable t) {
-        executeWithContext(() -> log.error(formatMessage(message), t));
+    public void error(String message, Throwable throwable) {
+        executeWithContext(() -> log.error(formatMessage(message), throwable));
     }
 
     private void executeWithContext(Runnable logAction) {

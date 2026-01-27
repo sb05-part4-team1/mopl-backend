@@ -1,6 +1,7 @@
 package com.mopl.kafka.dlq;
 
 import com.mopl.domain.event.EventTopic;
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -44,16 +45,14 @@ public class DlqEventProcessor {
 
             dlqAlertPublisher.publish(dlqEvent);
 
-            log.info(
-                "[DLQ] Processed dead letter - originalTopic: {}, key: {}, offset: {}",
-                originalTopic,
-                record.key(),
-                record.offset()
-            );
+            LogContext.with("originalTopic", originalTopic)
+                .and("key", record.key())
+                .and("offset", record.offset())
+                .info("[DLQ] Processed dead letter");
 
             ack.acknowledge();
         } catch (Exception e) {
-            log.error("[DLQ] Failed to process dead letter: {}", record.value(), e);
+            LogContext.with("value", record.value()).error("[DLQ] Failed to process dead letter", e);
             ack.acknowledge();
         }
     }
