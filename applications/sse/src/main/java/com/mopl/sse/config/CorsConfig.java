@@ -31,9 +31,9 @@ public class CorsConfig {
         return source;
     }
 
+    @ConfigurationProperties(prefix = "cors")
     @Getter
     @Setter
-    @ConfigurationProperties(prefix = "cors")
     public static class CorsProperties {
 
         private List<String> allowedOrigins = List.of();
