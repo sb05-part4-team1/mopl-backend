@@ -13,6 +13,14 @@ public class CacheAdapter implements CachePort {
     private final CacheManager cacheManager;
 
     @Override
+    public void put(String cacheName, Object key, Object value) {
+        Cache cache = cacheManager.getCache(cacheName);
+        if (cache != null) {
+            cache.put(key, value);
+        }
+    }
+
+    @Override
     public void evict(String cacheName, Object key) {
         Cache cache = cacheManager.getCache(cacheName);
         if (cache != null) {

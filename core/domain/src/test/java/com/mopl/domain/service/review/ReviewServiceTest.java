@@ -11,6 +11,7 @@ import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.review.ReviewQueryRepository;
 import com.mopl.domain.repository.review.ReviewQueryRequest;
 import com.mopl.domain.repository.review.ReviewRepository;
+import com.mopl.domain.support.cache.CachePort;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
 import org.junit.jupiter.api.DisplayName;
@@ -28,6 +29,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -45,6 +47,9 @@ class ReviewServiceTest {
 
     @Mock
     private ContentRepository contentRepository;
+
+    @Mock
+    private CachePort cachePort;
 
     @InjectMocks
     private ReviewService reviewService;
@@ -117,7 +122,10 @@ class ReviewServiceTest {
             UUID authorId = UUID.randomUUID();
 
             ContentModel content = mock(ContentModel.class);
+            ContentModel updatedContent = mock(ContentModel.class);
             given(content.getId()).willReturn(contentId);
+            given(content.addReview(anyDouble())).willReturn(updatedContent);
+            given(updatedContent.getId()).willReturn(contentId);
 
             UserModel author = mock(UserModel.class);
             given(author.getId()).willReturn(authorId);
@@ -198,6 +206,7 @@ class ReviewServiceTest {
 
             then(reviewRepository).should().save(any(ReviewModel.class));
             then(contentRepository).should().save(any(ContentModel.class));
+            then(cachePort).should().put(any(), any(), any());
         }
 
         @Test
@@ -224,6 +233,7 @@ class ReviewServiceTest {
 
             then(reviewRepository).should().save(any(ReviewModel.class));
             then(contentRepository).should(never()).save(any());
+            then(cachePort).should(never()).put(any(), any(), any());
         }
 
         @Test
@@ -251,6 +261,7 @@ class ReviewServiceTest {
 
             then(reviewRepository).should().save(any(ReviewModel.class));
             then(contentRepository).should().save(any(ContentModel.class));
+            then(cachePort).should().put(any(), any(), any());
         }
 
         @Test
@@ -273,6 +284,7 @@ class ReviewServiceTest {
             // then
             then(reviewRepository).should().save(any(ReviewModel.class));
             then(contentRepository).should(never()).save(any());
+            then(cachePort).should(never()).put(any(), any(), any());
         }
 
         @Test
@@ -331,6 +343,7 @@ class ReviewServiceTest {
             // then
             then(reviewRepository).should().delete(reviewId);
             then(contentRepository).should().save(any(ContentModel.class));
+            then(cachePort).should().put(any(), any(), any());
         }
 
         @Test

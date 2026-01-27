@@ -14,8 +14,6 @@ import com.mopl.domain.repository.review.ReviewSortField;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.review.ReviewService;
 import com.mopl.domain.service.user.UserService;
-import com.mopl.domain.support.cache.CacheName;
-import com.mopl.domain.support.cache.CachePort;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
 import com.mopl.domain.support.search.ContentSearchSyncPort;
@@ -63,9 +61,6 @@ class ReviewFacadeTest {
     @Mock
     private AfterCommitExecutor afterCommitExecutor;
 
-    @Mock
-    private CachePort cachePort;
-
     @InjectMocks
     private ReviewFacade reviewFacade;
 
@@ -108,7 +103,6 @@ class ReviewFacadeTest {
             // then
             assertThat(result).isEqualTo(expectedResponse);
             then(reviewService).should().create(content, author, request.text(), request.rating());
-            then(cachePort).should().evict(CacheName.CONTENTS, contentId);
             then(contentSearchSyncPort).should().upsert(latestContent);
         }
 
@@ -249,7 +243,6 @@ class ReviewFacadeTest {
 
             then(reviewService).should().update(reviewId, requesterId, request.text(), request
                 .rating());
-            then(cachePort).should().evict(CacheName.CONTENTS, contentId);
             then(contentSearchSyncPort).should().upsert(latestContent);
         }
 
@@ -333,7 +326,6 @@ class ReviewFacadeTest {
             // then
             then(userService).should().getById(requesterId);
             then(reviewService).should().deleteAndGetContentId(reviewId, requesterId);
-            then(cachePort).should().evict(CacheName.CONTENTS, contentId);
             then(contentSearchSyncPort).should().upsert(latestContent);
         }
     }

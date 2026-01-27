@@ -9,8 +9,6 @@ import com.mopl.domain.repository.review.ReviewQueryRequest;
 import com.mopl.domain.service.content.ContentService;
 import com.mopl.domain.service.review.ReviewService;
 import com.mopl.domain.service.user.UserService;
-import com.mopl.domain.support.cache.CacheName;
-import com.mopl.domain.support.cache.CachePort;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.search.ContentSearchSyncPort;
 import com.mopl.domain.support.transaction.AfterCommitExecutor;
@@ -32,7 +30,6 @@ public class ReviewFacade {
     private final ReviewResponseMapper reviewResponseMapper;
     private final ContentSearchSyncPort contentSearchSyncPort;
     private final AfterCommitExecutor afterCommitExecutor;
-    private final CachePort cachePort;
 
     public CursorResponse<ReviewResponse> getReviews(ReviewQueryRequest request) {
         return reviewService.getAll(request).map(reviewResponseMapper::toResponse);
@@ -84,7 +81,6 @@ public class ReviewFacade {
 
     private void syncContentAfterCommit(UUID contentId) {
         afterCommitExecutor.execute(() -> {
-            cachePort.evict(CacheName.CONTENTS, contentId);
             ContentModel latest = contentService.getById(contentId);
             contentSearchSyncPort.upsert(latest);
         });

@@ -10,6 +10,8 @@ import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.review.ReviewQueryRepository;
 import com.mopl.domain.repository.review.ReviewQueryRequest;
 import com.mopl.domain.repository.review.ReviewRepository;
+import com.mopl.domain.support.cache.CacheName;
+import com.mopl.domain.support.cache.CachePort;
 import com.mopl.domain.support.cursor.CursorResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -21,6 +23,7 @@ public class ReviewService {
     private final ReviewQueryRepository reviewQueryRepository;
     private final ReviewRepository reviewRepository;
     private final ContentRepository contentRepository;
+    private final CachePort cachePort;
 
     public CursorResponse<ReviewModel> getAll(ReviewQueryRequest request) {
         return reviewQueryRepository.findAll(request);
@@ -41,6 +44,7 @@ public class ReviewService {
 
         ContentModel updatedContent = content.addReview(rating);
         contentRepository.save(updatedContent);
+        cachePort.put(CacheName.CONTENTS, updatedContent.getId(), updatedContent);
 
         return savedReviewModel;
     }
@@ -60,8 +64,9 @@ public class ReviewService {
         ReviewModel savedReview = reviewRepository.save(updatedReview);
 
         if (rating != null && Double.compare(rating, oldRating) != 0) {
-            ContentModel content = savedReview.getContent();
-            contentRepository.save(content.updateReview(oldRating, rating));
+            ContentModel updatedContent = savedReview.getContent().updateReview(oldRating, rating);
+            contentRepository.save(updatedContent);
+            cachePort.put(CacheName.CONTENTS, updatedContent.getId(), updatedContent);
         }
 
         return savedReview;
@@ -75,7 +80,10 @@ public class ReviewService {
         double rating = review.getRating();
 
         reviewRepository.delete(reviewId);
-        contentRepository.save(content.removeReview(rating));
+
+        ContentModel updatedContent = content.removeReview(rating);
+        contentRepository.save(updatedContent);
+        cachePort.put(CacheName.CONTENTS, updatedContent.getId(), updatedContent);
 
         return content.getId();
     }
