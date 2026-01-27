@@ -17,10 +17,12 @@ public interface JpaContentRepository extends JpaRepository<ContentEntity, UUID>
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
             update ContentEntity c
-            set c.reviewCount = :reviewCount, c.averageRating = :averageRating
+            set c.reviewCount = :reviewCount,
+                c.averageRating = :averageRating,
+                c.popularityScore = :popularityScore
             where c.id = :contentId
         """)
-    void updateReviewStats(UUID contentId, int reviewCount, double averageRating);
+    void updateReviewStats(UUID contentId, int reviewCount, double averageRating, double popularityScore);
 
     // cleanup batch 전용
     @Query(

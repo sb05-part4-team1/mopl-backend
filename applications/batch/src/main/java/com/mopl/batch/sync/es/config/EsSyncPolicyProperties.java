@@ -1,11 +1,9 @@
 package com.mopl.batch.sync.es.config;
 
-import lombok.Getter;
-import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@Getter
-@Setter
-public class EsSyncPolicyProperties {
-
-    private Integer chunkSize;
+@ConfigurationProperties("mopl.batch.sync.es.defaults")
+public record EsSyncPolicyProperties(
+    int chunkSize
+) {
 }
