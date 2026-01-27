@@ -4,9 +4,9 @@ import com.mopl.domain.exception.storage.FileDeleteException;
 import com.mopl.domain.exception.storage.FileNotFoundException;
 import com.mopl.domain.exception.storage.FileUploadException;
 import com.mopl.domain.support.cache.CacheName;
+import com.mopl.logging.context.LogContext;
 import com.mopl.storage.config.StorageProperties;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.InputStreamResource;
@@ -28,7 +28,6 @@ import java.io.InputStream;
 import java.util.List;
 
 @RequiredArgsConstructor
-@Slf4j
 public class S3StorageProvider implements StorageProvider {
 
     private final StorageProperties.S3 s3Properties;
@@ -46,9 +45,9 @@ public class S3StorageProvider implements StorageProvider {
 
             s3Client.putObject(request, RequestBody.fromInputStream(inputStream, contentLength));
 
-            log.info("S3 파일 업로드 성공: path={}, size={}", path, contentLength);
+            LogContext.with("provider", "s3").and("path", path).and("size", contentLength).info("File uploaded");
         } catch (Exception e) {
-            log.error("S3 업로드 실패: {}", path, e);
+            LogContext.with("provider", "s3").and("path", path).error("File upload failed", e);
             throw FileUploadException.withPathAndCause(path, e.getMessage());
         }
     }
@@ -88,10 +87,10 @@ public class S3StorageProvider implements StorageProvider {
             InputStream inputStream = s3Client.getObject(request);
             return new InputStreamResource(inputStream);
         } catch (NoSuchKeyException e) {
-            log.warn("S3 파일을 찾을 수 없음: {}", path);
+            LogContext.with("provider", "s3").and("path", path).warn("File not found");
             throw FileNotFoundException.withPath(path);
         } catch (S3Exception e) {
-            log.error("S3 다운로드 실패: {}", path, e);
+            LogContext.with("provider", "s3").and("path", path).error("File download failed", e);
             throw FileNotFoundException.withPath(path);
         }
     }
@@ -106,9 +105,9 @@ public class S3StorageProvider implements StorageProvider {
                 .build();
 
             s3Client.deleteObject(request);
-            log.info("S3 파일 삭제 성공: {}", path);
+            LogContext.with("provider", "s3").and("path", path).info("File deleted");
         } catch (S3Exception e) {
-            log.error("S3 파일 삭제 실패: {}", path, e);
+            LogContext.with("provider", "s3").and("path", path).error("File delete failed", e);
             throw FileDeleteException.withPathAndCause(path, e.getMessage());
         }
     }
