@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Component
-@RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "mopl.search", name = "enabled", havingValue = "true")
+@RequiredArgsConstructor
 public class ElasticsearchContentSearchSyncAdapter implements ContentSearchSyncPort {
 
     private final ContentIndexService indexService;
