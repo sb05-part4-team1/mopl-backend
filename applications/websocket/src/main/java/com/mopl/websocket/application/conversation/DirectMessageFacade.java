@@ -11,8 +11,9 @@ import com.mopl.domain.service.conversation.ReadStatusService;
 import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.dto.conversation.DirectMessageResponse;
 import com.mopl.dto.conversation.DirectMessageResponseMapper;
-import com.mopl.redis.pubsub.DirectMessagePublisher;
 import com.mopl.dto.outbox.DomainEventOutboxMapper;
+import com.mopl.logging.context.LogContext;
+import com.mopl.redis.pubsub.DirectMessagePublisher;
 import com.mopl.websocket.interfaces.api.conversation.dto.DirectMessageSendRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -64,6 +65,11 @@ public class DirectMessageFacade {
 
         DirectMessageResponse response = directMessageResponseMapper.toResponse(savedDirectMessage, receiver);
         directMessagePublisher.publish(response);
+
+        LogContext.with("senderId", senderId)
+            .and("conversationId", conversationId)
+            .and("messageId", savedDirectMessage.getId())
+            .info("Direct message sent");
 
         return response;
     }
