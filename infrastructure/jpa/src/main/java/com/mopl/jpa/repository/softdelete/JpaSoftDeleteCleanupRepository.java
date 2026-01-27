@@ -41,6 +41,6 @@ public interface JpaSoftDeleteCleanupRepository extends JpaRepository<ContentEnt
     List<ContentThumbnailProjection> findThumbnailPathsByIds(List<UUID> contentIds);
 
     @Modifying
-    @Query(value = "delete from contents where id in (:contentIds)", nativeQuery = true)
+    @Query("delete from ContentEntity c where c.id in :contentIds")
     int deleteContentsByIdIn(List<UUID> contentIds);
 }
