@@ -5,17 +5,17 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "mopl.batch.cleanup.orphan")
 public record OrphanCleanupProperties(
     PolicyProperties defaults,
-    PolicyProperties notification,
-    PolicyProperties follow,
-    PolicyProperties playlistSubscriber,
-    PolicyProperties playlistContent,
-    PolicyProperties playlist,
-    PolicyProperties review,
-    PolicyProperties readStatus,
-    PolicyProperties directMessage,
-    PolicyProperties conversation,
-    PolicyProperties contentTag,
-    PolicyProperties contentExternalMapping
+    PolicyProperties conversation,           // 1
+    PolicyProperties directMessage,          // 2
+    PolicyProperties playlist,               // 3
+    PolicyProperties playlistContent,        // 4
+    PolicyProperties playlistSubscriber,     // 5
+    PolicyProperties review,                 // 6
+    PolicyProperties contentTag,             // 7
+    PolicyProperties contentExternalMapping, // 8
+    PolicyProperties notification,           // 9
+    PolicyProperties follow,                 // 10
+    PolicyProperties readStatus              // 11
 ) {
     public OrphanCleanupProperties {
         if (defaults == null || defaults.chunkSize() == null || defaults.chunkSize() <= 0) {

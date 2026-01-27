@@ -135,6 +135,8 @@ public class OrphanCleanupService {
         );
     }
 
+    private static final int MAX_ITERATIONS = 10000;
+
     private int cleanup(
         String name,
         PolicyProperties policy,
@@ -146,16 +148,29 @@ public class OrphanCleanupService {
         Instant threshold = Instant.now().minus(gracePeriodDays, ChronoUnit.DAYS);
 
         int totalDeleted = 0;
+        int iterations = 0;
 
-        while (true) {
+        while (iterations < MAX_ITERATIONS) {
             List<UUID> orphanIds = findOrphans.apply(threshold, chunkSize);
             if (orphanIds.isEmpty()) {
                 break;
             }
 
             int deleted = deleteOrphans.apply(orphanIds);
+            if (deleted == 0) {
+                log.warn("[OrphanCleanup] {} found {} orphans but deleted 0, breaking to prevent infinite loop",
+                    name, orphanIds.size());
+                break;
+            }
+
             totalDeleted += deleted;
+            iterations++;
             log.debug("[OrphanCleanup] {} deleted batch={}", name, deleted);
+        }
+
+        if (iterations >= MAX_ITERATIONS) {
+            log.warn("[OrphanCleanup] {} reached max iterations={}, totalDeleted={}",
+                name, MAX_ITERATIONS, totalDeleted);
         }
 
         return totalDeleted;

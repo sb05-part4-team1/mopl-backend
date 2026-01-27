@@ -2,9 +2,11 @@ package com.mopl.batch.cleanup.orphan.config;
 
 import com.mopl.batch.cleanup.orphan.config.OrphanCleanupProperties.PolicyProperties;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
+@EnableConfigurationProperties(OrphanCleanupProperties.class)
 @RequiredArgsConstructor
 public class OrphanCleanupPolicyResolver {
 
