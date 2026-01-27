@@ -14,6 +14,7 @@ import com.mopl.domain.support.search.ContentSearchSyncPort;
 import com.mopl.domain.support.transaction.AfterCommitExecutor;
 import com.mopl.dto.content.ContentResponse;
 import com.mopl.dto.content.ContentResponseMapper;
+import com.mopl.logging.context.LogContext;
 import com.mopl.storage.provider.StorageProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -89,6 +90,12 @@ public class ContentFacade {
             ContentModel saved = contentService.create(contentModel);
             contentTagService.applyTags(saved.getId(), request.tags());
             afterCommitExecutor.execute(() -> contentSearchSyncPort.upsert(saved));
+
+            LogContext.with("contentId", saved.getId())
+                .and("type", request.type())
+                .and("title", request.title())
+                .info("Content created");
+
             return toContentResponse(saved);
         });
     }
@@ -129,6 +136,10 @@ public class ContentFacade {
             contentModel.delete();
             contentService.delete(contentModel);
             afterCommitExecutor.execute(() -> contentSearchSyncPort.delete(contentId));
+
+            LogContext.with("contentId", contentId)
+                .and("title", contentModel.getTitle())
+                .info("Content deleted");
         });
     }
 

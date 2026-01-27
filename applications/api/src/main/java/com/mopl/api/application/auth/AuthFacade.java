@@ -2,6 +2,7 @@ package com.mopl.api.application.auth;
 
 import com.mopl.domain.repository.user.TemporaryPasswordRepository;
 import com.mopl.domain.service.user.UserService;
+import com.mopl.logging.context.LogContext;
 import com.mopl.mail.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,7 +17,7 @@ public class AuthFacade {
 
     private static final int TEMP_PASSWORD_LENGTH = 12;
     private static final String TEMP_PASSWORD_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-        + "0123456789!@#$%";
+                                                      + "0123456789!@#$%";
     private static final int TEMP_PASSWORD_EXPIRY_MINUTES = 3;
 
     private final UserService userService;
@@ -33,6 +34,8 @@ public class AuthFacade {
 
         temporaryPasswordRepository.save(email, encodedPassword);
         emailService.sendTemporaryPassword(email, temporaryPassword, expiresAt);
+
+        LogContext.with("email", email).info("Password reset requested");
     }
 
     private String generateTemporaryPassword() {
