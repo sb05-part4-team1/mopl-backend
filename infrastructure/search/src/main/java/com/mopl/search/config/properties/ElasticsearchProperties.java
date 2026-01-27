@@ -6,9 +6,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.time.Duration;
 
+@ConfigurationProperties(prefix = "mopl.search.elasticsearch")
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "mopl.search.elasticsearch")
 public class ElasticsearchProperties {
 
     private String uris;
