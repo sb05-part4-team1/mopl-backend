@@ -34,7 +34,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -556,7 +555,7 @@ class PlaylistFacadeTest {
             given(userService.getById(requesterId)).willReturn(owner);
             given(playlistService.getById(playlistId)).willReturn(playlist);
             given(contentService.getById(contentId)).willReturn(content);
-            willThrow(new DataIntegrityViolationException("Duplicate entry"))
+            willThrow(PlaylistContentAlreadyExistsException.withPlaylistIdAndContentId(playlistId, contentId))
                 .given(playlistService).addContent(playlistId, contentId);
             setupTransactionTemplateWithoutResult();
 
