@@ -26,8 +26,6 @@ val jacocoAggregateExclusions = jacocoExclusions + listOf(
     "**/*Event$*.class",
 )
 
-val jacocoExcludedProjects = listOf(":applications:batch")
-
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
@@ -48,11 +46,7 @@ subprojects {
     apply(plugin = "io.spring.dependency-management")
     apply(plugin = "com.diffplug.spotless")
     apply(plugin = "checkstyle")
-
-    val isJacocoExcluded = project.path in jacocoExcludedProjects
-    if (!isJacocoExcluded) {
-        apply(plugin = "jacoco")
-    }
+    apply(plugin = "jacoco")
 
     dependencyManagement {
         imports {
@@ -76,10 +70,8 @@ subprojects {
     }
 
     configureJarTasks()
-    configureTestTasks(isJacocoExcluded)
-    if (!isJacocoExcluded) {
-        configureJacoco()
-    }
+    configureTestTasks()
+    configureJacoco()
     configureSpotless()
     configureCheckstyle()
 }
@@ -95,7 +87,7 @@ fun Project.configureJarTasks() {
     }
 }
 
-fun Project.configureTestTasks(isJacocoExcluded: Boolean = false) {
+fun Project.configureTestTasks() {
     tasks.withType<JavaCompile> {
         options.encoding = "UTF-8"
         options.compilerArgs.add("-parameters")
@@ -111,15 +103,6 @@ fun Project.configureTestTasks(isJacocoExcluded: Boolean = false) {
         systemProperty("user.timezone", "Asia/Seoul")
         systemProperty("spring.profiles.active", "test")
         jvmArgs("-Xshare:off")
-        if (!isJacocoExcluded) {
-            finalizedBy(tasks.jacocoTestReport)
-        }
-    }
-
-    if (!isJacocoExcluded) {
-        tasks.jacocoTestReport {
-            dependsOn(tasks.test)
-        }
     }
 }
 
@@ -168,11 +151,10 @@ listOf("applications", "core", "infrastructure", "shared").forEach { name ->
 
 tasks.named<JacocoReport>("jacocoTestReport") {
     description = "Generates an aggregate JaCoCo report from all subprojects"
-    val includedSubprojects = subprojects.filter { it.path !in jacocoExcludedProjects }
-    dependsOn(includedSubprojects.mapNotNull { it.tasks.findByName("jacocoTestReport") })
+    dependsOn(subprojects.mapNotNull { it.tasks.findByName("jacocoTestReport") })
 
     executionData.setFrom(
-        files(includedSubprojects.flatMap { subproject ->
+        files(subprojects.flatMap { subproject ->
             subproject.layout.buildDirectory.asFile.get()
                 .resolve("jacoco")
                 .listFiles()
@@ -182,11 +164,11 @@ tasks.named<JacocoReport>("jacocoTestReport") {
     )
 
     sourceDirectories.setFrom(
-        files(includedSubprojects.flatMap { it.the<SourceSetContainer>()["main"].allSource.srcDirs })
+        files(subprojects.flatMap { it.the<SourceSetContainer>()["main"].allSource.srcDirs })
     )
 
     classDirectories.setFrom(
-        files(includedSubprojects.flatMap { subproject ->
+        files(subprojects.flatMap { subproject ->
             subproject.the<SourceSetContainer>()["main"].output.classesDirs.map {
                 fileTree(it).exclude(jacocoAggregateExclusions)
             }
