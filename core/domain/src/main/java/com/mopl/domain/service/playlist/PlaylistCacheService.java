@@ -5,7 +5,6 @@ import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.domain.repository.playlist.PlaylistRepository;
-import com.mopl.domain.repository.playlist.PlaylistSubscriberRepository;
 import com.mopl.domain.support.cache.CacheName;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -21,7 +20,6 @@ public class PlaylistCacheService {
 
     private final PlaylistRepository playlistRepository;
     private final PlaylistContentRepository playlistContentRepository;
-    private final PlaylistSubscriberRepository playlistSubscriberRepository;
 
     @Cacheable(cacheNames = CacheName.PLAYLISTS, key = "#playlistId")
     public PlaylistModel getById(UUID playlistId) {
@@ -43,9 +41,7 @@ public class PlaylistCacheService {
         @CacheEvict(cacheNames = CacheName.PLAYLISTS, key = "#playlistId"),
         @CacheEvict(cacheNames = CacheName.PLAYLIST_CONTENTS, key = "#playlistId")
     })
-    public void deleteAndEvict(UUID playlistId) {
-        playlistContentRepository.deleteAllByPlaylistIds(List.of(playlistId));
-        playlistSubscriberRepository.deleteAllByPlaylistIds(List.of(playlistId));
+    public void delete(UUID playlistId) {
         playlistRepository.delete(playlistId);
     }
 }

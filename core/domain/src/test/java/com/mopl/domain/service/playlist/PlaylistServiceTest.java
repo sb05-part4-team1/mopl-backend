@@ -271,7 +271,7 @@ class PlaylistServiceTest {
             playlistService.delete(playlistId);
 
             // then
-            then(playlistCacheService).should().deleteAndEvict(playlistId);
+            then(playlistCacheService).should().delete(playlistId);
         }
     }
 

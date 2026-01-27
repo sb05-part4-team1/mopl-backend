@@ -18,9 +18,4 @@ public interface PlaylistContentRepository {
     void save(UUID playlistId, UUID contentId);
 
     boolean deleteByPlaylistIdAndContentId(UUID playlistId, UUID contentId);
-
-    // cleanup batch 전용
-    int deleteAllByContentIds(List<UUID> contentIds);
-
-    int deleteAllByPlaylistIds(List<UUID> playlistIds);
 }

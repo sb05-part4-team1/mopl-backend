@@ -304,8 +304,7 @@ class CursorPaginationHelperTest {
         @Mock
         JPAQuery<TestRow> query;
 
-        private final ComparableExpression<UUID> idExpression =
-            Expressions.comparableTemplate(UUID.class, "id");
+        private final ComparableExpression<UUID> idExpression = Expressions.comparableTemplate(UUID.class, "id");
         private final SortField<String> sortField = new TestSortFieldImpl(TestSortField.NAME);
 
         @Test
@@ -313,6 +312,7 @@ class CursorPaginationHelperTest {
         void withNullIdAfter_appliesOnlyOrderAndLimit() {
             // given
             CursorRequest<TestSortField> request = new CursorRequest<>() {
+
                 @Override
                 public String cursor() {
                     return "someCursor";
@@ -347,8 +347,7 @@ class CursorPaginationHelperTest {
             CursorPaginationHelper.applyCursorPagination(request, sortField, query, idExpression);
 
             // then
-            ArgumentCaptor<BooleanExpression> whereCaptor =
-                ArgumentCaptor.forClass(BooleanExpression.class);
+            ArgumentCaptor<BooleanExpression> whereCaptor = ArgumentCaptor.forClass(BooleanExpression.class);
             verify(query).where(whereCaptor.capture());
             assertThat(whereCaptor.getValue()).isNull();
             verify(query).limit(11L);
@@ -359,6 +358,7 @@ class CursorPaginationHelperTest {
         void withEmptyCursor_appliesOnlyOrderAndLimit() {
             // given
             CursorRequest<TestSortField> request = new CursorRequest<>() {
+
                 @Override
                 public String cursor() {
                     return "";
@@ -393,8 +393,7 @@ class CursorPaginationHelperTest {
             CursorPaginationHelper.applyCursorPagination(request, sortField, query, idExpression);
 
             // then
-            ArgumentCaptor<BooleanExpression> whereCaptor =
-                ArgumentCaptor.forClass(BooleanExpression.class);
+            ArgumentCaptor<BooleanExpression> whereCaptor = ArgumentCaptor.forClass(BooleanExpression.class);
             verify(query).where(whereCaptor.capture());
             assertThat(whereCaptor.getValue()).isNull();
             verify(query).limit(6L);
@@ -405,6 +404,7 @@ class CursorPaginationHelperTest {
         void withNullCursor_appliesOnlyOrderAndLimit() {
             // given
             CursorRequest<TestSortField> request = new CursorRequest<>() {
+
                 @Override
                 public String cursor() {
                     return null;
@@ -439,8 +439,7 @@ class CursorPaginationHelperTest {
             CursorPaginationHelper.applyCursorPagination(request, sortField, query, idExpression);
 
             // then
-            ArgumentCaptor<BooleanExpression> whereCaptor =
-                ArgumentCaptor.forClass(BooleanExpression.class);
+            ArgumentCaptor<BooleanExpression> whereCaptor = ArgumentCaptor.forClass(BooleanExpression.class);
             verify(query).where(whereCaptor.capture());
             assertThat(whereCaptor.getValue()).isNull();
             verify(query).limit(21L);
@@ -453,6 +452,7 @@ class CursorPaginationHelperTest {
             // given
             UUID idAfter = UUID.randomUUID();
             CursorRequest<TestSortField> request = new CursorRequest<>() {
+
                 @Override
                 public String cursor() {
                     return "Alice";
@@ -487,13 +487,11 @@ class CursorPaginationHelperTest {
             CursorPaginationHelper.applyCursorPagination(request, sortField, query, idExpression);
 
             // then
-            ArgumentCaptor<BooleanExpression> whereCaptor =
-                ArgumentCaptor.forClass(BooleanExpression.class);
+            ArgumentCaptor<BooleanExpression> whereCaptor = ArgumentCaptor.forClass(BooleanExpression.class);
             verify(query).where(whereCaptor.capture());
             assertThat(whereCaptor.getValue()).isNotNull();
 
-            ArgumentCaptor<OrderSpecifier[]> orderCaptor =
-                ArgumentCaptor.forClass(OrderSpecifier[].class);
+            ArgumentCaptor<OrderSpecifier[]> orderCaptor = ArgumentCaptor.forClass(OrderSpecifier[].class);
             verify(query).orderBy(orderCaptor.capture());
             OrderSpecifier<?>[] orderSpecifiers = orderCaptor.getValue();
             assertThat(orderSpecifiers).hasSize(2);
@@ -508,6 +506,7 @@ class CursorPaginationHelperTest {
             // given
             UUID idAfter = UUID.randomUUID();
             CursorRequest<TestSortField> request = new CursorRequest<>() {
+
                 @Override
                 public String cursor() {
                     return "Zoe";
@@ -542,13 +541,11 @@ class CursorPaginationHelperTest {
             CursorPaginationHelper.applyCursorPagination(request, sortField, query, idExpression);
 
             // then
-            ArgumentCaptor<BooleanExpression> whereCaptor =
-                ArgumentCaptor.forClass(BooleanExpression.class);
+            ArgumentCaptor<BooleanExpression> whereCaptor = ArgumentCaptor.forClass(BooleanExpression.class);
             verify(query).where(whereCaptor.capture());
             assertThat(whereCaptor.getValue()).isNotNull();
 
-            ArgumentCaptor<OrderSpecifier[]> orderCaptor =
-                ArgumentCaptor.forClass(OrderSpecifier[].class);
+            ArgumentCaptor<OrderSpecifier[]> orderCaptor = ArgumentCaptor.forClass(OrderSpecifier[].class);
             verify(query).orderBy(orderCaptor.capture());
             OrderSpecifier<?>[] orderSpecifiers = orderCaptor.getValue();
             assertThat(orderSpecifiers).hasSize(2);
