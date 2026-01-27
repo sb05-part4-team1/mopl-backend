@@ -42,8 +42,10 @@ out/
 .settings/
 .eclipse/
 
+# Project specific
 .claude
 .mopl
+
 
 ###############################
 #        Java / Spring
@@ -51,66 +53,19 @@ out/
 target/
 build/
 bin/
-!.mvn/wrapper/maven-wrapper.jar
-.mvn/
-**/logs/
+logs/
 *.log
 *.hprof
 
 # QueryDSL generated Q classes
 **/generated/
 
-# Gradle
+
+###############################
+#        Gradle
+###############################
 .gradle/
 gradle-app.setting
-gradle-wrapper.jar
-gradle-wrapper.properties
-
-# Maven
-dependency-reduced-pom.xml
-
-
-###############################
-#        Node / Frontend
-###############################
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-dist/
-.cache/
-.eslintcache
-coverage/
-.vite/
-.next/
-
-# TypeScript
-*.tsbuildinfo
-
-# React Native
-ios/build/
-android/build/
-*.keystore
-*.jks
-
-
-###############################
-#        Python
-###############################
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-*.pyc
-.Python
-.env/
-venv/
-.venv/
-pip-wheel-metadata/
-.eggs/
-*.egg-info/
-*.egg
 
 
 ###############################
@@ -126,15 +81,15 @@ tmp/
 ###############################
 #        AWS / Cloud
 ###############################
-# AWS credentials (절대 올리면 안됨)
 *.pem
 *.key
 *.ppk
 .aws/
-.aws/credentials
-.aws/config
 
-# Terraform
+
+###############################
+#        Terraform
+###############################
 .terraform/
 terraform.tfstate
 terraform.tfstate.*
@@ -146,7 +101,6 @@ override.tf.json
 ###############################
 #        Logs & Temp Files
 ###############################
-logs/
 *.tmp
 *.temp
 *.swp
@@ -154,34 +108,10 @@ logs/
 
 
 ###############################
-#        Cache
-###############################
-.caches/
-npm-cache/
-yarn-cache/
-pip-cache/
-gradle-cache/
-.sass-cache/
-.parcel-cache/
-vite-cache/
-
-
-###############################
-#        JavaScript Tools
-###############################
-.stylelintcache
-.cache-loader/
-.jspm/
-.babelrc
-
-
-###############################
 #        Testing
 ###############################
 .junit/
 test-output/
-cypress/videos/
-cypress/screenshots/
 
 
 ###############################
@@ -192,8 +122,6 @@ cypress/screenshots/
 !.env.example
 *.env.local
 *.secret
-*.config
-!lombok.config
 secret.*
 private.*
 *.crt
@@ -204,18 +132,4 @@ private.*
 #        Misc
 ###############################
 *.orig
-*.lock
 *.old
-
-###############################
-#        Image/Media (옵션)
-###############################
-*.psd
-*.ai
-*.mp3
-*.wav
-*.mp4
-*.mov
-*.zip
-*.tar
-*.gz
