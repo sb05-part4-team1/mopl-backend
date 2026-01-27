@@ -85,9 +85,4 @@ public class PlaylistContentRepositoryImpl implements PlaylistContentRepository 
 
         return result;
     }
-
-    @Override
-    public void deleteAllByPlaylistIds(List<UUID> playlistIds) {
-        jpaPlaylistContentRepository.deleteAllByPlaylistIds(playlistIds);
-    }
 }

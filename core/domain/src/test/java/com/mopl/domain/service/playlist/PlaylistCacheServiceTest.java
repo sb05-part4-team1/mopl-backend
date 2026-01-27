@@ -7,7 +7,6 @@ import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.playlist.PlaylistModel;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.domain.repository.playlist.PlaylistRepository;
-import com.mopl.domain.repository.playlist.PlaylistSubscriberRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -34,9 +33,6 @@ class PlaylistCacheServiceTest {
 
     @Mock
     private PlaylistContentRepository playlistContentRepository;
-
-    @Mock
-    private PlaylistSubscriberRepository playlistSubscriberRepository;
 
     @InjectMocks
     private PlaylistCacheService playlistCacheService;
@@ -143,9 +139,9 @@ class PlaylistCacheServiceTest {
         }
     }
 
-    @DisplayName("deleteAndEvict()")
+    @DisplayName("delete()")
     @Nested
-    class DeleteAndEvictTest {
+    class DeleteTest {
 
         @DisplayName("플레이리스트 삭제 후 캐시 evict")
         @Test
@@ -154,11 +150,9 @@ class PlaylistCacheServiceTest {
             UUID playlistId = UUID.randomUUID();
 
             // when
-            playlistCacheService.deleteAndEvict(playlistId);
+            playlistCacheService.delete(playlistId);
 
             // then
-            then(playlistContentRepository).should().deleteAllByPlaylistIds(List.of(playlistId));
-            then(playlistSubscriberRepository).should().deleteAllByPlaylistIds(List.of(playlistId));
             then(playlistRepository).should().delete(playlistId);
         }
     }
