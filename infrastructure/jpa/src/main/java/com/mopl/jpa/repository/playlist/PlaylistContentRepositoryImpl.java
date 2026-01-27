@@ -1,6 +1,5 @@
 package com.mopl.jpa.repository.playlist;
 
-import com.mopl.domain.exception.playlist.PlaylistContentAlreadyExistsException;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.jpa.entity.content.ContentEntity;
@@ -9,7 +8,6 @@ import com.mopl.jpa.entity.playlist.PlaylistContentEntity;
 import com.mopl.jpa.entity.playlist.PlaylistEntity;
 import com.mopl.jpa.repository.content.JpaContentRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -70,11 +68,7 @@ public class PlaylistContentRepositoryImpl implements PlaylistContentRepository 
             .content(contentRef)
             .build();
 
-        try {
-            jpaPlaylistContentRepository.save(entity);
-        } catch (DataIntegrityViolationException exception) {
-            throw PlaylistContentAlreadyExistsException.withPlaylistIdAndContentId(playlistId, contentId);
-        }
+        jpaPlaylistContentRepository.save(entity);
     }
 
     @Override
