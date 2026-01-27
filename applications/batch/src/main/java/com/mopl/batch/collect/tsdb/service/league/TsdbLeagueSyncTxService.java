@@ -5,15 +5,14 @@ import com.mopl.domain.repository.league.LeagueRepository;
 import com.mopl.external.tsdb.client.TsdbClient;
 import com.mopl.external.tsdb.model.LeagueItem;
 import com.mopl.external.tsdb.model.LeagueResponse;
+import com.mopl.logging.context.LogContext;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TsdbLeagueSyncTxService {
@@ -34,7 +33,7 @@ public class TsdbLeagueSyncTxService {
 
     private int sync(LeagueResponse response, Set<Long> processedLeagueIds) {
         if (response == null || response.leagues() == null) {
-            log.debug("TSDB league response empty");
+            LogContext.with("service", "tsdbLeagueSync").debug("League response empty");
             return 0;
         }
 
@@ -42,7 +41,9 @@ public class TsdbLeagueSyncTxService {
 
         for (LeagueItem item : response.leagues()) {
             if (item == null) {
-                log.debug("TSDB invalid league skipped: reason=null item");
+                LogContext.with("service", "tsdbLeagueSync")
+                    .and("reason", "null item")
+                    .debug("Invalid league skipped");
                 continue;
             }
 
@@ -50,23 +51,26 @@ public class TsdbLeagueSyncTxService {
             String leagueName = item.strLeague();
 
             if (leagueId == null) {
-                log.debug("TSDB invalid league skipped: leagueName={}",
-                    leagueName);
+                LogContext.with("service", "tsdbLeagueSync")
+                    .and("leagueName", leagueName)
+                    .debug("Invalid league skipped");
                 continue;
             }
 
             if (!processedLeagueIds.add(leagueId)) {
-                log.debug("TSDB league duplicated in response skipped: leagueId={}, leagueName={}",
-                    leagueId,
-                    leagueName);
+                LogContext.with("service", "tsdbLeagueSync")
+                    .and("leagueId", leagueId)
+                    .and("leagueName", leagueName)
+                    .debug("Duplicated in response skipped");
                 continue;
             }
 
             try {
                 if (leagueRepository.existsByLeagueId(leagueId)) {
-                    log.debug("TSDB league already exists skipped: leagueId={}, leagueName={}",
-                        leagueId,
-                        leagueName);
+                    LogContext.with("service", "tsdbLeagueSync")
+                        .and("leagueId", leagueId)
+                        .and("leagueName", leagueName)
+                        .debug("Already exists skipped");
                     continue;
                 }
 
@@ -80,15 +84,17 @@ public class TsdbLeagueSyncTxService {
                 inserted++;
 
             } catch (DataIntegrityViolationException e) {
-                log.debug("TSDB league duplicate skipped: leagueId={}, leagueName={}",
-                    leagueId,
-                    leagueName);
+                LogContext.with("service", "tsdbLeagueSync")
+                    .and("leagueId", leagueId)
+                    .and("leagueName", leagueName)
+                    .debug("Duplicate skipped");
 
             } catch (RuntimeException e) {
-                log.warn("TSDB league sync failed: leagueId={}, leagueName={}, reason={}",
-                    leagueId,
-                    leagueName,
-                    e.getMessage());
+                LogContext.with("service", "tsdbLeagueSync")
+                    .and("leagueId", leagueId)
+                    .and("leagueName", leagueName)
+                    .and("reason", e.getMessage())
+                    .warn("Sync failed");
             }
         }
 

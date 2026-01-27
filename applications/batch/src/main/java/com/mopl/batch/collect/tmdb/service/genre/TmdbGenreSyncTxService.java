@@ -5,15 +5,14 @@ import com.mopl.domain.repository.tag.GenreRepository;
 import com.mopl.external.tmdb.client.TmdbClient;
 import com.mopl.external.tmdb.model.TmdbGenreItem;
 import com.mopl.external.tmdb.model.TmdbGenreResponse;
+import com.mopl.logging.context.LogContext;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TmdbGenreSyncTxService {
@@ -35,7 +34,7 @@ public class TmdbGenreSyncTxService {
 
     private int sync(TmdbGenreResponse response, Set<Long> processedTmdbIds) {
         if (response == null || response.genres() == null) {
-            log.debug("TMDB genre response empty");
+            LogContext.with("service", "tmdbGenreSync").debug("Genre response empty");
             return 0;
         }
 
@@ -43,16 +42,17 @@ public class TmdbGenreSyncTxService {
 
         for (TmdbGenreItem item : response.genres()) {
             if (item == null || item.id() == null || item.name() == null || item.name().isBlank()) {
-                log.debug("TMDB invalid genre skipped");
+                LogContext.with("service", "tmdbGenreSync").debug("Invalid genre skipped");
                 continue;
             }
 
             Long tmdbId = item.id();
 
             if (!processedTmdbIds.add(tmdbId)) {
-                log.debug("TMDB genre duplicated in response skipped: tmdbId={}, name={}",
-                    tmdbId,
-                    item.name());
+                LogContext.with("service", "tmdbGenreSync")
+                    .and("tmdbId", tmdbId)
+                    .and("name", item.name())
+                    .debug("Duplicated in response skipped");
                 continue;
             }
 
@@ -61,21 +61,24 @@ public class TmdbGenreSyncTxService {
                     genreRepository.save(GenreModel.create(tmdbId, item.name()));
                     inserted++;
                 } else {
-                    log.debug("TMDB genre already exists skipped: tmdbId={}, name={}",
-                        tmdbId,
-                        item.name());
+                    LogContext.with("service", "tmdbGenreSync")
+                        .and("tmdbId", tmdbId)
+                        .and("name", item.name())
+                        .debug("Already exists skipped");
                 }
 
             } catch (DataIntegrityViolationException e) {
-                log.debug("TMDB genre duplicate skipped: tmdbId={}, name={}",
-                    tmdbId,
-                    item.name());
+                LogContext.with("service", "tmdbGenreSync")
+                    .and("tmdbId", tmdbId)
+                    .and("name", item.name())
+                    .debug("Duplicate skipped");
 
             } catch (RuntimeException e) {
-                log.warn("TMDB genre sync failed: tmdbId={}, name={}, reason={}",
-                    tmdbId,
-                    item.name(),
-                    e.getMessage());
+                LogContext.with("service", "tmdbGenreSync")
+                    .and("tmdbId", tmdbId)
+                    .and("name", item.name())
+                    .and("reason", e.getMessage())
+                    .warn("Sync failed");
             }
         }
 

@@ -1,8 +1,8 @@
 package com.mopl.batch.sync.es.initializer;
 
 import com.mopl.batch.sync.es.service.content.ContentEsSyncService;
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -15,15 +15,16 @@ import org.springframework.stereotype.Component;
     "${mopl.search.enabled:false} && ${mopl.batch.sync.es.initial-enabled:false}"
 )
 @RequiredArgsConstructor
-@Slf4j
 public class ContentEsSyncInitializer implements ApplicationRunner {
 
     private final ContentEsSyncService syncService;
 
     @Override
     public void run(ApplicationArguments args) {
-        log.info("ES initial sync start");
+        LogContext.with("initializer", "contentEsSync").info("Initial sync started");
         int total = syncService.syncAll();
-        log.info("ES initial sync done. totalUpserted={}", total);
+        LogContext.with("initializer", "contentEsSync")
+            .and("totalUpserted", total)
+            .info("Initial sync completed");
     }
 }

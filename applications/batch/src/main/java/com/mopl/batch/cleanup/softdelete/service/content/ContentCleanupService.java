@@ -3,8 +3,8 @@ package com.mopl.batch.cleanup.softdelete.service.content;
 import com.mopl.batch.cleanup.softdelete.config.SoftDeleteCleanupPolicyResolver;
 import com.mopl.batch.cleanup.softdelete.config.SoftDeleteCleanupProperties;
 import com.mopl.domain.repository.content.batch.ContentCleanupRepository;
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -14,7 +14,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ContentCleanupService {
 
     private static final int MAX_ITERATIONS = 10000;
@@ -41,8 +40,10 @@ public class ContentCleanupService {
 
             int deleted = executor.cleanupBatch(contentIds);
             if (deleted == 0) {
-                log.warn("[SoftDeleteCleanup] content found {} targets but deleted 0, breaking to prevent infinite loop",
-                    contentIds.size());
+                LogContext.with("service", "softDeleteCleanup")
+                    .and("entity", "content")
+                    .and("foundTargets", contentIds.size())
+                    .warn("Found targets but deleted 0, breaking to prevent infinite loop");
                 break;
             }
 
@@ -51,8 +52,11 @@ public class ContentCleanupService {
         }
 
         if (iterations >= MAX_ITERATIONS) {
-            log.warn("[SoftDeleteCleanup] content reached max iterations={}, totalDeleted={}",
-                MAX_ITERATIONS, totalDeleted);
+            LogContext.with("service", "softDeleteCleanup")
+                .and("entity", "content")
+                .and("maxIterations", MAX_ITERATIONS)
+                .and("totalDeleted", totalDeleted)
+                .warn("Reached max iterations");
         }
 
         return totalDeleted;

@@ -1,7 +1,7 @@
 package com.mopl.batch.cleanup.orphan.scheduler;
 
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -9,7 +9,6 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class OrphanCleanupScheduler {
@@ -19,15 +18,15 @@ public class OrphanCleanupScheduler {
 
     @Scheduled(cron = "0 30 4 * * *")
     public void runOrphanCleanup() {
+        LogContext.with("job", "orphanCleanup").info("Scheduled job started");
         try {
             JobParameters params = new JobParametersBuilder()
                 .addLong("time", System.currentTimeMillis())
                 .toJobParameters();
 
             jobLauncher.run(orphanCleanupJob, params);
-
         } catch (Exception e) {
-            log.error("Orphan cleanup batch failed", e);
+            LogContext.with("job", "orphanCleanup").error("Batch failed", e);
         }
     }
 }

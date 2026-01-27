@@ -1,7 +1,7 @@
 package com.mopl.batch.cleanup.softdelete.scheduler;
 
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class SoftDeleteCleanupScheduler {
 
     private final JobLauncher jobLauncher;
@@ -19,15 +18,15 @@ public class SoftDeleteCleanupScheduler {
 
     @Scheduled(cron = "0 0 4 * * *")
     public void runCleanup() {
+        LogContext.with("job", "softDeleteCleanup").info("Scheduled job started");
         try {
             JobParameters params = new JobParametersBuilder()
                 .addLong("time", System.currentTimeMillis())
                 .toJobParameters();
 
             jobLauncher.run(softDeleteCleanupJob, params);
-
         } catch (Exception e) {
-            log.error("Soft delete cleanup batch failed", e);
+            LogContext.with("job", "softDeleteCleanup").error("Batch failed", e);
         }
     }
 }

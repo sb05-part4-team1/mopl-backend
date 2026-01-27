@@ -1,7 +1,7 @@
 package com.mopl.batch.collect.tmdb.scheduler;
 
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -9,7 +9,6 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TmdbCollectScheduler {
@@ -20,6 +19,7 @@ public class TmdbCollectScheduler {
 
     @Scheduled(cron = "0 20 2 * * *")
     public void runTmdbCollect() {
+        LogContext.with("job", "tmdbCollect").info("Scheduled job started");
         try {
             JobParameters params = new JobParametersBuilder()
                 .addLong("time", System.currentTimeMillis())
@@ -27,12 +27,13 @@ public class TmdbCollectScheduler {
 
             jobLauncher.run(tmdbCollectJob, params);
         } catch (Exception e) {
-            log.error("TMDB collect batch failed", e);
+            LogContext.with("job", "tmdbCollect").error("Batch failed", e);
         }
     }
 
     @Scheduled(cron = "0 30 3 * * MON")
     public void runTmdbGenreSync() {
+        LogContext.with("job", "tmdbGenreSync").info("Scheduled job started");
         try {
             JobParameters params = new JobParametersBuilder()
                 .addLong("time", System.currentTimeMillis())
@@ -40,7 +41,7 @@ public class TmdbCollectScheduler {
 
             jobLauncher.run(tmdbGenreSyncJob, params);
         } catch (Exception e) {
-            log.error("TMDB genre sync batch failed", e);
+            LogContext.with("job", "tmdbGenreSync").error("Batch failed", e);
         }
     }
 }
