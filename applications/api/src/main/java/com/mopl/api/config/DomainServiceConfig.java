@@ -31,7 +31,6 @@ import com.mopl.domain.service.conversation.ReadStatusService;
 import com.mopl.domain.service.follow.FollowService;
 import com.mopl.domain.service.notification.NotificationService;
 import com.mopl.domain.service.outbox.OutboxService;
-import com.mopl.domain.service.playlist.PlaylistCacheService;
 import com.mopl.domain.service.playlist.PlaylistService;
 import com.mopl.domain.service.playlist.PlaylistSubscriptionService;
 import com.mopl.domain.service.review.ReviewService;
@@ -97,22 +96,14 @@ public class DomainServiceConfig {
     }
 
     @Bean
-    public PlaylistCacheService playlistCacheService(
-        PlaylistRepository playlistRepository,
-        PlaylistContentRepository playlistContentRepository
-    ) {
-        return new PlaylistCacheService(playlistRepository, playlistContentRepository);
-    }
-
-    @Bean
     public PlaylistService playlistService(
-        PlaylistCacheService playlistCacheService,
+        PlaylistRepository playlistRepository,
         PlaylistQueryRepository playlistQueryRepository,
         PlaylistContentRepository playlistContentRepository
     ) {
         return new PlaylistService(
-            playlistCacheService,
             playlistQueryRepository,
+            playlistRepository,
             playlistContentRepository
         );
     }
