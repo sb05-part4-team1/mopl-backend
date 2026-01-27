@@ -37,6 +37,25 @@ public class PlaylistContentRepositoryImpl implements PlaylistContentRepository 
     }
 
     @Override
+    public Map<UUID, List<ContentModel>> findContentsByPlaylistIdIn(Collection<UUID> playlistIds) {
+        if (playlistIds.isEmpty()) {
+            return Map.of();
+        }
+
+        List<PlaylistContentEntity> entities = jpaPlaylistContentRepository.findByPlaylistIdIn(
+            playlistIds);
+
+        Map<UUID, List<ContentModel>> result = new HashMap<>();
+        for (PlaylistContentEntity entity : entities) {
+            UUID playlistId = entity.getPlaylist().getId();
+            ContentModel contentModel = contentEntityMapper.toModel(entity.getContent());
+            result.computeIfAbsent(playlistId, k -> new ArrayList<>()).add(contentModel);
+        }
+
+        return result;
+    }
+
+    @Override
     public boolean exists(UUID playlistId, UUID contentId) {
         return jpaPlaylistContentRepository.existsByPlaylistIdAndContentId(playlistId, contentId);
     }
@@ -65,24 +84,5 @@ public class PlaylistContentRepositoryImpl implements PlaylistContentRepository 
             contentId
         );
         return deletedCount > 0;
-    }
-
-    @Override
-    public Map<UUID, List<ContentModel>> findContentsByPlaylistIdIn(Collection<UUID> playlistIds) {
-        if (playlistIds.isEmpty()) {
-            return Map.of();
-        }
-
-        List<PlaylistContentEntity> entities = jpaPlaylistContentRepository.findByPlaylistIdIn(
-            playlistIds);
-
-        Map<UUID, List<ContentModel>> result = new HashMap<>();
-        for (PlaylistContentEntity entity : entities) {
-            UUID playlistId = entity.getPlaylist().getId();
-            ContentModel contentModel = contentEntityMapper.toModel(entity.getContent());
-            result.computeIfAbsent(playlistId, k -> new ArrayList<>()).add(contentModel);
-        }
-
-        return result;
     }
 }
