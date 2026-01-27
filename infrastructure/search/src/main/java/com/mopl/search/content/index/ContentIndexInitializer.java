@@ -7,14 +7,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.IndexOperations;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @Component
-@RequiredArgsConstructor
+@Order(1)
 @ConditionalOnProperty(prefix = "mopl.search", name = "enabled", havingValue = "true")
+@RequiredArgsConstructor
+@Slf4j
 public class ContentIndexInitializer implements ApplicationRunner {
 
     private final ElasticsearchOperations operations;

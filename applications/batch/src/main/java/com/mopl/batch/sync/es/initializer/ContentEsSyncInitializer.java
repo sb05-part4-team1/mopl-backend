@@ -6,13 +6,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
+@Order(2)
 @ConditionalOnExpression(
     "${mopl.search.enabled:false} && ${mopl.batch.sync.es.initial-enabled:false}"
 )
+@RequiredArgsConstructor
 @Slf4j
 public class ContentEsSyncInitializer implements ApplicationRunner {
 
