@@ -519,7 +519,7 @@ class ContentFacadeTest {
             // then
             assertThat(result).isEqualTo(expectedResponse);
             then(storageProvider).should(never()).upload(any(), anyLong(), anyString());
-            then(contentTagService).should(never()).deleteAllByContentId(any());
+            then(contentTagService).should(never()).deleteByContentId(any());
             then(contentTagService).should(never()).applyTags(any(), any());
         }
 
@@ -598,7 +598,7 @@ class ContentFacadeTest {
             // then
             assertThat(result).isEqualTo(expectedResponse);
             then(storageProvider).should().upload(any(), eq(2048L), anyString());
-            then(contentTagService).should().deleteAllByContentId(contentId);
+            then(contentTagService).should().deleteByContentId(contentId);
             then(contentTagService).should().applyTags(contentId, newTags);
             then(contentSearchSyncPort).should().upsert(any(ContentModel.class));
         }
@@ -632,7 +632,7 @@ class ContentFacadeTest {
 
             // then
             assertThat(result).isEqualTo(expectedResponse);
-            then(contentTagService).should(never()).deleteAllByContentId(any());
+            then(contentTagService).should(never()).deleteByContentId(any());
             then(contentTagService).should(never()).applyTags(any(), any());
         }
 
@@ -667,7 +667,7 @@ class ContentFacadeTest {
 
             // then
             assertThat(result).isEqualTo(expectedResponse);
-            then(contentTagService).should().deleteAllByContentId(contentId);
+            then(contentTagService).should().deleteByContentId(contentId);
             then(contentTagService).should().applyTags(contentId, newTags);
         }
 
