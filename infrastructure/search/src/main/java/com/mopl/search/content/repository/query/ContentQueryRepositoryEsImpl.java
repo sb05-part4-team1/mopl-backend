@@ -8,9 +8,6 @@ import com.mopl.domain.repository.content.query.ContentQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.search.content.mapper.ContentDocumentMapper;
 import com.mopl.search.document.ContentDocument;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Primary;
@@ -20,6 +17,10 @@ import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Repository
 @Primary
@@ -95,7 +96,7 @@ public class ContentQueryRepositoryEsImpl implements ContentQueryRepository {
         List<Object> sortValues = lastHit.getSortValues();
 
         String nextCursor = !sortValues.isEmpty()
-            ? String.valueOf(sortValues.get(0))
+            ? String.valueOf(sortValues.getFirst())
             : sortField.serialize(sortField.extract(lastHit.getContent()));
 
         UUID nextIdAfter = sortValues.size() >= 2
@@ -117,12 +118,12 @@ public class ContentQueryRepositoryEsImpl implements ContentQueryRepository {
 
     private boolean hasCursor(ContentQueryRequest request) {
         return request.cursor() != null
-            && !request.cursor().isBlank()
-            && request.idAfter() != null;
+               && !request.cursor().isBlank()
+               && request.idAfter() != null;
     }
 
     private boolean isAsc(ContentQueryRequest request) {
         return request.sortDirection() != null
-            && request.sortDirection().name().equalsIgnoreCase("asc");
+               && request.sortDirection().name().equalsIgnoreCase("asc");
     }
 }

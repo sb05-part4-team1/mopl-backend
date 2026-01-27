@@ -39,13 +39,11 @@ public class SignInFailureHandler implements AuthenticationFailureHandler {
     }
 
     private MoplException convertToDomainException(AuthenticationException exception, String email) {
-        if (exception instanceof LockedException) {
-            return AccountLockedException.withEmail(email);
-        }
-        if (exception instanceof AuthenticationServiceException
-            || exception instanceof ProviderNotFoundException) {
-            return InternalServerException.create();
-        }
-        return InvalidCredentialsException.create();
+        return switch (exception) {
+            case LockedException ignored -> AccountLockedException.withEmail(email);
+            case AuthenticationServiceException ignored -> InternalServerException.create();
+            case ProviderNotFoundException ignored -> InternalServerException.create();
+            default -> InvalidCredentialsException.create();
+        };
     }
 }

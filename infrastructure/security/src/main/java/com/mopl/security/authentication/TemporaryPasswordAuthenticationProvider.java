@@ -1,7 +1,5 @@
 package com.mopl.security.authentication;
 
-import java.util.Optional;
-
 import com.mopl.domain.repository.user.TemporaryPasswordRepository;
 import com.mopl.security.userdetails.MoplUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +10,8 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,12 +32,10 @@ public class TemporaryPasswordAuthenticationProvider extends DaoAuthenticationPr
         String presentedPassword = authentication.getCredentials().toString();
         String storedPassword = userDetails.getPassword();
 
-        String email;
-        if (userDetails instanceof MoplUserDetails moplUserDetails) {
-            email = moplUserDetails.email();
-        } else {
-            email = userDetails.getUsername();
-        }
+        String email = switch (userDetails) {
+            case MoplUserDetails m -> m.email();
+            default -> userDetails.getUsername();
+        };
 
         log.debug("인증 시도: email={}", email);
 
