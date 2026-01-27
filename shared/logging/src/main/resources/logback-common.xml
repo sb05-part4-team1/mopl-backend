@@ -40,16 +40,16 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <!-- 민감정보 마스킹 -->
             <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
-                <!-- 비밀번호, 토큰, API 키 -->
-                <valueMasker class="net.logstash.logback.mask.RegexValueMasker">
-                    <regex>"(password|passwd|pwd|secret|token|accessToken|refreshToken|apiKey|apiSecret)"\s*:\s*"[^"]*"</regex>
-                    <mask>"$1":"***"</mask>
-                </valueMasker>
-                <!-- 이메일 -->
-                <valueMasker class="net.logstash.logback.mask.RegexValueMasker">
-                    <regex>([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})</regex>
-                    <mask>***@$2</mask>
-                </valueMasker>
+                <!-- 비밀번호, 토큰, API 키 (필드명 기반 마스킹) -->
+                <valueMask>
+                    <value>***</value>
+                    <pathRegex>password|passwd|pwd|secret|token|accessToken|refreshToken|apiKey|apiSecret</pathRegex>
+                </valueMask>
+                <!-- 이메일 (값 패턴 기반 마스킹) -->
+                <valueMask>
+                    <value>***@$2</value>
+                    <valueRegex>([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})</valueRegex>
+                </valueMask>
             </jsonGeneratorDecorator>
             <includeMdcKeyName>traceId</includeMdcKeyName>
             <includeMdcKeyName>requestId</includeMdcKeyName>
