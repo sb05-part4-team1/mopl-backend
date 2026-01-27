@@ -25,8 +25,8 @@ import static com.mopl.logging.mdc.MdcKeys.TRACE_ID;
 import static com.mopl.logging.mdc.MdcKeys.USER_AGENT;
 import static com.mopl.logging.mdc.MdcKeys.USER_ID;
 
-@Slf4j
 @Order(Ordered.HIGHEST_PRECEDENCE)
+@Slf4j
 public class MdcLoggingFilter extends OncePerRequestFilter {
 
     @Override

@@ -3,7 +3,7 @@ package com.mopl.cache;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.mopl.cache.config.CacheProperties;
 import com.mopl.domain.support.cache.CacheName;
-import lombok.extern.slf4j.Slf4j;
+import com.mopl.logging.context.LogContext;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.lang.NonNull;
@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Slf4j
 public class TwoLevelCacheManager implements CacheManager {
 
     private final Cache<String, Object> l1Cache;
@@ -34,8 +33,9 @@ public class TwoLevelCacheManager implements CacheManager {
             caches.put(cacheName, createCache(cacheName));
         }
 
-        log.info("TwoLevelCacheManager initialized: [caches={}, redisEnabled={}]",
-            caches.keySet(), redisTemplate != null);
+        LogContext.with("caches", caches.keySet())
+            .and("redisEnabled", redisTemplate != null)
+            .info("TwoLevelCacheManager initialized");
     }
 
     @Override

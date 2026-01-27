@@ -43,7 +43,7 @@ class ReviewResponseMapperTest {
             ReviewModel reviewModel = ReviewModelFixture.create();
 
             UserSummary expectedUserSummary = new UserSummary(
-                UUID.randomUUID(), "테스터", "http://image.com"
+                UUID.randomUUID(), "테스터", "https://image.com"
             );
             given(userSummaryMapper.toSummary(any(UserModel.class))).willReturn(expectedUserSummary);
 

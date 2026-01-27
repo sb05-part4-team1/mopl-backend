@@ -86,7 +86,8 @@ class ContentChatFacadeTest {
             .set("title", "TestContent")
             .sample();
 
-        userSummary = new UserSummary(userId, "TestUser", "http://example.com/profiles/test.jpg");
+        userSummary = new UserSummary(userId, "TestUser", """
+            https://example.com/profiles/test.jpg""");
 
         mockWatchingSessionResponse = new WatchingSessionResponse(
             UUID.randomUUID(),
