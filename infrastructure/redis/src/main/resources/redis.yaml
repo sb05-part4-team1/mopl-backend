@@ -8,4 +8,4 @@ spring:
 mopl:
   redis:
     watching-session:
-      ttl: ${WATCHING_SESSION_TTL:24h}
+      ttl: ${REDIS_WATCHING_SESSION_TTL:24h}

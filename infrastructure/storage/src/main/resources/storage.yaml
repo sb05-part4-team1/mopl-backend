@@ -5,9 +5,9 @@ mopl:
       root-path: ${STORAGE_LOCAL_ROOT_PATH:.mopl/storage}
       base-url: ${STORAGE_LOCAL_BASE_URL:http://localhost:8080}
     s3:
-      access-key: ${AWS_S3_ACCESS_KEY:}
-      secret-key: ${AWS_S3_SECRET_KEY:}
-      region: ${AWS_S3_REGION:ap-northeast-2}
-      bucket: ${AWS_S3_BUCKET:}
-      presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:24h}
-      endpoint: ${AWS_S3_ENDPOINT:}
+      access-key: ${STORAGE_S3_ACCESS_KEY:}
+      secret-key: ${STORAGE_S3_SECRET_KEY:}
+      region: ${STORAGE_S3_REGION:ap-northeast-2}
+      bucket: ${STORAGE_S3_BUCKET:}
+      presigned-url-expiration: ${STORAGE_S3_PRESIGNED_URL_EXPIRATION:24h}
+      endpoint: ${STORAGE_S3_ENDPOINT:}
