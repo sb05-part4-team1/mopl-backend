@@ -18,8 +18,8 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("ContentCacheAdapter 테스트")
-class ContentCacheAdapterTest {
+@DisplayName("CacheAdapter 테스트")
+class CacheAdapterTest {
 
     @Mock
     private CacheManager cacheManager;
@@ -27,45 +27,60 @@ class ContentCacheAdapterTest {
     @Mock
     private Cache cache;
 
-    private ContentCacheAdapter contentCacheAdapter;
+    private CacheAdapter cacheAdapter;
 
     @BeforeEach
     void setUp() {
-        contentCacheAdapter = new ContentCacheAdapter(cacheManager);
+        cacheAdapter = new CacheAdapter(cacheManager);
     }
 
     @Nested
-    @DisplayName("evict() - 캐시 삭제")
+    @DisplayName("evict()")
     class EvictTest {
 
         @Test
-        @DisplayName("캐시가 존재하면 해당 contentId 캐시 삭제")
-        void withExistingCache_evictsContentId() {
+        @DisplayName("캐시가 존재하면 해당 키의 캐시를 삭제한다")
+        void withExistingCache_evictsKey() {
             // given
-            UUID contentId = UUID.randomUUID();
+            UUID key = UUID.randomUUID();
             given(cacheManager.getCache(CacheName.CONTENTS)).willReturn(cache);
 
             // when
-            contentCacheAdapter.evict(contentId);
+            cacheAdapter.evict(CacheName.CONTENTS, key);
 
             // then
             then(cacheManager).should().getCache(CacheName.CONTENTS);
-            then(cache).should().evict(contentId);
+            then(cache).should().evict(key);
         }
 
         @Test
-        @DisplayName("캐시가 존재하지 않으면 evict 호출하지 않음")
+        @DisplayName("캐시가 존재하지 않으면 evict를 호출하지 않는다")
         void withNonExistingCache_doesNotEvict() {
             // given
-            UUID contentId = UUID.randomUUID();
+            UUID key = UUID.randomUUID();
             given(cacheManager.getCache(CacheName.CONTENTS)).willReturn(null);
 
             // when
-            contentCacheAdapter.evict(contentId);
+            cacheAdapter.evict(CacheName.CONTENTS, key);
 
             // then
             then(cacheManager).should().getCache(CacheName.CONTENTS);
-            then(cache).should(never()).evict(contentId);
+            then(cache).should(never()).evict(key);
+        }
+
+        @Test
+        @DisplayName("다른 캐시 이름으로도 동작한다")
+        void withDifferentCacheName_works() {
+            // given
+            UUID key = UUID.randomUUID();
+            given(cacheManager.getCache(CacheName.PLAYLISTS)).willReturn(cache);
+
+            // when
+            cacheAdapter.evict(CacheName.PLAYLISTS, key);
+
+            // then
+            then(cacheManager).should().getCache(CacheName.PLAYLISTS);
+            then(cache).should().evict(key);
         }
     }
 }
