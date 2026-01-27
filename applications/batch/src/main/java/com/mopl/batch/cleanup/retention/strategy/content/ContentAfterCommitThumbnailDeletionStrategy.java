@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Slf4j
 @Component
 @Profile("cleanup-after-commit-delete")
 @RequiredArgsConstructor
+@Slf4j
 public class ContentAfterCommitThumbnailDeletionStrategy implements ContentDeletionStrategy {
 
     private final StorageProvider storageProvider;
