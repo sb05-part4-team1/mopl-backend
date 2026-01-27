@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Component
@@ -45,7 +46,7 @@ public class DirectMessageFacade {
 
         DirectMessageModel directMessage = DirectMessageModel.create(content, sender, conversation);
 
-        DirectMessageModel savedDirectMessage = transactionTemplate.execute(status -> {
+        DirectMessageModel savedDirectMessage = Objects.requireNonNull(transactionTemplate.execute(status -> {
             DirectMessageModel saved = directMessageService.save(directMessage);
 
             if (receiver != null) {
@@ -61,7 +62,7 @@ public class DirectMessageFacade {
             }
 
             return saved;
-        });
+        }));
 
         DirectMessageResponse response = directMessageResponseMapper.toResponse(savedDirectMessage, receiver);
         directMessagePublisher.publish(response);
