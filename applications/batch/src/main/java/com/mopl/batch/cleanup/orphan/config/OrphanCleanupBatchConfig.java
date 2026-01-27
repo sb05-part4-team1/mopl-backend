@@ -14,9 +14,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
-@Slf4j
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 public class OrphanCleanupBatchConfig {
 
     private final OrphanCleanupService orphanCleanupService;
