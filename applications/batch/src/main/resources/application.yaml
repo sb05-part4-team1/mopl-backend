@@ -12,9 +12,10 @@ spring:
     import:
       - optional:file:.env[.properties]
       - jpa.yaml
-      - storage.yaml
+      - logging.yaml
       - openapi.yaml
       - search.yaml
+      - storage.yaml
 
   threads:
     virtual:
@@ -35,10 +36,10 @@ mopl:
         - tsdbLeagueSyncJob
         - tmdbCollectJob
         - tsdbLeagueEventCollectJob
-#        - softDeleteCleanupJob
-#        - orphanCleanupJob
-#        - orphanStorageCleanupJob
-#        - denormalizedSyncJob
+    #        - softDeleteCleanupJob
+    #        - orphanCleanupJob
+    #        - orphanStorageCleanupJob
+    #        - denormalizedSyncJob
     cleanup:
       soft-delete:
         defaults:

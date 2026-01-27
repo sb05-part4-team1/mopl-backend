@@ -13,8 +13,9 @@ spring:
     import:
       - optional:file:.env[.properties]
       - jpa.yaml
-      - security.yaml
+      - logging.yaml
       - redis.yaml
+      - security.yaml
       - storage.yaml
   threads:
     virtual:
@@ -28,10 +29,6 @@ mopl:
     event-cache:
       ttl: ${SSE_EVENT_CACHE_TTL:5m}
       max-size: ${SSE_EVENT_CACHE_MAX_SIZE:100}
-
-logging:
-  level:
-    root: INFO
 
 management:
   endpoints:
