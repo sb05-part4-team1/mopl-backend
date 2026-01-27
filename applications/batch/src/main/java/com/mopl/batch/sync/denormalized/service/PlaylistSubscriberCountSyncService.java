@@ -2,7 +2,7 @@ package com.mopl.batch.sync.denormalized.service;
 
 import com.mopl.batch.sync.denormalized.config.DenormalizedSyncPolicyResolver;
 import com.mopl.batch.sync.denormalized.config.DenormalizedSyncProperties;
-import com.mopl.jpa.repository.playlist.JpaPlaylistSubscriberRepository;
+import com.mopl.jpa.repository.denormalized.JpaDenormalizedSyncRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ public class PlaylistSubscriberCountSyncService {
     private static final UUID MIN_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
     private static final int MAX_ITERATIONS = 10000;
 
-    private final JpaPlaylistSubscriberRepository jpaPlaylistSubscriberRepository;
+    private final JpaDenormalizedSyncRepository denormalizedSyncRepository;
     private final PlaylistSubscriberCountSyncTxService txService;
     private final DenormalizedSyncProperties props;
     private final DenormalizedSyncPolicyResolver policyResolver;
@@ -30,7 +30,7 @@ public class PlaylistSubscriberCountSyncService {
         UUID lastPlaylistId = MIN_UUID;
 
         while (iterations < MAX_ITERATIONS) {
-            List<UUID> playlistIds = jpaPlaylistSubscriberRepository.findPlaylistIdsAfter(lastPlaylistId, chunkSize);
+            List<UUID> playlistIds = denormalizedSyncRepository.findPlaylistIdsAfter(lastPlaylistId, chunkSize);
 
             if (playlistIds.isEmpty()) {
                 break;

@@ -2,8 +2,8 @@ package com.mopl.batch.sync.denormalized.service;
 
 import com.mopl.domain.support.popularity.ContentPopularityPolicyPort;
 import com.mopl.jpa.repository.content.JpaContentRepository;
-import com.mopl.jpa.repository.review.JpaReviewRepository;
-import com.mopl.jpa.repository.review.projection.ReviewStatsProjection;
+import com.mopl.jpa.repository.denormalized.JpaDenormalizedSyncRepository;
+import com.mopl.jpa.repository.denormalized.projection.ReviewStatsProjection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ public class ContentReviewStatsSyncTxService {
     private static final double EPSILON = 0.0001;
 
     private final JpaContentRepository jpaContentRepository;
-    private final JpaReviewRepository jpaReviewRepository;
+    private final JpaDenormalizedSyncRepository denormalizedSyncRepository;
     private final ContentPopularityPolicyPort popularityPolicy;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -31,7 +31,7 @@ public class ContentReviewStatsSyncTxService {
                 double currentAverageRating = content.getAverageRating();
                 double currentPopularityScore = content.getPopularityScore();
 
-                ReviewStatsProjection stats = jpaReviewRepository.findReviewStatsByContentId(contentId);
+                ReviewStatsProjection stats = denormalizedSyncRepository.findReviewStatsByContentId(contentId);
                 int actualReviewCount = stats != null ? stats.getReviewCount().intValue() : 0;
                 double actualAverageRating = stats != null ? stats.getAverageRating() : 0.0;
                 double actualPopularityScore = calculatePopularityScore(actualReviewCount, actualAverageRating);
@@ -41,7 +41,7 @@ public class ContentReviewStatsSyncTxService {
                 boolean popularityMismatch = Math.abs(currentPopularityScore - actualPopularityScore) > EPSILON;
 
                 if (reviewCountMismatch || ratingMismatch || popularityMismatch) {
-                    jpaContentRepository.updateReviewStats(contentId, actualReviewCount, actualAverageRating, actualPopularityScore);
+                    denormalizedSyncRepository.updateReviewStats(contentId, actualReviewCount, actualAverageRating, actualPopularityScore);
                     log.info("[ContentReviewStatsSync] synced contentId={} reviewCount: {} -> {}, averageRating: {} -> {}, popularityScore: {} -> {}",
                         contentId, currentReviewCount, actualReviewCount, currentAverageRating, actualAverageRating, currentPopularityScore, actualPopularityScore);
                     return true;
@@ -57,6 +57,6 @@ public class ContentReviewStatsSyncTxService {
         double effectiveMinReviewCount = Math.max(minReviewCount, 1);
 
         return ((reviewCount / (reviewCount + effectiveMinReviewCount)) * averageRating)
-            + ((effectiveMinReviewCount / (reviewCount + effectiveMinReviewCount)) * globalAverageRating);
+               + ((effectiveMinReviewCount / (reviewCount + effectiveMinReviewCount)) * globalAverageRating);
     }
 }

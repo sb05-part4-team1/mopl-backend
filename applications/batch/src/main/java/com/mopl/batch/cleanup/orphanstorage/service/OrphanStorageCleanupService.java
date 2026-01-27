@@ -2,8 +2,7 @@ package com.mopl.batch.cleanup.orphanstorage.service;
 
 import com.mopl.batch.cleanup.orphanstorage.config.OrphanStorageCleanupPolicyResolver;
 import com.mopl.batch.cleanup.orphanstorage.config.OrphanStorageCleanupProperties;
-import com.mopl.jpa.repository.content.JpaContentRepository;
-import com.mopl.jpa.repository.user.JpaUserRepository;
+import com.mopl.jpa.repository.orphanstorage.JpaOrphanStorageCleanupRepository;
 import com.mopl.storage.provider.StorageProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +20,7 @@ public class OrphanStorageCleanupService {
     private static final int MAX_ITERATIONS = 10000;
 
     private final StorageProvider storageProvider;
-    private final JpaContentRepository contentRepository;
-    private final JpaUserRepository userRepository;
+    private final JpaOrphanStorageCleanupRepository orphanStorageCleanupRepository;
     private final OrphanStorageCleanupProperties props;
     private final OrphanStorageCleanupPolicyResolver policyResolver;
 
@@ -40,7 +38,7 @@ public class OrphanStorageCleanupService {
 
             int deleted = 0;
             for (String path : storagePaths) {
-                if (contentRepository.findOneByThumbnailPath(path) == null) {
+                if (orphanStorageCleanupRepository.findOneByThumbnailPath(path) == null) {
                     storageProvider.delete(path);
                     deleted++;
                     log.info("[OrphanStorageCleanup] deleted orphan content thumbnail: {}", path);
@@ -78,7 +76,7 @@ public class OrphanStorageCleanupService {
 
             int deleted = 0;
             for (String path : storagePaths) {
-                if (userRepository.findOneByProfileImagePath(path) == null) {
+                if (orphanStorageCleanupRepository.findOneByProfileImagePath(path) == null) {
                     storageProvider.delete(path);
                     deleted++;
                     log.info("[OrphanStorageCleanup] deleted orphan user profile image: {}", path);

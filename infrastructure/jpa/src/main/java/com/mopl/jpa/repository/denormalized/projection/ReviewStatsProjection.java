@@ -1,4 +1,4 @@
-package com.mopl.jpa.repository.review.projection;
+package com.mopl.jpa.repository.denormalized.projection;
 
 import java.util.UUID;
 
