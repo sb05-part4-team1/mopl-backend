@@ -29,6 +29,7 @@ public class ContentEsSyncRepositoryImpl implements ContentEsSyncRepository {
             .thumbnailPath(row.getThumbnailPath())
             .reviewCount(row.getReviewCount())
             .averageRating(row.getAverageRating())
+            .popularityScore(row.getPopularityScore())
             .createdAt(row.getCreatedAt())
             .updatedAt(row.getUpdatedAt())
             .build();

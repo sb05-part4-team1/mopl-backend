@@ -20,13 +20,13 @@ public enum ContentSortFieldJpa implements SortField<Comparable<?>> {
     POPULARITY(
         ContentSortField.POPULARITY,
         Expressions.comparableTemplate(
-            Integer.class,
+            Double.class,
             "{0}",
-            contentEntity.reviewCount
+            contentEntity.popularityScore
         ),
-        ContentEntity::getReviewCount,
+        ContentEntity::getPopularityScore,
         Object::toString,
-        Integer::parseInt
+        Double::parseDouble
     ),
 
     CREATED_AT(

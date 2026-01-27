@@ -20,6 +20,7 @@ public interface JpaContentEsSyncRepository extends JpaRepository<ContentEntity,
                 c.thumbnail_path as thumbnailPath,
                 c.review_count as reviewCount,
                 c.average_rating as averageRating,
+                c.popularity_score as popularityScore,
                 c.created_at as createdAt,
                 c.updated_at as updatedAt
             from contents c
