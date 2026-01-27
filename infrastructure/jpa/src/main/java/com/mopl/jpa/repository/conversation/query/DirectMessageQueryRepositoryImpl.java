@@ -100,8 +100,7 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
             .collect(Collectors.toMap(
                 entity -> entity.getConversation().getId(),
                 directMessageEntityMapper::toModelWithSender,
-                (existing, replacement) ->
-                    existing.getId().compareTo(replacement.getId()) > 0 ? existing : replacement
+                (existing, replacement) -> existing.getId().compareTo(replacement.getId()) > 0 ? existing : replacement
             ));
     }
 
