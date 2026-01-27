@@ -1,11 +1,12 @@
 package com.mopl.batch.cleanup.retention.service.log;
 
 import com.mopl.domain.repository.content.batch.ContentDeletionLogRepository;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

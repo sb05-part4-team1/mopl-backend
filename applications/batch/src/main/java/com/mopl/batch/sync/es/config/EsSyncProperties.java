@@ -15,7 +15,7 @@ public class EsSyncProperties {
 
     @PostConstruct
     public void validate() {
-        Integer chunkSize = defaults.getChunkSize();
+        Integer chunkSize = defaults.chunkSize();
 
         if (chunkSize == null || chunkSize < 1) {
             throw new IllegalStateException("mopl.batch.sync.es.defaults.chunk-size is required (>= 1)");

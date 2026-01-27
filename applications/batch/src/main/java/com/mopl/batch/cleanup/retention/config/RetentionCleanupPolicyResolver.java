@@ -1,5 +1,6 @@
 package com.mopl.batch.cleanup.retention.config;
 
+import com.mopl.batch.cleanup.retention.config.RetentionCleanupProperties.PolicyProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -9,21 +10,19 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RetentionCleanupPolicyResolver {
 
-    private final RetentionCleanupProperties cleanupProperties;
+    private final RetentionCleanupProperties props;
 
-    public int chunkSize(RetentionCleanupPolicyProperties policy) {
-        Integer value = policy.getChunkSize();
-        if (value != null && value > 0) {
-            return value;
+    public int chunkSize(PolicyProperties policy) {
+        if (policy != null && policy.chunkSize() != null && policy.chunkSize() > 0) {
+            return policy.chunkSize();
         }
-        return cleanupProperties.getDefaults().getChunkSize();
+        return props.defaults().chunkSize();
     }
 
-    public long retentionDaysRequired(RetentionCleanupPolicyProperties policy) {
-        Long value = policy.getRetentionDays();
-        if (value != null && value >= 0) {
-            return value;
+    public long retentionDays(PolicyProperties policy) {
+        if (policy != null && policy.retentionDays() != null && policy.retentionDays() >= 0) {
+            return policy.retentionDays();
         }
-        return cleanupProperties.getDefaults().getRetentionDays();
+        return props.defaults().retentionDays();
     }
 }
