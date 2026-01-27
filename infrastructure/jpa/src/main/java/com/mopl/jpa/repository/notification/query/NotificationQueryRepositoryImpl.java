@@ -13,6 +13,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -78,14 +79,14 @@ public class NotificationQueryRepositoryImpl implements NotificationQueryReposit
     }
 
     @Override
-    public List<NotificationModel> findByReceiverIdAndIdAfter(UUID receiverId, UUID idAfter) {
+    public List<NotificationModel> findByReceiverIdAndCreatedAtAfter(UUID receiverId, Instant createdAfter) {
         List<NotificationEntity> entities = queryFactory
             .selectFrom(notificationEntity)
             .where(
                 receiverIdEqual(receiverId),
-                notificationEntity.id.gt(idAfter)
+                notificationEntity.createdAt.after(createdAfter)
             )
-            .orderBy(notificationEntity.id.asc())
+            .orderBy(notificationEntity.createdAt.asc())
             .fetch();
 
         return entities.stream()

@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -293,7 +294,7 @@ class SseEmitterManagerTest {
             // then
             then(emitter).should().send(any(SseEmitter.SseEventBuilder.class));
             then(notificationQueryRepository).should(never())
-                .findByReceiverIdAndIdAfter(any(), any());
+                .findByReceiverIdAndCreatedAtAfter(any(), any());
         }
 
         @Test
@@ -313,7 +314,8 @@ class SseEmitterManagerTest {
 
             given(emitterRepository.getEventsAfter(userId, lastEventId))
                 .willReturn(List.of());
-            given(notificationQueryRepository.findByReceiverIdAndIdAfter(userId, lastEventId))
+            given(notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(
+                eq(userId), any(Instant.class)))
                 .willReturn(List.of(notification));
 
             // when
@@ -321,7 +323,7 @@ class SseEmitterManagerTest {
 
             // then
             then(notificationQueryRepository).should()
-                .findByReceiverIdAndIdAfter(userId, lastEventId);
+                .findByReceiverIdAndCreatedAtAfter(eq(userId), any(Instant.class));
             then(emitter).should().send(any(SseEmitter.SseEventBuilder.class));
         }
 
@@ -365,7 +367,8 @@ class SseEmitterManagerTest {
 
             given(emitterRepository.getEventsAfter(userId, lastEventId))
                 .willReturn(List.of());
-            given(notificationQueryRepository.findByReceiverIdAndIdAfter(userId, lastEventId))
+            given(notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(
+                eq(userId), any(Instant.class)))
                 .willReturn(List.of(notification1, notification2));
             doThrow(new IOException("Connection closed"))
                 .when(emitter).send(any(SseEmitter.SseEventBuilder.class));
@@ -387,7 +390,8 @@ class SseEmitterManagerTest {
 
             given(emitterRepository.getEventsAfter(userId, lastEventId))
                 .willReturn(List.of());
-            given(notificationQueryRepository.findByReceiverIdAndIdAfter(userId, lastEventId))
+            given(notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(
+                eq(userId), any(Instant.class)))
                 .willReturn(List.of());
 
             // when

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -120,7 +121,8 @@ public class SseEmitterManager {
             return;
         }
 
-        List<NotificationModel> notifications = notificationQueryRepository.findByReceiverIdAndIdAfter(userId, lastEventId);
+        Instant lastEventTime = extractInstantFromUuidV7(lastEventId);
+        List<NotificationModel> notifications = notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(userId, lastEventTime);
 
         for (NotificationModel notification : notifications) {
             try {
@@ -160,6 +162,11 @@ public class SseEmitterManager {
                 break;
             }
         }
+    }
+
+    private Instant extractInstantFromUuidV7(UUID uuid) {
+        long timestamp = (uuid.getMostSignificantBits() >> 16) & 0xFFFFFFFFFFFFL;
+        return Instant.ofEpochMilli(timestamp);
     }
 
     @Scheduled(fixedRate = 30000)

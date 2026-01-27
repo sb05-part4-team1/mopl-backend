@@ -84,15 +84,13 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
             .leftJoin(directMessageEntity.sender).fetchJoin()
             .where(
                 directMessageEntity.conversation.id.in(conversationIds),
-                directMessageEntity.id.eq(
+                directMessageEntity.createdAt.eq(
                     JPAExpressions
-                        .select(subDirectMessageEntity.id)
+                        .select(subDirectMessageEntity.createdAt.max())
                         .from(subDirectMessageEntity)
                         .where(
                             subDirectMessageEntity.conversation.id.eq(directMessageEntity.conversation.id)
                         )
-                        .orderBy(subDirectMessageEntity.createdAt.desc(), subDirectMessageEntity.id.desc())
-                        .limit(1)
                 )
             )
             .fetch();
