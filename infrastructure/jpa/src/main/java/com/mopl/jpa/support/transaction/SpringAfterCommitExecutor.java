@@ -20,7 +20,7 @@ public class SpringAfterCommitExecutor implements AfterCommitExecutor {
 
                 @Override
                 public void afterCommit() {
-                    action.run();
+                    Thread.startVirtualThread(action);
                 }
             }
         );
