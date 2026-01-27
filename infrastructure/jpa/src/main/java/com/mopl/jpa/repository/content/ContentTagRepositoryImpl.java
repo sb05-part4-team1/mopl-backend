@@ -6,11 +6,11 @@ import com.mopl.jpa.entity.content.ContentEntity;
 import com.mopl.jpa.entity.content.ContentTagEntity;
 import com.mopl.jpa.entity.tag.TagEntityMapper;
 import com.mopl.jpa.repository.tag.JpaTagRepository;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -70,10 +70,5 @@ public class ContentTagRepositoryImpl implements ContentTagRepository {
     @Override
     public void deleteByContentId(UUID contentId) {
         jpaContentTagRepository.deleteByContentId(contentId);
-    }
-
-    @Override
-    public int deleteByContentIdIn(List<UUID> contentIds) {
-        return jpaContentTagRepository.deleteByContentIdIn(contentIds);
     }
 }

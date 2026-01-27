@@ -86,14 +86,8 @@ public class PlaylistContentRepositoryImpl implements PlaylistContentRepository 
         return result;
     }
 
-    // 이하 메서드들 cleanup batch 전용
     @Override
-    public int deleteAllByContentIds(List<UUID> contentIds) {
-        return jpaPlaylistContentRepository.deleteAllByContentIds(contentIds);
-    }
-
-    @Override
-    public int deleteAllByPlaylistIds(List<UUID> playlistIds) {
-        return jpaPlaylistContentRepository.deleteAllByPlaylistIds(playlistIds);
+    public void deleteAllByPlaylistIds(List<UUID> playlistIds) {
+        jpaPlaylistContentRepository.deleteAllByPlaylistIds(playlistIds);
     }
 }
