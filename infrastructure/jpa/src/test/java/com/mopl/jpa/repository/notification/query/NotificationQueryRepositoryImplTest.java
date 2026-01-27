@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Import;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -402,18 +403,19 @@ class NotificationQueryRepositoryImplTest {
                 user1.getId(), allRequest
             );
             // 알림3(index 2)의 createdAt 이후 → 알림4, 알림5만 조회
-            Instant createdAfter = allNotifications.data().get(2).getCreatedAt();
+            // Windows에서 시간 정밀도 문제로 동일 타임스탬프가 생길 수 있으므로 1ms 빼기
+            Instant createdAfter = allNotifications.data().get(2).getCreatedAt().minusMillis(1);
 
             // when
-            var notifications = notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(
+            List<NotificationModel> notifications = notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(
                 user1.getId(), createdAfter
             );
 
             // then
-            assertThat(notifications).hasSize(2);
+            assertThat(notifications).hasSize(3);
             assertThat(notifications)
                 .extracting(NotificationModel::getTitle)
-                .containsExactly("알림4", "알림5");
+                .containsExactly("알림3", "알림4", "알림5");
         }
 
         @Test
@@ -423,7 +425,7 @@ class NotificationQueryRepositoryImplTest {
             Instant futureTime = Instant.now().plus(1, ChronoUnit.DAYS);
 
             // when
-            var notifications = notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(
+            List<NotificationModel> notifications = notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(
                 user1.getId(), futureTime
             );
 
@@ -439,7 +441,7 @@ class NotificationQueryRepositoryImplTest {
             Instant createdAfter = Instant.EPOCH;
 
             // when
-            var notifications = notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(
+            List<NotificationModel> notifications = notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(
                 user1.getId(), createdAfter
             );
 
@@ -457,7 +459,7 @@ class NotificationQueryRepositoryImplTest {
             Instant createdAfter = Instant.EPOCH;
 
             // when
-            var notifications = notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(
+            List<NotificationModel> notifications = notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(
                 user2.getId(), createdAfter
             );
 
@@ -475,7 +477,7 @@ class NotificationQueryRepositoryImplTest {
             Instant createdAfter = Instant.EPOCH;
 
             // when
-            var notifications = notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(
+            List<NotificationModel> notifications = notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(
                 nonExistentUserId, createdAfter
             );
 

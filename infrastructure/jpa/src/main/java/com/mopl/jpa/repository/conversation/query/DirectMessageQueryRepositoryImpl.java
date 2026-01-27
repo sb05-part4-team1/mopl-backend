@@ -38,7 +38,7 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
 
         JPAQuery<DirectMessageEntity> jpaQuery = baseQuery(conversationId)
             .select(directMessageEntity)
-            .leftJoin(directMessageEntity.sender).fetchJoin();
+            .join(directMessageEntity.sender).fetchJoin();
 
         CursorPaginationHelper.applyCursorPagination(
             request,
@@ -81,13 +81,14 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
 
         List<DirectMessageEntity> lastMessages = queryFactory
             .selectFrom(directMessageEntity)
-            .leftJoin(directMessageEntity.sender).fetchJoin()
+            .join(directMessageEntity.sender).fetchJoin()
             .where(
                 directMessageEntity.conversation.id.in(conversationIds),
                 directMessageEntity.createdAt.eq(
                     JPAExpressions
                         .select(subDirectMessageEntity.createdAt.max())
                         .from(subDirectMessageEntity)
+                        .join(subDirectMessageEntity.sender)
                         .where(
                             subDirectMessageEntity.conversation.id.eq(directMessageEntity.conversation.id)
                         )
@@ -98,7 +99,8 @@ public class DirectMessageQueryRepositoryImpl implements DirectMessageQueryRepos
         return lastMessages.stream()
             .collect(Collectors.toMap(
                 entity -> entity.getConversation().getId(),
-                directMessageEntityMapper::toModelWithSender
+                directMessageEntityMapper::toModelWithSender,
+                (existing, replacement) -> existing
             ));
     }
 
