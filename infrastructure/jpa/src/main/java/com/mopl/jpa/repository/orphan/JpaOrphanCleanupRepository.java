@@ -1,6 +1,7 @@
 package com.mopl.jpa.repository.orphan;
 
 import com.mopl.jpa.entity.notification.NotificationEntity;
+import lombok.Generated;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,6 +15,7 @@ import java.util.UUID;
  * FK constraint 없이 운영되는 테이블에서 orphan 레코드를 정리하기 위한 Repository.
  * 참조 대상이 hard delete 된 경우 orphan으로 판단.
  */
+@Generated
 public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEntity, UUID> {
 
     // ==================== 1. Conversation (부모: DM 포함 삭제) ====================

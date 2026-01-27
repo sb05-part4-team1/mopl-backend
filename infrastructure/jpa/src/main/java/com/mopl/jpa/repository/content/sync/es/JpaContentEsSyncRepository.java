@@ -1,6 +1,7 @@
 package com.mopl.jpa.repository.content.sync.es;
 
 import com.mopl.jpa.entity.content.ContentEntity;
+import lombok.Generated;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,6 +10,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+@Generated
 public interface JpaContentEsSyncRepository extends JpaRepository<ContentEntity, UUID> {
 
     @Query(
