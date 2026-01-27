@@ -33,4 +33,3 @@ public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler 
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 }
-

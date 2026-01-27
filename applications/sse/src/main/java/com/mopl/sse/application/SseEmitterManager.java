@@ -186,14 +186,14 @@ public class SseEmitterManager {
 
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
             emitters.forEach((userId, emitter) -> executor.execute(() -> {
-                    try {
-                        emitter.send(SseEmitter.event().comment("heartbeat"));
-                    } catch (IOException e) {
-                        LogContext.with("userId", userId).debug("Heartbeat failed, removing emitter");
-                        completeEmitterQuietly(emitter);
-                        emitterRepository.deleteByUserId(userId);
-                    }
-                })
+                try {
+                    emitter.send(SseEmitter.event().comment("heartbeat"));
+                } catch (IOException e) {
+                    LogContext.with("userId", userId).debug("Heartbeat failed, removing emitter");
+                    completeEmitterQuietly(emitter);
+                    emitterRepository.deleteByUserId(userId);
+                }
+            })
             );
         }
     }

@@ -26,7 +26,7 @@ import java.util.Map;
  *     log.info("Job started");  // jobName이 MDC에 포함됨
  *     // ... 작업 수행
  *     log.info("Job completed");
- * }  // 자동으로 MDC에서 제거
+ * } // 자동으로 MDC에서 제거
  * }</pre>
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

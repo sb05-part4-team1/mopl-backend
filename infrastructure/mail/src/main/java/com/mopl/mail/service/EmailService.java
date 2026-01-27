@@ -44,8 +44,10 @@ public class EmailService {
         }
     }
 
-    private String buildTemporaryPasswordEmailHtml(String temporaryPassword,
-                                                   LocalDateTime expiresAt) {
+    private String buildTemporaryPasswordEmailHtml(
+        String temporaryPassword,
+        LocalDateTime expiresAt
+    ) {
         String formattedExpiresAt = expiresAt.format(DATE_FORMATTER);
 
         return """
