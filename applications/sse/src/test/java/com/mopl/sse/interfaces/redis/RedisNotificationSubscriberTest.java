@@ -68,7 +68,7 @@ class RedisNotificationSubscriberTest {
 
         @Test
         @DisplayName("로컬 emitter가 있으면 SSE 이벤트 전송")
-        void withLocalEmitter_sendsNotification() throws Exception {
+        void withLocalEmitter_sendsNotification() {
             // given
             UUID receiverId = UUID.randomUUID();
             String json = """
@@ -95,7 +95,7 @@ class RedisNotificationSubscriberTest {
 
         @Test
         @DisplayName("로컬 emitter가 없으면 이벤트 전송 안함")
-        void withoutLocalEmitter_doesNotSendNotification() throws Exception {
+        void withoutLocalEmitter_doesNotSendNotification() {
             // given
             UUID receiverId = UUID.randomUUID();
             String json = """
