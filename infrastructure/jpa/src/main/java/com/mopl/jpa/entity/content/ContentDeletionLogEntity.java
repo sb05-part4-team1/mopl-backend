@@ -14,8 +14,8 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Table(name = "content_deletion_logs")
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 public class ContentDeletionLogEntity extends BaseEntity {
 
     @Column(name = "content_id", nullable = false, columnDefinition = "BINARY(16)", unique = true)

@@ -184,4 +184,39 @@ class PlaylistRepositoryImplTest {
             assertThat(savedPlaylist.getDescription()).isNull();
         }
     }
+
+    @Nested
+    @DisplayName("delete()")
+    class DeleteTest {
+
+        @Test
+        @DisplayName("존재하는 플레이리스트를 삭제하면 조회되지 않는다")
+        void withExistingId_deletesPlaylist() {
+            // given
+            PlaylistModel savedPlaylist = playlistRepository.save(
+                PlaylistModel.create(
+                    "삭제할 플레이리스트",
+                    "삭제 테스트용",
+                    savedOwner
+                )
+            );
+            UUID playlistId = savedPlaylist.getId();
+
+            // when
+            playlistRepository.delete(playlistId);
+
+            // then
+            assertThat(playlistRepository.findById(playlistId)).isEmpty();
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 플레이리스트 ID로 삭제해도 예외가 발생하지 않는다")
+        void withNonExistingId_doesNotThrowException() {
+            // given
+            UUID nonExistingId = UUID.randomUUID();
+
+            // when & then
+            playlistRepository.delete(nonExistingId);
+        }
+    }
 }

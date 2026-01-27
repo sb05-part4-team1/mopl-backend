@@ -26,8 +26,8 @@ import static com.mopl.domain.model.content.ContentModel.THUMBNAIL_PATH_MAX_LENG
 )
 @SQLRestriction("deleted_at IS NULL")
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 public class ContentEntity extends BaseUpdatableEntity {
 
     @Enumerated(EnumType.STRING)

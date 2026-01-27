@@ -3,11 +3,19 @@ package com.mopl.jpa.support.cursor;
 import com.mopl.domain.support.cursor.CursorRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.ComparableExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Locale;
@@ -15,6 +23,10 @@ import java.util.UUID;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @DisplayName("CursorPaginationHelper 단위 테스트")
 class CursorPaginationHelperTest {
@@ -281,6 +293,264 @@ class CursorPaginationHelperTest {
             assertThat(response.data()).hasSize(3);
             assertThat(response.hasNext()).isFalse();
             assertThat(response.nextCursor()).isNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("applyCursorPagination()")
+    @ExtendWith(MockitoExtension.class)
+    class ApplyCursorPaginationTest {
+
+        @Mock
+        JPAQuery<TestRow> query;
+
+        private final ComparableExpression<UUID> idExpression = Expressions.comparableTemplate(UUID.class, "id");
+        private final SortField<String> sortField = new TestSortFieldImpl(TestSortField.NAME);
+
+        @Test
+        @DisplayName("idAfter가 null이면 커서 조건 없이 정렬과 limit만 적용된다")
+        void withNullIdAfter_appliesOnlyOrderAndLimit() {
+            // given
+            CursorRequest<TestSortField> request = new CursorRequest<>() {
+
+                @Override
+                public String cursor() {
+                    return "someCursor";
+                }
+
+                @Override
+                public UUID idAfter() {
+                    return null;
+                }
+
+                @Override
+                public Integer limit() {
+                    return 10;
+                }
+
+                @Override
+                public SortDirection sortDirection() {
+                    return SortDirection.ASCENDING;
+                }
+
+                @Override
+                public TestSortField sortBy() {
+                    return TestSortField.NAME;
+                }
+            };
+
+            when(query.where((BooleanExpression) any())).thenReturn(query);
+            when(query.orderBy(any(OrderSpecifier[].class))).thenReturn(query);
+            when(query.limit(anyLong())).thenReturn(query);
+
+            // when
+            CursorPaginationHelper.applyCursorPagination(request, sortField, query, idExpression);
+
+            // then
+            ArgumentCaptor<BooleanExpression> whereCaptor = ArgumentCaptor.forClass(BooleanExpression.class);
+            verify(query).where(whereCaptor.capture());
+            assertThat(whereCaptor.getValue()).isNull();
+            verify(query).limit(11L);
+        }
+
+        @Test
+        @DisplayName("cursor가 빈 문자열이면 커서 조건 없이 정렬과 limit만 적용된다")
+        void withEmptyCursor_appliesOnlyOrderAndLimit() {
+            // given
+            CursorRequest<TestSortField> request = new CursorRequest<>() {
+
+                @Override
+                public String cursor() {
+                    return "";
+                }
+
+                @Override
+                public UUID idAfter() {
+                    return UUID.randomUUID();
+                }
+
+                @Override
+                public Integer limit() {
+                    return 5;
+                }
+
+                @Override
+                public SortDirection sortDirection() {
+                    return SortDirection.DESCENDING;
+                }
+
+                @Override
+                public TestSortField sortBy() {
+                    return TestSortField.NAME;
+                }
+            };
+
+            when(query.where((BooleanExpression) any())).thenReturn(query);
+            when(query.orderBy(any(OrderSpecifier[].class))).thenReturn(query);
+            when(query.limit(anyLong())).thenReturn(query);
+
+            // when
+            CursorPaginationHelper.applyCursorPagination(request, sortField, query, idExpression);
+
+            // then
+            ArgumentCaptor<BooleanExpression> whereCaptor = ArgumentCaptor.forClass(BooleanExpression.class);
+            verify(query).where(whereCaptor.capture());
+            assertThat(whereCaptor.getValue()).isNull();
+            verify(query).limit(6L);
+        }
+
+        @Test
+        @DisplayName("cursor가 null이면 커서 조건 없이 정렬과 limit만 적용된다")
+        void withNullCursor_appliesOnlyOrderAndLimit() {
+            // given
+            CursorRequest<TestSortField> request = new CursorRequest<>() {
+
+                @Override
+                public String cursor() {
+                    return null;
+                }
+
+                @Override
+                public UUID idAfter() {
+                    return UUID.randomUUID();
+                }
+
+                @Override
+                public Integer limit() {
+                    return 20;
+                }
+
+                @Override
+                public SortDirection sortDirection() {
+                    return SortDirection.ASCENDING;
+                }
+
+                @Override
+                public TestSortField sortBy() {
+                    return TestSortField.NAME;
+                }
+            };
+
+            when(query.where((BooleanExpression) any())).thenReturn(query);
+            when(query.orderBy(any(OrderSpecifier[].class))).thenReturn(query);
+            when(query.limit(anyLong())).thenReturn(query);
+
+            // when
+            CursorPaginationHelper.applyCursorPagination(request, sortField, query, idExpression);
+
+            // then
+            ArgumentCaptor<BooleanExpression> whereCaptor = ArgumentCaptor.forClass(BooleanExpression.class);
+            verify(query).where(whereCaptor.capture());
+            assertThat(whereCaptor.getValue()).isNull();
+            verify(query).limit(21L);
+        }
+
+        @Test
+        @DisplayName("유효한 cursor와 idAfter가 있으면 ASCENDING 커서 조건이 적용된다")
+        @SuppressWarnings("rawtypes")
+        void withValidCursorAndIdAfterAscending_appliesCursorCondition() {
+            // given
+            UUID idAfter = UUID.randomUUID();
+            CursorRequest<TestSortField> request = new CursorRequest<>() {
+
+                @Override
+                public String cursor() {
+                    return "Alice";
+                }
+
+                @Override
+                public UUID idAfter() {
+                    return idAfter;
+                }
+
+                @Override
+                public Integer limit() {
+                    return 10;
+                }
+
+                @Override
+                public SortDirection sortDirection() {
+                    return SortDirection.ASCENDING;
+                }
+
+                @Override
+                public TestSortField sortBy() {
+                    return TestSortField.NAME;
+                }
+            };
+
+            when(query.where((BooleanExpression) any())).thenReturn(query);
+            when(query.orderBy(any(OrderSpecifier[].class))).thenReturn(query);
+            when(query.limit(anyLong())).thenReturn(query);
+
+            // when
+            CursorPaginationHelper.applyCursorPagination(request, sortField, query, idExpression);
+
+            // then
+            ArgumentCaptor<BooleanExpression> whereCaptor = ArgumentCaptor.forClass(BooleanExpression.class);
+            verify(query).where(whereCaptor.capture());
+            assertThat(whereCaptor.getValue()).isNotNull();
+
+            ArgumentCaptor<OrderSpecifier[]> orderCaptor = ArgumentCaptor.forClass(OrderSpecifier[].class);
+            verify(query).orderBy(orderCaptor.capture());
+            OrderSpecifier<?>[] orderSpecifiers = orderCaptor.getValue();
+            assertThat(orderSpecifiers).hasSize(2);
+            assertThat(orderSpecifiers[0].getOrder()).isEqualTo(Order.ASC);
+            assertThat(orderSpecifiers[1].getOrder()).isEqualTo(Order.ASC);
+        }
+
+        @Test
+        @DisplayName("유효한 cursor와 idAfter가 있으면 DESCENDING 커서 조건이 적용된다")
+        @SuppressWarnings("rawtypes")
+        void withValidCursorAndIdAfterDescending_appliesCursorCondition() {
+            // given
+            UUID idAfter = UUID.randomUUID();
+            CursorRequest<TestSortField> request = new CursorRequest<>() {
+
+                @Override
+                public String cursor() {
+                    return "Zoe";
+                }
+
+                @Override
+                public UUID idAfter() {
+                    return idAfter;
+                }
+
+                @Override
+                public Integer limit() {
+                    return 15;
+                }
+
+                @Override
+                public SortDirection sortDirection() {
+                    return SortDirection.DESCENDING;
+                }
+
+                @Override
+                public TestSortField sortBy() {
+                    return TestSortField.NAME;
+                }
+            };
+
+            when(query.where((BooleanExpression) any())).thenReturn(query);
+            when(query.orderBy(any(OrderSpecifier[].class))).thenReturn(query);
+            when(query.limit(anyLong())).thenReturn(query);
+
+            // when
+            CursorPaginationHelper.applyCursorPagination(request, sortField, query, idExpression);
+
+            // then
+            ArgumentCaptor<BooleanExpression> whereCaptor = ArgumentCaptor.forClass(BooleanExpression.class);
+            verify(query).where(whereCaptor.capture());
+            assertThat(whereCaptor.getValue()).isNotNull();
+
+            ArgumentCaptor<OrderSpecifier[]> orderCaptor = ArgumentCaptor.forClass(OrderSpecifier[].class);
+            verify(query).orderBy(orderCaptor.capture());
+            OrderSpecifier<?>[] orderSpecifiers = orderCaptor.getValue();
+            assertThat(orderSpecifiers).hasSize(2);
+            assertThat(orderSpecifiers[0].getOrder()).isEqualTo(Order.DESC);
+            assertThat(orderSpecifiers[1].getOrder()).isEqualTo(Order.DESC);
         }
     }
 }

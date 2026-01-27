@@ -21,7 +21,9 @@ val jacocoAggregateExclusions = jacocoExclusions + listOf(
     "**/*Config.class",
     "**/*Config$*.class",
     "**/*Properties.class",
-    "**/*Properties$*.class"
+    "**/*Properties$*.class",
+    "**/*Event.class",
+    "**/*Event$*.class",
 )
 
 java {

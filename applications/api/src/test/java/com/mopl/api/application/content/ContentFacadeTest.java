@@ -441,6 +441,7 @@ class ContentFacadeTest {
             given(contentResponseMapper.toResponse(any(), anyList(), anyLong())).willReturn(expectedResponse);
 
             setupTransactionTemplate();
+            setupAfterCommitExecutor();
 
             // when
             ContentResponse result = contentFacade.upload(request, multipartFile);
@@ -450,6 +451,7 @@ class ContentFacadeTest {
             then(storageProvider).should().upload(any(), eq(1024L), anyString());
             then(contentService).should().create(any(ContentModel.class));
             then(contentTagService).should().applyTags(contentId, tags);
+            then(contentSearchSyncPort).should().upsert(any(ContentModel.class));
         }
 
         @Test
@@ -588,6 +590,7 @@ class ContentFacadeTest {
             given(contentResponseMapper.toResponse(any(), anyList(), anyLong())).willReturn(expectedResponse);
 
             setupTransactionTemplate();
+            setupAfterCommitExecutor();
 
             // when
             ContentResponse result = contentFacade.update(contentId, request, multipartFile);
@@ -597,6 +600,7 @@ class ContentFacadeTest {
             then(storageProvider).should().upload(any(), eq(2048L), anyString());
             then(contentTagService).should().deleteAllByContentId(contentId);
             then(contentTagService).should().applyTags(contentId, newTags);
+            then(contentSearchSyncPort).should().upsert(any(ContentModel.class));
         }
 
         @Test

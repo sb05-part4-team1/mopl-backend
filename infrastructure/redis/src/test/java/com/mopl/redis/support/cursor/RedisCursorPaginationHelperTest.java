@@ -386,6 +386,68 @@ class RedisCursorPaginationHelperTest {
             assertThat(result).hasSize(1);
             assertThat(result.getFirst().name()).isEqualTo("Same time, greater id");
         }
+
+        @Test
+        @DisplayName("ASC 정렬에서 같은 시간, 더 작은 ID만 있으면 빈 결과 반환")
+        void withAscendingAndSameTimeAndOnlySmallerIds_returnsEmpty() {
+            // given
+            Instant cursor = Instant.parse("2024-01-01T12:00:00Z");
+            UUID cursorId = UUID.fromString("00000000-0000-0000-0000-000000000005");
+
+            UUID id1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+            UUID id2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+
+            List<TestItem> items = List.of(
+                new TestItem(id1, cursor, "Same time, smaller id 1"),
+                new TestItem(id2, cursor, "Same time, smaller id 2")
+            );
+
+            CursorRequest<TestSortField> request = createRequest(
+                cursor.toString(), cursorId, 10, SortDirection.ASCENDING
+            );
+
+            // when
+            List<TestItem> result = RedisCursorPaginationHelper.applyCursor(
+                items,
+                request,
+                sortField,
+                TestItem::createdAt,
+                TestItem::id
+            );
+
+            // then - cmp == 0이고 모든 ID가 cursorId보다 작으므로 모두 제외
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("ASC 정렬에서 필드값이 커서보다 작으면 제외됨")
+        void withAscendingAndSmallerFieldValue_excludesItem() {
+            // given
+            Instant cursor = Instant.parse("2024-01-01T12:00:00Z");
+            UUID cursorId = UUID.fromString("00000000-0000-0000-0000-000000000001");
+
+            UUID id1 = UUID.fromString("00000000-0000-0000-0000-000000000005");
+
+            List<TestItem> items = List.of(
+                new TestItem(id1, Instant.parse("2024-01-01T11:00:00Z"), "Smaller time, greater id")
+            );
+
+            CursorRequest<TestSortField> request = createRequest(
+                cursor.toString(), cursorId, 10, SortDirection.ASCENDING
+            );
+
+            // when
+            List<TestItem> result = RedisCursorPaginationHelper.applyCursor(
+                items,
+                request,
+                sortField,
+                TestItem::createdAt,
+                TestItem::id
+            );
+
+            // then - cmp < 0 이므로 ID와 상관없이 제외됨
+            assertThat(result).isEmpty();
+        }
     }
 
     @Nested

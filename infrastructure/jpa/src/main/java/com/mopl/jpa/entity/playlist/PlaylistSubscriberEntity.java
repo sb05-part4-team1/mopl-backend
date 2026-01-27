@@ -19,15 +19,14 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Table(
     name = "playlist_subscribers",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"playlist_id", "subscriber_id"}),
     indexes = {
-        @Index(name = "idx_playlist_subscribers_subscriber_id", columnList = "subscriber_id"),
-        @Index(name = "idx_playlist_subscribers_created_at", columnList = "created_at")
-    }
+        @Index(name = "idx_playlist_subscribers_subscriber_id", columnList = "subscriber_id")
+    },
+    uniqueConstraints = @UniqueConstraint(columnNames = {"playlist_id", "subscriber_id"})
 )
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 public class PlaylistSubscriberEntity extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
