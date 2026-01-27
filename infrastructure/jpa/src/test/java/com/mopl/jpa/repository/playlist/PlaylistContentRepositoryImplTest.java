@@ -23,6 +23,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -85,6 +86,170 @@ class PlaylistContentRepositoryImplTest {
                 "https://mopl.com/inception.png"
             )
         );
+    }
+
+    @Nested
+    @DisplayName("findContentsByPlaylistId()")
+    class FindContentsByPlaylistIdTest {
+
+        @Test
+        @DisplayName("플레이리스트의 콘텐츠 목록을 반환한다")
+        void returnsContentList() {
+            // given
+            playlistContentRepository.save(playlist.getId(), content.getId());
+
+            // when
+            List<ContentModel> contents = playlistContentRepository.findContentsByPlaylistId(
+                playlist.getId()
+            );
+
+            // then
+            assertThat(contents).hasSize(1);
+            assertThat(contents.getFirst().getId()).isEqualTo(content.getId());
+        }
+
+        @Test
+        @DisplayName("콘텐츠가 없으면 빈 목록을 반환한다")
+        void whenNoContents_returnsEmptyList() {
+            // when
+            List<ContentModel> contents = playlistContentRepository.findContentsByPlaylistId(
+                playlist.getId()
+            );
+
+            // then
+            assertThat(contents).isEmpty();
+        }
+
+        @Test
+        @DisplayName("여러 콘텐츠가 있으면 모두 반환한다")
+        void whenMultipleContents_returnsAll() {
+            // given
+            ContentModel anotherContent = contentRepository.save(
+                ContentModel.create(
+                    ContentModel.ContentType.movie,
+                    "다크나이트",
+                    "배트맨",
+                    "https://mopl.com/darkknight.png"
+                )
+            );
+            playlistContentRepository.save(playlist.getId(), content.getId());
+            playlistContentRepository.save(playlist.getId(), anotherContent.getId());
+
+            // when
+            List<ContentModel> contents = playlistContentRepository.findContentsByPlaylistId(
+                playlist.getId()
+            );
+
+            // then
+            assertThat(contents).hasSize(2);
+            assertThat(contents).extracting(ContentModel::getId)
+                .containsExactlyInAnyOrder(content.getId(), anotherContent.getId());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 플레이리스트 ID로 조회하면 빈 목록을 반환한다")
+        void whenPlaylistNotExists_returnsEmptyList() {
+            // given
+            UUID nonExistentPlaylistId = UUID.randomUUID();
+
+            // when
+            List<ContentModel> contents = playlistContentRepository.findContentsByPlaylistId(
+                nonExistentPlaylistId
+            );
+
+            // then
+            assertThat(contents).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("findContentsByPlaylistIdIn()")
+    class FindContentsByPlaylistIdInTest {
+
+        @Test
+        @DisplayName("여러 플레이리스트의 콘텐츠를 Map으로 반환한다")
+        void returnsContentsAsMap() {
+            // given
+            UserModel anotherOwner = userRepository.save(
+                UserModel.create("another@example.com", "다른 소유자", "encodedPassword")
+            );
+            PlaylistModel anotherPlaylist = playlistRepository.save(
+                PlaylistModel.create("다른 플레이리스트", "설명", anotherOwner)
+            );
+            ContentModel anotherContent = contentRepository.save(
+                ContentModel.create(
+                    ContentModel.ContentType.movie,
+                    "다크나이트",
+                    "배트맨",
+                    "https://mopl.com/darkknight.png"
+                )
+            );
+            playlistContentRepository.save(playlist.getId(), content.getId());
+            playlistContentRepository.save(anotherPlaylist.getId(), anotherContent.getId());
+
+            // when
+            Map<UUID, List<ContentModel>> result = playlistContentRepository.findContentsByPlaylistIdIn(
+                List.of(playlist.getId(), anotherPlaylist.getId())
+            );
+
+            // then
+            assertThat(result).hasSize(2);
+            assertThat(result.get(playlist.getId())).hasSize(1);
+            assertThat(result.get(playlist.getId()).getFirst().getId()).isEqualTo(content.getId());
+            assertThat(result.get(anotherPlaylist.getId())).hasSize(1);
+            assertThat(result.get(anotherPlaylist.getId()).getFirst().getId()).isEqualTo(anotherContent.getId());
+        }
+
+        @Test
+        @DisplayName("빈 플레이리스트 ID 목록이 주어지면 빈 Map을 반환한다")
+        void whenEmptyPlaylistIds_returnsEmptyMap() {
+            // when
+            Map<UUID, List<ContentModel>> result = playlistContentRepository.findContentsByPlaylistIdIn(
+                List.of()
+            );
+
+            // then
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("콘텐츠가 없는 플레이리스트는 결과에 포함되지 않는다")
+        void whenNoContents_playlistNotInResult() {
+            // when
+            Map<UUID, List<ContentModel>> result = playlistContentRepository.findContentsByPlaylistIdIn(
+                List.of(playlist.getId())
+            );
+
+            // then
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("한 플레이리스트에 여러 콘텐츠가 있으면 모두 포함된다")
+        void whenMultipleContentsInPlaylist_allIncluded() {
+            // given
+            ContentModel anotherContent = contentRepository.save(
+                ContentModel.create(
+                    ContentModel.ContentType.movie,
+                    "다크나이트",
+                    "배트맨",
+                    "https://mopl.com/darkknight.png"
+                )
+            );
+            playlistContentRepository.save(playlist.getId(), content.getId());
+            playlistContentRepository.save(playlist.getId(), anotherContent.getId());
+
+            // when
+            Map<UUID, List<ContentModel>> result = playlistContentRepository.findContentsByPlaylistIdIn(
+                List.of(playlist.getId())
+            );
+
+            // then
+            assertThat(result).hasSize(1);
+            assertThat(result.get(playlist.getId())).hasSize(2);
+            assertThat(result.get(playlist.getId())).extracting(ContentModel::getId)
+                .containsExactlyInAnyOrder(content.getId(), anotherContent.getId());
+        }
     }
 
     @Nested

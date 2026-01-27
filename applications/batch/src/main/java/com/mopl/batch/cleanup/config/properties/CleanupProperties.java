@@ -5,9 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+@ConfigurationProperties(prefix = "mopl.batch.cleanup")
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "mopl.batch.cleanup")
 public class CleanupProperties {
 
     private CleanupPolicyProperties defaults = new CleanupPolicyProperties();

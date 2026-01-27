@@ -1,5 +1,6 @@
 package com.mopl.jpa.support.transaction;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -7,6 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -23,105 +27,118 @@ class SpringAfterCommitExecutorTest {
     }
 
     @Nested
-    @DisplayName("트랜잭션 동기화가 비활성화된 경우")
-    class WhenSynchronizationNotActive {
+    @DisplayName("execute()")
+    class ExecuteTest {
 
-        @Test
-        @DisplayName("액션이 즉시 실행된다")
-        void executesActionImmediately() {
-            // given
-            AtomicBoolean executed = new AtomicBoolean(false);
+        @Nested
+        @DisplayName("동기화 비활성화 시")
+        class WhenSynchronizationNotActive {
 
-            // when
-            executor.execute(() -> executed.set(true));
+            @Test
+            @DisplayName("액션 즉시 실행")
+            void executesActionImmediately() {
+                // given
+                AtomicBoolean executed = new AtomicBoolean(false);
 
-            // then
-            assertThat(executed.get()).isTrue();
-        }
+                // when
+                executor.execute(() -> executed.set(true));
 
-        @Test
-        @DisplayName("여러 액션이 순서대로 즉시 실행된다")
-        void executesMultipleActionsImmediately() {
-            // given
-            AtomicInteger counter = new AtomicInteger(0);
-
-            // when
-            executor.execute(counter::incrementAndGet);
-            executor.execute(counter::incrementAndGet);
-            executor.execute(counter::incrementAndGet);
-
-            // then
-            assertThat(counter.get()).isEqualTo(3);
-        }
-    }
-
-    @Nested
-    @DisplayName("트랜잭션 동기화가 활성화된 경우")
-    class WhenSynchronizationActive {
-
-        @BeforeEach
-        void initSynchronization() {
-            TransactionSynchronizationManager.initSynchronization();
-        }
-
-        @Test
-        @DisplayName("액션이 즉시 실행되지 않고 등록된다")
-        void defersActionExecution() {
-            // given
-            AtomicBoolean executed = new AtomicBoolean(false);
-
-            // when
-            executor.execute(() -> executed.set(true));
-
-            // then
-            assertThat(executed.get()).isFalse();
-            assertThat(TransactionSynchronizationManager.getSynchronizations()).hasSize(1);
-
-            // cleanup
-            TransactionSynchronizationManager.clearSynchronization();
-        }
-
-        @Test
-        @DisplayName("afterCommit 호출 시 액션이 실행된다")
-        void executesActionOnAfterCommit() {
-            // given
-            AtomicBoolean executed = new AtomicBoolean(false);
-            executor.execute(() -> executed.set(true));
-
-            // when
-            for (TransactionSynchronization sync : TransactionSynchronizationManager.getSynchronizations()) {
-                sync.afterCommit();
+                // then
+                assertThat(executed.get()).isTrue();
             }
 
-            // then
-            assertThat(executed.get()).isTrue();
+            @Test
+            @DisplayName("여러 액션 순서대로 즉시 실행")
+            void executesMultipleActionsInOrder() {
+                // given
+                AtomicInteger counter = new AtomicInteger(0);
 
-            // cleanup
-            TransactionSynchronizationManager.clearSynchronization();
+                // when
+                executor.execute(counter::incrementAndGet);
+                executor.execute(counter::incrementAndGet);
+                executor.execute(counter::incrementAndGet);
+
+                // then
+                assertThat(counter.get()).isEqualTo(3);
+            }
         }
 
-        @Test
-        @DisplayName("여러 액션이 등록되고 afterCommit 시 모두 실행된다")
-        void executesMultipleActionsOnAfterCommit() {
-            // given
-            AtomicInteger counter = new AtomicInteger(0);
-            executor.execute(counter::incrementAndGet);
-            executor.execute(counter::incrementAndGet);
-            executor.execute(counter::incrementAndGet);
+        @Nested
+        @DisplayName("동기화 활성화 시")
+        class WhenSynchronizationActive {
 
-            assertThat(counter.get()).isZero();
-            assertThat(TransactionSynchronizationManager.getSynchronizations()).hasSize(3);
-
-            // when
-            for (TransactionSynchronization sync : TransactionSynchronizationManager.getSynchronizations()) {
-                sync.afterCommit();
+            @BeforeEach
+            void initSynchronization() {
+                TransactionSynchronizationManager.initSynchronization();
             }
 
-            // then
-            assertThat(counter.get()).isEqualTo(3);
+            @AfterEach
+            void clearSynchronization() {
+                TransactionSynchronizationManager.clearSynchronization();
+            }
 
-            // cleanup
-            TransactionSynchronizationManager.clearSynchronization();
+            @Test
+            @DisplayName("액션 즉시 실행되지 않고 등록")
+            void defersActionExecution() {
+                // given
+                AtomicBoolean executed = new AtomicBoolean(false);
+
+                // when
+                executor.execute(() -> executed.set(true));
+
+                // then
+                assertThat(executed.get()).isFalse();
+                assertThat(TransactionSynchronizationManager.getSynchronizations()).hasSize(1);
+            }
+
+            @Test
+            @DisplayName("afterCommit 호출 시 가상 스레드에서 실행")
+            void executesOnVirtualThreadAfterCommit() throws InterruptedException {
+                // given
+                AtomicBoolean executed = new AtomicBoolean(false);
+                CountDownLatch latch = new CountDownLatch(1);
+
+                executor.execute(() -> {
+                    executed.set(true);
+                    latch.countDown();
+                });
+
+                List<TransactionSynchronization> syncs = TransactionSynchronizationManager.getSynchronizations();
+
+                // when
+                syncs.forEach(TransactionSynchronization::afterCommit);
+
+                // then
+                assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue();
+                assertThat(executed.get()).isTrue();
+            }
+
+            @Test
+            @DisplayName("여러 액션 등록 후 afterCommit 시 모두 실행")
+            void executesAllActionsAfterCommit() throws InterruptedException {
+                // given
+                AtomicInteger counter = new AtomicInteger(0);
+                CountDownLatch latch = new CountDownLatch(3);
+
+                for (int i = 0; i < 3; i++) {
+                    executor.execute(() -> {
+                        counter.incrementAndGet();
+                        latch.countDown();
+                    });
+                }
+
+                assertThat(counter.get()).isZero();
+                assertThat(TransactionSynchronizationManager.getSynchronizations()).hasSize(3);
+
+                List<TransactionSynchronization> syncs = TransactionSynchronizationManager.getSynchronizations();
+
+                // when
+                syncs.forEach(TransactionSynchronization::afterCommit);
+
+                // then
+                assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue();
+                assertThat(counter.get()).isEqualTo(3);
+            }
         }
     }
 }

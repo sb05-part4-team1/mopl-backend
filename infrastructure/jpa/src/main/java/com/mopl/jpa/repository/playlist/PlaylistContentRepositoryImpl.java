@@ -1,6 +1,5 @@
 package com.mopl.jpa.repository.playlist;
 
-import com.mopl.domain.exception.playlist.PlaylistContentAlreadyExistsException;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.jpa.entity.content.ContentEntity;
@@ -9,7 +8,6 @@ import com.mopl.jpa.entity.playlist.PlaylistContentEntity;
 import com.mopl.jpa.entity.playlist.PlaylistEntity;
 import com.mopl.jpa.repository.content.JpaContentRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -37,37 +35,6 @@ public class PlaylistContentRepositoryImpl implements PlaylistContentRepository 
     }
 
     @Override
-    public boolean exists(UUID playlistId, UUID contentId) {
-        return jpaPlaylistContentRepository.existsByPlaylistIdAndContentId(playlistId, contentId);
-    }
-
-    @Override
-    public void save(UUID playlistId, UUID contentId) {
-        PlaylistEntity playlistRef = jpaPlaylistRepository.getReferenceById(playlistId);
-        ContentEntity contentRef = jpaContentRepository.getReferenceById(contentId);
-
-        PlaylistContentEntity entity = PlaylistContentEntity.builder()
-            .playlist(playlistRef)
-            .content(contentRef)
-            .build();
-
-        try {
-            jpaPlaylistContentRepository.save(entity);
-        } catch (DataIntegrityViolationException exception) {
-            throw PlaylistContentAlreadyExistsException.withPlaylistIdAndContentId(playlistId, contentId);
-        }
-    }
-
-    @Override
-    public boolean deleteByPlaylistIdAndContentId(UUID playlistId, UUID contentId) {
-        int deletedCount = jpaPlaylistContentRepository.deleteByPlaylistIdAndContentId(
-            playlistId,
-            contentId
-        );
-        return deletedCount > 0;
-    }
-
-    @Override
     public Map<UUID, List<ContentModel>> findContentsByPlaylistIdIn(Collection<UUID> playlistIds) {
         if (playlistIds.isEmpty()) {
             return Map.of();
@@ -84,5 +51,32 @@ public class PlaylistContentRepositoryImpl implements PlaylistContentRepository 
         }
 
         return result;
+    }
+
+    @Override
+    public boolean exists(UUID playlistId, UUID contentId) {
+        return jpaPlaylistContentRepository.existsByPlaylistIdAndContentId(playlistId, contentId);
+    }
+
+    @Override
+    public void save(UUID playlistId, UUID contentId) {
+        PlaylistEntity playlistRef = jpaPlaylistRepository.getReferenceById(playlistId);
+        ContentEntity contentRef = jpaContentRepository.getReferenceById(contentId);
+
+        PlaylistContentEntity entity = PlaylistContentEntity.builder()
+            .playlist(playlistRef)
+            .content(contentRef)
+            .build();
+
+        jpaPlaylistContentRepository.save(entity);
+    }
+
+    @Override
+    public boolean deleteByPlaylistIdAndContentId(UUID playlistId, UUID contentId) {
+        int deletedCount = jpaPlaylistContentRepository.deleteByPlaylistIdAndContentId(
+            playlistId,
+            contentId
+        );
+        return deletedCount > 0;
     }
 }

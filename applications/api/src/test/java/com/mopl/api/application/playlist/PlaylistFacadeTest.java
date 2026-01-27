@@ -3,6 +3,7 @@ package com.mopl.api.application.playlist;
 import com.mopl.api.interfaces.api.playlist.dto.PlaylistCreateRequest;
 import com.mopl.api.interfaces.api.playlist.dto.PlaylistUpdateRequest;
 import com.mopl.domain.exception.content.ContentNotFoundException;
+import com.mopl.domain.exception.playlist.PlaylistContentAlreadyExistsException;
 import com.mopl.domain.exception.playlist.PlaylistForbiddenException;
 import com.mopl.domain.exception.playlist.PlaylistNotFoundException;
 import com.mopl.domain.exception.playlist.PlaylistSubscriptionAlreadyExistsException;
@@ -538,6 +539,29 @@ class PlaylistFacadeTest {
                 .isInstanceOf(ContentNotFoundException.class);
 
             then(playlistService).should(never()).addContent(any(), any());
+        }
+
+        @Test
+        @DisplayName("이미 추가된 콘텐츠를 다시 추가하면 PlaylistContentAlreadyExistsException 발생")
+        void withAlreadyAddedContent_throwsPlaylistContentAlreadyExistsException() {
+            // given
+            UserModel owner = UserModelFixture.create();
+            UUID requesterId = owner.getId();
+            PlaylistModel playlist = PlaylistModelFixture.create(owner);
+            UUID playlistId = playlist.getId();
+            ContentModel content = ContentModelFixture.create();
+            UUID contentId = content.getId();
+
+            given(userService.getById(requesterId)).willReturn(owner);
+            given(playlistService.getById(playlistId)).willReturn(playlist);
+            given(contentService.getById(contentId)).willReturn(content);
+            willThrow(PlaylistContentAlreadyExistsException.withPlaylistIdAndContentId(playlistId, contentId))
+                .given(playlistService).addContent(playlistId, contentId);
+            setupTransactionTemplateWithoutResult();
+
+            // when & then
+            assertThatThrownBy(() -> playlistFacade.addContentToPlaylist(requesterId, playlistId, contentId))
+                .isInstanceOf(PlaylistContentAlreadyExistsException.class);
         }
     }
 

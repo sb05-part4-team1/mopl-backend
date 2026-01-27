@@ -17,6 +17,6 @@ public class SystemSettingEntity {
     @Column(name = "setting_key", length = 100)
     private String key;
 
-    @Column(name = "setting_value", nullable = false, length = 255)
+    @Column(name = "setting_value", nullable = false)
     private String value;
 }

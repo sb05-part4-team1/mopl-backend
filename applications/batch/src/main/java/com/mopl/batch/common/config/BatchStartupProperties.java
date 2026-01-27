@@ -3,14 +3,12 @@ package com.mopl.batch.common.config;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@ConfigurationProperties(prefix = "mopl.batch")
 @Getter
 @Setter
-@Component
-@ConfigurationProperties(prefix = "mopl.batch")
 public class BatchStartupProperties {
 
     private RunOnStartup runOnStartup = new RunOnStartup();

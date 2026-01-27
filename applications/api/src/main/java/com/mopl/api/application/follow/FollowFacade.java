@@ -72,12 +72,6 @@ public class FollowFacade {
         return followService.getFollowerCount(followeeId);
     }
 
-    public boolean isFollow(UUID followerId, UUID followeeId) {
-        userService.getById(followerId);
-        userService.getById(followeeId);
-        return followService.isFollow(followerId, followeeId);
-    }
-
     public FollowStatusResponse getFollowStatus(UUID followerId, UUID followeeId) {
         userService.getById(followerId);
         userService.getById(followeeId);

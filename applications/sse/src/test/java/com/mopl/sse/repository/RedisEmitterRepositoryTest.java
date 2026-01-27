@@ -1,5 +1,7 @@
 package com.mopl.sse.repository;
 
+import com.mopl.sse.config.SseProperties;
+import com.mopl.sse.config.SseProperties.EventCacheConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -11,6 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +33,9 @@ import static org.mockito.BDDMockito.then;
 @DisplayName("RedisEmitterRepository 단위 테스트")
 class RedisEmitterRepositoryTest {
 
+    private static final Duration DEFAULT_TTL = Duration.ofMinutes(5);
+    private static final int DEFAULT_MAX_SIZE = 100;
+
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
 
@@ -40,7 +46,8 @@ class RedisEmitterRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        redisEmitterRepository = new RedisEmitterRepository(redisTemplate);
+        SseProperties sseProperties = new SseProperties(new EventCacheConfig(DEFAULT_TTL, DEFAULT_MAX_SIZE));
+        redisEmitterRepository = new RedisEmitterRepository(redisTemplate, sseProperties);
     }
 
     @Nested

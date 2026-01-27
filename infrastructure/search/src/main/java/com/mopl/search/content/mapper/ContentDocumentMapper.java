@@ -2,8 +2,9 @@ package com.mopl.search.content.mapper;
 
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.search.document.ContentDocument;
-import java.util.UUID;
 import org.springframework.stereotype.Component;
+
+import java.util.UUID;
 
 @Component
 public class ContentDocumentMapper {

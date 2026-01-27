@@ -56,7 +56,8 @@ class TwoLevelCacheTest {
             KEY_PREFIX,
             new L1Config(10000, Duration.ofSeconds(30), true),
             new L2Config(TTL),
-            false
+            false,
+            null
         );
         cache = new TwoLevelCache(CACHE_NAME, l1Cache, redisTemplate, properties, TTL);
     }
@@ -364,7 +365,8 @@ class TwoLevelCacheTest {
                 KEY_PREFIX,
                 new L1Config(10000, Duration.ofSeconds(30), true),
                 new L2Config(TTL),
-                false
+                false,
+                null
             );
             cache = new TwoLevelCache(CACHE_NAME, l1Cache, null, properties, TTL);
         }

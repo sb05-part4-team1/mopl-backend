@@ -56,7 +56,7 @@ public class TwoLevelCacheManager implements CacheManager {
             l1Cache,
             redisTemplate,
             properties,
-            properties.l2().defaultTtl()
+            properties.getTtlFor(name)
         );
     }
 }

@@ -1,9 +1,11 @@
 package com.mopl.batch.collect.tmdb.config.properties;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
+@EnableConfigurationProperties(TmdbCollectProperties.class)
 @RequiredArgsConstructor
 public class TmdbCollectPolicyResolver {
 

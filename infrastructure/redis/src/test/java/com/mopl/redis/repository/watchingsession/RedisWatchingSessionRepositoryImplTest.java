@@ -1,13 +1,15 @@
 package com.mopl.redis.repository.watchingsession;
 
 import com.mopl.domain.model.watchingsession.WatchingSessionModel;
+import com.mopl.redis.config.RedisProperties;
+import com.mopl.redis.config.RedisProperties.WatchingSessionConfig;
 import com.mopl.redis.support.WatchingSessionRedisKeys;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.connection.RedisConnection;
@@ -17,6 +19,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.core.ZSetOperations;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +37,8 @@ import static org.mockito.BDDMockito.then;
 @DisplayName("RedisWatchingSessionRepositoryImpl 단위 테스트")
 class RedisWatchingSessionRepositoryImplTest {
 
+    private static final Duration DEFAULT_TTL = Duration.ofHours(24);
+
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
 
@@ -43,8 +48,13 @@ class RedisWatchingSessionRepositoryImplTest {
     @Mock
     private ZSetOperations<String, Object> zSetOperations;
 
-    @InjectMocks
     private RedisWatchingSessionRepositoryImpl repository;
+
+    @BeforeEach
+    void setUp() {
+        RedisProperties redisProperties = new RedisProperties(new WatchingSessionConfig(DEFAULT_TTL));
+        repository = new RedisWatchingSessionRepositoryImpl(redisTemplate, redisProperties);
+    }
 
     @Nested
     @DisplayName("findByWatcherId()")
@@ -238,8 +248,8 @@ class RedisWatchingSessionRepositoryImplTest {
     class SaveTest {
 
         @Test
-        @DisplayName("세션을 String과 ZSet에 저장")
-        void withValidModel_savesToBothStructures() {
+        @DisplayName("세션을 String과 ZSet에 TTL과 함께 저장")
+        void withValidModel_savesToBothStructuresWithTtl() {
             // given
             UUID watcherId = UUID.randomUUID();
             UUID contentId = UUID.randomUUID();
@@ -256,18 +266,20 @@ class RedisWatchingSessionRepositoryImplTest {
 
             given(redisTemplate.opsForValue()).willReturn(valueOperations);
             given(redisTemplate.opsForZSet()).willReturn(zSetOperations);
+            given(redisTemplate.expire(zsetKey, DEFAULT_TTL)).willReturn(true);
 
             // when
             WatchingSessionModel result = repository.save(model);
 
             // then
             assertThat(result).isEqualTo(model);
-            then(valueOperations).should().set(sessionKey, model);
+            then(valueOperations).should().set(sessionKey, model, DEFAULT_TTL);
             then(zSetOperations).should().add(
                 eq(zsetKey),
                 eq(watcherId.toString()),
                 eq((double) createdAt.toEpochMilli())
             );
+            then(redisTemplate).should().expire(zsetKey, DEFAULT_TTL);
         }
     }
 

@@ -1,9 +1,11 @@
 package com.mopl.batch.sync.es.config.properties;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
+@EnableConfigurationProperties(EsSyncProperties.class)
 @RequiredArgsConstructor
 public class EsSyncPolicyResolver {
 

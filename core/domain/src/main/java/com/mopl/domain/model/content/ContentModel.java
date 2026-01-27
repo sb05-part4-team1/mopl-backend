@@ -146,15 +146,13 @@ public class ContentModel extends BaseUpdatableModel {
             .build();
     }
 
-    public ContentModel recalculatePopularity(double globalAvgRating, int minReviewCount) {
+    public ContentModel recalculatePopularity(double globalAverageRating, int minReviewCount) {
         double reviewCountAsDouble = this.reviewCount;
         double effectiveMinReviewCount = Math.max(minReviewCount, 1);
         double contentAverageRating = this.averageRating;
-        double globalAverageRating = globalAvgRating;
 
-        double popularityScore =
-            ((reviewCountAsDouble / (reviewCountAsDouble + effectiveMinReviewCount)) * contentAverageRating)
-                + ((effectiveMinReviewCount / (reviewCountAsDouble + effectiveMinReviewCount)) * globalAverageRating);
+        double popularityScore = ((reviewCountAsDouble / (reviewCountAsDouble + effectiveMinReviewCount)) * contentAverageRating)
+            + ((effectiveMinReviewCount / (reviewCountAsDouble + effectiveMinReviewCount)) * globalAverageRating);
 
         return this.toBuilder()
             .popularityScore(popularityScore)

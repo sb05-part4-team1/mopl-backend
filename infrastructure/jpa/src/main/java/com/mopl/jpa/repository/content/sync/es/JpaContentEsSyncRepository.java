@@ -1,12 +1,13 @@
 package com.mopl.jpa.repository.content.sync.es;
 
 import com.mopl.jpa.entity.content.ContentEntity;
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
 
 public interface JpaContentEsSyncRepository extends JpaRepository<ContentEntity, UUID> {
 
@@ -30,7 +31,7 @@ public interface JpaContentEsSyncRepository extends JpaRepository<ContentEntity,
                  or (c.created_at > :lastCreatedAt)
                  or (c.created_at = :lastCreatedAt and c.id > UUID_TO_BIN(:lastId))
               )
-            order by c.created_at asc, c.id asc
+            order by c.created_at , c.id
             limit :limit
             """,
         nativeQuery = true

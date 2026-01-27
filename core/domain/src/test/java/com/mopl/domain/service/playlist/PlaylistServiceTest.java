@@ -12,6 +12,7 @@ import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.playlist.PlaylistContentRepository;
 import com.mopl.domain.repository.playlist.PlaylistQueryRepository;
 import com.mopl.domain.repository.playlist.PlaylistQueryRequest;
+import com.mopl.domain.repository.playlist.PlaylistRepository;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +40,7 @@ import static org.mockito.Mockito.never;
 class PlaylistServiceTest {
 
     @Mock
-    private PlaylistCacheService playlistCacheService;
+    private PlaylistRepository playlistRepository;
 
     @Mock
     private PlaylistQueryRepository playlistQueryRepository;
@@ -86,14 +88,14 @@ class PlaylistServiceTest {
             UUID playlistId = UUID.randomUUID();
             PlaylistModel playlistModel = PlaylistModelFixture.create();
 
-            given(playlistCacheService.getById(playlistId)).willReturn(playlistModel);
+            given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlistModel));
 
             // when
             PlaylistModel result = playlistService.getById(playlistId);
 
             // then
             assertThat(result).isEqualTo(playlistModel);
-            then(playlistCacheService).should().getById(playlistId);
+            then(playlistRepository).should().findById(playlistId);
         }
 
         @Test
@@ -102,8 +104,7 @@ class PlaylistServiceTest {
             // given
             UUID playlistId = UUID.randomUUID();
 
-            given(playlistCacheService.getById(playlistId))
-                .willThrow(PlaylistNotFoundException.withId(playlistId));
+            given(playlistRepository.findById(playlistId)).willReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> playlistService.getById(playlistId))
@@ -113,7 +114,7 @@ class PlaylistServiceTest {
                     assertThat(ex.getDetails().get("id")).isEqualTo(playlistId);
                 });
 
-            then(playlistCacheService).should().getById(playlistId);
+            then(playlistRepository).should().findById(playlistId);
         }
     }
 
@@ -129,7 +130,7 @@ class PlaylistServiceTest {
             ContentModel content = ContentModelFixture.create();
             List<ContentModel> contents = List.of(content);
 
-            given(playlistCacheService.getContentsByPlaylistId(playlistId)).willReturn(contents);
+            given(playlistContentRepository.findContentsByPlaylistId(playlistId)).willReturn(contents);
 
             // when
             List<ContentModel> result = playlistService.getContentsByPlaylistId(playlistId);
@@ -137,7 +138,7 @@ class PlaylistServiceTest {
             // then
             assertThat(result).hasSize(1);
             assertThat(result.getFirst()).isEqualTo(content);
-            then(playlistCacheService).should().getContentsByPlaylistId(playlistId);
+            then(playlistContentRepository).should().findContentsByPlaylistId(playlistId);
         }
 
         @Test
@@ -146,7 +147,7 @@ class PlaylistServiceTest {
             // given
             UUID playlistId = UUID.randomUUID();
 
-            given(playlistCacheService.getContentsByPlaylistId(playlistId)).willReturn(List.of());
+            given(playlistContentRepository.findContentsByPlaylistId(playlistId)).willReturn(List.of());
 
             // when
             List<ContentModel> result = playlistService.getContentsByPlaylistId(playlistId);
@@ -221,14 +222,14 @@ class PlaylistServiceTest {
                 owner
             );
 
-            given(playlistCacheService.save(playlistModel)).willReturn(playlistModel);
+            given(playlistRepository.save(playlistModel)).willReturn(playlistModel);
 
             // when
             PlaylistModel result = playlistService.create(playlistModel);
 
             // then
             assertThat(result).isEqualTo(playlistModel);
-            then(playlistCacheService).should().save(playlistModel);
+            then(playlistRepository).should().save(playlistModel);
         }
     }
 
@@ -244,14 +245,14 @@ class PlaylistServiceTest {
             PlaylistModel playlistModel = PlaylistModelFixture.create(owner);
             PlaylistModel updatedPlaylist = playlistModel.update("수정된 제목", "수정된 설명");
 
-            given(playlistCacheService.save(updatedPlaylist)).willReturn(updatedPlaylist);
+            given(playlistRepository.save(updatedPlaylist)).willReturn(updatedPlaylist);
 
             // when
             PlaylistModel result = playlistService.update(updatedPlaylist);
 
             // then
             assertThat(result).isEqualTo(updatedPlaylist);
-            then(playlistCacheService).should().save(updatedPlaylist);
+            then(playlistRepository).should().save(updatedPlaylist);
         }
     }
 
@@ -271,7 +272,7 @@ class PlaylistServiceTest {
             playlistService.delete(playlistId);
 
             // then
-            then(playlistCacheService).should().delete(playlistId);
+            then(playlistRepository).should().delete(playlistId);
         }
     }
 

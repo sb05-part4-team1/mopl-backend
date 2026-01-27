@@ -1,21 +1,19 @@
 package com.mopl.jpa.repository.content.batch;
 
-import com.mopl.domain.repository.content.batch.ContentDeletionLogRepository;
 import com.mopl.domain.repository.content.batch.ContentDeletionLogItem;
+import com.mopl.domain.repository.content.batch.ContentDeletionLogRepository;
 import com.mopl.jpa.entity.content.ContentDeletionLogEntity;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Repository;
+
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
@@ -29,26 +27,18 @@ public class ContentDeletionLogRepositoryImpl implements ContentDeletionLogRepos
             return 0;
         }
 
-        List<UUID> contentIds = new ArrayList<>(thumbnailPathsByContentId.keySet());
-        List<UUID> existingIds = jpaContentDeletionLogRepository.findExistingContentIds(contentIds);
-        Set<UUID> existingIdSet = new HashSet<>(existingIds);
+        List<UUID> contentIds = thumbnailPathsByContentId.keySet().stream().toList();
+        Set<UUID> existingIdSet = new HashSet<>(
+            jpaContentDeletionLogRepository.findExistingContentIds(contentIds)
+        );
 
-        List<ContentDeletionLogEntity> entities = new ArrayList<>();
-
-        for (UUID contentId : contentIds) {
-            if (existingIdSet.contains(contentId)) {
-                continue;
-            }
-
-            String thumbnailPath = thumbnailPathsByContentId.get(contentId);
-
-            ContentDeletionLogEntity entity = ContentDeletionLogEntity.builder()
+        List<ContentDeletionLogEntity> entities = contentIds.stream()
+            .filter(contentId -> !existingIdSet.contains(contentId))
+            .<ContentDeletionLogEntity>map(contentId -> ContentDeletionLogEntity.builder()
                 .contentId(contentId)
-                .thumbnailPath(thumbnailPath)
-                .build();
-
-            entities.add(entity);
-        }
+                .thumbnailPath(thumbnailPathsByContentId.get(contentId))
+                .build())
+            .toList();
 
         if (entities.isEmpty()) {
             return 0;
@@ -60,19 +50,15 @@ public class ContentDeletionLogRepositoryImpl implements ContentDeletionLogRepos
 
     @Override
     public List<ContentDeletionLogItem> findImageCleanupTargets(int limit) {
-        Pageable pageable = PageRequest.of(
-            0,
-            limit,
-            Sort.by(Sort.Direction.ASC, "deletedAt")
-        );
-
-        return jpaContentDeletionLogRepository.findImageCleanupTargets(pageable).stream()
+        return jpaContentDeletionLogRepository.findImageCleanupTargets(
+            PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "deletedAt"))
+        ).stream()
             .map(row -> new ContentDeletionLogItem(
                 row.getLogId(),
                 row.getContentId(),
                 row.getThumbnailPath()
             ))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -85,13 +71,9 @@ public class ContentDeletionLogRepositoryImpl implements ContentDeletionLogRepos
 
     @Override
     public List<UUID> findFullyProcessedLogIds(int limit) {
-        Pageable pageable = PageRequest.of(
-            0,
-            limit,
-            Sort.by(Sort.Direction.ASC, "deletedAt")
+        return jpaContentDeletionLogRepository.findFullyProcessedLogIds(
+            PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "deletedAt"))
         );
-
-        return jpaContentDeletionLogRepository.findFullyProcessedLogIds(pageable);
     }
 
     @Override

@@ -5,9 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+@ConfigurationProperties(prefix = "mopl.batch.collect.tsdb")
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "mopl.batch.collect.tsdb")
 public class TsdbCollectProperties {
 
     private TsdbCollectPolicyProperties defaults = new TsdbCollectPolicyProperties();

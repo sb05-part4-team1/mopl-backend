@@ -31,12 +31,12 @@ import com.mopl.domain.service.conversation.ReadStatusService;
 import com.mopl.domain.service.follow.FollowService;
 import com.mopl.domain.service.notification.NotificationService;
 import com.mopl.domain.service.outbox.OutboxService;
-import com.mopl.domain.service.playlist.PlaylistCacheService;
 import com.mopl.domain.service.playlist.PlaylistService;
 import com.mopl.domain.service.playlist.PlaylistSubscriptionService;
 import com.mopl.domain.service.review.ReviewService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.service.watchingsession.WatchingSessionService;
+import com.mopl.domain.support.cache.CachePort;
 import com.mopl.domain.support.popularity.ContentPopularityPolicyPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -98,22 +98,14 @@ public class DomainServiceConfig {
     }
 
     @Bean
-    public PlaylistCacheService playlistCacheService(
-        PlaylistRepository playlistRepository,
-        PlaylistContentRepository playlistContentRepository
-    ) {
-        return new PlaylistCacheService(playlistRepository, playlistContentRepository);
-    }
-
-    @Bean
     public PlaylistService playlistService(
-        PlaylistCacheService playlistCacheService,
+        PlaylistRepository playlistRepository,
         PlaylistQueryRepository playlistQueryRepository,
         PlaylistContentRepository playlistContentRepository
     ) {
         return new PlaylistService(
-            playlistCacheService,
             playlistQueryRepository,
+            playlistRepository,
             playlistContentRepository
         );
     }
@@ -131,12 +123,14 @@ public class DomainServiceConfig {
         ReviewQueryRepository reviewQueryRepository,
         ReviewRepository reviewRepository,
         ContentRepository contentRepository,
+        CachePort cachePort,
         ContentPopularityPolicyPort contentPopularityPolicyPort
     ) {
         return new ReviewService(
             reviewQueryRepository,
             reviewRepository,
             contentRepository,
+            cachePort,
             contentPopularityPolicyPort
         );
     }

@@ -15,7 +15,4 @@ public interface ContentTagRepository {
     void saveAll(UUID contentId, List<TagModel> tags);
 
     void deleteByContentId(UUID contentId);
-
-    // cleanup batch 전용
-    int deleteByContentIdIn(List<UUID> contentIds);
 }
