@@ -57,6 +57,6 @@ public class ContentReviewStatsSyncTxService {
         double effectiveMinReviewCount = Math.max(minReviewCount, 1);
 
         return ((reviewCount / (reviewCount + effectiveMinReviewCount)) * averageRating)
-               + ((effectiveMinReviewCount / (reviewCount + effectiveMinReviewCount)) * globalAverageRating);
+            + ((effectiveMinReviewCount / (reviewCount + effectiveMinReviewCount)) * globalAverageRating);
     }
 }
