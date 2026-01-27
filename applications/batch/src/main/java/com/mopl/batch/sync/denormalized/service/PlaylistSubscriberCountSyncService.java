@@ -42,7 +42,7 @@ public class PlaylistSubscriberCountSyncService {
                 }
             }
 
-            lastPlaylistId = playlistIds.get(playlistIds.size() - 1);
+            lastPlaylistId = playlistIds.getLast();
             iterations++;
             log.debug("[PlaylistSubscriberCountSync] processed chunk={} lastPlaylistId={}", playlistIds.size(), lastPlaylistId);
         }

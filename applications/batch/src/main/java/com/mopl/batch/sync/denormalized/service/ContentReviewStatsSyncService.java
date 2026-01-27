@@ -42,7 +42,7 @@ public class ContentReviewStatsSyncService {
                 }
             }
 
-            lastContentId = contentIds.get(contentIds.size() - 1);
+            lastContentId = contentIds.getLast();
             iterations++;
             log.debug("[ContentReviewStatsSync] processed chunk={} lastContentId={}", contentIds.size(), lastContentId);
         }

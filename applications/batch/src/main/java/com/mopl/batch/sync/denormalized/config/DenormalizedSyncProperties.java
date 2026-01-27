@@ -5,8 +5,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "mopl.batch.sync.denormalized")
 public record DenormalizedSyncProperties(
     PolicyProperties defaults,
-    PolicyProperties contentReviewStats,  // 1
-    PolicyProperties playlistSubscriberCount  // 2
+    PolicyProperties playlistSubscriberCount,  // 1
+    PolicyProperties contentReviewStats        // 2
 ) {
     public DenormalizedSyncProperties {
         if (defaults == null || defaults.chunkSize() == null || defaults.chunkSize() <= 0) {
