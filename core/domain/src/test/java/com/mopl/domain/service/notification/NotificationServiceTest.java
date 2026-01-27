@@ -23,7 +23,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
@@ -207,15 +206,13 @@ class NotificationServiceTest {
                 .sample();
 
             given(notificationRepository.findById(notificationId)).willReturn(Optional.of(notification));
-            given(notificationRepository.save(any(NotificationModel.class))).willReturn(notification);
 
             // when
             notificationService.deleteById(notificationId);
 
             // then
-            assertThat(notification.isDeleted()).isTrue();
             then(notificationRepository).should().findById(notificationId);
-            then(notificationRepository).should().save(notification);
+            then(notificationRepository).should().delete(notificationId);
         }
 
         @Test

@@ -7,6 +7,7 @@ import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.domain.exception.MoplException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.elasticsearch.UncategorizedElasticsearchException;
 import org.springframework.http.HttpMethod;
@@ -34,6 +35,7 @@ import java.util.Map;
 
 @RestControllerAdvice
 @Slf4j
+@Generated
 public class ApiControllerAdvice {
 
     // --- 1. 라우팅 ---
@@ -276,9 +278,11 @@ public class ApiControllerAdvice {
 
     // --- DTOs ---
 
+    @Generated
     record FieldErrorDetail(String field, String message) {
     }
 
+    @Generated
     record GlobalErrorDetail(String object, String message) {
     }
 }

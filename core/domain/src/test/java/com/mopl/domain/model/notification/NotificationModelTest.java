@@ -1,7 +1,6 @@
 package com.mopl.domain.model.notification;
 
 import com.mopl.domain.exception.notification.InvalidNotificationDataException;
-import com.mopl.domain.fixture.NotificationModelFixture;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -172,62 +171,6 @@ class NotificationModelTest {
                 .isInstanceOf(InvalidNotificationDataException.class)
                 .satisfies(e -> assertThat(((InvalidNotificationDataException) e).getDetails().get("detailMessage"))
                     .isEqualTo("수신자 ID는 null일 수 없습니다."));
-        }
-    }
-
-    @Nested
-    @DisplayName("delete()")
-    class DeleteTest {
-
-        @Test
-        @DisplayName("삭제 시 deletedAt이 설정됨")
-        void withValidNotification_setsDeletedAt() {
-            // given
-            NotificationModel notification = NotificationModelFixture.create();
-            assertThat(notification.getDeletedAt()).isNull();
-            assertThat(notification.isDeleted()).isFalse();
-
-            // when
-            notification.delete();
-
-            // then
-            assertThat(notification.getDeletedAt()).isNotNull();
-            assertThat(notification.isDeleted()).isTrue();
-        }
-
-        @Test
-        @DisplayName("이미 삭제된 알림을 다시 삭제해도 멱등성 보장")
-        void deleteAlreadyDeleted_isIdempotent() {
-            // given
-            NotificationModel notification = NotificationModelFixture.create();
-            notification.delete();
-
-            // when
-            notification.delete();
-
-            // then
-            assertThat(notification.getDeletedAt()).isNotNull();
-        }
-    }
-
-    @Nested
-    @DisplayName("restore()")
-    class RestoreTest {
-
-        @Test
-        @DisplayName("복원 시 deletedAt이 null로 설정됨")
-        void withDeletedNotification_clearsDeletedAt() {
-            // given
-            NotificationModel notification = NotificationModelFixture.create();
-            notification.delete();
-            assertThat(notification.isDeleted()).isTrue();
-
-            // when
-            notification.restore();
-
-            // then
-            assertThat(notification.getDeletedAt()).isNull();
-            assertThat(notification.isDeleted()).isFalse();
         }
     }
 

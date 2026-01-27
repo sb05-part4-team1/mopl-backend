@@ -148,6 +148,54 @@ class FollowServiceTest {
     }
 
     @Nested
+    @DisplayName("getByFollowerIdAndFolloweeId()")
+    class GetByFollowerIdAndFolloweeIdTest {
+
+        @Test
+        @DisplayName("팔로우 관계가 존재하면 Optional에 FollowModel 반환")
+        void withExistingFollow_returnsOptionalOfFollowModel() {
+            // given
+            UUID followerId = UUID.randomUUID();
+            UUID followeeId = UUID.randomUUID();
+            FollowModel followModel = FollowModel.builder()
+                .id(UUID.randomUUID())
+                .followerId(followerId)
+                .followeeId(followeeId)
+                .build();
+
+            given(followRepository.findByFollowerIdAndFolloweeId(followerId, followeeId))
+                .willReturn(Optional.of(followModel));
+
+            // when
+            Optional<FollowModel> result = followService.getByFollowerIdAndFolloweeId(followerId, followeeId);
+
+            // then
+            assertThat(result).isPresent();
+            assertThat(result.get().getFollowerId()).isEqualTo(followerId);
+            assertThat(result.get().getFolloweeId()).isEqualTo(followeeId);
+            then(followRepository).should().findByFollowerIdAndFolloweeId(followerId, followeeId);
+        }
+
+        @Test
+        @DisplayName("팔로우 관계가 없으면 빈 Optional 반환")
+        void withNoFollow_returnsEmptyOptional() {
+            // given
+            UUID followerId = UUID.randomUUID();
+            UUID followeeId = UUID.randomUUID();
+
+            given(followRepository.findByFollowerIdAndFolloweeId(followerId, followeeId))
+                .willReturn(Optional.empty());
+
+            // when
+            Optional<FollowModel> result = followService.getByFollowerIdAndFolloweeId(followerId, followeeId);
+
+            // then
+            assertThat(result).isEmpty();
+            then(followRepository).should().findByFollowerIdAndFolloweeId(followerId, followeeId);
+        }
+    }
+
+    @Nested
     @DisplayName("getFollowerIds()")
     class GetFollowerIdsTest {
 

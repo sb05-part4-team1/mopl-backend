@@ -351,6 +351,41 @@ class RedisCursorPaginationHelperTest {
             assertThat(result).hasSize(1);
             assertThat(result.getFirst().name()).isEqualTo("Valid");
         }
+
+        @Test
+        @DisplayName("ASC 정렬에서 같은 시간, 같은 ID는 제외됨")
+        void withAscendingAndSameTimeAndSameId_excludesItem() {
+            // given
+            Instant cursor = Instant.parse("2024-01-01T12:00:00Z");
+            UUID cursorId = UUID.fromString("00000000-0000-0000-0000-000000000002");
+
+            UUID id1 = UUID.fromString("00000000-0000-0000-0000-000000000001"); // smaller id
+            UUID id2 = UUID.fromString("00000000-0000-0000-0000-000000000002"); // same id
+            UUID id3 = UUID.fromString("00000000-0000-0000-0000-000000000003"); // greater id
+
+            List<TestItem> items = List.of(
+                new TestItem(id1, cursor, "Same time, smaller id"),
+                new TestItem(id2, cursor, "Same time, same id"),
+                new TestItem(id3, cursor, "Same time, greater id")
+            );
+
+            CursorRequest<TestSortField> request = createRequest(
+                cursor.toString(), cursorId, 10, SortDirection.ASCENDING
+            );
+
+            // when
+            List<TestItem> result = RedisCursorPaginationHelper.applyCursor(
+                items,
+                request,
+                sortField,
+                TestItem::createdAt,
+                TestItem::id
+            );
+
+            // then - cmp == 0인 경우: id1 < cursorId (제외), id2 == cursorId (제외), id3 > cursorId (포함)
+            assertThat(result).hasSize(1);
+            assertThat(result.getFirst().name()).isEqualTo("Same time, greater id");
+        }
     }
 
     @Nested

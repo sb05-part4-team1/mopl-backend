@@ -15,9 +15,9 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrphanCleanupService {
 
     private final JpaOrphanCleanupRepository orphanCleanupRepository;
@@ -25,24 +25,27 @@ public class OrphanCleanupService {
     private final OrphanCleanupProperties cleanupProperties;
     private final OrphanCleanupPolicyResolver policyResolver;
 
-    public int cleanupNotifications() {
+    // ==================== 1. Playlist ====================
+    public int cleanupPlaylists() {
         return cleanup(
-            "notification",
-            cleanupProperties.getNotification(),
-            orphanCleanupRepository::findOrphanNotificationIds,
-            txService::cleanupNotifications
+            "playlist",
+            cleanupProperties.getPlaylist(),
+            orphanCleanupRepository::findOrphanPlaylistIds,
+            txService::cleanupPlaylists
         );
     }
 
-    public int cleanupFollows() {
+    // ==================== 2. Review ====================
+    public int cleanupReviews() {
         return cleanup(
-            "follow",
-            cleanupProperties.getFollow(),
-            orphanCleanupRepository::findOrphanFollowIds,
-            txService::cleanupFollows
+            "review",
+            cleanupProperties.getReview(),
+            orphanCleanupRepository::findOrphanReviewIds,
+            txService::cleanupReviews
         );
     }
 
+    // ==================== 3. PlaylistSubscriber ====================
     public int cleanupPlaylistSubscribers() {
         return cleanup(
             "playlistSubscriber",
@@ -52,6 +55,7 @@ public class OrphanCleanupService {
         );
     }
 
+    // ==================== 4. PlaylistContent ====================
     public int cleanupPlaylistContents() {
         return cleanup(
             "playlistContent",
@@ -61,24 +65,47 @@ public class OrphanCleanupService {
         );
     }
 
-    public int cleanupPlaylists() {
-        return cleanupWithSoftDelete(
-            "playlist",
-            cleanupProperties.getPlaylist(),
-            orphanCleanupRepository::findOrphanPlaylistIds,
-            txService::cleanupPlaylists
+    // ==================== 5. ContentTag ====================
+    public int cleanupContentTags() {
+        return cleanup(
+            "contentTag",
+            cleanupProperties.getContentTag(),
+            orphanCleanupRepository::findOrphanContentTagIds,
+            txService::cleanupContentTags
         );
     }
 
-    public int cleanupReviews() {
-        return cleanupWithSoftDelete(
-            "review",
-            cleanupProperties.getReview(),
-            orphanCleanupRepository::findOrphanReviewIds,
-            txService::cleanupReviews
+    // ==================== 6. ContentExternalMapping ====================
+    public int cleanupContentExternalMappings() {
+        return cleanup(
+            "contentExternalMapping",
+            cleanupProperties.getContentExternalMapping(),
+            orphanCleanupRepository::findOrphanContentExternalMappingIds,
+            txService::cleanupContentExternalMappings
         );
     }
 
+    // ==================== 7. Notification ====================
+    public int cleanupNotifications() {
+        return cleanup(
+            "notification",
+            cleanupProperties.getNotification(),
+            orphanCleanupRepository::findOrphanNotificationIds,
+            txService::cleanupNotifications
+        );
+    }
+
+    // ==================== 8. Follow ====================
+    public int cleanupFollows() {
+        return cleanup(
+            "follow",
+            cleanupProperties.getFollow(),
+            orphanCleanupRepository::findOrphanFollowIds,
+            txService::cleanupFollows
+        );
+    }
+
+    // ==================== 9. ReadStatus ====================
     public int cleanupReadStatuses() {
         return cleanup(
             "readStatus",
@@ -88,6 +115,7 @@ public class OrphanCleanupService {
         );
     }
 
+    // ==================== 10. DirectMessage ====================
     public int cleanupDirectMessages() {
         return cleanup(
             "directMessage",
@@ -97,12 +125,13 @@ public class OrphanCleanupService {
         );
     }
 
-    public int cleanupContentTags() {
+    // ==================== 11. Conversation ====================
+    public int cleanupConversations() {
         return cleanup(
-            "contentTag",
-            cleanupProperties.getContentTag(),
-            orphanCleanupRepository::findOrphanContentTagIds,
-            txService::cleanupContentTags
+            "conversation",
+            cleanupProperties.getConversation(),
+            orphanCleanupRepository::findOrphanConversationIds,
+            txService::cleanupConversations
         );
     }
 
@@ -127,33 +156,6 @@ public class OrphanCleanupService {
             int deleted = deleteOrphans.apply(orphanIds);
             totalDeleted += deleted;
             log.debug("[OrphanCleanup] {} deleted batch={}", name, deleted);
-        }
-
-        return totalDeleted;
-    }
-
-    private int cleanupWithSoftDelete(
-        String name,
-        OrphanCleanupPolicyProperties policy,
-        BiFunction<Instant, Integer, List<UUID>> findOrphans,
-        BiFunction<List<UUID>, Instant, Integer> softDeleteOrphans
-    ) {
-        int chunkSize = policyResolver.chunkSize(policy);
-        long gracePeriodDays = policyResolver.gracePeriodDays(policy);
-        Instant threshold = Instant.now().minus(gracePeriodDays, ChronoUnit.DAYS);
-        Instant now = Instant.now();
-
-        int totalDeleted = 0;
-
-        while (true) {
-            List<UUID> orphanIds = findOrphans.apply(threshold, chunkSize);
-            if (orphanIds.isEmpty()) {
-                break;
-            }
-
-            int deleted = softDeleteOrphans.apply(orphanIds, now);
-            totalDeleted += deleted;
-            log.debug("[OrphanCleanup] {} soft-deleted batch={}", name, deleted);
         }
 
         return totalDeleted;

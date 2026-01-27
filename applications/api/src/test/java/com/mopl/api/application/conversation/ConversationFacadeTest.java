@@ -1,11 +1,6 @@
 package com.mopl.api.application.conversation;
 
 import com.mopl.api.interfaces.api.conversation.dto.ConversationCreateRequest;
-import com.mopl.dto.conversation.ConversationResponse;
-import com.mopl.dto.conversation.DirectMessageResponse;
-import com.mopl.dto.conversation.ConversationResponseMapper;
-import com.mopl.dto.conversation.DirectMessageResponseMapper;
-import com.mopl.dto.user.UserSummary;
 import com.mopl.domain.exception.conversation.ConversationAlreadyExistsException;
 import com.mopl.domain.exception.conversation.SelfConversationNotAllowedException;
 import com.mopl.domain.fixture.ConversationModelFixture;
@@ -25,6 +20,11 @@ import com.mopl.domain.service.conversation.ReadStatusService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
+import com.mopl.dto.conversation.ConversationResponse;
+import com.mopl.dto.conversation.ConversationResponseMapper;
+import com.mopl.dto.conversation.DirectMessageResponse;
+import com.mopl.dto.conversation.DirectMessageResponseMapper;
+import com.mopl.dto.user.UserSummary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -497,6 +497,101 @@ class ConversationFacadeTest {
             // then
             then(directMessageResponseMapper).should().toResponse(directMessage, requester);
         }
+
+        @Test
+        @DisplayName("soft delete된 sender(null)의 메시지는 receiver가 requester로 설정됨")
+        void withSoftDeletedSender_receiverIsRequester() {
+            // given
+            UUID conversationId = UUID.randomUUID();
+            ConversationModel conversation = ConversationModelFixture.builder()
+                .set("id", conversationId)
+                .sample();
+
+            DirectMessageQueryRequest request = new DirectMessageQueryRequest(
+                null, null, 20, SortDirection.DESCENDING, DirectMessageSortField.CREATED_AT
+            );
+
+            ReadStatusModel requesterReadStatus = createReadStatus(requester, conversation, Instant.now());
+            ReadStatusModel otherReadStatus = createReadStatus(otherUser, conversation, Instant.now());
+
+            DirectMessageModel directMessage = DirectMessageModelFixture.builder()
+                .set("conversation", conversation)
+                .set("sender", null)  // soft delete된 sender
+                .sample();
+
+            CursorResponse<DirectMessageModel> serviceResponse = CursorResponse.of(
+                List.of(directMessage),
+                null, null, false, 1L,
+                "CREATED_AT", SortDirection.DESCENDING
+            );
+
+            given(readStatusService.getReadStatusWithParticipant(requesterId, conversationId))
+                .willReturn(requesterReadStatus);
+            given(readStatusService.getOtherReadStatusWithParticipant(requesterId, conversationId))
+                .willReturn(otherReadStatus);
+            given(directMessageService.getDirectMessages(conversationId, request))
+                .willReturn(serviceResponse);
+            given(directMessageResponseMapper.toResponse(directMessage, requester))
+                .willReturn(new DirectMessageResponse(
+                    directMessage.getId(), conversationId, directMessage.getCreatedAt(),
+                    null,  // sender is null
+                    new UserSummary(requesterId, requester.getName(), null),
+                    directMessage.getContent()
+                ));
+
+            // when
+            conversationFacade.getDirectMessages(requesterId, conversationId, request);
+
+            // then - sender가 null이면 requester가 보낸 것이 아니므로 receiver는 requester
+            then(directMessageResponseMapper).should().toResponse(directMessage, requester);
+        }
+
+        @Test
+        @DisplayName("상대방 ReadStatus가 없으면 otherParticipant는 null")
+        void withNoOtherReadStatus_otherParticipantIsNull() {
+            // given
+            UUID conversationId = UUID.randomUUID();
+            ConversationModel conversation = ConversationModelFixture.builder()
+                .set("id", conversationId)
+                .sample();
+
+            DirectMessageQueryRequest request = new DirectMessageQueryRequest(
+                null, null, 20, SortDirection.DESCENDING, DirectMessageSortField.CREATED_AT
+            );
+
+            ReadStatusModel requesterReadStatus = createReadStatus(requester, conversation, Instant.now());
+
+            DirectMessageModel directMessage = DirectMessageModelFixture.builder()
+                .set("conversation", conversation)
+                .set("sender", requester)  // 내가 보낸 메시지
+                .sample();
+
+            CursorResponse<DirectMessageModel> serviceResponse = CursorResponse.of(
+                List.of(directMessage),
+                null, null, false, 1L,
+                "CREATED_AT", SortDirection.DESCENDING
+            );
+
+            given(readStatusService.getReadStatusWithParticipant(requesterId, conversationId))
+                .willReturn(requesterReadStatus);
+            given(readStatusService.getOtherReadStatusWithParticipant(requesterId, conversationId))
+                .willReturn(null);  // 상대방 ReadStatus 없음
+            given(directMessageService.getDirectMessages(conversationId, request))
+                .willReturn(serviceResponse);
+            given(directMessageResponseMapper.toResponse(directMessage, null))
+                .willReturn(new DirectMessageResponse(
+                    directMessage.getId(), conversationId, directMessage.getCreatedAt(),
+                    new UserSummary(requesterId, requester.getName(), null),
+                    null,  // receiver is null (otherParticipant가 null이므로)
+                    directMessage.getContent()
+                ));
+
+            // when
+            conversationFacade.getDirectMessages(requesterId, conversationId, request);
+
+            // then - otherReadStatus가 null이면 otherParticipant도 null
+            then(directMessageResponseMapper).should().toResponse(directMessage, null);
+        }
     }
 
     @Nested
@@ -612,6 +707,39 @@ class ConversationFacadeTest {
             // then
             then(readStatusService).should(never()).update(any());
         }
+
+        @Test
+        @DisplayName("soft delete된 sender(null)의 메시지면 읽음 처리함")
+        void withSoftDeletedSender_marksAsRead() {
+            // given
+            UUID conversationId = UUID.randomUUID();
+            ConversationModel conversation = ConversationModelFixture.builder()
+                .set("id", conversationId)
+                .sample();
+
+            Instant messageCreatedAt = Instant.now();
+            Instant lastReadAt = messageCreatedAt.minusSeconds(100);
+
+            ReadStatusModel readStatus = createReadStatus(requester, conversation, lastReadAt);
+
+            DirectMessageModel lastMessage = DirectMessageModelFixture.builder()
+                .set("conversation", conversation)
+                .set("sender", null)  // soft delete된 sender
+                .set("createdAt", messageCreatedAt)
+                .sample();
+
+            ReadStatusModel updatedReadStatus = readStatus.updateLastReadAt(messageCreatedAt);
+
+            given(readStatusService.getReadStatus(requesterId, conversationId)).willReturn(readStatus);
+            given(directMessageService.getLastDirectMessage(conversationId)).willReturn(lastMessage);
+            given(readStatusService.update(any(ReadStatusModel.class))).willReturn(updatedReadStatus);
+
+            // when
+            conversationFacade.markAsRead(requesterId, conversationId);
+
+            // then - sender가 null이면 내가 보낸 것이 아니므로 읽음 처리함
+            then(readStatusService).should().update(any(ReadStatusModel.class));
+        }
     }
 
     @Nested
@@ -681,6 +809,117 @@ class ConversationFacadeTest {
             // then
             then(conversationResponseMapper).should()
                 .toResponse(eq(conversation), any(), eq(lastMessage), eq(false));
+        }
+
+        @Test
+        @DisplayName("soft delete된 sender(null)의 메시지면 hasUnread = true")
+        void withSoftDeletedSender_hasUnreadIsTrue() {
+            // given
+            ConversationModel conversation = ConversationModelFixture.create();
+            UUID conversationId = conversation.getId();
+
+            Instant lastReadAt = Instant.now().minusSeconds(100);
+            Instant messageCreatedAt = Instant.now();
+
+            ReadStatusModel requesterReadStatus = createReadStatus(requester, conversation, lastReadAt);
+
+            DirectMessageModel lastMessage = DirectMessageModelFixture.builder()
+                .set("conversation", conversation)
+                .set("sender", null)  // soft delete된 sender
+                .set("createdAt", messageCreatedAt)
+                .sample();
+
+            given(readStatusService.getReadStatus(requesterId, conversationId)).willReturn(requesterReadStatus);
+            given(conversationService.getById(conversationId)).willReturn(conversation);
+            given(readStatusService.getOtherReadStatusWithParticipant(requesterId, conversationId)).willReturn(null);
+            given(directMessageService.getLastDirectMessageWithSender(conversationId)).willReturn(lastMessage);
+            given(conversationResponseMapper.toResponse(eq(conversation), any(), eq(lastMessage), eq(true)))
+                .willReturn(new ConversationResponse(conversationId, null, null, true));
+
+            // when
+            conversationFacade.getConversation(requesterId, conversationId);
+
+            // then - sender가 null이면 내가 보낸 것이 아니므로 hasUnread = true
+            then(conversationResponseMapper).should()
+                .toResponse(eq(conversation), any(), eq(lastMessage), eq(true));
+        }
+
+        @Test
+        @DisplayName("requesterReadStatus가 null이면 hasUnread = false")
+        void withNullRequesterReadStatus_hasUnreadIsFalse() {
+            // given
+            ConversationModel conversation = ConversationModelFixture.create();
+            UUID conversationId = conversation.getId();
+
+            ConversationQueryRequest request = new ConversationQueryRequest(
+                null, null, null, 20, SortDirection.DESCENDING, ConversationSortField.CREATED_AT
+            );
+
+            CursorResponse<ConversationModel> serviceResponse = CursorResponse.of(
+                List.of(conversation),
+                null, null, false, 1L,
+                "CREATED_AT", SortDirection.DESCENDING
+            );
+
+            ReadStatusModel otherReadStatus = createReadStatus(otherUser, conversation, Instant.now());
+
+            DirectMessageModel lastMessage = DirectMessageModelFixture.builder()
+                .set("conversation", conversation)
+                .set("sender", otherUser)
+                .set("createdAt", Instant.now())
+                .sample();
+
+            given(conversationService.getAll(requesterId, request)).willReturn(serviceResponse);
+            given(readStatusService.getReadStatusMap(eq(requesterId), any()))
+                .willReturn(Map.of());  // requesterReadStatus가 없음
+            given(readStatusService.getOtherReadStatusMapWithParticipant(eq(requesterId), any()))
+                .willReturn(Map.of(conversationId, otherReadStatus));
+            given(directMessageService.getLastDirectMessageMapWithSender(any()))
+                .willReturn(Map.of(conversationId, lastMessage));
+            given(conversationResponseMapper.toResponse(conversation, otherUser, lastMessage, false))
+                .willReturn(new ConversationResponse(conversationId, null, null, false));
+
+            // when
+            conversationFacade.getConversations(requesterId, request);
+
+            // then - requesterReadStatus가 null이므로 hasUnread = false
+            then(conversationResponseMapper).should()
+                .toResponse(conversation, otherUser, lastMessage, false);
+        }
+
+        @Test
+        @DisplayName("메시지 시간이 lastReadAt 이전이거나 같으면 hasUnread = false")
+        void withMessageBeforeOrEqualLastReadAt_hasUnreadIsFalse() {
+            // given
+            ConversationModel conversation = ConversationModelFixture.create();
+            UUID conversationId = conversation.getId();
+
+            Instant messageCreatedAt = Instant.now().minusSeconds(100);
+            Instant lastReadAt = Instant.now();  // 메시지 시간보다 이후
+
+            ReadStatusModel requesterReadStatus = createReadStatus(requester, conversation, lastReadAt);
+            ReadStatusModel otherReadStatus = createReadStatus(otherUser, conversation, Instant.now());
+
+            DirectMessageModel lastMessage = DirectMessageModelFixture.builder()
+                .set("conversation", conversation)
+                .set("sender", otherUser)  // 상대방이 보냄
+                .set("createdAt", messageCreatedAt)  // lastReadAt 이전
+                .sample();
+
+            given(readStatusService.getReadStatus(requesterId, conversationId)).willReturn(requesterReadStatus);
+            given(conversationService.getById(conversationId)).willReturn(conversation);
+            given(readStatusService.getOtherReadStatusWithParticipant(requesterId, conversationId))
+                .willReturn(otherReadStatus);
+            given(directMessageService.getLastDirectMessageWithSender(conversationId)).willReturn(lastMessage);
+            given(conversationResponseMapper.toResponse(eq(conversation), eq(otherUser), eq(lastMessage), eq(false)))
+                .willReturn(new ConversationResponse(conversationId, null, null, false));
+
+            // when
+            conversationFacade.getConversation(requesterId, conversationId);
+
+            // then - 메시지가 lastReadAt 이전이므로 hasUnread = false
+            then(conversationResponseMapper).should()
+                .toResponse(eq(conversation), eq(otherUser), eq(lastMessage), eq(false));
         }
     }
 

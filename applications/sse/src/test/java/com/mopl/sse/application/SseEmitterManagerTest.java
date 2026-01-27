@@ -208,6 +208,29 @@ class SseEmitterManagerTest {
             // then
             then(emitterRepository).should().deleteByUserId(userId);
         }
+
+        @Test
+        @DisplayName("전송 실패 후 complete에서도 예외 발생하면 조용히 무시")
+        void withSendAndCompleteFailure_ignoresCompleteException() throws IOException {
+            // given
+            UUID userId = UUID.randomUUID();
+            String eventName = "notifications";
+            Object data = "test data";
+            SseEmitter emitter = mock(SseEmitter.class);
+
+            given(emitterRepository.findByUserId(userId)).willReturn(Optional.of(emitter));
+            doThrow(new IOException("Connection closed"))
+                .when(emitter).send(any(SseEmitter.SseEventBuilder.class));
+            doThrow(new IllegalStateException("Already completed"))
+                .when(emitter).complete();
+
+            // when - 예외 없이 완료되어야 함
+            sseEmitterManager.sendToUser(userId, eventName, data);
+
+            // then
+            then(emitter).should().complete();
+            then(emitterRepository).should().deleteByUserId(userId);
+        }
     }
 
     @Nested

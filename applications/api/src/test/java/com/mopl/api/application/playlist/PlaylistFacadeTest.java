@@ -437,14 +437,14 @@ class PlaylistFacadeTest {
 
             given(userService.getById(requesterId)).willReturn(owner);
             given(playlistService.getById(playlistId)).willReturn(playlist);
-            willDoNothing().given(playlistService).delete(playlist);
+            willDoNothing().given(playlistService).delete(playlistId);
             setupTransactionTemplateWithoutResult();
 
             // when & then
             assertThatNoException()
                 .isThrownBy(() -> playlistFacade.deletePlaylist(requesterId, playlistId));
 
-            then(playlistService).should().delete(playlist);
+            then(playlistService).should().delete(playlistId);
         }
 
         @Test
@@ -464,7 +464,7 @@ class PlaylistFacadeTest {
             assertThatThrownBy(() -> playlistFacade.deletePlaylist(requesterId, playlistId))
                 .isInstanceOf(PlaylistForbiddenException.class);
 
-            then(playlistService).should(never()).delete(any(PlaylistModel.class));
+            then(playlistService).should(never()).delete(any(UUID.class));
         }
     }
 

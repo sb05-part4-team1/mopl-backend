@@ -1,12 +1,14 @@
 package com.mopl.batch.cleanup.orphan.service;
 
+import com.mopl.batch.sync.denormalized.service.ContentReviewStatsSyncTxService;
+import com.mopl.batch.sync.denormalized.service.PlaylistSubscriberCountSyncTxService;
 import com.mopl.jpa.repository.orphan.JpaOrphanCleanupRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -14,49 +16,93 @@ import java.util.UUID;
 public class OrphanCleanupTxService {
 
     private final JpaOrphanCleanupRepository orphanCleanupRepository;
+    private final ContentReviewStatsSyncTxService contentReviewStatsSyncTxService;
+    private final PlaylistSubscriberCountSyncTxService playlistSubscriberCountSyncTxService;
 
+    // ==================== 1. Playlist ====================
     @Transactional
-    public int cleanupNotifications(List<UUID> notificationIds) {
-        return orphanCleanupRepository.deleteNotificationsByIdIn(notificationIds);
+    public int cleanupPlaylists(List<UUID> playlistIds) {
+        orphanCleanupRepository.deletePlaylistContentsByPlaylistIdIn(playlistIds);
+        orphanCleanupRepository.deletePlaylistSubscribersByPlaylistIdIn(playlistIds);
+        return orphanCleanupRepository.deletePlaylistsByIdIn(playlistIds);
     }
 
+    // ==================== 2. Review ====================
     @Transactional
-    public int cleanupFollows(List<UUID> followIds) {
-        return orphanCleanupRepository.deleteFollowsByIdIn(followIds);
+    public int cleanupReviews(List<UUID> reviewIds) {
+        // 1. 삭제 전 존재하는 contentId 조회 (Content가 존재하는 경우만)
+        Set<UUID> contentIds = orphanCleanupRepository.findExistingContentIdsByReviewIdIn(reviewIds);
+
+        // 2. Review hard delete
+        int deleted = orphanCleanupRepository.deleteReviewsByIdIn(reviewIds);
+
+        // 3. Content 통계 재계산
+        contentIds.forEach(contentReviewStatsSyncTxService::syncOne);
+
+        return deleted;
     }
 
+    // ==================== 3. PlaylistSubscriber ====================
     @Transactional
-    public int cleanupPlaylistSubscribers(List<UUID> playlistSubscribersByIds) {
-        return orphanCleanupRepository.deletePlaylistSubscribersByIdIn(playlistSubscribersByIds);
+    public int cleanupPlaylistSubscribers(List<UUID> playlistSubscriberIds) {
+        // 1. 삭제 전 존재하는 playlistId 조회 (Playlist가 존재하는 경우만)
+        Set<UUID> playlistIds = orphanCleanupRepository.findExistingPlaylistIdsBySubscriberIdIn(playlistSubscriberIds);
+
+        // 2. PlaylistSubscriber hard delete
+        int deleted = orphanCleanupRepository.deletePlaylistSubscribersByIdIn(playlistSubscriberIds);
+
+        // 3. Playlist subscriberCount 재계산
+        playlistIds.forEach(playlistSubscriberCountSyncTxService::syncOne);
+
+        return deleted;
     }
 
+    // ==================== 4. PlaylistContent ====================
     @Transactional
     public int cleanupPlaylistContents(List<UUID> playlistContentIds) {
         return orphanCleanupRepository.deletePlaylistContentsByIdIn(playlistContentIds);
     }
 
+    // ==================== 5. ContentTag ====================
     @Transactional
-    public int cleanupPlaylists(List<UUID> playlistIds, Instant now) {
-        return orphanCleanupRepository.softDeletePlaylistsByIdIn(playlistIds, now);
+    public int cleanupContentTags(List<UUID> contentTagIds) {
+        return orphanCleanupRepository.deleteContentTagsByIdIn(contentTagIds);
     }
 
+    // ==================== 6. ContentExternalMapping ====================
     @Transactional
-    public int cleanupReviews(List<UUID> reviewIds, Instant now) {
-        return orphanCleanupRepository.softDeleteReviewsByIdIn(reviewIds, now);
+    public int cleanupContentExternalMappings(List<UUID> contentExternalMappingIds) {
+        return orphanCleanupRepository.deleteContentExternalMappingsByIdIn(contentExternalMappingIds);
     }
 
+    // ==================== 7. Notification ====================
+    @Transactional
+    public int cleanupNotifications(List<UUID> notificationIds) {
+        return orphanCleanupRepository.deleteNotificationsByIdIn(notificationIds);
+    }
+
+    // ==================== 8. Follow ====================
+    @Transactional
+    public int cleanupFollows(List<UUID> followIds) {
+        return orphanCleanupRepository.deleteFollowsByIdIn(followIds);
+    }
+
+    // ==================== 9. ReadStatus ====================
     @Transactional
     public int cleanupReadStatuses(List<UUID> readStatusIds) {
         return orphanCleanupRepository.deleteReadStatusesByIdIn(readStatusIds);
     }
 
+    // ==================== 10. DirectMessage ====================
     @Transactional
     public int cleanupDirectMessages(List<UUID> directMessageIds) {
         return orphanCleanupRepository.deleteDirectMessagesByIdIn(directMessageIds);
     }
 
+    // ==================== 11. Conversation ====================
     @Transactional
-    public int cleanupContentTags(List<UUID> contentTagIds) {
-        return orphanCleanupRepository.deleteContentTagsByIdIn(contentTagIds);
+    public int cleanupConversations(List<UUID> conversationIds) {
+        orphanCleanupRepository.deleteDirectMessagesByConversationIdIn(conversationIds);
+        return orphanCleanupRepository.deleteConversationsByIdIn(conversationIds);
     }
 }

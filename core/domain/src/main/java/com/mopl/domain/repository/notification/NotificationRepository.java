@@ -2,7 +2,6 @@ package com.mopl.domain.repository.notification;
 
 import com.mopl.domain.model.notification.NotificationModel;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,7 +14,5 @@ public interface NotificationRepository {
 
     List<NotificationModel> saveAll(List<NotificationModel> notifications);
 
-    List<UUID> findCleanupTargets(Instant threshold, int limit);
-
-    int deleteByIdIn(List<UUID> notificationIds);
+    void delete(UUID notificationId);
 }

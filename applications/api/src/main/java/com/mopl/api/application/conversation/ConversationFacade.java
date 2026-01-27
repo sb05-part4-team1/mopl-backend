@@ -147,7 +147,7 @@ public class ConversationFacade {
 
         CursorResponse<DirectMessageModel> directMessages = directMessageService.getDirectMessages(conversationId, request);
         return directMessages.map(directMessage -> {
-            UserModel receiver = directMessage.getSender().getId().equals(requesterId)
+            UserModel receiver = isSentByRequester(directMessage, requesterId)
                 ? otherParticipant
                 : requester;
             return directMessageResponseMapper.toResponse(directMessage, receiver);
@@ -158,7 +158,7 @@ public class ConversationFacade {
         ReadStatusModel readStatus = readStatusService.getReadStatus(requesterId, conversationId);
 
         DirectMessageModel lastMessage = directMessageService.getLastDirectMessage(conversationId);
-        if (lastMessage == null || lastMessage.getSender().getId().equals(requesterId)) {
+        if (lastMessage == null || isSentByRequester(lastMessage, requesterId)) {
             return;
         }
 
@@ -175,7 +175,11 @@ public class ConversationFacade {
     ) {
         return lastMessage != null
             && requesterReadStatus != null
-            && !lastMessage.getSender().getId().equals(requesterId)
+            && !isSentByRequester(lastMessage, requesterId)
             && lastMessage.getCreatedAt().isAfter(requesterReadStatus.getLastReadAt());
+    }
+
+    private boolean isSentByRequester(DirectMessageModel message, UUID requesterId) {
+        return message.getSender() != null && message.getSender().getId().equals(requesterId);
     }
 }

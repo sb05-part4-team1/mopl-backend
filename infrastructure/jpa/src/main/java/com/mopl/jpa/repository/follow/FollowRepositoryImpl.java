@@ -1,17 +1,15 @@
 package com.mopl.jpa.repository.follow;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import org.springframework.stereotype.Repository;
-
 import com.mopl.domain.model.follow.FollowModel;
 import com.mopl.domain.repository.follow.FollowRepository;
 import com.mopl.jpa.entity.follow.FollowEntity;
 import com.mopl.jpa.entity.follow.FollowEntityMapper;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -43,8 +41,10 @@ public class FollowRepositoryImpl implements FollowRepository {
     }
 
     @Override
-    public boolean existsByFollowerIdAndFolloweeId(UUID followerId,
-        UUID followeeId) {
+    public boolean existsByFollowerIdAndFolloweeId(
+        UUID followerId,
+        UUID followeeId
+    ) {
         return jpaFollowRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
     }
 

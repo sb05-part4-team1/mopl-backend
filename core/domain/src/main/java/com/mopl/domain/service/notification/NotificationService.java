@@ -38,8 +38,7 @@ public class NotificationService {
     }
 
     public void deleteById(UUID notificationId) {
-        NotificationModel notification = getById(notificationId);
-        notification.delete();
-        notificationRepository.save(notification);
+        getById(notificationId);
+        notificationRepository.delete(notificationId);
     }
 }

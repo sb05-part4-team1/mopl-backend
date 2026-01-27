@@ -123,6 +123,30 @@ class DirectMessageEntityMapperTest {
             assertThat(result).isNotNull();
             assertThat(result.getSender()).isNull();
         }
+
+        @Test
+        @DisplayName("Entity의 sender가 soft delete되었으면 Model의 sender는 null이다")
+        void withSoftDeletedSender_mapsNull() {
+            // given
+            UserEntity deletedSender = UserEntity.builder()
+                .id(UUID.randomUUID())
+                .deletedAt(Instant.now())
+                .build();
+
+            DirectMessageEntity entity = DirectMessageEntity.builder()
+                .id(UUID.randomUUID())
+                .conversation(ConversationEntity.builder().id(UUID.randomUUID()).build())
+                .sender(deletedSender)
+                .content("삭제된 사용자의 메시지")
+                .build();
+
+            // when
+            DirectMessageModel result = directMessageEntityMapper.toModel(entity);
+
+            // then
+            assertThat(result).isNotNull();
+            assertThat(result.getSender()).isNull();
+        }
     }
 
     @Nested
@@ -188,7 +212,30 @@ class DirectMessageEntityMapperTest {
                 .content("내용")
                 .build();
 
-            given(userMapper.toModel(null)).willReturn(null);
+            // when
+            DirectMessageModel result = directMessageEntityMapper.toModelWithSender(entity);
+
+            // then
+            assertThat(result).isNotNull();
+            assertThat(result.getSender()).isNull();
+            verifyNoInteractions(userMapper);
+        }
+
+        @Test
+        @DisplayName("Entity의 sender가 soft delete되었으면 Model의 sender는 null이다")
+        void withSoftDeletedSender_mapsNull() {
+            // given
+            UserEntity deletedSender = UserEntity.builder()
+                .id(UUID.randomUUID())
+                .deletedAt(Instant.now())
+                .build();
+
+            DirectMessageEntity entity = DirectMessageEntity.builder()
+                .id(UUID.randomUUID())
+                .conversation(ConversationEntity.builder().id(UUID.randomUUID()).build())
+                .sender(deletedSender)
+                .content("삭제된 사용자의 메시지")
+                .build();
 
             // when
             DirectMessageModel result = directMessageEntityMapper.toModelWithSender(entity);
@@ -196,6 +243,7 @@ class DirectMessageEntityMapperTest {
             // then
             assertThat(result).isNotNull();
             assertThat(result.getSender()).isNull();
+            verifyNoInteractions(userMapper);
         }
     }
 

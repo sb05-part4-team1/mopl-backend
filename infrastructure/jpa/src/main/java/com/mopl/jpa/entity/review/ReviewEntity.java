@@ -16,7 +16,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(
@@ -24,7 +23,6 @@ import org.hibernate.annotations.SQLRestriction;
     indexes = {
         @Index(name = "idx_reviews_content_created_at", columnList = "content_id, created_at DESC"),
         @Index(name = "idx_reviews_content_rating", columnList = "content_id, rating DESC"),
-        @Index(name = "idx_reviews_deleted_at", columnList = "deleted_at"),
         @Index(name = "idx_reviews_author_id", columnList = "author_id"),
         @Index(name = "idx_reviews_created_at", columnList = "created_at")
     }
@@ -32,7 +30,6 @@ import org.hibernate.annotations.SQLRestriction;
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLRestriction("deleted_at IS NULL")
 public class ReviewEntity extends BaseUpdatableEntity {
 
     @Column(columnDefinition = "TEXT")

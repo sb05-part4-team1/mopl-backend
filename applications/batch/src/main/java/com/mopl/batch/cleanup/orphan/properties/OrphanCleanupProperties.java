@@ -20,7 +20,9 @@ public class OrphanCleanupProperties {
     private OrphanCleanupPolicyProperties review = new OrphanCleanupPolicyProperties();
     private OrphanCleanupPolicyProperties readStatus = new OrphanCleanupPolicyProperties();
     private OrphanCleanupPolicyProperties directMessage = new OrphanCleanupPolicyProperties();
+    private OrphanCleanupPolicyProperties conversation = new OrphanCleanupPolicyProperties();
     private OrphanCleanupPolicyProperties contentTag = new OrphanCleanupPolicyProperties();
+    private OrphanCleanupPolicyProperties contentExternalMapping = new OrphanCleanupPolicyProperties();
 
     @PostConstruct
     public void validate() {

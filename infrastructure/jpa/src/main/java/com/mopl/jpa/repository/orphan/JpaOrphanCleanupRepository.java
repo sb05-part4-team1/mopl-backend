@@ -1,13 +1,13 @@
 package com.mopl.jpa.repository.orphan;
 
+import com.mopl.jpa.entity.notification.NotificationEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import com.mopl.jpa.entity.notification.NotificationEntity;
-
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -16,48 +16,65 @@ import java.util.UUID;
  */
 public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEntity, UUID> {
 
-    // ==================== Notification (receiver_id -> users) ====================
+    // ==================== 1. Playlist (owner_id -> users) ====================
     @Query(
         value = """
-            SELECT BIN_TO_UUID(n.id)
-            FROM notifications n
-            LEFT JOIN users u ON n.receiver_id = u.id
-            WHERE n.deleted_at IS NULL
-              AND n.created_at < :threshold
+            SELECT BIN_TO_UUID(p.id)
+            FROM playlists p
+            LEFT JOIN users u ON p.owner_id = u.id
+            WHERE p.created_at < :threshold
               AND u.id IS NULL
-            ORDER BY n.created_at
+            ORDER BY p.created_at
             LIMIT :limit
             """,
         nativeQuery = true
     )
-    List<UUID> findOrphanNotificationIds(Instant threshold, int limit);
+    List<UUID> findOrphanPlaylistIds(Instant threshold, int limit);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(value = "DELETE FROM notifications WHERE id IN (:ids)", nativeQuery = true)
-    int deleteNotificationsByIdIn(List<UUID> ids);
+    @Query(value = "DELETE FROM playlist_contents WHERE playlist_id IN (:playlistIds)", nativeQuery = true)
+    void deletePlaylistContentsByPlaylistIdIn(List<UUID> playlistIds);
 
-    // ==================== Follow (follower_id, followee_id -> users) ====================
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "DELETE FROM playlist_subscribers WHERE playlist_id IN (:playlistIds)", nativeQuery = true)
+    void deletePlaylistSubscribersByPlaylistIdIn(List<UUID> playlistIds);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "DELETE FROM playlists WHERE id IN (:ids)", nativeQuery = true)
+    int deletePlaylistsByIdIn(List<UUID> ids);
+
+    // ==================== 2. Review (author_id -> users, content_id -> contents) ====================
     @Query(
         value = """
-            SELECT BIN_TO_UUID(f.id)
-            FROM follows f
-            LEFT JOIN users follower ON f.follower_id = follower.id
-            LEFT JOIN users followee ON f.followee_id = followee.id
-            WHERE f.deleted_at IS NULL
-              AND f.created_at < :threshold
-              AND (follower.id IS NULL OR followee.id IS NULL)
-            ORDER BY f.created_at
+            SELECT BIN_TO_UUID(r.id)
+            FROM reviews r
+            LEFT JOIN users u ON r.author_id = u.id
+            LEFT JOIN contents c ON r.content_id = c.id
+            WHERE r.created_at < :threshold
+              AND (u.id IS NULL OR c.id IS NULL)
+            ORDER BY r.created_at
             LIMIT :limit
             """,
         nativeQuery = true
     )
-    List<UUID> findOrphanFollowIds(Instant threshold, int limit);
+    List<UUID> findOrphanReviewIds(Instant threshold, int limit);
+
+    @Query(
+        value = """
+            SELECT DISTINCT BIN_TO_UUID(r.content_id)
+            FROM reviews r
+            INNER JOIN contents c ON r.content_id = c.id
+            WHERE r.id IN (:ids)
+            """,
+        nativeQuery = true
+    )
+    Set<UUID> findExistingContentIdsByReviewIdIn(List<UUID> ids);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(value = "DELETE FROM follows WHERE id IN (:ids)", nativeQuery = true)
-    int deleteFollowsByIdIn(List<UUID> ids);
+    @Query(value = "DELETE FROM reviews WHERE id IN (:ids)", nativeQuery = true)
+    int deleteReviewsByIdIn(List<UUID> ids);
 
-    // ==================== PlaylistSubscriber (playlist_id -> playlists, subscriber_id -> users) ====================
+    // ==================== 3. PlaylistSubscriber (playlist_id -> playlists, subscriber_id -> users) ====================
     @Query(
         value = """
             SELECT BIN_TO_UUID(ps.id)
@@ -73,11 +90,22 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     )
     List<UUID> findOrphanPlaylistSubscriberIds(Instant threshold, int limit);
 
+    @Query(
+        value = """
+            SELECT DISTINCT BIN_TO_UUID(ps.playlist_id)
+            FROM playlist_subscribers ps
+            INNER JOIN playlists p ON ps.playlist_id = p.id
+            WHERE ps.id IN (:ids)
+            """,
+        nativeQuery = true
+    )
+    Set<UUID> findExistingPlaylistIdsBySubscriberIdIn(List<UUID> ids);
+
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "DELETE FROM playlist_subscribers WHERE id IN (:ids)", nativeQuery = true)
     int deletePlaylistSubscribersByIdIn(List<UUID> ids);
 
-    // ==================== PlaylistContent (playlist_id -> playlists, content_id -> contents) ====================
+    // ==================== 4. PlaylistContent (playlist_id -> playlists, content_id -> contents) ====================
     @Query(
         value = """
             SELECT BIN_TO_UUID(pc.id)
@@ -97,48 +125,85 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     @Query(value = "DELETE FROM playlist_contents WHERE id IN (:ids)", nativeQuery = true)
     int deletePlaylistContentsByIdIn(List<UUID> ids);
 
-    // ==================== Playlist (owner_id -> users) ====================
+    // ==================== 5. ContentTag (content_id -> contents, tag_id -> tags) ====================
     @Query(
         value = """
-            SELECT BIN_TO_UUID(p.id)
-            FROM playlists p
-            LEFT JOIN users u ON p.owner_id = u.id
-            WHERE p.deleted_at IS NULL
-              AND p.created_at < :threshold
+            SELECT BIN_TO_UUID(ct.id)
+            FROM content_tags ct
+            LEFT JOIN contents c ON ct.content_id = c.id
+            LEFT JOIN tags t ON ct.tag_id = t.id
+            WHERE ct.created_at < :threshold
+              AND (c.id IS NULL OR t.id IS NULL)
+            ORDER BY ct.created_at
+            LIMIT :limit
+            """,
+        nativeQuery = true
+    )
+    List<UUID> findOrphanContentTagIds(Instant threshold, int limit);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "DELETE FROM content_tags WHERE id IN (:ids)", nativeQuery = true)
+    int deleteContentTagsByIdIn(List<UUID> ids);
+
+    // ==================== 6. ContentExternalMapping (content_id -> contents) ====================
+    @Query(
+        value = """
+            SELECT BIN_TO_UUID(cem.id)
+            FROM content_external_mappings cem
+            LEFT JOIN contents c ON cem.content_id = c.id
+            WHERE cem.created_at < :threshold
+              AND c.id IS NULL
+            ORDER BY cem.created_at
+            LIMIT :limit
+            """,
+        nativeQuery = true
+    )
+    List<UUID> findOrphanContentExternalMappingIds(Instant threshold, int limit);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "DELETE FROM content_external_mappings WHERE id IN (:ids)", nativeQuery = true)
+    int deleteContentExternalMappingsByIdIn(List<UUID> ids);
+
+    // ==================== 7. Notification (receiver_id -> users) ====================
+    @Query(
+        value = """
+            SELECT BIN_TO_UUID(n.id)
+            FROM notifications n
+            LEFT JOIN users u ON n.receiver_id = u.id
+            WHERE n.created_at < :threshold
               AND u.id IS NULL
-            ORDER BY p.created_at
+            ORDER BY n.created_at
             LIMIT :limit
             """,
         nativeQuery = true
     )
-    List<UUID> findOrphanPlaylistIds(Instant threshold, int limit);
+    List<UUID> findOrphanNotificationIds(Instant threshold, int limit);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(value = "UPDATE playlists SET deleted_at = :now WHERE id IN (:ids)", nativeQuery = true)
-    int softDeletePlaylistsByIdIn(List<UUID> ids, Instant now);
+    @Query(value = "DELETE FROM notifications WHERE id IN (:ids)", nativeQuery = true)
+    int deleteNotificationsByIdIn(List<UUID> ids);
 
-    // ==================== Review (author_id -> users, content_id -> contents) ====================
+    // ==================== 8. Follow (follower_id, followee_id -> users) ====================
     @Query(
         value = """
-            SELECT BIN_TO_UUID(r.id)
-            FROM reviews r
-            LEFT JOIN users u ON r.author_id = u.id
-            LEFT JOIN contents c ON r.content_id = c.id
-            WHERE r.deleted_at IS NULL
-              AND r.created_at < :threshold
-              AND (u.id IS NULL OR c.id IS NULL)
-            ORDER BY r.created_at
+            SELECT BIN_TO_UUID(f.id)
+            FROM follows f
+            LEFT JOIN users follower ON f.follower_id = follower.id
+            LEFT JOIN users followee ON f.followee_id = followee.id
+            WHERE f.created_at < :threshold
+              AND (follower.id IS NULL OR followee.id IS NULL)
+            ORDER BY f.created_at
             LIMIT :limit
             """,
         nativeQuery = true
     )
-    List<UUID> findOrphanReviewIds(Instant threshold, int limit);
+    List<UUID> findOrphanFollowIds(Instant threshold, int limit);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(value = "UPDATE reviews SET deleted_at = :now WHERE id IN (:ids)", nativeQuery = true)
-    int softDeleteReviewsByIdIn(List<UUID> ids, Instant now);
+    @Query(value = "DELETE FROM follows WHERE id IN (:ids)", nativeQuery = true)
+    int deleteFollowsByIdIn(List<UUID> ids);
 
-    // ==================== ReadStatus (participant_id -> users, conversation_id -> conversations) ====================
+    // ==================== 9. ReadStatus (participant_id -> users, conversation_id -> conversations) ====================
     @Query(
         value = """
             SELECT BIN_TO_UUID(rs.id)
@@ -158,7 +223,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     @Query(value = "DELETE FROM read_statuses WHERE id IN (:ids)", nativeQuery = true)
     int deleteReadStatusesByIdIn(List<UUID> ids);
 
-    // ==================== DirectMessage (conversation_id -> conversations) ====================
+    // ==================== 10. DirectMessage (conversation_id -> conversations) ====================
     @Query(
         value = """
             SELECT BIN_TO_UUID(dm.id)
@@ -177,23 +242,27 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     @Query(value = "DELETE FROM direct_messages WHERE id IN (:ids)", nativeQuery = true)
     int deleteDirectMessagesByIdIn(List<UUID> ids);
 
-    // ==================== ContentTag (content_id -> contents, tag_id -> tags) ====================
+    // ==================== 11. Conversation (ReadStatus가 0개인 경우 orphan) ====================
     @Query(
         value = """
-            SELECT BIN_TO_UUID(ct.id)
-            FROM content_tags ct
-            LEFT JOIN contents c ON ct.content_id = c.id
-            LEFT JOIN tags t ON ct.tag_id = t.id
-            WHERE ct.created_at < :threshold
-              AND (c.id IS NULL OR t.id IS NULL)
-            ORDER BY ct.created_at
+            SELECT BIN_TO_UUID(c.id)
+            FROM conversations c
+            LEFT JOIN read_statuses rs ON c.id = rs.conversation_id
+            WHERE c.created_at < :threshold
+            GROUP BY c.id
+            HAVING COUNT(rs.id) = 0
+            ORDER BY c.created_at
             LIMIT :limit
             """,
         nativeQuery = true
     )
-    List<UUID> findOrphanContentTagIds(Instant threshold, int limit);
+    List<UUID> findOrphanConversationIds(Instant threshold, int limit);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(value = "DELETE FROM content_tags WHERE id IN (:ids)", nativeQuery = true)
-    int deleteContentTagsByIdIn(List<UUID> ids);
+    @Query(value = "DELETE FROM direct_messages WHERE conversation_id IN (:conversationIds)", nativeQuery = true)
+    void deleteDirectMessagesByConversationIdIn(List<UUID> conversationIds);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "DELETE FROM conversations WHERE id IN (:ids)", nativeQuery = true)
+    int deleteConversationsByIdIn(List<UUID> ids);
 }

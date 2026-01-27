@@ -26,10 +26,10 @@ import static com.mopl.domain.model.user.UserModel.ROLE_MAX_LENGTH;
         @Index(name = "idx_users_deleted_at", columnList = "deleted_at")
     }
 )
+@SQLRestriction("deleted_at IS NULL")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder
-@SQLRestriction("deleted_at IS NULL")
 public class UserEntity extends BaseUpdatableEntity {
 
     @Enumerated(EnumType.STRING)

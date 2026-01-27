@@ -12,6 +12,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import static com.mopl.redis.pubsub.WebSocketMessagePublisher.CHANNEL;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,7 +42,7 @@ class WebSocketMessagePublisherTest {
             // then
             ArgumentCaptor<WebSocketMessagePublisher.WebSocketMessage> messageCaptor = ArgumentCaptor.forClass(WebSocketMessagePublisher.WebSocketMessage.class);
             then(redisTemplate).should().convertAndSend(
-                org.mockito.Mockito.eq(CHANNEL),
+                eq(CHANNEL),
                 messageCaptor.capture()
             );
 

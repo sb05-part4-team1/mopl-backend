@@ -373,6 +373,94 @@ class DirectMessageQueryRepositoryImplTest {
     }
 
     @Nested
+    @DisplayName("findAll() - soft delete된 sender 처리")
+    class SoftDeletedSenderTest {
+
+        @Test
+        @DisplayName("soft delete된 sender의 메시지도 조회되고 sender는 null이다")
+        void withSoftDeletedSender_returnsMessageWithNullSender() {
+            // given
+            Instant baseTime = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+            UserEntity deletedUser = createAndPersistUser(
+                "deleted@example.com", "DeletedUser", baseTime
+            );
+            ConversationEntity conv = createAndPersistConversation(baseTime.plusSeconds(100));
+            createAndPersistDirectMessage(conv, deletedUser, "삭제된 사용자 메시지", baseTime.plusSeconds(100));
+
+            // soft delete user
+            entityManager.createQuery("UPDATE UserEntity u SET u.deletedAt = :now WHERE u.id = :id")
+                .setParameter("now", Instant.now())
+                .setParameter("id", deletedUser.getId())
+                .executeUpdate();
+            entityManager.flush();
+            entityManager.clear();
+
+            DirectMessageQueryRequest request = new DirectMessageQueryRequest(
+                null, null, 100, SortDirection.DESCENDING, DirectMessageSortField.CREATED_AT
+            );
+
+            // when
+            CursorResponse<DirectMessageModel> response = directMessageQueryRepository.findAll(
+                conv.getId(), request
+            );
+
+            // then
+            assertThat(response.data()).hasSize(1);
+            assertThat(response.data().getFirst().getContent()).isEqualTo("삭제된 사용자 메시지");
+            assertThat(response.data().getFirst().getSender()).isNull();
+        }
+
+        @Test
+        @DisplayName("soft delete된 sender와 활성 sender가 섞인 대화에서 모든 메시지가 조회된다")
+        void withMixedSenders_returnsAllMessages() {
+            // given
+            Instant baseTime = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+            UserEntity activeUser = createAndPersistUser(
+                "active@example.com", "ActiveUser", baseTime
+            );
+            UserEntity deletedUser = createAndPersistUser(
+                "deleted2@example.com", "DeletedUser2", baseTime
+            );
+            ConversationEntity conv = createAndPersistConversation(baseTime.plusSeconds(200));
+            createAndPersistDirectMessage(conv, activeUser, "활성 사용자 메시지", baseTime.plusSeconds(200));
+            createAndPersistDirectMessage(conv, deletedUser, "삭제된 사용자 메시지", baseTime.plusSeconds(201));
+
+            // soft delete user
+            entityManager.createQuery("UPDATE UserEntity u SET u.deletedAt = :now WHERE u.id = :id")
+                .setParameter("now", Instant.now())
+                .setParameter("id", deletedUser.getId())
+                .executeUpdate();
+            entityManager.flush();
+            entityManager.clear();
+
+            DirectMessageQueryRequest request = new DirectMessageQueryRequest(
+                null, null, 100, SortDirection.DESCENDING, DirectMessageSortField.CREATED_AT
+            );
+
+            // when
+            CursorResponse<DirectMessageModel> response = directMessageQueryRepository.findAll(
+                conv.getId(), request
+            );
+
+            // then
+            assertThat(response.data()).hasSize(2);
+
+            DirectMessageModel deletedSenderMessage = response.data().stream()
+                .filter(m -> m.getContent().equals("삭제된 사용자 메시지"))
+                .findFirst()
+                .orElseThrow();
+            assertThat(deletedSenderMessage.getSender()).isNull();
+
+            DirectMessageModel activeSenderMessage = response.data().stream()
+                .filter(m -> m.getContent().equals("활성 사용자 메시지"))
+                .findFirst()
+                .orElseThrow();
+            assertThat(activeSenderMessage.getSender()).isNotNull();
+            assertThat(activeSenderMessage.getSender().getName()).isEqualTo("ActiveUser");
+        }
+    }
+
+    @Nested
     @DisplayName("findLastDirectMessagesWithSenderByConversationIdIn()")
     class FindLastDirectMessagesTest {
 
@@ -449,6 +537,37 @@ class DirectMessageQueryRepositoryImplTest {
             assertThat(result).hasSize(1);
             assertThat(result.get(conversationId)).isNotNull();
             assertThat(result.get(nonExistingId)).isNull();
+        }
+
+        @Test
+        @DisplayName("soft delete된 sender의 마지막 메시지도 조회되고 sender는 null이다")
+        void withSoftDeletedSender_returnsMessageWithNullSender() {
+            // given
+            Instant baseTime = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+            UserEntity deletedUser = createAndPersistUser(
+                "deleted3@example.com", "DeletedUser3", baseTime
+            );
+            ConversationEntity conv = createAndPersistConversation(baseTime.plusSeconds(300));
+            createAndPersistDirectMessage(conv, deletedUser, "마지막 메시지", baseTime.plusSeconds(300));
+
+            // soft delete user
+            entityManager.createQuery("UPDATE UserEntity u SET u.deletedAt = :now WHERE u.id = :id")
+                .setParameter("now", Instant.now())
+                .setParameter("id", deletedUser.getId())
+                .executeUpdate();
+            entityManager.flush();
+            entityManager.clear();
+
+            // when
+            Map<UUID, DirectMessageModel> result = directMessageQueryRepository
+                .findLastDirectMessagesWithSenderByConversationIdIn(List.of(conv.getId()));
+
+            // then
+            assertThat(result).hasSize(1);
+            DirectMessageModel lastMessage = result.get(conv.getId());
+            assertThat(lastMessage).isNotNull();
+            assertThat(lastMessage.getContent()).isEqualTo("마지막 메시지");
+            assertThat(lastMessage.getSender()).isNull();
         }
     }
 }
