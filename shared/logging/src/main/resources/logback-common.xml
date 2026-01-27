@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included>
+    <!-- 색상 변환 -->
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+
+    <!-- 공통 프로퍼티 -->
+    <springProperty name="SERVICE_NAME" source="spring.application.name" defaultValue="unknown"/>
+    <springProperty name="ENV" source="spring.profiles.active" defaultValue="local"/>
+    <property name="LOG_PATH" value="${LOG_PATH:-.mopl/.logs}"/>
+
+    <!-- 로그 패턴 -->
+    <property name="CONSOLE_PATTERN" value="%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %clr(%-5level) %-40logger{40} [%X{requestId:-} | %X{userId:-}] - %msg%n"/>
+    <property name="FILE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %-40logger{40} [%X{requestId:-} | %X{userId:-}] - %msg%n"/>
+
+    <!-- 콘솔 Appender (로컬 개발용) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 텍스트 파일 Appender (로컬/개발용) -->
+    <appender name="TEXT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${SERVICE_NAME}.log</file>
+        <encoder>
+            <pattern>${FILE_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${SERVICE_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- JSON 파일 Appender (프로덕션용 - Fluent Bit 수집 대상) -->
+    <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${SERVICE_NAME}.json</file>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeMdcKeyName>requestId</includeMdcKeyName>
+            <includeMdcKeyName>requestMethod</includeMdcKeyName>
+            <includeMdcKeyName>requestUri</includeMdcKeyName>
+            <includeMdcKeyName>userId</includeMdcKeyName>
+            <customFields>{"service":"${SERVICE_NAME}","env":"${ENV}"}</customFields>
+            <timestampPattern>yyyy-MM-dd'T'HH:mm:ss.SSSZ</timestampPattern>
+            <fieldNames>
+                <timestamp>timestamp</timestamp>
+                <thread>thread</thread>
+                <logger>logger</logger>
+                <level>level</level>
+                <message>message</message>
+                <stackTrace>exception</stackTrace>
+            </fieldNames>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${SERVICE_NAME}.%d{yyyy-MM-dd-HH}.json</fileNamePattern>
+            <maxHistory>168</maxHistory> <!-- 7일 * 24시간 -->
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 비동기 JSON Appender (프로덕션 성능 최적화) -->
+    <appender name="ASYNC_JSON_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>1024</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>false</includeCallerData>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="JSON_FILE"/>
+    </appender>
+
+    <!-- Slack Appender (프로덕션 ERROR 알림) -->
+    <appender name="SLACK" class="com.github.maricn.logback.SlackAppender">
+        <webhookUri>${SLACK_WEBHOOK_URL:-}</webhookUri>
+        <channel>#alerts</channel>
+        <username>${SERVICE_NAME}</username>
+        <iconEmoji>:rotating_light:</iconEmoji>
+        <colorCoding>true</colorCoding>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>[${ENV}] %msg%n%ex{short}</pattern>
+        </layout>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+
+    <!-- 비동기 Slack Appender (블로킹 방지) -->
+    <appender name="ASYNC_SLACK" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>256</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="SLACK"/>
+    </appender>
+
+    <!-- 노이즈 감소 로거 (모든 환경 공통) -->
+    <logger name="org.apache.kafka" level="WARN"/>
+    <logger name="org.springframework.kafka" level="WARN"/>
+    <logger name="org.hibernate.SQL" level="OFF"/>
+</included>

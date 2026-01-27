@@ -18,7 +18,6 @@
             <appender-ref ref="CONSOLE"/>
         </root>
         <logger name="org.springframework" level="INFO"/>
-        <logger name="org.hibernate" level="INFO"/>
     </springProfile>
 
     <!-- dev 프로파일 -->
@@ -28,7 +27,6 @@
             <appender-ref ref="TEXT_FILE"/>
         </root>
         <logger name="org.springframework" level="INFO"/>
-        <logger name="org.hibernate" level="INFO"/>
     </springProfile>
 
     <!-- prod 프로파일 -->
@@ -38,7 +36,6 @@
             <appender-ref ref="ASYNC_SLACK"/>
         </root>
         <logger name="org.springframework" level="WARN"/>
-        <logger name="org.hibernate" level="WARN"/>
         <logger name="com.mopl" level="INFO"/>
     </springProfile>
 </configuration>

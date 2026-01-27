@@ -9,6 +9,7 @@
         </root>
         <logger name="org.springframework" level="WARN"/>
         <logger name="org.hibernate" level="WARN"/>
+        <logger name="org.springframework.batch" level="INFO"/>
         <logger name="com.mopl" level="DEBUG"/>
     </springProfile>
 
@@ -19,6 +20,7 @@
         </root>
         <logger name="org.springframework" level="INFO"/>
         <logger name="org.hibernate" level="INFO"/>
+        <logger name="org.springframework.batch" level="INFO"/>
     </springProfile>
 
     <!-- dev 프로파일 -->
@@ -29,6 +31,7 @@
         </root>
         <logger name="org.springframework" level="INFO"/>
         <logger name="org.hibernate" level="INFO"/>
+        <logger name="org.springframework.batch" level="INFO"/>
     </springProfile>
 
     <!-- prod 프로파일 -->
@@ -39,6 +42,7 @@
         </root>
         <logger name="org.springframework" level="WARN"/>
         <logger name="org.hibernate" level="WARN"/>
+        <logger name="org.springframework.batch" level="INFO"/>
         <logger name="com.mopl" level="INFO"/>
     </springProfile>
 </configuration>
