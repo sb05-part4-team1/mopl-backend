@@ -5,8 +5,7 @@ dependencies {
     implementation(project(":infrastructure:redis"))
     implementation(project(":infrastructure:kafka"))
     implementation(project(":shared:jackson"))
-    // actuator
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation(project(":shared:monitoring"))
     // shedlock
     implementation("net.javacrumbs.shedlock:shedlock-spring:${project.properties["shedlockVersion"]}")
     implementation("net.javacrumbs.shedlock:shedlock-provider-redis-spring:${project.properties["shedlockVersion"]}")
