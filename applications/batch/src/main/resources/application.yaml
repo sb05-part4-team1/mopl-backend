@@ -35,10 +35,10 @@ mopl:
         - tsdbLeagueSyncJob
         - tmdbCollectJob
         - tsdbLeagueEventCollectJob
-        # - softDeleteCleanupJob
-        # - orphanCleanupJob
-        # - orphanStorageCleanupJob
-        # - denormalizedSyncJob
+#        - softDeleteCleanupJob
+#        - orphanCleanupJob
+#        - orphanStorageCleanupJob
+#        - denormalizedSyncJob
     cleanup:
       soft-delete:
         defaults:
