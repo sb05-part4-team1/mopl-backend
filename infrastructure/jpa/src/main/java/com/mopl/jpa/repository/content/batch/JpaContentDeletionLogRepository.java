@@ -33,7 +33,7 @@ public interface JpaContentDeletionLogRepository extends
         """)
     List<ContentDeletionLogRow> findImageCleanupTargets(Pageable pageable);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query("""
             update ContentDeletionLogEntity l
             set l.imageProcessedAt = :now
@@ -49,7 +49,7 @@ public interface JpaContentDeletionLogRepository extends
         """)
     List<UUID> findFullyProcessedLogIds(Pageable pageable);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query("""
             delete from ContentDeletionLogEntity l
             where l.id in :logIds

@@ -32,11 +32,11 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     )
     List<UUID> findOrphanConversationIds(Instant threshold, int limit);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query(value = "DELETE FROM direct_messages WHERE conversation_id IN (:conversationIds)", nativeQuery = true)
     void deleteDirectMessagesByConversationIdIn(List<UUID> conversationIds);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query(value = "DELETE FROM conversations WHERE id IN (:ids)", nativeQuery = true)
     int deleteConversationsByIdIn(List<UUID> ids);
 
@@ -55,7 +55,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     )
     List<UUID> findOrphanDirectMessageIds(Instant threshold, int limit);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query(value = "DELETE FROM direct_messages WHERE id IN (:ids)", nativeQuery = true)
     int deleteDirectMessagesByIdIn(List<UUID> ids);
 
@@ -74,15 +74,15 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     )
     List<UUID> findOrphanPlaylistIds(Instant threshold, int limit);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query(value = "DELETE FROM playlist_contents WHERE playlist_id IN (:playlistIds)", nativeQuery = true)
     void deletePlaylistContentsByPlaylistIdIn(List<UUID> playlistIds);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query(value = "DELETE FROM playlist_subscribers WHERE playlist_id IN (:playlistIds)", nativeQuery = true)
     void deletePlaylistSubscribersByPlaylistIdIn(List<UUID> playlistIds);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query(value = "DELETE FROM playlists WHERE id IN (:ids)", nativeQuery = true)
     int deletePlaylistsByIdIn(List<UUID> ids);
 
@@ -102,7 +102,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     )
     List<UUID> findOrphanPlaylistContentIds(Instant threshold, int limit);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query(value = "DELETE FROM playlist_contents WHERE id IN (:ids)", nativeQuery = true)
     int deletePlaylistContentsByIdIn(List<UUID> ids);
 
@@ -133,7 +133,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     )
     Set<UUID> findExistingPlaylistIdsBySubscriberIdIn(List<UUID> ids);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query(value = "DELETE FROM playlist_subscribers WHERE id IN (:ids)", nativeQuery = true)
     int deletePlaylistSubscribersByIdIn(List<UUID> ids);
 
@@ -164,7 +164,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     )
     Set<UUID> findExistingContentIdsByReviewIdIn(List<UUID> ids);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query(value = "DELETE FROM reviews WHERE id IN (:ids)", nativeQuery = true)
     int deleteReviewsByIdIn(List<UUID> ids);
 
@@ -184,7 +184,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     )
     List<UUID> findOrphanContentTagIds(Instant threshold, int limit);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query(value = "DELETE FROM content_tags WHERE id IN (:ids)", nativeQuery = true)
     int deleteContentTagsByIdIn(List<UUID> ids);
 
@@ -203,7 +203,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     )
     List<UUID> findOrphanContentExternalMappingIds(Instant threshold, int limit);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query(value = "DELETE FROM content_external_mappings WHERE id IN (:ids)", nativeQuery = true)
     int deleteContentExternalMappingsByIdIn(List<UUID> ids);
 
@@ -222,7 +222,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     )
     List<UUID> findOrphanNotificationIds(Instant threshold, int limit);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query(value = "DELETE FROM notifications WHERE id IN (:ids)", nativeQuery = true)
     int deleteNotificationsByIdIn(List<UUID> ids);
 
@@ -242,7 +242,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     )
     List<UUID> findOrphanFollowIds(Instant threshold, int limit);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query(value = "DELETE FROM follows WHERE id IN (:ids)", nativeQuery = true)
     int deleteFollowsByIdIn(List<UUID> ids);
 
@@ -262,7 +262,7 @@ public interface JpaOrphanCleanupRepository extends JpaRepository<NotificationEn
     )
     List<UUID> findOrphanReadStatusIds(Instant threshold, int limit);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query(value = "DELETE FROM read_statuses WHERE id IN (:ids)", nativeQuery = true)
     int deleteReadStatusesByIdIn(List<UUID> ids);
 }
