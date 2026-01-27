@@ -11,4 +11,5 @@ dependencies {
     // spring (optional - for MdcLoggingFilter)
     compileOnly("org.springframework.boot:spring-boot-starter-web")
     compileOnly("org.springframework.boot:spring-boot-autoconfigure")
+    compileOnly("org.springframework.security:spring-security-core")
 }

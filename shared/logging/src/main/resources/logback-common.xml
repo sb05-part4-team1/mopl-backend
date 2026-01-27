@@ -9,8 +9,10 @@
     <property name="LOG_PATH" value="${LOG_PATH:-.mopl/.logs}"/>
 
     <!-- 로그 패턴 -->
-    <property name="CONSOLE_PATTERN" value="%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %clr(%-5level) %-40logger{40} [%X{requestId:-} | %X{userId:-}] - %msg%n"/>
-    <property name="FILE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %-40logger{40} [%X{requestId:-} | %X{userId:-}] - %msg%n"/>
+    <property name="CONSOLE_PATTERN"
+              value="%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %clr(%-5level) %-40logger{40} [%X{traceId:-} | %X{requestId:-} | %X{userId:-}] - %msg%n"/>
+    <property name="FILE_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %-40logger{40} [%X{traceId:-} | %X{requestId:-} | %X{userId:-}] - %msg%n"/>
 
     <!-- 콘솔 Appender (로컬 개발용) -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
@@ -36,6 +38,7 @@
     <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/${SERVICE_NAME}.json</file>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeMdcKeyName>traceId</includeMdcKeyName>
             <includeMdcKeyName>requestId</includeMdcKeyName>
             <includeMdcKeyName>requestMethod</includeMdcKeyName>
             <includeMdcKeyName>requestUri</includeMdcKeyName>

@@ -1,25 +1,29 @@
 package com.mopl.logging.mdc;
 
-import static com.mopl.logging.mdc.MdcKeys.HEADER_REQUEST_ID;
-import static com.mopl.logging.mdc.MdcKeys.IP_ADDRESS;
-import static com.mopl.logging.mdc.MdcKeys.REQUEST_ID;
-import static com.mopl.logging.mdc.MdcKeys.REQUEST_METHOD;
-import static com.mopl.logging.mdc.MdcKeys.REQUEST_START_TIME;
-import static com.mopl.logging.mdc.MdcKeys.REQUEST_URI;
-import static com.mopl.logging.mdc.MdcKeys.USER_AGENT;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.UUID;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.UUID;
+
+import static com.mopl.logging.mdc.MdcKeys.HEADER_REQUEST_ID;
+import static com.mopl.logging.mdc.MdcKeys.HEADER_TRACE_ID;
+import static com.mopl.logging.mdc.MdcKeys.IP_ADDRESS;
+import static com.mopl.logging.mdc.MdcKeys.REQUEST_ID;
+import static com.mopl.logging.mdc.MdcKeys.REQUEST_METHOD;
+import static com.mopl.logging.mdc.MdcKeys.REQUEST_START_TIME;
+import static com.mopl.logging.mdc.MdcKeys.REQUEST_URI;
+import static com.mopl.logging.mdc.MdcKeys.TRACE_ID;
+import static com.mopl.logging.mdc.MdcKeys.USER_AGENT;
+import static com.mopl.logging.mdc.MdcKeys.USER_ID;
 
 @Slf4j
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -31,7 +35,8 @@ public class MdcLoggingFilter extends OncePerRequestFilter {
         @NonNull HttpServletResponse response,
         @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        String requestId = UUID.randomUUID().toString().substring(0, 8);
+        String requestId = extractOrGenerateId(request, HEADER_REQUEST_ID);
+        String traceId = extractOrGenerateId(request, HEADER_TRACE_ID);
         String requestMethod = request.getMethod();
         String requestUri = request.getRequestURI();
         String requestStartTime = String.valueOf(System.currentTimeMillis());
@@ -39,6 +44,7 @@ public class MdcLoggingFilter extends OncePerRequestFilter {
         String userAgent = extractUserAgent(request);
 
         MDC.put(REQUEST_ID, requestId);
+        MDC.put(TRACE_ID, traceId);
         MDC.put(REQUEST_METHOD, requestMethod);
         MDC.put(REQUEST_URI, requestUri);
         MDC.put(REQUEST_START_TIME, requestStartTime);
@@ -46,6 +52,7 @@ public class MdcLoggingFilter extends OncePerRequestFilter {
         MDC.put(USER_AGENT, userAgent);
 
         response.setHeader(HEADER_REQUEST_ID, requestId);
+        response.setHeader(HEADER_TRACE_ID, traceId);
 
         try {
             filterChain.doFilter(request, response);
@@ -53,6 +60,14 @@ public class MdcLoggingFilter extends OncePerRequestFilter {
             logRequestCompletion(response);
             clearMdcContext();
         }
+    }
+
+    private String extractOrGenerateId(HttpServletRequest request, String headerName) {
+        String headerValue = request.getHeader(headerName);
+        if (headerValue != null && !headerValue.isEmpty()) {
+            return headerValue;
+        }
+        return UUID.randomUUID().toString().substring(0, 8);
     }
 
     private String extractIpAddress(HttpServletRequest request) {
@@ -111,9 +126,11 @@ public class MdcLoggingFilter extends OncePerRequestFilter {
 
     private void clearMdcContext() {
         MDC.remove(REQUEST_ID);
+        MDC.remove(TRACE_ID);
         MDC.remove(REQUEST_METHOD);
         MDC.remove(REQUEST_URI);
         MDC.remove(REQUEST_START_TIME);
+        MDC.remove(USER_ID);
         MDC.remove(IP_ADDRESS);
         MDC.remove(USER_AGENT);
     }
