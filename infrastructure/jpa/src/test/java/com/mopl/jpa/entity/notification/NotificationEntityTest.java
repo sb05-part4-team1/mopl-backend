@@ -2,7 +2,6 @@ package com.mopl.jpa.entity.notification;
 
 import com.mopl.domain.model.notification.NotificationModel;
 import com.mopl.domain.model.user.UserModel;
-import com.mopl.domain.repository.notification.NotificationRepository;
 import com.mopl.jpa.config.JpaConfig;
 import com.mopl.jpa.entity.user.UserEntity;
 import com.mopl.jpa.repository.notification.JpaNotificationRepository;
@@ -31,10 +30,6 @@ class NotificationEntityTest {
 
     @Autowired
     private TestEntityManager testEntityManager;
-
-    @Autowired
-    @SuppressWarnings("unused")
-    private NotificationRepository notificationRepository;
 
     @Autowired
     private JpaNotificationRepository jpaNotificationRepository;
