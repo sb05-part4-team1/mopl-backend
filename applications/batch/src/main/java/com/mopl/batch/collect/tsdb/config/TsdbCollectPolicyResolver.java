@@ -1,5 +1,6 @@
 package com.mopl.batch.collect.tsdb.config;
 
+import com.mopl.batch.collect.tsdb.config.TsdbCollectProperties.PolicyProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -11,11 +12,10 @@ public class TsdbCollectPolicyResolver {
 
     private final TsdbCollectProperties props;
 
-    public int sleepMs(TsdbCollectPolicyProperties policy) {
-        Integer v = policy.getSleepMs();
-        if (v != null && v >= 0) {
-            return v;
+    public int sleepMs(PolicyProperties policy) {
+        if (policy != null && policy.sleepMs() != null && policy.sleepMs() >= 0) {
+            return policy.sleepMs();
         }
-        return props.getDefaults().getSleepMs();
+        return props.defaults().sleepMs();
     }
 }

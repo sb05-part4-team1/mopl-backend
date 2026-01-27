@@ -33,7 +33,7 @@ public class TsdbNextLeagueEventCollectService {
     private final ContentSearchSyncPort contentSearchSyncPort;
 
     public int collectNextLeagueEvents() {
-        int sleepMs = policyResolver.sleepMs(collectProperties.getLeagueEvent());
+        int sleepMs = policyResolver.sleepMs(collectProperties.leagueEvent());
         List<ContentModel> inserted = new ArrayList<>();
 
         for (LeagueModel league : leagueRepository.findAll()) {

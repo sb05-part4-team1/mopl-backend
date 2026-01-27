@@ -1,5 +1,6 @@
 package com.mopl.batch.sync.es.config;
 
+import com.mopl.batch.sync.es.config.EsSyncProperties.PolicyProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -11,11 +12,10 @@ public class EsSyncPolicyResolver {
 
     private final EsSyncProperties props;
 
-    public int chunkSize(EsSyncPolicyProperties policy) {
-        int value = policy.chunkSize();
-        if (value >= 1) {
-            return value;
+    public int chunkSize(PolicyProperties policy) {
+        if (policy != null && policy.chunkSize() != null && policy.chunkSize() > 0) {
+            return policy.chunkSize();
         }
-        return props.getDefaults().chunkSize();
+        return props.defaults().chunkSize();
     }
 }

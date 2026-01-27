@@ -29,7 +29,7 @@ public class TmdbPopularMovieContentCollectService {
     private final ContentSearchSyncPort contentSearchSyncPort;
 
     public int collectPopularMovies() {
-        int maxPage = policyResolver.maxPage(collectProperties.getMovieContent());
+        int maxPage = policyResolver.maxPage(collectProperties.movieContent());
         List<ContentModel> inserted = new ArrayList<>();
 
         for (int page = 1; page <= maxPage; page++) {
