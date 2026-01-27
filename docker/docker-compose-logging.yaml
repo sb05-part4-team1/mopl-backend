@@ -1,0 +1,30 @@
+services:
+  fluent-bit:
+    image: fluent/fluent-bit:latest
+    container_name: fluent-bit
+    volumes:
+      - ./fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - ./fluent-bit/parsers.conf:/fluent-bit/etc/parsers.conf:ro
+      - ../.mopl/.logs:/var/log/mopl:ro
+    environment:
+      - ENV=${ENV:-local}
+      - HOSTNAME=${HOSTNAME:-localhost}
+      - S3_BUCKET=${S3_BUCKET:-mopl-logs-dev}
+      - AWS_REGION=${AWS_REGION:-ap-northeast-2}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    ports:
+      - "2020:2020"  # Health check / metrics
+    networks:
+      - mopl-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2020/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  mopl-net:
+    external: true
+    name: mopl-net
