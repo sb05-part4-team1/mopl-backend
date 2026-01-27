@@ -26,6 +26,8 @@ val jacocoAggregateExclusions = jacocoExclusions + listOf(
     "**/*Event$*.class",
 )
 
+val jacocoExcludedProjects = listOf(":applications:batch")
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
@@ -156,10 +158,11 @@ listOf("applications", "core", "infrastructure", "shared").forEach { name ->
 
 tasks.named<JacocoReport>("jacocoTestReport") {
     description = "Generates an aggregate JaCoCo report from all subprojects"
-    dependsOn(subprojects.mapNotNull { it.tasks.findByName("jacocoTestReport") })
+    val includedSubprojects = subprojects.filter { it.path !in jacocoExcludedProjects }
+    dependsOn(includedSubprojects.mapNotNull { it.tasks.findByName("jacocoTestReport") })
 
     executionData.setFrom(
-        files(subprojects.flatMap { subproject ->
+        files(includedSubprojects.flatMap { subproject ->
             subproject.layout.buildDirectory.asFile.get()
                 .resolve("jacoco")
                 .listFiles()
@@ -169,11 +172,11 @@ tasks.named<JacocoReport>("jacocoTestReport") {
     )
 
     sourceDirectories.setFrom(
-        files(subprojects.flatMap { it.the<SourceSetContainer>()["main"].allSource.srcDirs })
+        files(includedSubprojects.flatMap { it.the<SourceSetContainer>()["main"].allSource.srcDirs })
     )
 
     classDirectories.setFrom(
-        files(subprojects.flatMap { subproject ->
+        files(includedSubprojects.flatMap { subproject ->
             subproject.the<SourceSetContainer>()["main"].output.classesDirs.map {
                 fileTree(it).exclude(jacocoAggregateExclusions)
             }
