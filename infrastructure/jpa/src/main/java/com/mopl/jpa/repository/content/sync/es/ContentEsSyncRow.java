@@ -19,6 +19,8 @@ public interface ContentEsSyncRow {
 
     double getAverageRating();
 
+    double getPopularityScore();
+
     Instant getCreatedAt();
 
     Instant getUpdatedAt();

@@ -30,6 +30,7 @@ public class ContentModel extends BaseUpdatableModel {
 
     private int reviewCount;
     private double averageRating;
+    private double popularityScore;
 
     public static ContentModel create(
         ContentType type,
@@ -61,6 +62,7 @@ public class ContentModel extends BaseUpdatableModel {
             .thumbnailPath(thumbnailPath)
             .reviewCount(0)
             .averageRating(0.0)
+            .popularityScore(0.0)
             .build();
     }
 
