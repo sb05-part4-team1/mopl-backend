@@ -3,13 +3,12 @@ plugins {
 }
 
 dependencies {
-
-    // logging facade
-    api("org.slf4j:slf4j-api")
-
-    // Spring MVC (HandlerInterceptor 포함)
-    api("org.springframework:spring-webmvc")
-
-    // Servlet API (컴파일 시에만 필요)
-    compileOnly("jakarta.servlet:jakarta.servlet-api")
+    // logging
+    api("ch.qos.logback:logback-classic")
+    api("net.logstash.logback:logstash-logback-encoder:${project.properties["logstashLogbackEncoderVersion"]}")
+    // slack appender
+    api("com.github.maricn:logback-slack-appender:${project.properties["slackAppenderVersion"]}")
+    // spring (optional - for MdcLoggingFilter)
+    compileOnly("org.springframework.boot:spring-boot-starter-web")
+    compileOnly("org.springframework.boot:spring-boot-autoconfigure")
 }

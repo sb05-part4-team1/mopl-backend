@@ -6,6 +6,7 @@ dependencies {
     implementation(project(":infrastructure:redis"))
     implementation(project(":shared:dto"))
     implementation(project(":shared:jackson"))
+    implementation(project(":shared:logging"))
     implementation(project(":shared:monitoring"))
     // web
     implementation("org.springframework.boot:spring-boot-starter-web")

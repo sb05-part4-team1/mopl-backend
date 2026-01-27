@@ -6,6 +6,7 @@ dependencies {
     implementation(project(":infrastructure:security"))
     implementation(project(":infrastructure:storage"))
     implementation(project(":shared:dto"))
+    implementation(project(":shared:logging"))
     implementation(project(":shared:monitoring"))
     // spring websocket
     implementation("org.springframework.boot:spring-boot-starter-websocket")

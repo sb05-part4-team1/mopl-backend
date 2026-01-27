@@ -5,6 +5,7 @@ dependencies {
     implementation(project(":infrastructure:redis"))
     implementation(project(":infrastructure:kafka"))
     implementation(project(":shared:jackson"))
+    implementation(project(":shared:logging"))
     implementation(project(":shared:monitoring"))
     // shedlock
     implementation("net.javacrumbs.shedlock:shedlock-spring:${project.properties["shedlockVersion"]}")
