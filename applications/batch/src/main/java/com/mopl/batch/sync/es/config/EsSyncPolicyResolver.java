@@ -12,10 +12,10 @@ public class EsSyncPolicyResolver {
     private final EsSyncProperties props;
 
     public int chunkSize(EsSyncPolicyProperties policy) {
-        Integer value = policy.getChunkSize();
-        if (value != null && value >= 1) {
+        int value = policy.chunkSize();
+        if (value >= 1) {
             return value;
         }
-        return props.getDefaults().getChunkSize();
+        return props.getDefaults().chunkSize();
     }
 }

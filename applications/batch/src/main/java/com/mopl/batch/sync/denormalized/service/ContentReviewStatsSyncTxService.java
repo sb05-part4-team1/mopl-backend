@@ -12,9 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ContentReviewStatsSyncTxService {
 
     private static final double EPSILON = 0.0001;

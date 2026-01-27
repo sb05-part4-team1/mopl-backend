@@ -8,12 +8,12 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 @ConditionalOnExpression(
     "${mopl.search.enabled:false} && ${mopl.batch.sync.es.initial-enabled:false}"
 )
+@Slf4j
 public class ContentEsSyncInitializer implements ApplicationRunner {
 
     private final ContentEsSyncService syncService;
