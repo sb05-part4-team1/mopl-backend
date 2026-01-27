@@ -345,9 +345,9 @@ class ConversationQueryRepositoryImplTest {
             assertThat(firstResponse.data()).hasSize(2);
             assertThat(secondResponse.data()).hasSize(1);
 
-            // 첫 번째 페이지의 마지막 항목이 두 번째 페이지의 첫 항목보다 이전
+            // 첫 번째 페이지의 마지막 항목이 두 번째 페이지의 첫 항목보다 이전이거나 같음 (같은 경우 ID로 정렬)
             assertThat(firstResponse.data().getLast().getCreatedAt())
-                .isBefore(secondResponse.data().getFirst().getCreatedAt());
+                .isBeforeOrEqualTo(secondResponse.data().getFirst().getCreatedAt());
         }
 
         @Test
