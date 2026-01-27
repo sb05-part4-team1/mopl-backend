@@ -5,6 +5,7 @@ plugins {
 dependencies {
     // project module
     implementation(project(":core:domain"))
+    implementation(project(":shared:logging"))
     // jpa
     api("org.springframework.boot:spring-boot-starter-data-jpa")
     // querydsl
