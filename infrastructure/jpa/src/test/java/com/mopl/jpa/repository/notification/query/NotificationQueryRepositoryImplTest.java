@@ -22,8 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,24 +51,16 @@ class NotificationQueryRepositoryImplTest {
         user1 = createAndPersistUser("user1@example.com", "User1");
         user2 = createAndPersistUser("user2@example.com", "User2");
 
-        Instant baseTime = Instant.now().truncatedTo(ChronoUnit.MILLIS);
-
         // user1의 알림 5개 생성
-        createAndPersistNotification("알림1", "내용1", NotificationModel.NotificationLevel.INFO, user1, baseTime);
-        createAndPersistNotification("알림2", "내용2", NotificationModel.NotificationLevel.WARNING, user1, baseTime
-            .plusSeconds(1));
-        createAndPersistNotification("알림3", "내용3", NotificationModel.NotificationLevel.ERROR, user1, baseTime
-            .plusSeconds(2));
-        createAndPersistNotification("알림4", "내용4", NotificationModel.NotificationLevel.INFO, user1, baseTime
-            .plusSeconds(3));
-        createAndPersistNotification("알림5", "내용5", NotificationModel.NotificationLevel.WARNING, user1, baseTime
-            .plusSeconds(4));
+        createAndPersistNotification("알림1", "내용1", NotificationModel.NotificationLevel.INFO, user1);
+        createAndPersistNotification("알림2", "내용2", NotificationModel.NotificationLevel.WARNING, user1);
+        createAndPersistNotification("알림3", "내용3", NotificationModel.NotificationLevel.ERROR, user1);
+        createAndPersistNotification("알림4", "내용4", NotificationModel.NotificationLevel.INFO, user1);
+        createAndPersistNotification("알림5", "내용5", NotificationModel.NotificationLevel.WARNING, user1);
 
         // user2의 알림 2개 생성
-        createAndPersistNotification("다른알림1", "다른내용1", NotificationModel.NotificationLevel.INFO, user2, baseTime
-            .plusSeconds(5));
-        createAndPersistNotification("다른알림2", "다른내용2", NotificationModel.NotificationLevel.ERROR, user2, baseTime
-            .plusSeconds(6));
+        createAndPersistNotification("다른알림1", "다른내용1", NotificationModel.NotificationLevel.INFO, user2);
+        createAndPersistNotification("다른알림2", "다른내용2", NotificationModel.NotificationLevel.ERROR, user2);
 
         entityManager.flush();
         entityManager.clear();
@@ -93,11 +83,9 @@ class NotificationQueryRepositoryImplTest {
         String title,
         String content,
         NotificationModel.NotificationLevel level,
-        UserEntity receiver,
-        Instant createdAt
+        UserEntity receiver
     ) {
         NotificationEntity entity = NotificationEntity.builder()
-            .createdAt(createdAt)
             .title(title)
             .content(content)
             .level(level)
@@ -387,26 +375,26 @@ class NotificationQueryRepositoryImplTest {
     }
 
     @Nested
-    @DisplayName("findByReceiverIdAndCreatedAtAfter()")
-    class FindByReceiverIdAndCreatedAtAfterTest {
+    @DisplayName("findByReceiverIdAndIdAfter()")
+    class FindByReceiverIdAndIdAfterTest {
 
         @Test
-        @DisplayName("특정 시간 이후에 생성된 알림만 조회")
-        void withCreatedAtAfter_returnsNotificationsAfterTime() {
+        @DisplayName("특정 ID 이후에 생성된 알림만 조회")
+        void withIdAfter_returnsNotificationsAfterId() {
             // given
-            // 먼저 모든 알림을 조회하여 3번째 알림의 시간을 기준으로 사용
+            // 먼저 모든 알림을 조회하여 3번째 알림의 ID를 기준으로 사용
             NotificationQueryRequest allRequest = new NotificationQueryRequest(
                 null, null, 100, SortDirection.ASCENDING, NotificationSortField.CREATED_AT
             );
             CursorResponse<NotificationModel> allNotifications = notificationQueryRepository.findAll(
                 user1.getId(), allRequest
             );
-            // 알림3(index 2)의 createdAt 이후 → 알림4, 알림5만 조회
-            Instant createdAfter = allNotifications.data().get(2).getCreatedAt();
+            // 알림3(index 2)의 id 이후 → 알림4, 알림5만 조회
+            UUID idAfter = allNotifications.data().get(2).getId();
 
             // when
-            var notifications = notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(
-                user1.getId(), createdAfter
+            var notifications = notificationQueryRepository.findByReceiverIdAndIdAfter(
+                user1.getId(), idAfter
             );
 
             // then
@@ -417,14 +405,15 @@ class NotificationQueryRepositoryImplTest {
         }
 
         @Test
-        @DisplayName("미래 시간을 기준으로 조회하면 빈 결과 반환")
-        void withFutureTime_returnsEmptyList() {
+        @DisplayName("존재하지 않는 ID 이후 조회하면 빈 결과 반환")
+        void withNonExistingId_returnsEmptyList() {
             // given
-            Instant futureTime = Instant.now().plus(1, ChronoUnit.DAYS);
+            // 가장 큰 UUID v7 값 (미래 시점)
+            UUID futureId = UUID.fromString("ffffffff-ffff-7fff-bfff-ffffffffffff");
 
             // when
-            var notifications = notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(
-                user1.getId(), futureTime
+            var notifications = notificationQueryRepository.findByReceiverIdAndIdAfter(
+                user1.getId(), futureId
             );
 
             // then
@@ -432,15 +421,15 @@ class NotificationQueryRepositoryImplTest {
         }
 
         @Test
-        @DisplayName("생성일시 오름차순으로 정렬되어 반환")
-        void returnsNotificationsSortedByCreatedAtAscending() {
+        @DisplayName("ID 오름차순으로 정렬되어 반환")
+        void returnsNotificationsSortedByIdAscending() {
             // given
-            // 모든 알림보다 이전 시간 사용
-            Instant createdAfter = Instant.EPOCH;
+            // 가장 작은 UUID 값 사용
+            UUID minId = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
             // when
-            var notifications = notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(
-                user1.getId(), createdAfter
+            var notifications = notificationQueryRepository.findByReceiverIdAndIdAfter(
+                user1.getId(), minId
             );
 
             // then
@@ -454,11 +443,11 @@ class NotificationQueryRepositoryImplTest {
         @DisplayName("다른 사용자의 알림은 조회되지 않음")
         void withReceiverId_filtersOtherUserNotifications() {
             // given
-            Instant createdAfter = Instant.EPOCH;
+            UUID minId = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
             // when
-            var notifications = notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(
-                user2.getId(), createdAfter
+            var notifications = notificationQueryRepository.findByReceiverIdAndIdAfter(
+                user2.getId(), minId
             );
 
             // then
@@ -472,11 +461,11 @@ class NotificationQueryRepositoryImplTest {
         void withNoNotifications_returnsEmptyList() {
             // given
             UUID nonExistentUserId = UUID.randomUUID();
-            Instant createdAfter = Instant.EPOCH;
+            UUID minId = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
             // when
-            var notifications = notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(
-                nonExistentUserId, createdAfter
+            var notifications = notificationQueryRepository.findByReceiverIdAndIdAfter(
+                nonExistentUserId, minId
             );
 
             // then
