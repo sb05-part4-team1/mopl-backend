@@ -37,6 +37,7 @@ import com.mopl.domain.service.playlist.PlaylistSubscriptionService;
 import com.mopl.domain.service.review.ReviewService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.service.watchingsession.WatchingSessionService;
+import com.mopl.domain.support.popularity.ContentPopularityPolicyPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -129,9 +130,15 @@ public class DomainServiceConfig {
     public ReviewService reviewService(
         ReviewQueryRepository reviewQueryRepository,
         ReviewRepository reviewRepository,
-        ContentRepository contentRepository
+        ContentRepository contentRepository,
+        ContentPopularityPolicyPort contentPopularityPolicyPort
     ) {
-        return new ReviewService(reviewQueryRepository, reviewRepository, contentRepository);
+        return new ReviewService(
+            reviewQueryRepository,
+            reviewRepository,
+            contentRepository,
+            contentPopularityPolicyPort
+        );
     }
 
     @Bean

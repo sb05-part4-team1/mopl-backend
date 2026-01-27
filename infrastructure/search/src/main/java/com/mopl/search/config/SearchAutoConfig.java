@@ -3,7 +3,7 @@ package com.mopl.search.config;
 import com.mopl.domain.support.search.ContentSearchSyncPort;
 import com.mopl.search.config.properties.ElasticsearchProperties;
 import com.mopl.search.config.properties.SearchIndexProperties;
-import com.mopl.search.content.sync.NoOpContentSearchSyncAdapter;
+import com.mopl.search.infrastructure.search.NoOpContentSearchSyncAdapter;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -22,7 +22,10 @@ public class SearchAutoConfig {
     @AutoConfiguration
     @ConditionalOnProperty(prefix = "mopl.search", name = "enabled", havingValue = "true")
     @Import(ElasticsearchConfig.class)
-    @ComponentScan(basePackages = "com.mopl.search.content")
+    @ComponentScan(basePackages = {
+        "com.mopl.search.content",
+        "com.mopl.search.infrastructure"
+    })
     static class ElasticsearchEnabledConfig {
     }
 

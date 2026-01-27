@@ -13,10 +13,10 @@ public enum ContentSortFieldEs {
 
     POPULARITY(
         ContentSortField.POPULARITY,
-        "reviewCount",
-        ContentDocument::getReviewCount,
+        "popularityScore",
+        ContentDocument::getPopularityScore,
         Object::toString,
-        Integer::parseInt
+        Double::parseDouble
     ),
 
     CREATED_AT(

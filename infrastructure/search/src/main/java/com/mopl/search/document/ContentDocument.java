@@ -44,6 +44,9 @@ public class ContentDocument {
     @Field(type = FieldType.Double)
     private Double averageRating;
 
+    @Field(type = FieldType.Double)
+    private Double popularityScore;
+
     @Field(type = FieldType.Date, format = DateFormat.date_time)
     private Instant createdAt;
 
