@@ -83,8 +83,8 @@ public class ContentDeletionLogRepositoryImpl implements ContentDeletionLogRepos
     @Override
     public List<ContentDeletionLogItem> findImageCleanupTargets(int limit) {
         return jpaContentDeletionLogRepository.findImageCleanupTargets(
-                PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "deletedAt"))
-            ).stream()
+            PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "deletedAt"))
+        ).stream()
             .map(row -> new ContentDeletionLogItem(
                 row.getLogId(),
                 row.getContentId(),
