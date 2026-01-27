@@ -2,7 +2,7 @@ package com.mopl.websocket.config;
 
 import com.mopl.websocket.monitoring.WebSocketMetrics;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
 import org.springframework.messaging.Message;
@@ -16,14 +16,13 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
+@EnableConfigurationProperties(WebSocketProperties.class)
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final JwtChannelInterceptor jwtChannelInterceptor;
     private final WebSocketMetrics webSocketMetrics;
-
-    @Value("${websocket.allowed-origins}")
-    private String allowedOrigins;
+    private final WebSocketProperties webSocketProperties;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
@@ -34,7 +33,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-            .setAllowedOriginPatterns(allowedOrigins.split(","))
+            .setAllowedOriginPatterns(webSocketProperties.allowedOrigins().split(","))
             .withSockJS();
     }
 

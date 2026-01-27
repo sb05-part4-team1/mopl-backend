@@ -1,9 +1,11 @@
 package com.mopl.batch.collect.tsdb.config.properties;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
+@EnableConfigurationProperties(TsdbCollectProperties.class)
 @RequiredArgsConstructor
 public class TsdbCollectPolicyResolver {
 

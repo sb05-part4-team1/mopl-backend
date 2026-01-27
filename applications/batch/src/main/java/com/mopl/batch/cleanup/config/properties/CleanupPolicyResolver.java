@@ -1,9 +1,11 @@
 package com.mopl.batch.cleanup.config.properties;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
+@EnableConfigurationProperties(CleanupProperties.class)
 @RequiredArgsConstructor
 public class CleanupPolicyResolver {
 
