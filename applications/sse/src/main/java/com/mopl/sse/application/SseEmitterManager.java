@@ -4,13 +4,13 @@ import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedEpochGenerator;
 import com.mopl.domain.model.notification.NotificationModel;
 import com.mopl.domain.repository.notification.NotificationQueryRepository;
+import com.mopl.logging.context.LogContext;
 import com.mopl.sse.repository.RedisEmitterRepository;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -23,7 +23,6 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class SseEmitterManager {
@@ -60,7 +59,7 @@ public class SseEmitterManager {
 
     public SseEmitter createEmitter(UUID userId) {
         emitterRepository.findByUserId(userId).ifPresent(existing -> {
-            log.debug("Closing existing emitter for user: {}", userId);
+            LogContext.with("userId", userId).debug("Closing existing emitter");
             existing.complete();
         });
 
@@ -68,15 +67,15 @@ public class SseEmitterManager {
         emitterRepository.save(userId, emitter);
 
         emitter.onCompletion(() -> {
-            log.debug("Emitter completed for user: {}", userId);
+            LogContext.with("userId", userId).debug("Emitter completed");
             emitterRepository.deleteByUserId(userId);
         });
         emitter.onTimeout(() -> {
-            log.debug("Emitter timed out for user: {}", userId);
+            LogContext.with("userId", userId).debug("Emitter timed out");
             emitterRepository.deleteByUserId(userId);
         });
         emitter.onError((e) -> {
-            log.debug("Emitter error for user: {}", userId, e);
+            LogContext.with("userId", userId).debug("Emitter error");
             emitterRepository.deleteByUserId(userId);
         });
 
@@ -95,10 +94,12 @@ public class SseEmitterManager {
                     .name(eventName)
                     .data(data));
                 eventSentCounter.increment();
-                log.debug("Sent {} event to user: {}", eventName, userId);
+                LogContext.with("userId", userId)
+                    .and("eventName", eventName)
+                    .debug("Event sent");
             } catch (IOException e) {
                 eventFailedCounter.increment();
-                log.debug("Failed to send event to user: {}, client disconnected", userId);
+                LogContext.with("userId", userId).debug("Failed to send event, client disconnected");
                 completeEmitterQuietly(emitter);
                 emitterRepository.deleteByUserId(userId);
             }
@@ -132,10 +133,15 @@ public class SseEmitterManager {
                     .name("notifications")
                     .data(notification));
                 resendCounter.increment();
-                log.debug("Resent from DB event {} to user: {}", eventId, userId);
+                LogContext.with("userId", userId)
+                    .and("eventId", eventId)
+                    .and("source", "db")
+                    .debug("Event resent");
             } catch (IOException e) {
                 eventFailedCounter.increment();
-                log.debug("Failed to resend from DB to user: {}, client disconnected", userId);
+                LogContext.with("userId", userId)
+                    .and("source", "db")
+                    .debug("Failed to resend, client disconnected");
                 completeEmitterQuietly(emitter);
                 break;
             }
@@ -154,10 +160,15 @@ public class SseEmitterManager {
                     .name("notifications")
                     .data(cachedEvent.data()));
                 resendCounter.increment();
-                log.debug("Resent from cache event {} to user: {}", cachedEvent.eventId(), userId);
+                LogContext.with("userId", userId)
+                    .and("eventId", cachedEvent.eventId())
+                    .and("source", "cache")
+                    .debug("Event resent");
             } catch (IOException e) {
                 eventFailedCounter.increment();
-                log.debug("Failed to resend from cache to user: {}, client disconnected", userId);
+                LogContext.with("userId", userId)
+                    .and("source", "cache")
+                    .debug("Failed to resend, client disconnected");
                 completeEmitterQuietly(emitter);
                 break;
             }
@@ -175,14 +186,14 @@ public class SseEmitterManager {
 
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
             emitters.forEach((userId, emitter) -> executor.execute(() -> {
-                try {
-                    emitter.send(SseEmitter.event().comment("heartbeat"));
-                } catch (IOException e) {
-                    log.debug("Heartbeat failed for user: {}, removing emitter", userId);
-                    completeEmitterQuietly(emitter);
-                    emitterRepository.deleteByUserId(userId);
-                }
-            })
+                    try {
+                        emitter.send(SseEmitter.event().comment("heartbeat"));
+                    } catch (IOException e) {
+                        LogContext.with("userId", userId).debug("Heartbeat failed, removing emitter");
+                        completeEmitterQuietly(emitter);
+                        emitterRepository.deleteByUserId(userId);
+                    }
+                })
             );
         }
     }

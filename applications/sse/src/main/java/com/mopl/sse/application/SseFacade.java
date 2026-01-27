@@ -1,7 +1,7 @@
 package com.mopl.sse.application;
 
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -10,7 +10,6 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class SseFacade {
 
     private final SseEmitterManager sseEmitterManager;
@@ -24,7 +23,7 @@ public class SseFacade {
                 .name("connect")
                 .data("Connected"));
         } catch (IOException e) {
-            log.error("Failed to send connect event to user: {}", userId, e);
+            LogContext.with("userId", userId).error("Failed to send connect event", e);
             emitter.completeWithError(e);
             return emitter;
         }
