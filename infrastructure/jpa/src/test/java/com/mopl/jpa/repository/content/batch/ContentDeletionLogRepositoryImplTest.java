@@ -319,6 +319,7 @@ class ContentDeletionLogRepositoryImplTest {
             int result = contentDeletionLogRepository.deleteByIdIn(
                 List.of(entity1.getId(), entity2.getId())
             );
+            entityManager.clear();
 
             // then
             assertThat(result).isEqualTo(2);
