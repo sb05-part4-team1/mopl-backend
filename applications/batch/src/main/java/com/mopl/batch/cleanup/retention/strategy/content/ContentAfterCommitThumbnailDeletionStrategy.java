@@ -28,6 +28,7 @@ public class ContentAfterCommitThumbnailDeletionStrategy implements ContentDelet
 
         TransactionSynchronizationManager.registerSynchronization(
             new TransactionSynchronization() {
+
                 @Override
                 public void afterCommit() {
                     for (String path : pathsToDelete) {

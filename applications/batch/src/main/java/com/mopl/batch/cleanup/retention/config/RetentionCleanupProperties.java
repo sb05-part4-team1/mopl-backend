@@ -9,6 +9,7 @@ public record RetentionCleanupProperties(
     PolicyProperties storage,
     PolicyProperties deletionLog
 ) {
+
     public RetentionCleanupProperties {
         if (defaults == null || defaults.chunkSize() == null || defaults.chunkSize() <= 0) {
             throw new IllegalArgumentException(

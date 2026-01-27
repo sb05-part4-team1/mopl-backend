@@ -8,6 +8,7 @@ public record DenormalizedSyncProperties(
     PolicyProperties playlistSubscriberCount,  // 1
     PolicyProperties contentReviewStats        // 2
 ) {
+
     public DenormalizedSyncProperties {
         if (defaults == null || defaults.chunkSize() == null || defaults.chunkSize() <= 0) {
             throw new IllegalArgumentException(

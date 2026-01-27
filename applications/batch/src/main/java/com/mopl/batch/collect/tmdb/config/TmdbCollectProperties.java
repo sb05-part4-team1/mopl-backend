@@ -8,6 +8,7 @@ public record TmdbCollectProperties(
     PolicyProperties movieContent,
     PolicyProperties tvContent
 ) {
+
     public TmdbCollectProperties {
         if (defaults == null || defaults.maxPage() == null || defaults.maxPage() < 1) {
             throw new IllegalArgumentException(

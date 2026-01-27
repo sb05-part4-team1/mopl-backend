@@ -17,6 +17,7 @@ public record OrphanCleanupProperties(
     PolicyProperties follow,                 // 10
     PolicyProperties readStatus              // 11
 ) {
+
     public OrphanCleanupProperties {
         if (defaults == null || defaults.chunkSize() == null || defaults.chunkSize() <= 0) {
             throw new IllegalArgumentException(

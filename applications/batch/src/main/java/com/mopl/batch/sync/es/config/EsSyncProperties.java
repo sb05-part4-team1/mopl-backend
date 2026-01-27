@@ -7,6 +7,7 @@ public record EsSyncProperties(
     PolicyProperties defaults,
     PolicyProperties content
 ) {
+
     public EsSyncProperties {
         if (defaults == null || defaults.chunkSize() == null || defaults.chunkSize() <= 0) {
             throw new IllegalArgumentException(

@@ -8,6 +8,7 @@ public record TsdbCollectProperties(
     PolicyProperties leagueEvent,
     PolicyProperties leagueSync
 ) {
+
     public TsdbCollectProperties {
         if (defaults == null || defaults.sleepMs() == null || defaults.sleepMs() < 0) {
             throw new IllegalArgumentException(
