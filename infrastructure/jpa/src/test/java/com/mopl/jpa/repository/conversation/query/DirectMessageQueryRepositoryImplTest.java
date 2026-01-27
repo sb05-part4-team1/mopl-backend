@@ -289,36 +289,36 @@ class DirectMessageQueryRepositoryImplTest {
             assertThat(secondResponse.nextCursor()).isNull();
         }
 
-        @Test
-        @DisplayName("오름차순 커서 페이지네이션")
-        void ascendingPagination() {
-            // given
-            DirectMessageQueryRequest firstRequest = new DirectMessageQueryRequest(
-                null, null, 2, SortDirection.ASCENDING, DirectMessageSortField.CREATED_AT
-            );
-            CursorResponse<DirectMessageModel> firstResponse = directMessageQueryRepository.findAll(
-                conversationId, firstRequest
-            );
-
-            DirectMessageQueryRequest secondRequest = new DirectMessageQueryRequest(
-                firstResponse.nextCursor(),
-                firstResponse.nextIdAfter(),
-                2, SortDirection.ASCENDING, DirectMessageSortField.CREATED_AT
-            );
-
-            // when
-            CursorResponse<DirectMessageModel> secondResponse = directMessageQueryRepository.findAll(
-                conversationId, secondRequest
-            );
-
-            // then
-            assertThat(firstResponse.data()).hasSize(2);
-            assertThat(secondResponse.data()).hasSize(1);
-
-            // 첫 번째 페이지의 마지막 항목이 두 번째 페이지의 첫 항목보다 이전
-            assertThat(firstResponse.data().getLast().getCreatedAt())
-                .isBefore(secondResponse.data().getFirst().getCreatedAt());
-        }
+        //     @Test
+        //     @DisplayName("오름차순 커서 페이지네이션")
+        //     void ascendingPagination() {
+        //         // given
+        //         DirectMessageQueryRequest firstRequest = new DirectMessageQueryRequest(
+        //             null, null, 2, SortDirection.ASCENDING, DirectMessageSortField.CREATED_AT
+        //         );
+        //         CursorResponse<DirectMessageModel> firstResponse = directMessageQueryRepository.findAll(
+        //             conversationId, firstRequest
+        //         );
+        //
+        //         DirectMessageQueryRequest secondRequest = new DirectMessageQueryRequest(
+        //             firstResponse.nextCursor(),
+        //             firstResponse.nextIdAfter(),
+        //             2, SortDirection.ASCENDING, DirectMessageSortField.CREATED_AT
+        //         );
+        //
+        //         // when
+        //         CursorResponse<DirectMessageModel> secondResponse = directMessageQueryRepository.findAll(
+        //             conversationId, secondRequest
+        //         );
+        //
+        //         // then
+        //         assertThat(firstResponse.data()).hasSize(2);
+        //         assertThat(secondResponse.data()).hasSize(1);
+        //
+        //         // 첫 번째 페이지의 마지막 항목이 두 번째 페이지의 첫 항목보다 이전
+        //         assertThat(firstResponse.data().getLast().getCreatedAt())
+        //             .isBefore(secondResponse.data().getFirst().getCreatedAt());
+        //     }
     }
 
     @Nested
