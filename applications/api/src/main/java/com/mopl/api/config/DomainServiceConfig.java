@@ -130,9 +130,15 @@ public class DomainServiceConfig {
     public ReviewService reviewService(
         ReviewQueryRepository reviewQueryRepository,
         ReviewRepository reviewRepository,
-        ContentRepository contentRepository
+        ContentRepository contentRepository,
+        ContentPopularityPolicyPort contentPopularityPolicyPort
     ) {
-        return new ReviewService(reviewQueryRepository, reviewRepository, contentRepository);
+        return new ReviewService(
+            reviewQueryRepository,
+            reviewRepository,
+            contentRepository,
+            contentPopularityPolicyPort
+        );
     }
 
     @Bean

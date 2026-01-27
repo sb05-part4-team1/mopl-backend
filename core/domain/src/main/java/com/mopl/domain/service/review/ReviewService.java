@@ -11,6 +11,7 @@ import com.mopl.domain.repository.review.ReviewQueryRepository;
 import com.mopl.domain.repository.review.ReviewQueryRequest;
 import com.mopl.domain.repository.review.ReviewRepository;
 import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.domain.support.popularity.ContentPopularityPolicyPort;
 import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
@@ -21,6 +22,8 @@ public class ReviewService {
     private final ReviewQueryRepository reviewQueryRepository;
     private final ReviewRepository reviewRepository;
     private final ContentRepository contentRepository;
+
+    private final ContentPopularityPolicyPort contentPopularityPolicyPort;
 
     public CursorResponse<ReviewModel> getAll(ReviewQueryRequest request) {
         return reviewQueryRepository.findAll(request);
@@ -39,7 +42,12 @@ public class ReviewService {
         ReviewModel reviewModel = ReviewModel.create(content, author, text, rating);
         ReviewModel savedReviewModel = reviewRepository.save(reviewModel);
 
-        ContentModel updatedContent = content.addReview(rating);
+        ContentModel aggregated = content.addReview(rating);
+
+        double c = contentPopularityPolicyPort.globalAverageRating();
+        int m = contentPopularityPolicyPort.minimumReviewCount();
+
+        ContentModel updatedContent = aggregated.recalculatePopularity(c, m);
         contentRepository.save(updatedContent);
 
         return savedReviewModel;
@@ -61,7 +69,13 @@ public class ReviewService {
 
         if (rating != null && Double.compare(rating, oldRating) != 0) {
             ContentModel content = savedReview.getContent();
-            contentRepository.save(content.updateReview(oldRating, rating));
+            ContentModel aggregated = content.updateReview(oldRating, rating);
+
+            double c = contentPopularityPolicyPort.globalAverageRating();
+            int m = contentPopularityPolicyPort.minimumReviewCount();
+
+            ContentModel updatedContent = aggregated.recalculatePopularity(c, m);
+            contentRepository.save(updatedContent);
         }
 
         return savedReview;
@@ -74,8 +88,15 @@ public class ReviewService {
         ContentModel content = review.getContent();
         double rating = review.getRating();
 
+        ContentModel aggregated = content.removeReview(rating);
+
+        double c = contentPopularityPolicyPort.globalAverageRating();
+        int m = contentPopularityPolicyPort.minimumReviewCount();
+
+        ContentModel updatedContent = aggregated.recalculatePopularity(c, m);
+        contentRepository.save(updatedContent);
+
         reviewRepository.delete(reviewId);
-        contentRepository.save(content.removeReview(rating));
 
         return content.getId();
     }

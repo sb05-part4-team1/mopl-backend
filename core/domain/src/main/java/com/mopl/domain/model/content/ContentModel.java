@@ -146,7 +146,20 @@ public class ContentModel extends BaseUpdatableModel {
             .build();
     }
 
-    private static void validateTitle(String title) {
+    public ContentModel recalculatePopularity(double globalAvgRating, int minReviewCount) {
+        double v = this.reviewCount;
+        double m = Math.max(minReviewCount, 1);
+        double r = this.averageRating;
+        double c = globalAvgRating;
+
+        double score = ((v / (v + m)) * r) + ((m / (v + m)) * c);
+
+        return this.toBuilder()
+            .popularityScore(score)
+            .build();
+    }
+
+        private static void validateTitle(String title) {
         if (title.isBlank()) {
             throw InvalidContentDataException.withDetailMessage("제목은 비어있을 수 없습니다.");
         }
