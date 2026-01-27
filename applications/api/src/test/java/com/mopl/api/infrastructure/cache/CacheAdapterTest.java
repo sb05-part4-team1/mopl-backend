@@ -35,52 +35,55 @@ class CacheAdapterTest {
     }
 
     @Nested
-    @DisplayName("evict()")
-    class EvictTest {
+    @DisplayName("put()")
+    class PutTest {
 
         @Test
-        @DisplayName("캐시가 존재하면 해당 키의 캐시를 삭제한다")
-        void withExistingCache_evictsKey() {
+        @DisplayName("캐시 존재 시 키와 값 저장")
+        void withExistingCache_putsValue() {
             // given
             UUID key = UUID.randomUUID();
+            String value = "testValue";
             given(cacheManager.getCache(CacheName.CONTENTS)).willReturn(cache);
 
             // when
-            cacheAdapter.evict(CacheName.CONTENTS, key);
+            cacheAdapter.put(CacheName.CONTENTS, key, value);
 
             // then
             then(cacheManager).should().getCache(CacheName.CONTENTS);
-            then(cache).should().evict(key);
+            then(cache).should().put(key, value);
         }
 
         @Test
-        @DisplayName("캐시가 존재하지 않으면 evict를 호출하지 않는다")
-        void withNonExistingCache_doesNotEvict() {
+        @DisplayName("캐시 미존재 시 put 미호출")
+        void withNonExistingCache_doesNotPut() {
             // given
             UUID key = UUID.randomUUID();
+            String value = "testValue";
             given(cacheManager.getCache(CacheName.CONTENTS)).willReturn(null);
 
             // when
-            cacheAdapter.evict(CacheName.CONTENTS, key);
+            cacheAdapter.put(CacheName.CONTENTS, key, value);
 
             // then
             then(cacheManager).should().getCache(CacheName.CONTENTS);
-            then(cache).should(never()).evict(key);
+            then(cache).should(never()).put(key, value);
         }
 
         @Test
-        @DisplayName("다른 캐시 이름으로도 동작한다")
+        @DisplayName("다른 캐시 이름으로 정상 동작")
         void withDifferentCacheName_works() {
             // given
             UUID key = UUID.randomUUID();
+            String value = "testValue";
             given(cacheManager.getCache(CacheName.PLAYLISTS)).willReturn(cache);
 
             // when
-            cacheAdapter.evict(CacheName.PLAYLISTS, key);
+            cacheAdapter.put(CacheName.PLAYLISTS, key, value);
 
             // then
             then(cacheManager).should().getCache(CacheName.PLAYLISTS);
-            then(cache).should().evict(key);
+            then(cache).should().put(key, value);
         }
     }
 }

@@ -19,12 +19,4 @@ public class CacheAdapter implements CachePort {
             cache.put(key, value);
         }
     }
-
-    @Override
-    public void evict(String cacheName, Object key) {
-        Cache cache = cacheManager.getCache(cacheName);
-        if (cache != null) {
-            cache.evict(key);
-        }
-    }
 }
