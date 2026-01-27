@@ -66,9 +66,4 @@ public class PlaylistSubscriberRepositoryImpl implements PlaylistSubscriberRepos
         );
         return deletedCount > 0;
     }
-
-    @Override
-    public int deleteAllByPlaylistIds(List<UUID> playlistIds) {
-        return jpaPlaylistSubscriberRepository.deleteAllByPlaylistIds(playlistIds);
-    }
 }
