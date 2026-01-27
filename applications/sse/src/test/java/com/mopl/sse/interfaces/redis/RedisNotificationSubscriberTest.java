@@ -33,13 +33,11 @@ class RedisNotificationSubscriberTest {
     @Mock
     private SseEmitterManager sseEmitterManager;
 
-    private ObjectMapper objectMapper;
-
     private RedisNotificationSubscriber redisNotificationSubscriber;
 
     @BeforeEach
     void setUp() {
-        objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.findAndRegisterModules();
         redisNotificationSubscriber = new RedisNotificationSubscriber(
             redisMessageListenerContainer,

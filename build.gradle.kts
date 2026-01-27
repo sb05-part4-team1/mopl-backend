@@ -48,7 +48,11 @@ subprojects {
     apply(plugin = "io.spring.dependency-management")
     apply(plugin = "com.diffplug.spotless")
     apply(plugin = "checkstyle")
-    apply(plugin = "jacoco")
+
+    val isJacocoExcluded = project.path in jacocoExcludedProjects
+    if (!isJacocoExcluded) {
+        apply(plugin = "jacoco")
+    }
 
     dependencyManagement {
         imports {
@@ -72,8 +76,10 @@ subprojects {
     }
 
     configureJarTasks()
-    configureTestTasks()
-    configureJacoco()
+    configureTestTasks(isJacocoExcluded)
+    if (!isJacocoExcluded) {
+        configureJacoco()
+    }
     configureSpotless()
     configureCheckstyle()
 }
@@ -89,7 +95,7 @@ fun Project.configureJarTasks() {
     }
 }
 
-fun Project.configureTestTasks() {
+fun Project.configureTestTasks(isJacocoExcluded: Boolean = false) {
     tasks.withType<JavaCompile> {
         options.encoding = "UTF-8"
         options.compilerArgs.add("-parameters")
@@ -105,11 +111,15 @@ fun Project.configureTestTasks() {
         systemProperty("user.timezone", "Asia/Seoul")
         systemProperty("spring.profiles.active", "test")
         jvmArgs("-Xshare:off")
-        finalizedBy(tasks.jacocoTestReport)
+        if (!isJacocoExcluded) {
+            finalizedBy(tasks.jacocoTestReport)
+        }
     }
 
-    tasks.jacocoTestReport {
-        dependsOn(tasks.test)
+    if (!isJacocoExcluded) {
+        tasks.jacocoTestReport {
+            dependsOn(tasks.test)
+        }
     }
 }
 

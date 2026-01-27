@@ -18,9 +18,9 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TsdbNextLeagueEventCollectService {
 
     private final TsdbClient tsdbClient;
