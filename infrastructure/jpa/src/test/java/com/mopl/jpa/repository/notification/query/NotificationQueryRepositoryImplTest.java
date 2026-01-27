@@ -395,16 +395,15 @@ class NotificationQueryRepositoryImplTest {
         @DisplayName("특정 시간 이후에 생성된 알림만 조회")
         void withCreatedAtAfter_returnsNotificationsAfterTime() {
             // given
-            // 먼저 모든 알림을 조회하여 3번째 알림의 시간을 기준으로 사용
+            // 먼저 모든 알림을 조회하여 2번째 알림의 시간을 기준으로 사용
             NotificationQueryRequest allRequest = new NotificationQueryRequest(
                 null, null, 100, SortDirection.ASCENDING, NotificationSortField.CREATED_AT
             );
             CursorResponse<NotificationModel> allNotifications = notificationQueryRepository.findAll(
                 user1.getId(), allRequest
             );
-            // 알림3(index 2)의 createdAt 이후 → 알림4, 알림5만 조회
-            // Windows에서 시간 정밀도 문제로 동일 타임스탬프가 생길 수 있으므로 1ms 빼기
-            Instant createdAfter = allNotifications.data().get(2).getCreatedAt().minusMillis(1);
+            // 알림2(index 1)의 createdAt 이후 → 알림3, 알림4, 알림5 조회
+            Instant createdAfter = allNotifications.data().get(1).getCreatedAt();
 
             // when
             List<NotificationModel> notifications = notificationQueryRepository.findByReceiverIdAndCreatedAtAfter(
