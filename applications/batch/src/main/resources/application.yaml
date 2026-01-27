@@ -35,6 +35,10 @@ mopl:
         - tsdbLeagueSyncJob
         - tmdbCollectJob
         - tsdbLeagueEventCollectJob
+        # - retentionCleanupJob
+        # - orphanCleanupJob
+        # - orphanStorageCleanupJob
+        # - denormalizedSyncJob
     cleanup:
       retention:
         defaults:
@@ -46,6 +50,9 @@ mopl:
         defaults:
           chunk-size: ${MOPL_BATCH_CLEANUP_ORPHAN_CHUNK_SIZE:500}
           grace-period-days: ${MOPL_BATCH_CLEANUP_ORPHAN_GRACE_PERIOD_DAYS:1}
+      orphan-storage:
+        defaults:
+          chunk-size: ${MOPL_BATCH_CLEANUP_ORPHAN_STORAGE_CHUNK_SIZE:100}
     collect:
       tmdb:
         defaults:
