@@ -1,8 +1,8 @@
 package com.mopl.batch.cleanup.orphan.service;
 
-import com.mopl.batch.cleanup.orphan.properties.OrphanCleanupPolicyProperties;
-import com.mopl.batch.cleanup.orphan.properties.OrphanCleanupPolicyResolver;
-import com.mopl.batch.cleanup.orphan.properties.OrphanCleanupProperties;
+import com.mopl.batch.cleanup.orphan.config.OrphanCleanupPolicyProperties;
+import com.mopl.batch.cleanup.orphan.config.OrphanCleanupPolicyResolver;
+import com.mopl.batch.cleanup.orphan.config.OrphanCleanupProperties;
 import com.mopl.jpa.repository.orphan.JpaOrphanCleanupRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

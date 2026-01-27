@@ -37,11 +37,12 @@ mopl:
         - tsdbLeagueEventCollectJob
 
     cleanup:
-      defaults:
-        chunk-size: ${MOPL_BATCH_CLEANUP_CHUNK_SIZE:500}
-        retention-days: ${MOPL_BATCH_CLEANUP_RETENTION_DAYS:30}
-      storage:
-        chunk-size: ${MOPL_BATCH_CLEANUP_STORAGE_CHUNK_SIZE:200}
+      retention:
+        defaults:
+          chunk-size: ${MOPL_BATCH_CLEANUP_CHUNK_SIZE:500}
+          retention-days: ${MOPL_BATCH_CLEANUP_RETENTION_DAYS:30}
+        storage:
+          chunk-size: ${MOPL_BATCH_CLEANUP_STORAGE_CHUNK_SIZE:200}
       orphan:
         defaults:
           chunk-size: ${MOPL_BATCH_CLEANUP_ORPHAN_CHUNK_SIZE:500}
@@ -63,17 +64,3 @@ mopl:
       denormalized:
         default-policy:
           batch-size: ${MOPL_BATCH_SYNC_DENORMALIZED_BATCH_SIZE:500}
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,prometheus
-  endpoint:
-    health:
-      probes:
-        enabled: true
-  metrics:
-    tags:
-      application: ${spring.application.name}
-      environment: ${SPRING_PROFILES_ACTIVE:local}

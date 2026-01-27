@@ -1,7 +1,7 @@
 package com.mopl.batch.collect.tsdb.service.content;
 
-import com.mopl.batch.collect.tsdb.config.properties.TsdbCollectPolicyResolver;
-import com.mopl.batch.collect.tsdb.config.properties.TsdbCollectProperties;
+import com.mopl.batch.collect.tsdb.config.TsdbCollectPolicyResolver;
+import com.mopl.batch.collect.tsdb.config.TsdbCollectProperties;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.league.LeagueModel;
 import com.mopl.domain.repository.league.LeagueRepository;
