@@ -1,16 +1,16 @@
-package com.mopl.batch.cleanup.retention.config;
+package com.mopl.batch.cleanup.softdelete.config;
 
-import com.mopl.batch.cleanup.retention.config.RetentionCleanupProperties.PolicyProperties;
+import com.mopl.batch.cleanup.softdelete.config.SoftDeleteCleanupProperties.PolicyProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@EnableConfigurationProperties(RetentionCleanupProperties.class)
+@EnableConfigurationProperties(SoftDeleteCleanupProperties.class)
 @RequiredArgsConstructor
-public class RetentionCleanupPolicyResolver {
+public class SoftDeleteCleanupPolicyResolver {
 
-    private final RetentionCleanupProperties props;
+    private final SoftDeleteCleanupProperties props;
 
     public int chunkSize(PolicyProperties policy) {
         if (policy != null && policy.chunkSize() != null && policy.chunkSize() > 0) {

@@ -37,11 +37,14 @@ public interface JpaPlaylistSubscriberRepository extends
     // denormalized sync batch 전용
     @Query(
         value = """
-            SELECT DISTINCT BIN_TO_UUID(ps.playlist_id)
-            FROM playlist_subscribers ps
-            WHERE ps.playlist_id > :lastPlaylistId
-            ORDER BY ps.playlist_id
-            LIMIT :limit
+            SELECT BIN_TO_UUID(playlist_id)
+            FROM (
+                SELECT DISTINCT ps.playlist_id
+                FROM playlist_subscribers ps
+                WHERE ps.playlist_id > :lastPlaylistId
+                ORDER BY ps.playlist_id
+                LIMIT :limit
+            ) sub
             """,
         nativeQuery = true
     )

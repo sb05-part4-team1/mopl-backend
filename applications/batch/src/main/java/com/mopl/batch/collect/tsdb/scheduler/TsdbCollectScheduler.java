@@ -31,7 +31,7 @@ public class TsdbCollectScheduler {
         }
     }
 
-    @Scheduled(cron = "0 0 3 * * MON")
+    @Scheduled(cron = "0 30 3 * * MON")
     public void runTsdbLeagueSync() {
         try {
             JobParameters params = new JobParametersBuilder()

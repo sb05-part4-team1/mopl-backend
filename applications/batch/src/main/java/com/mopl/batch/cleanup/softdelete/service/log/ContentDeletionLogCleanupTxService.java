@@ -1,4 +1,4 @@
-package com.mopl.batch.cleanup.retention.service.log;
+package com.mopl.batch.cleanup.softdelete.service.log;
 
 import com.mopl.domain.repository.content.batch.ContentDeletionLogRepository;
 import lombok.RequiredArgsConstructor;

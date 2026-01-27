@@ -1,15 +1,16 @@
-package com.mopl.batch.cleanup.retention.service.content;
+package com.mopl.batch.cleanup.softdelete.service.content;
 
-import com.mopl.batch.cleanup.retention.config.RetentionCleanupPolicyResolver;
-import com.mopl.batch.cleanup.retention.config.RetentionCleanupProperties;
+import com.mopl.batch.cleanup.softdelete.config.SoftDeleteCleanupPolicyResolver;
+import com.mopl.batch.cleanup.softdelete.config.SoftDeleteCleanupProperties;
 import com.mopl.domain.repository.content.batch.ContentCleanupRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -20,8 +21,8 @@ public class ContentCleanupService {
 
     private final ContentCleanupTxService executor;
     private final ContentCleanupRepository contentCleanupRepository;
-    private final RetentionCleanupProperties props;
-    private final RetentionCleanupPolicyResolver policyResolver;
+    private final SoftDeleteCleanupProperties props;
+    private final SoftDeleteCleanupPolicyResolver policyResolver;
 
     public int cleanup() {
         int totalDeleted = 0;
@@ -40,7 +41,7 @@ public class ContentCleanupService {
 
             int deleted = executor.cleanupBatch(contentIds);
             if (deleted == 0) {
-                log.warn("[RetentionCleanup] content found {} targets but deleted 0, breaking to prevent infinite loop",
+                log.warn("[SoftDeleteCleanup] content found {} targets but deleted 0, breaking to prevent infinite loop",
                     contentIds.size());
                 break;
             }
@@ -50,7 +51,7 @@ public class ContentCleanupService {
         }
 
         if (iterations >= MAX_ITERATIONS) {
-            log.warn("[RetentionCleanup] content reached max iterations={}, totalDeleted={}",
+            log.warn("[SoftDeleteCleanup] content reached max iterations={}, totalDeleted={}",
                 MAX_ITERATIONS, totalDeleted);
         }
 

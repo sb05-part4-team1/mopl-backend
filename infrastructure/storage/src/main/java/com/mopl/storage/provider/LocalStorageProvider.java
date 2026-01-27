@@ -18,6 +18,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
+import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -97,6 +99,29 @@ public class LocalStorageProvider implements StorageProvider {
     public boolean exists(String path) {
         Path targetPath = resolveSafePath(path);
         return Files.exists(targetPath);
+    }
+
+    @Override
+    public List<String> listObjects(String prefix, int maxKeys) {
+        Path prefixPath = resolveSafePath(prefix);
+        if (!Files.isDirectory(prefixPath)) {
+            prefixPath = prefixPath.getParent();
+        }
+        if (prefixPath == null || !Files.exists(prefixPath)) {
+            return List.of();
+        }
+
+        try (Stream<Path> walk = Files.walk(prefixPath)) {
+            return walk
+                .filter(Files::isRegularFile)
+                .map(p -> localProperties.rootPath().relativize(p).toString().replace("\\", "/"))
+                .filter(p -> p.startsWith(prefix))
+                .limit(maxKeys)
+                .toList();
+        } catch (IOException e) {
+            log.error("파일 목록 조회 실패: prefix={}", prefix, e);
+            return List.of();
+        }
     }
 
     private Path resolveSafePath(String path) {

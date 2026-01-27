@@ -1,12 +1,13 @@
-package com.mopl.batch.cleanup.retention.strategy.content;
+package com.mopl.batch.cleanup.softdelete.strategy.content;
 
 import com.mopl.domain.repository.content.batch.ContentDeletionLogRepository;
-import java.util.Map;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Component

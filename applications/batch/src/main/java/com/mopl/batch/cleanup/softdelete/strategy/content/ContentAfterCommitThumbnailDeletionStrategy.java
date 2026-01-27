@@ -1,4 +1,4 @@
-package com.mopl.batch.cleanup.retention.strategy.content;
+package com.mopl.batch.cleanup.softdelete.strategy.content;
 
 import com.mopl.storage.provider.StorageProvider;
 import lombok.RequiredArgsConstructor;

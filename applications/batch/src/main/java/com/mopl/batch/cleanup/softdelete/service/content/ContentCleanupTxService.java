@@ -1,6 +1,6 @@
-package com.mopl.batch.cleanup.retention.service.content;
+package com.mopl.batch.cleanup.softdelete.service.content;
 
-import com.mopl.batch.cleanup.retention.strategy.content.ContentDeletionStrategy;
+import com.mopl.batch.cleanup.softdelete.strategy.content.ContentDeletionStrategy;
 import com.mopl.domain.repository.content.batch.ContentCleanupRepository;
 import com.mopl.domain.support.search.ContentSearchSyncPort;
 import com.mopl.domain.support.transaction.AfterCommitExecutor;

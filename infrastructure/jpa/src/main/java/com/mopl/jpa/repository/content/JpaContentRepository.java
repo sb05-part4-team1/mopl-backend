@@ -5,7 +5,6 @@ import com.mopl.jpa.repository.content.batch.ContentThumbnailRow;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.util.List;
@@ -36,10 +35,7 @@ public interface JpaContentRepository extends JpaRepository<ContentEntity, UUID>
             """,
         nativeQuery = true
     )
-    List<UUID> findCleanupTargets(
-        @Param("threshold") Instant threshold,
-        @Param("limit") int limit
-    );
+    List<UUID> findCleanupTargets(Instant threshold, int limit);
 
     @Query(
         value = """
@@ -51,9 +47,16 @@ public interface JpaContentRepository extends JpaRepository<ContentEntity, UUID>
             """,
         nativeQuery = true
     )
-    List<ContentThumbnailRow> findThumbnailPathsByIds(@Param("contentIds") List<UUID> contentIds);
+    List<ContentThumbnailRow> findThumbnailPathsByIds(List<UUID> contentIds);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "delete from contents where id in (:contentIds)", nativeQuery = true)
-    int deleteByIdIn(@Param("contentIds") List<UUID> contentIds);
+    int deleteByIdIn(List<UUID> contentIds);
+
+    // orphan storage cleanup batch 전용
+    @Query(
+        value = "select 1 from contents where thumbnail_path = :path limit 1",
+        nativeQuery = true
+    )
+    Integer findOneByThumbnailPath(String path);
 }

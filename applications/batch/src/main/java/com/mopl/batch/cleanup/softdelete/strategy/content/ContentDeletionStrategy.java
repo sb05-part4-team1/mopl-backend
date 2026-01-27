@@ -1,4 +1,4 @@
-package com.mopl.batch.cleanup.retention.strategy.content;
+package com.mopl.batch.cleanup.softdelete.strategy.content;
 
 import java.util.Map;
 import java.util.UUID;

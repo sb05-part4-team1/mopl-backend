@@ -1,8 +1,8 @@
-package com.mopl.batch.cleanup.retention.config;
+package com.mopl.batch.cleanup.softdelete.config;
 
-import com.mopl.batch.cleanup.retention.service.content.ContentCleanupService;
-import com.mopl.batch.cleanup.retention.service.log.ContentDeletionLogCleanupService;
-import com.mopl.batch.cleanup.retention.service.storage.StorageCleanupService;
+import com.mopl.batch.cleanup.softdelete.service.content.ContentCleanupService;
+import com.mopl.batch.cleanup.softdelete.service.log.ContentDeletionLogCleanupService;
+import com.mopl.batch.cleanup.softdelete.service.storage.StorageCleanupService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -19,15 +19,15 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
-public class RetentionCleanupBatchConfig {
+public class SoftDeleteCleanupBatchConfig {
 
     private final ContentCleanupService contentCleanupService;
     private final StorageCleanupService storageCleanupService;
     private final ContentDeletionLogCleanupService contentDeletionLogCleanupService;
 
     @Bean
-    public Job retentionCleanupJob(JobRepository jobRepository, PlatformTransactionManager txManager) {
-        return new JobBuilder("retentionCleanupJob", jobRepository)
+    public Job softDeleteCleanupJob(JobRepository jobRepository, PlatformTransactionManager txManager) {
+        return new JobBuilder("softDeleteCleanupJob", jobRepository)
             .start(contentStep(jobRepository, txManager))
             .next(storageStep(jobRepository, txManager))
             .next(deletionLogStep(jobRepository, txManager))
@@ -46,9 +46,9 @@ public class RetentionCleanupBatchConfig {
     public Tasklet contentTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-            log.info("[RetentionCleanup] content start");
+            log.info("[SoftDeleteCleanup] content start");
             int processed = contentCleanupService.cleanup();
-            log.info("[RetentionCleanup] content end processed={} durationMs={}",
+            log.info("[SoftDeleteCleanup] content end processed={} durationMs={}",
                 processed, System.currentTimeMillis() - start);
             return RepeatStatus.FINISHED;
         };
@@ -66,9 +66,9 @@ public class RetentionCleanupBatchConfig {
     public Tasklet storageTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-            log.info("[RetentionCleanup] storage start");
+            log.info("[SoftDeleteCleanup] storage start");
             int deletedFiles = storageCleanupService.cleanup();
-            log.info("[RetentionCleanup] storage end deletedFiles={} durationMs={}",
+            log.info("[SoftDeleteCleanup] storage end deletedFiles={} durationMs={}",
                 deletedFiles, System.currentTimeMillis() - start);
             return RepeatStatus.FINISHED;
         };
@@ -86,9 +86,9 @@ public class RetentionCleanupBatchConfig {
     public Tasklet deletionLogTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-            log.info("[RetentionCleanup] deletionLog start");
+            log.info("[SoftDeleteCleanup] deletionLog start");
             int processed = contentDeletionLogCleanupService.cleanup();
-            log.info("[RetentionCleanup] deletionLog end processed={} durationMs={}",
+            log.info("[SoftDeleteCleanup] deletionLog end processed={} durationMs={}",
                 processed, System.currentTimeMillis() - start);
             return RepeatStatus.FINISHED;
         };

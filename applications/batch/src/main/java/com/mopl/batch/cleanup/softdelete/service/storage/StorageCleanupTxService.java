@@ -1,16 +1,17 @@
-package com.mopl.batch.cleanup.retention.service.storage;
+package com.mopl.batch.cleanup.softdelete.service.storage;
 
-import com.mopl.domain.repository.content.batch.ContentDeletionLogRepository;
 import com.mopl.domain.repository.content.batch.ContentDeletionLogItem;
+import com.mopl.domain.repository.content.batch.ContentDeletionLogRepository;
 import com.mopl.storage.provider.StorageProvider;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

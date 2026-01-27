@@ -20,11 +20,14 @@ public interface JpaReviewRepository extends JpaRepository<ReviewEntity, UUID> {
     // denormalized sync batch 전용
     @Query(
         value = """
-            SELECT DISTINCT BIN_TO_UUID(r.content_id)
-            FROM reviews r
-            WHERE r.content_id > :lastContentId
-            ORDER BY r.content_id
-            LIMIT :limit
+            SELECT BIN_TO_UUID(content_id)
+            FROM (
+                SELECT DISTINCT r.content_id
+                FROM reviews r
+                WHERE r.content_id > :lastContentId
+                ORDER BY r.content_id
+                LIMIT :limit
+            ) sub
             """,
         nativeQuery = true
     )

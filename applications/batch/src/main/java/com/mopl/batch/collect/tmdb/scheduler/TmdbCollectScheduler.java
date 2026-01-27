@@ -31,7 +31,7 @@ public class TmdbCollectScheduler {
         }
     }
 
-    @Scheduled(cron = "0 0 3 * * MON")
+    @Scheduled(cron = "0 30 3 * * MON")
     public void runTmdbGenreSync() {
         try {
             JobParameters params = new JobParametersBuilder()

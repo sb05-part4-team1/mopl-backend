@@ -1,7 +1,7 @@
-package com.mopl.batch.cleanup.retention.service.storage;
+package com.mopl.batch.cleanup.softdelete.service.storage;
 
-import com.mopl.batch.cleanup.retention.config.RetentionCleanupPolicyResolver;
-import com.mopl.batch.cleanup.retention.config.RetentionCleanupProperties;
+import com.mopl.batch.cleanup.softdelete.config.SoftDeleteCleanupPolicyResolver;
+import com.mopl.batch.cleanup.softdelete.config.SoftDeleteCleanupProperties;
 import com.mopl.domain.repository.content.batch.ContentDeletionLogItem;
 import com.mopl.domain.repository.content.batch.ContentDeletionLogRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +19,8 @@ public class StorageCleanupService {
 
     private final ContentDeletionLogRepository contentDeletionLogRepository;
     private final StorageCleanupTxService storageCleanupTxService;
-    private final RetentionCleanupProperties props;
-    private final RetentionCleanupPolicyResolver policyResolver;
+    private final SoftDeleteCleanupProperties props;
+    private final SoftDeleteCleanupPolicyResolver policyResolver;
 
     public int cleanup() {
         int totalDeletedFiles = 0;
@@ -38,7 +38,7 @@ public class StorageCleanupService {
 
             int deleted = storageCleanupTxService.cleanupBatch(targets);
             if (deleted == 0) {
-                log.warn("[RetentionCleanup] storage found {} targets but deleted 0, breaking to prevent infinite loop",
+                log.warn("[SoftDeleteCleanup] storage found {} targets but deleted 0, breaking to prevent infinite loop",
                     targets.size());
                 break;
             }
@@ -48,7 +48,7 @@ public class StorageCleanupService {
         }
 
         if (iterations >= MAX_ITERATIONS) {
-            log.warn("[RetentionCleanup] storage reached max iterations={}, totalDeletedFiles={}",
+            log.warn("[SoftDeleteCleanup] storage reached max iterations={}, totalDeletedFiles={}",
                 MAX_ITERATIONS, totalDeletedFiles);
         }
 

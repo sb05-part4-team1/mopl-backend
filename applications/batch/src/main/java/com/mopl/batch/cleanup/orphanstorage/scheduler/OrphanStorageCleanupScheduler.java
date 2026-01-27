@@ -1,4 +1,4 @@
-package com.mopl.batch.cleanup.retention.scheduler;
+package com.mopl.batch.cleanup.orphanstorage.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,25 +9,25 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
-public class RetentionCleanupScheduler {
+@Slf4j
+public class OrphanStorageCleanupScheduler {
 
     private final JobLauncher jobLauncher;
-    private final Job retentionCleanupJob;
+    private final Job orphanStorageCleanupJob;
 
-    @Scheduled(cron = "0 0 4 * * *")
-    public void runCleanup() {
+    @Scheduled(cron = "0 0 5 * * *")
+    public void runOrphanStorageCleanup() {
         try {
             JobParameters params = new JobParametersBuilder()
                 .addLong("time", System.currentTimeMillis())
                 .toJobParameters();
 
-            jobLauncher.run(retentionCleanupJob, params);
+            jobLauncher.run(orphanStorageCleanupJob, params);
 
         } catch (Exception e) {
-            log.error("Retention cleanup batch failed", e);
+            log.error("Orphan storage cleanup batch failed", e);
         }
     }
 }
