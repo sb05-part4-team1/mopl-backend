@@ -2,9 +2,9 @@ package com.mopl.domain.service.content;
 
 import com.mopl.domain.exception.content.ContentNotFoundException;
 import com.mopl.domain.model.content.ContentModel;
+import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.repository.content.query.ContentQueryRepository;
 import com.mopl.domain.repository.content.query.ContentQueryRequest;
-import com.mopl.domain.repository.content.ContentRepository;
 import com.mopl.domain.support.cache.CacheName;
 import com.mopl.domain.support.cursor.CursorResponse;
 import lombok.RequiredArgsConstructor;
