@@ -1,9 +1,9 @@
 package com.mopl.security.jwt.registry;
 
 import com.mopl.domain.exception.auth.InvalidTokenException;
+import com.mopl.logging.context.LogContext;
 import com.mopl.security.config.JwtProperties;
 import com.mopl.security.jwt.provider.JwtInformation;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.Date;
@@ -14,7 +14,6 @@ import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 
-@Slf4j
 public class InMemoryJwtRegistry implements JwtRegistry {
 
     private final int maxSessions;
@@ -24,7 +23,7 @@ public class InMemoryJwtRegistry implements JwtRegistry {
 
     public InMemoryJwtRegistry(JwtProperties jwtProperties) {
         this.maxSessions = jwtProperties.maxSessions();
-        log.info("InMemoryJwtRegistry 초기화: maxSessions={}", maxSessions);
+        LogContext.with("maxSessions", maxSessions).info("InMemoryJwtRegistry initialized");
     }
 
     @Override
@@ -42,7 +41,6 @@ public class InMemoryJwtRegistry implements JwtRegistry {
             }
 
             sessions.put(jti, jwtInformation);
-            log.debug("JWT 등록 완료: userId={}, jti={}", userId, jti);
         });
     }
 
@@ -54,8 +52,8 @@ public class InMemoryJwtRegistry implements JwtRegistry {
             LinkedHashMap<UUID, JwtInformation> sessions = whitelist.get(userId);
 
             if (isInvalidSession(sessions, oldRefreshTokenJti)) {
-                log.error("유효하지 않은 리프레시 토큰으로 로테이션 시도됨. " +
-                    "해당 유저의 모든 세션을 무효화합니다. userId={}, jti={}", userId, oldRefreshTokenJti);
+                LogContext.with("userId", userId).and("jti", oldRefreshTokenJti)
+                    .warn("Invalid refresh token rotation attempt - revoking all sessions");
                 revokeAllByUserId(userId);
                 throw InvalidTokenException.create();
             }
@@ -64,7 +62,6 @@ public class InMemoryJwtRegistry implements JwtRegistry {
             addToBlacklist(oldInfo);
 
             sessions.put(newJwtInformation.refreshTokenJti(), newJwtInformation);
-            log.debug("JWT 로테이션 완료: userId={}", userId);
         });
     }
 
@@ -128,10 +125,9 @@ public class InMemoryJwtRegistry implements JwtRegistry {
                     );
                     return sessions.isEmpty();
                 });
-                log.debug("만료 데이터 정리 완료");
             });
         } catch (Exception e) {
-            log.error("만료 데이터 정리 중 오류 발생", e);
+            LogContext.with("error", e.getClass().getSimpleName()).error("Error clearing expired tokens", e);
         }
     }
 
@@ -139,7 +135,7 @@ public class InMemoryJwtRegistry implements JwtRegistry {
         Map.Entry<UUID, JwtInformation> firstEntry = sessions.entrySet().iterator().next();
         addToBlacklist(firstEntry.getValue());
         sessions.remove(firstEntry.getKey());
-        log.info("최대 세션 초과 퇴출: userId={}, jti={}", userId, firstEntry.getKey());
+        LogContext.with("userId", userId).and("jti", firstEntry.getKey()).info("Session evicted due to max session limit");
     }
 
     private void addToBlacklist(JwtInformation info) {

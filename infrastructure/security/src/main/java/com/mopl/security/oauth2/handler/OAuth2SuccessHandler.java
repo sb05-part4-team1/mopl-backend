@@ -1,5 +1,6 @@
 package com.mopl.security.oauth2.handler;
 
+import com.mopl.logging.context.LogContext;
 import com.mopl.security.config.OAuth2Properties;
 import com.mopl.security.jwt.provider.JwtCookieProvider;
 import com.mopl.security.jwt.provider.JwtInformation;
@@ -10,7 +11,6 @@ import com.mopl.security.userdetails.MoplUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -18,7 +18,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 
 @RequiredArgsConstructor
-@Slf4j
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final OAuth2Properties oAuth2Properties;
@@ -44,7 +43,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.addCookie(cookieProvider.createRefreshTokenCookie(jwtInformation.refreshToken()));
 
         String redirectUrl = buildRedirectUrl();
-        log.info("OAuth2 로그인 성공: userId={}", userDetails.userId());
+        LogContext.with("userId", userDetails.userId()).info("OAuth2 sign-in successful");
 
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }

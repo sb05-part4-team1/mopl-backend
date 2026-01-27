@@ -3,6 +3,7 @@ package com.mopl.security.jwt.filter;
 import com.mopl.domain.exception.InternalServerException;
 import com.mopl.domain.exception.MoplException;
 import com.mopl.domain.exception.auth.InvalidTokenException;
+import com.mopl.logging.context.LogContext;
 import com.mopl.security.exception.ApiResponseHandler;
 import com.mopl.security.jwt.provider.JwtPayload;
 import com.mopl.security.jwt.provider.JwtProvider;
@@ -14,7 +15,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,7 +29,6 @@ import java.util.UUID;
 import static org.springframework.util.StringUtils.hasText;
 
 @RequiredArgsConstructor
-@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String BEARER_PREFIX = "Bearer ";
@@ -52,11 +51,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 validateNotBlacklisted(payload.jti());
                 authenticateUser(payload, request);
             } catch (InvalidTokenException e) {
-                log.debug("JWT 인증 실패: {}", e.getMessage());
+                LogContext.with("reason", e.getMessage()).debug("JWT authentication failed");
                 handleAuthenticationException(response, e);
                 return;
             } catch (Exception e) {
-                log.error("JWT 필터 처리 중 예기치 않은 오류 발생", e);
+                LogContext.with("error", e.getClass().getSimpleName()).error("Unexpected error in JWT filter", e);
                 handleAuthenticationException(response, InternalServerException.create());
                 return;
             }
@@ -67,7 +66,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private void validateNotBlacklisted(UUID jti) {
         if (jwtRegistry.isAccessTokenInBlacklist(jti)) {
-            log.warn("블랙리스트 토큰 접근 시도: jti={}", jti);
+            LogContext.with("jti", jti).warn("Blacklisted token access attempt");
             throw InvalidTokenException.create();
         }
     }

@@ -4,10 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mopl.domain.exception.auth.InvalidTokenException;
+import com.mopl.logging.context.LogContext;
 import com.mopl.security.config.JwtProperties;
 import com.mopl.security.jwt.provider.JwtInformation;
 import com.mopl.security.jwt.provider.JwtPayload;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
 
@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-@Slf4j
 public class RedisJwtRegistry implements JwtRegistry {
 
     private static final String WHITELIST_KEY_PREFIX = "jwt:whitelist:";
@@ -31,37 +30,37 @@ public class RedisJwtRegistry implements JwtRegistry {
         local sessionInfo = ARGV[2]
         local maxSessions = tonumber(ARGV[3])
         local ttlSeconds = tonumber(ARGV[4])
-
+        
         local currentSize = redis.call('HLEN', whitelistKey)
         local evictedJti = nil
         local evictedSession = nil
-
+        
         if currentSize >= maxSessions then
             local entries = redis.call('HGETALL', whitelistKey)
             local oldestJti = nil
             local oldestTime = nil
-
+        
             for i = 1, #entries, 2 do
                 local entryJti = entries[i]
                 local entryData = cjson.decode(entries[i + 1])
                 local createdAt = entryData.createdAt
-
+        
                 if oldestTime == nil or createdAt < oldestTime then
                     oldestTime = createdAt
                     oldestJti = entryJti
                     evictedSession = entries[i + 1]
                 end
             end
-
+        
             if oldestJti then
                 redis.call('HDEL', whitelistKey, oldestJti)
                 evictedJti = oldestJti
             end
         end
-
+        
         redis.call('HSET', whitelistKey, jti, sessionInfo)
         redis.call('EXPIRE', whitelistKey, ttlSeconds)
-
+        
         if evictedJti then
             return cjson.encode({evictedJti = evictedJti, evictedSession = evictedSession})
         end
@@ -74,16 +73,16 @@ public class RedisJwtRegistry implements JwtRegistry {
         local newJti = ARGV[2]
         local newSessionInfo = ARGV[3]
         local ttlSeconds = tonumber(ARGV[4])
-
+        
         local oldSession = redis.call('HGET', whitelistKey, oldJti)
         if not oldSession then
             return cjson.encode({error = 'INVALID_TOKEN'})
         end
-
+        
         redis.call('HDEL', whitelistKey, oldJti)
         redis.call('HSET', whitelistKey, newJti, newSessionInfo)
         redis.call('EXPIRE', whitelistKey, ttlSeconds)
-
+        
         return cjson.encode({oldSession = oldSession})
         """;
 
@@ -105,7 +104,7 @@ public class RedisJwtRegistry implements JwtRegistry {
         this.refreshTokenExpiration = jwtProperties.refreshToken().expiration();
         this.registerScript = RedisScript.of(REGISTER_SCRIPT, String.class);
         this.rotateScript = RedisScript.of(ROTATE_SCRIPT, String.class);
-        log.info("RedisJwtRegistry 초기화: maxSessions={}", maxSessions);
+        LogContext.with("maxSessions", maxSessions).info("RedisJwtRegistry initialized");
     }
 
     @Override
@@ -140,14 +139,12 @@ public class RedisJwtRegistry implements JwtRegistry {
                     }
                 }
                 if (evictedJti != null) {
-                    log.info("최대 세션 초과 퇴출: userId={}, jti={}", userId, evictedJti);
+                    LogContext.with("userId", userId).and("jti", evictedJti).info("Session evicted due to max session limit");
                 }
             } catch (JsonProcessingException e) {
-                log.error("Lua 스크립트 결과 파싱 실패: {}", result, e);
+                LogContext.with("result", result).error("Failed to parse Lua script result", e);
             }
         }
-
-        log.debug("JWT 등록 완료: userId={}, jti={}", userId, jti);
     }
 
     @Override
@@ -189,16 +186,15 @@ public class RedisJwtRegistry implements JwtRegistry {
                 }
             }
 
-            log.debug("JWT 로테이션 완료: userId={}", userId);
         } catch (JsonProcessingException e) {
-            log.error("Lua 스크립트 결과 파싱 실패: {}", result, e);
+            LogContext.with("result", result).error("Failed to parse Lua script result", e);
             handleInvalidToken(userId, oldRefreshTokenJti);
         }
     }
 
     private void handleInvalidToken(UUID userId, UUID oldRefreshTokenJti) {
-        log.warn("유효하지 않은 리프레시 토큰으로 로테이션 시도됨. " +
-            "해당 유저의 모든 세션을 무효화합니다. userId={}, jti={}", userId, oldRefreshTokenJti);
+        LogContext.with("userId", userId).and("jti", oldRefreshTokenJti)
+            .warn("Invalid refresh token rotation attempt - revoking all sessions");
         revokeAllByUserId(userId);
         throw InvalidTokenException.create();
     }
@@ -247,7 +243,7 @@ public class RedisJwtRegistry implements JwtRegistry {
         }
 
         redisTemplate.delete(whitelistKey);
-        log.warn("사용자의 모든 세션 무효화됨: userId={}", userId);
+        LogContext.with("userId", userId).warn("All user sessions revoked");
     }
 
     @Override
@@ -282,7 +278,7 @@ public class RedisJwtRegistry implements JwtRegistry {
                 "createdAt", sessionInfo.createdAt().toEpochMilli()
             ));
         } catch (JsonProcessingException e) {
-            log.error("SessionInfo JSON 직렬화 실패", e);
+            LogContext.with("sessionInfo", sessionInfo.toString()).error("Failed to serialize SessionInfo to JSON", e);
             return String.format(
                 "{\"accessTokenJti\":\"%s\",\"accessTokenExp\":%d,\"createdAt\":%d}",
                 sessionInfo.accessTokenJti(),
@@ -307,7 +303,7 @@ public class RedisJwtRegistry implements JwtRegistry {
                 Instant.ofEpochMilli(node.get("createdAt").asLong())
             );
         } catch (Exception e) {
-            log.error("JsonNode에서 SessionInfo 파싱 실패: {}", node, e);
+            LogContext.with("node", String.valueOf(node)).error("Failed to parse SessionInfo from JsonNode", e);
             return null;
         }
     }
@@ -317,7 +313,7 @@ public class RedisJwtRegistry implements JwtRegistry {
             JsonNode node = objectMapper.readTree(json);
             return parseSessionInfoFromNode(node);
         } catch (Exception e) {
-            log.error("SessionInfo 파싱 실패: {}", json, e);
+            LogContext.with("json", json).error("Failed to parse SessionInfo", e);
             return null;
         }
     }

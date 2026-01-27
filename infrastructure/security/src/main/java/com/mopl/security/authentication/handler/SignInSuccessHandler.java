@@ -1,6 +1,7 @@
 package com.mopl.security.authentication.handler;
 
 import com.mopl.domain.exception.InternalServerException;
+import com.mopl.logging.context.LogContext;
 import com.mopl.security.exception.ApiResponseHandler;
 import com.mopl.security.jwt.dto.JwtResponse;
 import com.mopl.security.jwt.provider.JwtCookieProvider;
@@ -11,7 +12,6 @@ import com.mopl.security.userdetails.MoplUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -19,7 +19,6 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import java.io.IOException;
 
 @RequiredArgsConstructor
-@Slf4j
 public class SignInSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtProvider jwtProvider;
@@ -42,14 +41,14 @@ public class SignInSuccessHandler implements AuthenticationSuccessHandler {
             JwtResponse.from(userDetails, jwtInformation.accessToken())
         );
 
-        log.info("JWT 토큰 발급 완료: userId={}", userDetails.userId());
+        LogContext.with("userId", userDetails.userId()).info("JWT token issued");
     }
 
     private MoplUserDetails extractUserDetails(Authentication authentication) {
         if (authentication.getPrincipal() instanceof MoplUserDetails userDetails) {
             return userDetails;
         }
-        log.error("JWT 발급 실패: 예상치 못한 Principal 타입={}", authentication.getPrincipal().getClass());
+        LogContext.with("principalType", authentication.getPrincipal().getClass().getSimpleName()).error("JWT issue failed: unexpected principal type");
         throw InternalServerException.create();
     }
 
