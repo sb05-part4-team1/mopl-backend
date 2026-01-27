@@ -56,7 +56,7 @@ class SseFacadeTest {
 
         @Test
         @DisplayName("lastEventId가 있으면 이전 이벤트 재전송")
-        void withLastEventId_resendsEvents() throws IOException {
+        void withLastEventId_resendsEvents() {
             // given
             UUID userId = UUID.randomUUID();
             UUID lastEventId = UUID.randomUUID();
@@ -76,7 +76,7 @@ class SseFacadeTest {
 
         @Test
         @DisplayName("lastEventId가 null이면 이전 이벤트 재전송 안함")
-        void withoutLastEventId_doesNotResendEvents() throws IOException {
+        void withoutLastEventId_doesNotResendEvents() {
             // given
             UUID userId = UUID.randomUUID();
             SseEmitter emitter = mock(SseEmitter.class);
