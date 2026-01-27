@@ -38,6 +38,19 @@
     <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/${SERVICE_NAME}.json</file>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <!-- 민감정보 마스킹 -->
+            <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
+                <!-- 비밀번호, 토큰, API 키 -->
+                <valueMasker class="net.logstash.logback.mask.RegexValueMasker">
+                    <regex>"(password|passwd|pwd|secret|token|accessToken|refreshToken|apiKey|apiSecret)"\s*:\s*"[^"]*"</regex>
+                    <mask>"$1":"***"</mask>
+                </valueMasker>
+                <!-- 이메일 -->
+                <valueMasker class="net.logstash.logback.mask.RegexValueMasker">
+                    <regex>([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})</regex>
+                    <mask>***@$2</mask>
+                </valueMasker>
+            </jsonGeneratorDecorator>
             <includeMdcKeyName>traceId</includeMdcKeyName>
             <includeMdcKeyName>requestId</includeMdcKeyName>
             <includeMdcKeyName>requestMethod</includeMdcKeyName>
