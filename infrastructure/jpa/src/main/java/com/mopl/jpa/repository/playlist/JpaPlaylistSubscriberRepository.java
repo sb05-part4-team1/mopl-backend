@@ -35,8 +35,17 @@ public interface JpaPlaylistSubscriberRepository extends
     int deleteByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId);
 
     // denormalized sync batch 전용
-    @Query("SELECT DISTINCT ps.playlist.id FROM PlaylistSubscriberEntity ps")
-    Set<UUID> findAllPlaylistIds();
+    @Query(
+        value = """
+            SELECT DISTINCT BIN_TO_UUID(ps.playlist_id)
+            FROM playlist_subscribers ps
+            WHERE ps.playlist_id > :lastPlaylistId
+            ORDER BY ps.playlist_id
+            LIMIT :limit
+            """,
+        nativeQuery = true
+    )
+    List<UUID> findPlaylistIdsAfter(UUID lastPlaylistId, int limit);
 
     @Query("""
         SELECT COUNT(ps)
