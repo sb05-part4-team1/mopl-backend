@@ -1,29 +1,26 @@
 package com.mopl.batch.cleanup.orphan.config;
 
+import com.mopl.batch.cleanup.orphan.config.OrphanCleanupProperties.PolicyProperties;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@EnableConfigurationProperties(OrphanCleanupProperties.class)
 @RequiredArgsConstructor
 public class OrphanCleanupPolicyResolver {
 
-    private final OrphanCleanupProperties orphanCleanupProperties;
+    private final OrphanCleanupProperties props;
 
-    public int chunkSize(OrphanCleanupPolicyProperties policy) {
-        Integer value = policy.getChunkSize();
-        if (value != null && value > 0) {
-            return value;
+    public int chunkSize(PolicyProperties policy) {
+        if (policy != null && policy.chunkSize() != null && policy.chunkSize() > 0) {
+            return policy.chunkSize();
         }
-        return orphanCleanupProperties.getDefaults().getChunkSize();
+        return props.defaults().chunkSize();
     }
 
-    public long gracePeriodDays(OrphanCleanupPolicyProperties policy) {
-        Long value = policy.getGracePeriodDays();
-        if (value != null && value >= 0) {
-            return value;
+    public long gracePeriodDays(PolicyProperties policy) {
+        if (policy != null && policy.gracePeriodDays() != null && policy.gracePeriodDays() >= 0) {
+            return policy.gracePeriodDays();
         }
-        return orphanCleanupProperties.getDefaults().getGracePeriodDays();
+        return props.defaults().gracePeriodDays();
     }
 }

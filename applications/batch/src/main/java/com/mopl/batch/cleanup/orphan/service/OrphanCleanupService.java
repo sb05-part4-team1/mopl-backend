@@ -1,8 +1,8 @@
 package com.mopl.batch.cleanup.orphan.service;
 
-import com.mopl.batch.cleanup.orphan.config.OrphanCleanupPolicyProperties;
 import com.mopl.batch.cleanup.orphan.config.OrphanCleanupPolicyResolver;
 import com.mopl.batch.cleanup.orphan.config.OrphanCleanupProperties;
+import com.mopl.batch.cleanup.orphan.config.OrphanCleanupProperties.PolicyProperties;
 import com.mopl.jpa.repository.orphan.JpaOrphanCleanupRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,14 +22,14 @@ public class OrphanCleanupService {
 
     private final JpaOrphanCleanupRepository orphanCleanupRepository;
     private final OrphanCleanupTxService txService;
-    private final OrphanCleanupProperties cleanupProperties;
+    private final OrphanCleanupProperties props;
     private final OrphanCleanupPolicyResolver policyResolver;
 
     // ==================== 1. Playlist ====================
     public int cleanupPlaylists() {
         return cleanup(
             "playlist",
-            cleanupProperties.getPlaylist(),
+            props.playlist(),
             orphanCleanupRepository::findOrphanPlaylistIds,
             txService::cleanupPlaylists
         );
@@ -39,7 +39,7 @@ public class OrphanCleanupService {
     public int cleanupReviews() {
         return cleanup(
             "review",
-            cleanupProperties.getReview(),
+            props.review(),
             orphanCleanupRepository::findOrphanReviewIds,
             txService::cleanupReviews
         );
@@ -49,7 +49,7 @@ public class OrphanCleanupService {
     public int cleanupPlaylistSubscribers() {
         return cleanup(
             "playlistSubscriber",
-            cleanupProperties.getPlaylistSubscriber(),
+            props.playlistSubscriber(),
             orphanCleanupRepository::findOrphanPlaylistSubscriberIds,
             txService::cleanupPlaylistSubscribers
         );
@@ -59,7 +59,7 @@ public class OrphanCleanupService {
     public int cleanupPlaylistContents() {
         return cleanup(
             "playlistContent",
-            cleanupProperties.getPlaylistContent(),
+            props.playlistContent(),
             orphanCleanupRepository::findOrphanPlaylistContentIds,
             txService::cleanupPlaylistContents
         );
@@ -69,7 +69,7 @@ public class OrphanCleanupService {
     public int cleanupContentTags() {
         return cleanup(
             "contentTag",
-            cleanupProperties.getContentTag(),
+            props.contentTag(),
             orphanCleanupRepository::findOrphanContentTagIds,
             txService::cleanupContentTags
         );
@@ -79,7 +79,7 @@ public class OrphanCleanupService {
     public int cleanupContentExternalMappings() {
         return cleanup(
             "contentExternalMapping",
-            cleanupProperties.getContentExternalMapping(),
+            props.contentExternalMapping(),
             orphanCleanupRepository::findOrphanContentExternalMappingIds,
             txService::cleanupContentExternalMappings
         );
@@ -89,7 +89,7 @@ public class OrphanCleanupService {
     public int cleanupNotifications() {
         return cleanup(
             "notification",
-            cleanupProperties.getNotification(),
+            props.notification(),
             orphanCleanupRepository::findOrphanNotificationIds,
             txService::cleanupNotifications
         );
@@ -99,7 +99,7 @@ public class OrphanCleanupService {
     public int cleanupFollows() {
         return cleanup(
             "follow",
-            cleanupProperties.getFollow(),
+            props.follow(),
             orphanCleanupRepository::findOrphanFollowIds,
             txService::cleanupFollows
         );
@@ -109,7 +109,7 @@ public class OrphanCleanupService {
     public int cleanupReadStatuses() {
         return cleanup(
             "readStatus",
-            cleanupProperties.getReadStatus(),
+            props.readStatus(),
             orphanCleanupRepository::findOrphanReadStatusIds,
             txService::cleanupReadStatuses
         );
@@ -119,7 +119,7 @@ public class OrphanCleanupService {
     public int cleanupDirectMessages() {
         return cleanup(
             "directMessage",
-            cleanupProperties.getDirectMessage(),
+            props.directMessage(),
             orphanCleanupRepository::findOrphanDirectMessageIds,
             txService::cleanupDirectMessages
         );
@@ -129,7 +129,7 @@ public class OrphanCleanupService {
     public int cleanupConversations() {
         return cleanup(
             "conversation",
-            cleanupProperties.getConversation(),
+            props.conversation(),
             orphanCleanupRepository::findOrphanConversationIds,
             txService::cleanupConversations
         );
@@ -137,7 +137,7 @@ public class OrphanCleanupService {
 
     private int cleanup(
         String name,
-        OrphanCleanupPolicyProperties policy,
+        PolicyProperties policy,
         BiFunction<Instant, Integer, List<UUID>> findOrphans,
         Function<List<UUID>, Integer> deleteOrphans
     ) {
