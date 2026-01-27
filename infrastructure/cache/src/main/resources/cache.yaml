@@ -12,5 +12,7 @@ mopl:
       presigned-urls: 23h
       users: 1h
       users-by-email: 1h
+      contents: 10m
       content-tags: 24h
-      playlist-contents: 5m
+      playlists: 10m
+      playlist-contents: 10m
