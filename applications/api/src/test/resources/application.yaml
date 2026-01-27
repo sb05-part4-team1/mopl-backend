@@ -5,11 +5,3 @@ mopl:
 spring:
   jpa:
     show-sql: false
-
-logging:
-  level:
-    org.hibernate.SQL: OFF
-    org.hibernate.orm.jdbc.bind: OFF
-    org.hibernate.tool.hbm2ddl: OFF
-    org.hibernate.orm.tool.schema: OFF
-    org.springframework.orm.jpa: OFF
