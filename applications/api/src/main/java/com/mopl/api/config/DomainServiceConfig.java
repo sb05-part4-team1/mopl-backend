@@ -99,10 +99,9 @@ public class DomainServiceConfig {
     @Bean
     public PlaylistCacheService playlistCacheService(
         PlaylistRepository playlistRepository,
-        PlaylistContentRepository playlistContentRepository,
-        PlaylistSubscriberRepository playlistSubscriberRepository
+        PlaylistContentRepository playlistContentRepository
     ) {
-        return new PlaylistCacheService(playlistRepository, playlistContentRepository, playlistSubscriberRepository);
+        return new PlaylistCacheService(playlistRepository, playlistContentRepository);
     }
 
     @Bean
