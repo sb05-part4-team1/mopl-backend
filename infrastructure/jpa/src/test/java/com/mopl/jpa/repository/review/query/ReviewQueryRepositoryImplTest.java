@@ -497,6 +497,7 @@ class ReviewQueryRepositoryImplTest {
                 .setParameter("now", Instant.now())
                 .setParameter("id", deletedAuthor.getId())
                 .executeUpdate();
+
             entityManager.flush();
             entityManager.clear();
 

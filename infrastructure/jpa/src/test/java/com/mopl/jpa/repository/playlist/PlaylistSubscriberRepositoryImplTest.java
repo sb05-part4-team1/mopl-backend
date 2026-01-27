@@ -19,6 +19,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,6 +76,147 @@ class PlaylistSubscriberRepositoryImplTest {
                 owner
             )
         );
+    }
+
+    @Nested
+    @DisplayName("findSubscribedPlaylistIds()")
+    class FindSubscribedPlaylistIdsTest {
+
+        @Test
+        @DisplayName("구독 중인 플레이리스트 ID 목록을 반환한다")
+        void whenSubscribed_returnsPlaylistIds() {
+            // given
+            playlistSubscriberRepository.save(playlist.getId(), subscriber.getId());
+
+            // when
+            Set<UUID> subscribedIds = playlistSubscriberRepository.findSubscribedPlaylistIds(
+                subscriber.getId(),
+                List.of(playlist.getId())
+            );
+
+            // then
+            assertThat(subscribedIds).containsExactly(playlist.getId());
+        }
+
+        @Test
+        @DisplayName("구독하지 않은 플레이리스트는 결과에 포함되지 않는다")
+        void whenNotSubscribed_returnsEmptySet() {
+            // when
+            Set<UUID> subscribedIds = playlistSubscriberRepository.findSubscribedPlaylistIds(
+                subscriber.getId(),
+                List.of(playlist.getId())
+            );
+
+            // then
+            assertThat(subscribedIds).isEmpty();
+        }
+
+        @Test
+        @DisplayName("빈 플레이리스트 ID 목록이 주어지면 빈 Set을 반환한다")
+        void whenEmptyPlaylistIds_returnsEmptySet() {
+            // given
+            playlistSubscriberRepository.save(playlist.getId(), subscriber.getId());
+
+            // when
+            Set<UUID> subscribedIds = playlistSubscriberRepository.findSubscribedPlaylistIds(
+                subscriber.getId(),
+                List.of()
+            );
+
+            // then
+            assertThat(subscribedIds).isEmpty();
+        }
+
+        @Test
+        @DisplayName("여러 플레이리스트 중 구독한 것만 반환한다")
+        void whenMultiplePlaylists_returnsOnlySubscribed() {
+            // given
+            UserModel owner = userRepository.save(
+                UserModel.create("owner2@example.com", "소유자2", "encodedPassword")
+            );
+            PlaylistModel anotherPlaylist = playlistRepository.save(
+                PlaylistModel.create("다른 플레이리스트", "설명", owner)
+            );
+            playlistSubscriberRepository.save(playlist.getId(), subscriber.getId());
+
+            // when
+            Set<UUID> subscribedIds = playlistSubscriberRepository.findSubscribedPlaylistIds(
+                subscriber.getId(),
+                List.of(playlist.getId(), anotherPlaylist.getId())
+            );
+
+            // then
+            assertThat(subscribedIds).containsExactly(playlist.getId());
+        }
+    }
+
+    @Nested
+    @DisplayName("findSubscriberIdsByPlaylistId()")
+    class FindSubscriberIdsByPlaylistIdTest {
+
+        @Test
+        @DisplayName("플레이리스트의 구독자 ID 목록을 반환한다")
+        void returnsSubscriberIds() {
+            // given
+            playlistSubscriberRepository.save(playlist.getId(), subscriber.getId());
+
+            // when
+            List<UUID> subscriberIds = playlistSubscriberRepository.findSubscriberIdsByPlaylistId(
+                playlist.getId()
+            );
+
+            // then
+            assertThat(subscriberIds).containsExactly(subscriber.getId());
+        }
+
+        @Test
+        @DisplayName("구독자가 없으면 빈 목록을 반환한다")
+        void whenNoSubscribers_returnsEmptyList() {
+            // when
+            List<UUID> subscriberIds = playlistSubscriberRepository.findSubscriberIdsByPlaylistId(
+                playlist.getId()
+            );
+
+            // then
+            assertThat(subscriberIds).isEmpty();
+        }
+
+        @Test
+        @DisplayName("여러 구독자가 있으면 모두 반환한다")
+        void whenMultipleSubscribers_returnsAll() {
+            // given
+            UserModel anotherSubscriber = userRepository.save(
+                UserModel.create("another@example.com", "다른 구독자", "encodedPassword")
+            );
+            playlistSubscriberRepository.save(playlist.getId(), subscriber.getId());
+            playlistSubscriberRepository.save(playlist.getId(), anotherSubscriber.getId());
+
+            // when
+            List<UUID> subscriberIds = playlistSubscriberRepository.findSubscriberIdsByPlaylistId(
+                playlist.getId()
+            );
+
+            // then
+            assertThat(subscriberIds).containsExactlyInAnyOrder(
+                subscriber.getId(),
+                anotherSubscriber.getId()
+            );
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 플레이리스트 ID로 조회하면 빈 목록을 반환한다")
+        void whenPlaylistNotExists_returnsEmptyList() {
+            // given
+            UUID nonExistentPlaylistId = UUID.randomUUID();
+
+            // when
+            List<UUID> subscriberIds = playlistSubscriberRepository.findSubscriberIdsByPlaylistId(
+                nonExistentPlaylistId
+            );
+
+            // then
+            assertThat(subscriberIds).isEmpty();
+        }
     }
 
     @Nested
