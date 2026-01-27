@@ -1,6 +1,5 @@
 package com.mopl.search.document;
 
-import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,16 +11,24 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.Mapping;
 
-@Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Document(indexName = "contents")
+import java.time.Instant;
+
 @Mapping
+@Document(indexName = "contents")
+@AllArgsConstructor
+@Builder
+@Getter
+@NoArgsConstructor
 public class ContentDocument {
 
     @Id
     private String id;
+
+    @Field(type = FieldType.Date, format = DateFormat.date_time)
+    private Instant createdAt;
+
+    @Field(type = FieldType.Date, format = DateFormat.date_time)
+    private Instant updatedAt;
 
     @Field(type = FieldType.Keyword)
     private String contentId;
@@ -44,9 +51,6 @@ public class ContentDocument {
     @Field(type = FieldType.Double)
     private Double averageRating;
 
-    @Field(type = FieldType.Date, format = DateFormat.date_time)
-    private Instant createdAt;
-
-    @Field(type = FieldType.Date, format = DateFormat.date_time)
-    private Instant updatedAt;
+    @Field(type = FieldType.Double)
+    private Double popularityScore;
 }

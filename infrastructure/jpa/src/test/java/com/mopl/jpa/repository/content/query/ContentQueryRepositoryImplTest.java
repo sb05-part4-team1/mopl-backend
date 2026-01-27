@@ -45,11 +45,11 @@ class ContentQueryRepositoryImplTest {
     void setUp() {
         Instant baseTime = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
-        createAndPersistContent("인셉션", "꿈속의 꿈을 다룬 SF 영화", ContentType.movie, 100, 4.5, baseTime);
-        createAndPersistContent("다크나이트", "배트맨 시리즈 중 최고작", ContentType.movie, 200, 4.8, baseTime.plusSeconds(1));
-        createAndPersistContent("브레이킹 배드", "화학 선생님의 마약 제조 이야기", ContentType.tvSeries, 150, 4.9, baseTime.plusSeconds(2));
-        createAndPersistContent("왕좌의 게임", "판타지 드라마의 정점", ContentType.tvSeries, 180, 4.3, baseTime.plusSeconds(3));
-        createAndPersistContent("EPL 경기", "프리미어리그 축구 중계", ContentType.sport, 50, 3.5, baseTime.plusSeconds(4));
+        createAndPersistContent("인셉션", "꿈속의 꿈을 다룬 SF 영화", ContentType.movie, 100, 4.5, 100.0, baseTime);
+        createAndPersistContent("다크나이트", "배트맨 시리즈 중 최고작", ContentType.movie, 200, 4.8, 200.0, baseTime.plusSeconds(1));
+        createAndPersistContent("브레이킹 배드", "화학 선생님의 마약 제조 이야기", ContentType.tvSeries, 150, 4.9, 150.0, baseTime.plusSeconds(2));
+        createAndPersistContent("왕좌의 게임", "판타지 드라마의 정점", ContentType.tvSeries, 180, 4.3, 180.0, baseTime.plusSeconds(3));
+        createAndPersistContent("EPL 경기", "프리미어리그 축구 중계", ContentType.sport, 50, 3.5, 50.0, baseTime.plusSeconds(4));
 
         entityManager.flush();
         entityManager.clear();
@@ -61,6 +61,7 @@ class ContentQueryRepositoryImplTest {
         ContentType type,
         int reviewCount,
         double averageRating,
+        double popularityScore,
         Instant createdAt
     ) {
         ContentEntity entity = ContentEntity.builder()
@@ -72,6 +73,7 @@ class ContentQueryRepositoryImplTest {
             .thumbnailPath("contents/" + title + ".png")
             .reviewCount(reviewCount)
             .averageRating(averageRating)
+            .popularityScore(popularityScore)
             .build();
         entityManager.persist(entity);
     }

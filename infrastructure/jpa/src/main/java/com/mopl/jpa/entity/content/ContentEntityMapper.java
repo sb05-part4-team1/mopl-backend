@@ -22,6 +22,7 @@ public class ContentEntityMapper {
             .thumbnailPath(entity.getThumbnailPath())
             .reviewCount(entity.getReviewCount())
             .averageRating(entity.getAverageRating())
+            .popularityScore(entity.getPopularityScore())
             .build();
     }
 
@@ -41,6 +42,7 @@ public class ContentEntityMapper {
             .thumbnailPath(model.getThumbnailPath())
             .reviewCount(model.getReviewCount())
             .averageRating(model.getAverageRating())
+            .popularityScore(model.getPopularityScore())
             .build();
     }
 }

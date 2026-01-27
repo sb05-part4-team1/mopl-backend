@@ -14,6 +14,7 @@ import com.mopl.domain.repository.review.ReviewRepository;
 import com.mopl.domain.support.cache.CachePort;
 import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.domain.support.cursor.SortDirection;
+import com.mopl.domain.support.popularity.ContentPopularityPolicyPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -51,8 +53,16 @@ class ReviewServiceTest {
     @Mock
     private CachePort cachePort;
 
+    @Mock
+    private ContentPopularityPolicyPort popularityPolicy;
+
     @InjectMocks
     private ReviewService reviewService;
+
+    private void stubPopularityPolicy() {
+        given(popularityPolicy.globalAverageRating()).willReturn(3.5);
+        given(popularityPolicy.minimumReviewCount()).willReturn(10);
+    }
 
     @Nested
     @DisplayName("getAll()")
@@ -118,14 +128,18 @@ class ReviewServiceTest {
         @DisplayName("유효한 정보가 주어지면 리뷰를 생성하고 저장한다")
         void withValidData_createsAndSavesReview() {
             // given
+            stubPopularityPolicy();
+
             UUID contentId = UUID.randomUUID();
             UUID authorId = UUID.randomUUID();
 
             ContentModel content = mock(ContentModel.class);
             ContentModel updatedContent = mock(ContentModel.class);
+            ContentModel recalculatedContent = mock(ContentModel.class);
             given(content.getId()).willReturn(contentId);
             given(content.addReview(anyDouble())).willReturn(updatedContent);
-            given(updatedContent.getId()).willReturn(contentId);
+            given(updatedContent.recalculatePopularity(anyDouble(), anyInt())).willReturn(recalculatedContent);
+            given(recalculatedContent.getId()).willReturn(contentId);
 
             UserModel author = mock(UserModel.class);
             given(author.getId()).willReturn(authorId);
@@ -136,6 +150,8 @@ class ReviewServiceTest {
             given(reviewRepository.existsByContentIdAndAuthorId(contentId, authorId))
                 .willReturn(false);
             given(reviewRepository.save(any(ReviewModel.class)))
+                .willAnswer(invocation -> invocation.getArgument(0));
+            given(contentRepository.save(any(ContentModel.class)))
                 .willAnswer(invocation -> invocation.getArgument(0));
 
             // when
@@ -149,6 +165,8 @@ class ReviewServiceTest {
 
             then(reviewRepository).should().existsByContentIdAndAuthorId(contentId, authorId);
             then(reviewRepository).should().save(any(ReviewModel.class));
+            then(contentRepository).should().save(any(ContentModel.class));
+            then(cachePort).should().put(any(), any(), any());
         }
 
         @Test
@@ -184,7 +202,20 @@ class ReviewServiceTest {
         @DisplayName("작성자가 본인의 리뷰를 수정하면 정상적으로 업데이트되고 저장된다")
         void withOwner_updatesAndSavesReview() {
             // given
-            ReviewModel existingReview = ReviewModelFixture.create();
+            stubPopularityPolicy();
+
+            ContentModel content = mock(ContentModel.class);
+            ContentModel updatedContent = mock(ContentModel.class);
+            ContentModel recalculatedContent = mock(ContentModel.class);
+            UUID contentId = UUID.randomUUID();
+
+            given(content.updateReview(anyDouble(), anyDouble())).willReturn(updatedContent);
+            given(updatedContent.recalculatePopularity(anyDouble(), anyInt())).willReturn(recalculatedContent);
+            given(recalculatedContent.getId()).willReturn(contentId);
+
+            ReviewModel existingReview = ReviewModelFixture.builder()
+                .set("content", content)
+                .sample();
             UUID reviewId = existingReview.getId();
             UUID authorId = existingReview.getAuthor().getId();
 
@@ -192,17 +223,22 @@ class ReviewServiceTest {
             double originalRating = existingReview.getRating();
             Double newRating = originalRating == 5.0 ? 4.0 : 5.0;
 
+            ReviewModel savedReview = mock(ReviewModel.class);
+            given(savedReview.getText()).willReturn(newText);
+            given(savedReview.getRating()).willReturn(newRating);
+            given(savedReview.getContent()).willReturn(content);
+
             given(reviewRepository.findById(reviewId)).willReturn(Optional.of(existingReview));
-            given(reviewRepository.save(any(ReviewModel.class)))
+            given(reviewRepository.save(any(ReviewModel.class))).willReturn(savedReview);
+            given(contentRepository.save(any(ContentModel.class)))
                 .willAnswer(invocation -> invocation.getArgument(0));
 
             // when
-            ReviewModel updatedReview = reviewService.update(reviewId, authorId, newText,
-                newRating);
+            ReviewModel result = reviewService.update(reviewId, authorId, newText, newRating);
 
             // then
-            assertThat(updatedReview.getText()).isEqualTo(newText);
-            assertThat(updatedReview.getRating()).isEqualTo(newRating);
+            assertThat(result.getText()).isEqualTo(newText);
+            assertThat(result.getRating()).isEqualTo(newRating);
 
             then(reviewRepository).should().save(any(ReviewModel.class));
             then(contentRepository).should().save(any(ContentModel.class));
@@ -240,7 +276,20 @@ class ReviewServiceTest {
         @DisplayName("평점만 수정하면 평점만 업데이트되고 콘텐츠 평점도 업데이트된다")
         void withOnlyRating_updatesRatingOnly() {
             // given
-            ReviewModel existingReview = ReviewModelFixture.create();
+            stubPopularityPolicy();
+
+            ContentModel content = mock(ContentModel.class);
+            ContentModel updatedContent = mock(ContentModel.class);
+            ContentModel recalculatedContent = mock(ContentModel.class);
+            UUID contentId = UUID.randomUUID();
+
+            given(content.updateReview(anyDouble(), anyDouble())).willReturn(updatedContent);
+            given(updatedContent.recalculatePopularity(anyDouble(), anyInt())).willReturn(recalculatedContent);
+            given(recalculatedContent.getId()).willReturn(contentId);
+
+            ReviewModel existingReview = ReviewModelFixture.builder()
+                .set("content", content)
+                .sample();
             UUID reviewId = existingReview.getId();
             UUID authorId = existingReview.getAuthor().getId();
 
@@ -248,16 +297,22 @@ class ReviewServiceTest {
             double originalRating = existingReview.getRating();
             Double newRating = originalRating == 5.0 ? 4.0 : 5.0;
 
+            ReviewModel savedReview = mock(ReviewModel.class);
+            given(savedReview.getText()).willReturn(originalText);
+            given(savedReview.getRating()).willReturn(newRating);
+            given(savedReview.getContent()).willReturn(content);
+
             given(reviewRepository.findById(reviewId)).willReturn(Optional.of(existingReview));
-            given(reviewRepository.save(any(ReviewModel.class)))
+            given(reviewRepository.save(any(ReviewModel.class))).willReturn(savedReview);
+            given(contentRepository.save(any(ContentModel.class)))
                 .willAnswer(invocation -> invocation.getArgument(0));
 
             // when
-            ReviewModel updatedReview = reviewService.update(reviewId, authorId, null, newRating);
+            ReviewModel result = reviewService.update(reviewId, authorId, null, newRating);
 
             // then
-            assertThat(updatedReview.getText()).isEqualTo(originalText);
-            assertThat(updatedReview.getRating()).isEqualTo(newRating);
+            assertThat(result.getText()).isEqualTo(originalText);
+            assertThat(result.getRating()).isEqualTo(newRating);
 
             then(reviewRepository).should().save(any(ReviewModel.class));
             then(contentRepository).should().save(any(ContentModel.class));
@@ -331,11 +386,33 @@ class ReviewServiceTest {
         @DisplayName("작성자가 본인의 리뷰를 삭제 요청하면 정상적으로 삭제된다")
         void withOwner_deletesReview() {
             // given
-            ReviewModel existingReview = ReviewModelFixture.create();
-            UUID reviewId = existingReview.getId();
-            UUID authorId = existingReview.getAuthor().getId();
+            stubPopularityPolicy();
+
+            UUID reviewId = UUID.randomUUID();
+            UUID authorId = UUID.randomUUID();
+            UUID contentId = UUID.randomUUID();
+            double rating = 4.5;
+
+            ContentModel content = mock(ContentModel.class);
+            ContentModel updatedContent = mock(ContentModel.class);
+            ContentModel recalculatedContent = mock(ContentModel.class);
+
+            given(content.getId()).willReturn(contentId);
+            given(content.removeReview(anyDouble())).willReturn(updatedContent);
+            given(updatedContent.recalculatePopularity(anyDouble(), anyInt())).willReturn(recalculatedContent);
+            given(recalculatedContent.getId()).willReturn(contentId);
+
+            UserModel author = mock(UserModel.class);
+            given(author.getId()).willReturn(authorId);
+
+            ReviewModel existingReview = mock(ReviewModel.class);
+            given(existingReview.getAuthor()).willReturn(author);
+            given(existingReview.getContent()).willReturn(content);
+            given(existingReview.getRating()).willReturn(rating);
 
             given(reviewRepository.findById(reviewId)).willReturn(Optional.of(existingReview));
+            given(contentRepository.save(any(ContentModel.class)))
+                .willAnswer(invocation -> invocation.getArgument(0));
 
             // when
             reviewService.deleteAndGetContentId(reviewId, authorId);

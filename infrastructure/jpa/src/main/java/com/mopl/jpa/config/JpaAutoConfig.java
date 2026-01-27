@@ -9,7 +9,8 @@ import org.springframework.context.annotation.Import;
 @ComponentScan(basePackages = {
     "com.mopl.jpa.repository",
     "com.mopl.jpa.entity",
-    "com.mopl.jpa.support"
+    "com.mopl.jpa.support",
+    "com.mopl.jpa.infrastructure.popularity"
 })
 public class JpaAutoConfig {
 }

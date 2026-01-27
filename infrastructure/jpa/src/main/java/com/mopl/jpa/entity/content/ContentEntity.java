@@ -48,4 +48,7 @@ public class ContentEntity extends BaseUpdatableEntity {
 
     @Column(nullable = false)
     private double averageRating;
+
+    @Column(nullable = false)
+    private double popularityScore;
 }
