@@ -118,12 +118,12 @@ public class ContentQueryRepositoryEsImpl implements ContentQueryRepository {
 
     private boolean hasCursor(ContentQueryRequest request) {
         return request.cursor() != null
-               && !request.cursor().isBlank()
-               && request.idAfter() != null;
+            && !request.cursor().isBlank()
+            && request.idAfter() != null;
     }
 
     private boolean isAsc(ContentQueryRequest request) {
         return request.sortDirection() != null
-               && request.sortDirection().name().equalsIgnoreCase("asc");
+            && request.sortDirection().name().equalsIgnoreCase("asc");
     }
 }
