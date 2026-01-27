@@ -49,7 +49,7 @@ public class PlaylistService {
     }
 
     public void delete(UUID playlistId) {
-        playlistCacheService.deleteAndEvict(playlistId);
+        playlistCacheService.delete(playlistId);
     }
 
     @CacheEvict(cacheNames = CacheName.PLAYLIST_CONTENTS, key = "#playlistId")
