@@ -2,7 +2,6 @@ package com.mopl.jpa.repository.softdelete;
 
 import com.mopl.jpa.entity.content.ContentEntity;
 import com.mopl.jpa.repository.softdelete.projection.ContentThumbnailProjection;
-import lombok.Generated;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +13,6 @@ import java.util.UUID;
 /**
  * Soft-delete된 레코드를 hard-delete하기 위한 Repository.
  */
-@Generated
 public interface JpaSoftDeleteCleanupRepository extends JpaRepository<ContentEntity, UUID> {
 
     @Query(

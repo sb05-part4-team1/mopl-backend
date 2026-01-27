@@ -1,7 +1,6 @@
 package com.mopl.jpa.repository.orphanstorage;
 
 import com.mopl.jpa.entity.content.ContentEntity;
-import lombok.Generated;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -10,7 +9,6 @@ import java.util.UUID;
 /**
  * Storage에서 고아 파일을 정리하기 위한 Repository.
  */
-@Generated
 public interface JpaOrphanStorageCleanupRepository extends JpaRepository<ContentEntity, UUID> {
 
     @Query(

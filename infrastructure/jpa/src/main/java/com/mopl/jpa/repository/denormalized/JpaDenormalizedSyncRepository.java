@@ -2,7 +2,6 @@ package com.mopl.jpa.repository.denormalized;
 
 import com.mopl.jpa.entity.content.ContentEntity;
 import com.mopl.jpa.repository.denormalized.projection.ReviewStatsProjection;
-import lombok.Generated;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,7 +12,6 @@ import java.util.UUID;
 /**
  * 비정규화 데이터 동기화를 위한 Repository.
  */
-@Generated
 public interface JpaDenormalizedSyncRepository extends JpaRepository<ContentEntity, UUID> {
 
     // ==================== Content Review Stats ====================
