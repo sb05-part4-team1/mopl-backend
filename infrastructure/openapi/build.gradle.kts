@@ -3,6 +3,8 @@ plugins {
 }
 
 dependencies {
+    // project modules
+    implementation(project(":shared:logging"))
     // WebClient
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     // Retry

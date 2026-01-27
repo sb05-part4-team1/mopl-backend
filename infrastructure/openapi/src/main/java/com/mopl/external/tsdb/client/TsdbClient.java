@@ -4,6 +4,7 @@ import com.mopl.external.tsdb.exception.TsdbImageDownloadException;
 import com.mopl.external.tsdb.model.EventResponse;
 import com.mopl.external.tsdb.model.LeagueResponse;
 import com.mopl.external.tsdb.properties.TsdbProperties;
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,7 @@ public class TsdbClient {
     private final TsdbProperties props;
 
     public LeagueResponse fetchAllLeagues() {
+        LogContext.with("api", "tsdb").and("endpoint", "allLeagues").debug("Fetching");
         return tsdbWebClient.get()
             .uri("/all_leagues.php")
             .retrieve()
@@ -25,6 +27,7 @@ public class TsdbClient {
     }
 
     public EventResponse fetchNextLeagueEvent(Long leagueId) {
+        LogContext.with("api", "tsdb").and("endpoint", "nextLeagueEvent").and("leagueId", leagueId).debug("Fetching");
         return tsdbWebClient.get()
             .uri(uriBuilder -> uriBuilder
                 .path("/eventsnextleague.php")
@@ -37,6 +40,7 @@ public class TsdbClient {
     }
 
     public EventResponse fetchPastLeagueEvent(Long leagueId) {
+        LogContext.with("api", "tsdb").and("endpoint", "pastLeagueEvent").and("leagueId", leagueId).debug("Fetching");
         return tsdbWebClient.get()
             .uri(uriBuilder -> uriBuilder
                 .path("/eventspastleague.php")
