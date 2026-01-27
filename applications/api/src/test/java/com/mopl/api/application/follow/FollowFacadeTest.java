@@ -284,63 +284,6 @@ class FollowFacadeTest {
     }
 
     @Nested
-    @DisplayName("isFollow()")
-    class IsFollowTest {
-
-        @Test
-        @DisplayName("팔로우 관계가 존재하면 true 반환")
-        void withExistingFollow_returnsTrue() {
-            // given
-            UUID followerId = UUID.randomUUID();
-            UUID followeeId = UUID.randomUUID();
-            UserModel follower = UserModelFixture.builder()
-                .set("id", followerId)
-                .sample();
-            UserModel followee = UserModelFixture.builder()
-                .set("id", followeeId)
-                .sample();
-
-            given(userService.getById(followerId)).willReturn(follower);
-            given(userService.getById(followeeId)).willReturn(followee);
-            given(followService.isFollow(followerId, followeeId)).willReturn(true);
-
-            // when
-            boolean result = followFacade.isFollow(followerId, followeeId);
-
-            // then
-            assertThat(result).isTrue();
-
-            then(userService).should().getById(followerId);
-            then(userService).should().getById(followeeId);
-            then(followService).should().isFollow(followerId, followeeId);
-        }
-
-        @Test
-        @DisplayName("팔로우 관계가 없으면 false 반환")
-        void withNoFollow_returnsFalse() {
-            // given
-            UUID followerId = UUID.randomUUID();
-            UUID followeeId = UUID.randomUUID();
-            UserModel follower = UserModelFixture.builder()
-                .set("id", followerId)
-                .sample();
-            UserModel followee = UserModelFixture.builder()
-                .set("id", followeeId)
-                .sample();
-
-            given(userService.getById(followerId)).willReturn(follower);
-            given(userService.getById(followeeId)).willReturn(followee);
-            given(followService.isFollow(followerId, followeeId)).willReturn(false);
-
-            // when
-            boolean result = followFacade.isFollow(followerId, followeeId);
-
-            // then
-            assertThat(result).isFalse();
-        }
-    }
-
-    @Nested
     @DisplayName("getFollowStatus()")
     class GetFollowStatusTest {
 

@@ -271,46 +271,6 @@ class FollowServiceTest {
     }
 
     @Nested
-    @DisplayName("isFollow()")
-    class IsFollowTest {
-
-        @Test
-        @DisplayName("팔로우 관계가 존재하면 true 반환")
-        void withExistingFollow_returnsTrue() {
-            // given
-            UUID followerId = UUID.randomUUID();
-            UUID followeeId = UUID.randomUUID();
-
-            given(followRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId))
-                .willReturn(true);
-
-            // when
-            boolean result = followService.isFollow(followerId, followeeId);
-
-            // then
-            assertThat(result).isTrue();
-            then(followRepository).should().existsByFollowerIdAndFolloweeId(followerId, followeeId);
-        }
-
-        @Test
-        @DisplayName("팔로우 관계가 없으면 false 반환")
-        void withNoFollow_returnsFalse() {
-            // given
-            UUID followerId = UUID.randomUUID();
-            UUID followeeId = UUID.randomUUID();
-
-            given(followRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId))
-                .willReturn(false);
-
-            // when
-            boolean result = followService.isFollow(followerId, followeeId);
-
-            // then
-            assertThat(result).isFalse();
-        }
-    }
-
-    @Nested
     @DisplayName("delete()")
     class DeleteTest {
 

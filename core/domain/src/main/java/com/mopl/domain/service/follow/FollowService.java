@@ -33,10 +33,6 @@ public class FollowService {
         return followRepository.countByFolloweeId(followeeId);
     }
 
-    public boolean isFollow(UUID followerId, UUID followeeId) {
-        return followRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
-    }
-
     public FollowModel create(FollowModel followModel) {
         if (followModel.getFollowerId().equals(followModel.getFolloweeId())) {
             throw SelfFollowException.withUserId(followModel.getFollowerId());
@@ -54,5 +50,9 @@ public class FollowService {
 
     public void delete(FollowModel followModel) {
         followRepository.delete(followModel);
+    }
+
+    private boolean isFollow(UUID followerId, UUID followeeId) {
+        return followRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
     }
 }
