@@ -145,6 +145,8 @@ public class UserFacade {
         userService.update(updatedUserModel);
 
         temporaryPasswordRepository.deleteByEmail(userModel.getEmail());
+
+        LogContext.with("userId", userId).info("Password changed");
     }
 
     private String uploadProfileImage(UUID userId, MultipartFile image) {
