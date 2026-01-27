@@ -2,6 +2,7 @@ package com.mopl.redis.repository.watchingsession;
 
 import com.mopl.domain.model.watchingsession.WatchingSessionModel;
 import com.mopl.domain.repository.watchingsession.WatchingSessionRepository;
+import com.mopl.redis.config.RedisProperties;
 import com.mopl.redis.support.WatchingSessionRedisKeys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisCallback;
@@ -19,6 +20,7 @@ import java.util.UUID;
 public class RedisWatchingSessionRepositoryImpl implements WatchingSessionRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisProperties redisProperties;
 
     @Override
     public Optional<WatchingSessionModel> findByWatcherId(UUID watcherId) {
@@ -68,17 +70,18 @@ public class RedisWatchingSessionRepositoryImpl implements WatchingSessionReposi
         UUID watcherId = model.getWatcherId();
         UUID contentId = model.getContentId();
 
+        String sessionKey = WatchingSessionRedisKeys.watcherSessionKey(watcherId);
+        String watchersKey = WatchingSessionRedisKeys.contentWatchersKey(contentId);
+
         redisTemplate.opsForValue().set(
-            WatchingSessionRedisKeys.watcherSessionKey(watcherId),
-            model
+            sessionKey,
+            model,
+            redisProperties.watchingSession().ttl()
         );
 
         long score = model.getCreatedAt().toEpochMilli();
-        redisTemplate.opsForZSet().add(
-            WatchingSessionRedisKeys.contentWatchersKey(contentId),
-            watcherId.toString(),
-            score
-        );
+        redisTemplate.opsForZSet().add(watchersKey, watcherId.toString(), score);
+        redisTemplate.expire(watchersKey, redisProperties.watchingSession().ttl());
 
         return model;
     }
