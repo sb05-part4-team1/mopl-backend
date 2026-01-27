@@ -113,6 +113,8 @@ override.tf.json
 .junit/
 test-output/
 node_modules/
+package.json
+package-lock.json
 
 
 ###############################
