@@ -37,6 +37,7 @@ import com.mopl.domain.service.review.ReviewService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.service.watchingsession.WatchingSessionService;
 import com.mopl.domain.support.cache.CachePort;
+import com.mopl.domain.support.popularity.ContentPopularityPolicyPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -122,9 +123,16 @@ public class DomainServiceConfig {
         ReviewQueryRepository reviewQueryRepository,
         ReviewRepository reviewRepository,
         ContentRepository contentRepository,
-        CachePort cachePort
+        CachePort cachePort,
+        ContentPopularityPolicyPort contentPopularityPolicyPort
     ) {
-        return new ReviewService(reviewQueryRepository, reviewRepository, contentRepository, cachePort);
+        return new ReviewService(
+            reviewQueryRepository,
+            reviewRepository,
+            contentRepository,
+            cachePort,
+            contentPopularityPolicyPort
+        );
     }
 
     @Bean

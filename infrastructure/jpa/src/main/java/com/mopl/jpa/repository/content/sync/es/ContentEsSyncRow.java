@@ -7,6 +7,10 @@ public interface ContentEsSyncRow {
 
     UUID getId();
 
+    Instant getCreatedAt();
+
+    Instant getUpdatedAt();
+
     String getType();
 
     String getTitle();
@@ -19,7 +23,5 @@ public interface ContentEsSyncRow {
 
     double getAverageRating();
 
-    Instant getCreatedAt();
-
-    Instant getUpdatedAt();
+    double getPopularityScore();
 }

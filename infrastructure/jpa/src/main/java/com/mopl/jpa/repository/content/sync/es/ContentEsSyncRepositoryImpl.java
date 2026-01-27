@@ -2,10 +2,11 @@ package com.mopl.jpa.repository.content.sync.es;
 
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.repository.content.sync.es.ContentEsSyncRepository;
-import java.time.Instant;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import java.time.Instant;
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -29,6 +30,7 @@ public class ContentEsSyncRepositoryImpl implements ContentEsSyncRepository {
             .thumbnailPath(row.getThumbnailPath())
             .reviewCount(row.getReviewCount())
             .averageRating(row.getAverageRating())
+            .popularityScore(row.getPopularityScore())
             .createdAt(row.getCreatedAt())
             .updatedAt(row.getUpdatedAt())
             .build();

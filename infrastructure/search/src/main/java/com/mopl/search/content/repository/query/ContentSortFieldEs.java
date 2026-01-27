@@ -2,10 +2,11 @@ package com.mopl.search.content.repository.query;
 
 import com.mopl.domain.repository.content.query.ContentSortField;
 import com.mopl.search.document.ContentDocument;
-import java.time.Instant;
-import java.util.function.Function;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.time.Instant;
+import java.util.function.Function;
 
 @Getter
 @RequiredArgsConstructor
@@ -13,10 +14,10 @@ public enum ContentSortFieldEs {
 
     POPULARITY(
         ContentSortField.POPULARITY,
-        "reviewCount",
-        ContentDocument::getReviewCount,
+        "popularityScore",
+        ContentDocument::getPopularityScore,
         Object::toString,
-        Integer::parseInt
+        Double::parseDouble
     ),
 
     CREATED_AT(

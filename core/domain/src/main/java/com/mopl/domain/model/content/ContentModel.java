@@ -30,6 +30,7 @@ public class ContentModel extends BaseUpdatableModel {
 
     private int reviewCount;
     private double averageRating;
+    private double popularityScore;
 
     public static ContentModel create(
         ContentType type,
@@ -61,6 +62,7 @@ public class ContentModel extends BaseUpdatableModel {
             .thumbnailPath(thumbnailPath)
             .reviewCount(0)
             .averageRating(0.0)
+            .popularityScore(0.0)
             .build();
     }
 
@@ -141,6 +143,20 @@ public class ContentModel extends BaseUpdatableModel {
         return this.toBuilder()
             .reviewCount(newCount)
             .averageRating(newAverage)
+            .build();
+    }
+
+    public ContentModel recalculatePopularity(double globalAverageRating, int minReviewCount) {
+        double reviewCountAsDouble = this.reviewCount;
+        double effectiveMinReviewCount = Math.max(minReviewCount, 1);
+        double contentAverageRating = this.averageRating;
+
+        double popularityScore =
+            ((reviewCountAsDouble / (reviewCountAsDouble + effectiveMinReviewCount)) * contentAverageRating)
+            + ((effectiveMinReviewCount / (reviewCountAsDouble + effectiveMinReviewCount)) * globalAverageRating);
+
+        return this.toBuilder()
+            .popularityScore(popularityScore)
             .build();
     }
 

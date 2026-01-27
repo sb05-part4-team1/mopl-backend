@@ -13,6 +13,7 @@ import com.mopl.domain.repository.review.ReviewRepository;
 import com.mopl.domain.support.cache.CacheName;
 import com.mopl.domain.support.cache.CachePort;
 import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.domain.support.popularity.ContentPopularityPolicyPort;
 import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
@@ -24,6 +25,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ContentRepository contentRepository;
     private final CachePort cachePort;
+    private final ContentPopularityPolicyPort popularityPolicy;
 
     public CursorResponse<ReviewModel> getAll(ReviewQueryRequest request) {
         return reviewQueryRepository.findAll(request);
@@ -42,8 +44,8 @@ public class ReviewService {
         ReviewModel reviewModel = ReviewModel.create(content, author, text, rating);
         ReviewModel savedReviewModel = reviewRepository.save(reviewModel);
 
-        ContentModel updatedContent = content.addReview(rating);
-        contentRepository.save(updatedContent);
+        ContentModel updatedContent = recalculateAndSavePopularity(content.addReview(rating));
+
         cachePort.put(CacheName.CONTENTS, updatedContent.getId(), updatedContent);
 
         return savedReviewModel;
@@ -65,8 +67,8 @@ public class ReviewService {
 
         if (rating != null && Double.compare(rating, oldRating) != 0) {
             ContentModel updatedContent = savedReview.getContent().updateReview(oldRating, rating);
-            contentRepository.save(updatedContent);
-            cachePort.put(CacheName.CONTENTS, updatedContent.getId(), updatedContent);
+            ContentModel recalculatedContent = recalculateAndSavePopularity(updatedContent);
+            cachePort.put(CacheName.CONTENTS, recalculatedContent.getId(), recalculatedContent);
         }
 
         return savedReview;
@@ -82,8 +84,9 @@ public class ReviewService {
         reviewRepository.delete(reviewId);
 
         ContentModel updatedContent = content.removeReview(rating);
-        contentRepository.save(updatedContent);
-        cachePort.put(CacheName.CONTENTS, updatedContent.getId(), updatedContent);
+        ContentModel recalculatedContent = recalculateAndSavePopularity(updatedContent);
+
+        cachePort.put(CacheName.CONTENTS, recalculatedContent.getId(), recalculatedContent);
 
         return content.getId();
     }
@@ -95,8 +98,22 @@ public class ReviewService {
 
     private void validateAuthor(ReviewModel review, UUID requesterId) {
         UUID authorId = review.getAuthor() != null ? review.getAuthor().getId() : null;
-        if (authorId == null || !authorId.equals(requesterId)) {
-            throw ReviewForbiddenException.withReviewIdAndRequesterIdAndAuthorId(review.getId(), requesterId, authorId);
+        if (!requesterId.equals(authorId)) {
+            throw ReviewForbiddenException.withReviewIdAndRequesterIdAndAuthorId(
+                review.getId(), requesterId, authorId
+            );
         }
+    }
+
+    private ContentModel recalculateAndSavePopularity(ContentModel aggregated) {
+        double globalAverageRating = popularityPolicy.globalAverageRating();
+        int minimumReviewCount = popularityPolicy.minimumReviewCount();
+
+        ContentModel updatedContent = aggregated.recalculatePopularity(
+            globalAverageRating,
+            minimumReviewCount
+        );
+
+        return contentRepository.save(updatedContent);
     }
 }
