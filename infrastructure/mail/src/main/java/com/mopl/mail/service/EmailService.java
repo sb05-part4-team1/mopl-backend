@@ -1,5 +1,6 @@
 package com.mopl.mail.service;
 
+import com.mopl.logging.context.LogContext;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class EmailService {
     private String fromEmail;
 
     public void sendTemporaryPassword(String to, String temporaryPassword,
-        LocalDateTime expiresAt) {
+                                      LocalDateTime expiresAt) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -36,13 +37,15 @@ public class EmailService {
             helper.setText(buildTemporaryPasswordEmailHtml(temporaryPassword, expiresAt), true);
 
             mailSender.send(message);
+            LogContext.with("to", to).and("type", "temporaryPassword").info("Email sent");
         } catch (MessagingException e) {
+            LogContext.with("to", to).and("type", "temporaryPassword").error("Email send failed", e);
             throw new RuntimeException("이메일 발송에 실패했습니다.", e);
         }
     }
 
     private String buildTemporaryPasswordEmailHtml(String temporaryPassword,
-        LocalDateTime expiresAt) {
+                                                   LocalDateTime expiresAt) {
         String formattedExpiresAt = expiresAt.format(DATE_FORMATTER);
 
         return """
@@ -102,22 +105,22 @@ public class EmailService {
                         <div class="logo">MOPL</div>
                         <h2>임시 비밀번호가 발급되었습니다</h2>
                     </div>
-
+            
                     <p>안녕하세요!</p>
                     <p>요청하신 임시 비밀번호가 발급되었습니다. 아래 임시 비밀번호를 사용하여 로그인 후 새로운 비밀번호로 변경해주세요.</p>
-
+            
                     <div class="password-box">
                         <div>임시 비밀번호</div>
                         <div class="password">%s</div>
                     </div>
-
+            
                     <div class="warning">
                         <strong>⚠️ 중요 안내사항</strong><br>
                         • 이 임시 비밀번호는 <strong>%s</strong>까지만 유효합니다<br>
                         • 보안을 위해 로그인 후 즉시 새로운 비밀번호로 변경해주세요<br>
                         • 임시 비밀번호는 다른 사람과 공유하지 마세요
                     </div>
-
+            
                     <div class="footer">
                         본 메일은 발신전용이므로 회신되지 않습니다.<br>
                         문의사항이 있으시면 고객센터로 연락해주세요.
