@@ -1,0 +1,128 @@
+# =============================================================================
+# Test Profile Configuration
+# =============================================================================
+# 이 파일은 테스트 환경에서 공통으로 사용되는 설정입니다.
+# Testcontainers를 통해 실제 인프라(MySQL, Redis, Kafka, Elasticsearch)를 사용합니다.
+# =============================================================================
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+
+  # JPA 설정
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          batch_size: 100
+          time_zone: UTC
+        order_inserts: true
+        order_updates: true
+        default_batch_fetch_size: 100
+        timezone:
+          default_storage: NORMALIZE_UTC
+
+  sql:
+    init:
+      mode: never
+
+  # Kafka 설정 (Testcontainers에서 자동 설정)
+  kafka:
+    consumer:
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+    producer:
+      acks: all
+
+  # Mail 설정 (테스트에서는 비활성화)
+  mail:
+    host: localhost
+    port: 25
+
+# =============================================================================
+# Application 설정
+# =============================================================================
+mopl:
+  admin:
+    enabled: false
+
+  # JWT 설정 (테스트용 고정 시크릿)
+  jwt:
+    access-token:
+      secret: test-access-token-secret-key-for-testing-purposes-only-32bytes
+      expiration: 1h
+    refresh-token:
+      secret: test-refresh-token-secret-key-for-testing-purposes-only-32bytes
+      expiration: 1d
+    max-sessions: 5
+    registry-type: in-memory
+
+  # OAuth2 설정
+  oauth2:
+    frontend-redirect-uri: http://localhost:3000
+
+  # Cache 설정
+  cache:
+    key-prefix: "test:"
+    redis-enabled: false
+    l1:
+      maximum-size: 1000
+      ttl: 10s
+      record-stats: false
+    l2:
+      default-ttl: 1m
+
+  # Search 설정 (기본 비활성화, 필요시 활성화)
+  search:
+    enabled: false
+    index:
+      recreate-on-startup: true
+
+  # Storage 설정 (로컬 스토리지 사용)
+  storage:
+    type: local
+    local:
+      root-path: build/test-storage
+      base-url: http://localhost:8080
+
+  # Redis 설정
+  redis:
+    watching-session:
+      ttl: 1h
+
+  # SSE 설정
+  sse:
+    event-cache:
+      ttl: 1m
+      max-size: 10
+
+# =============================================================================
+# WebSocket 설정
+# =============================================================================
+websocket:
+  allowed-origins: "*"
+  broadcaster: local
+
+# =============================================================================
+# CORS 설정
+# =============================================================================
+cors:
+  allowed-origins: "*"
+
+# =============================================================================
+# Logging 설정
+# =============================================================================
+logging:
+  level:
+    root: WARN
+    com.mopl: INFO
+    org.testcontainers: WARN
+    com.github.dockerjava: WARN
+    org.springframework.test: WARN
+    org.springframework.boot.test: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql: WARN

@@ -19,5 +19,6 @@ include(
     ":shared:dto",
     ":shared:jackson",
     ":shared:logging",
-    ":shared:monitoring"
+    ":shared:monitoring",
+    ":shared:test"
 )
