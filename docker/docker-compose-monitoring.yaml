@@ -1,8 +1,14 @@
 services:
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:v2.54.0
+    container_name: mopl-prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yaml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
+      - prometheus-data:/prometheus
     ports:
       - "9090:9090"
     extra_hosts:
@@ -11,7 +17,8 @@ services:
       - mopl-net
 
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:11.2.0
+    container_name: mopl-grafana
     ports:
       - "3000:3000"
     environment:
@@ -21,31 +28,16 @@ services:
       - grafana-data:/var/lib/grafana
     depends_on:
       - prometheus
-      - influxdb  # InfluxDB가 먼저 켜지도록 순서 보장
     networks:
       - mopl-net
 
   redis-exporter:
     image: oliver006/redis_exporter:v1.62.0
-    container_name: redis-exporter
+    container_name: mopl-redis-exporter
     command:
       - "--redis.addr=redis://mopl-redis:6379"
     ports:
       - "9121:9121"
-    networks:
-      - mopl-net
-    depends_on:
-      - prometheus
-
-  influxdb:
-    image: influxdb:1.8
-    container_name: influxdb
-    ports:
-      - "8086:8086"
-    environment:
-      - INFLUXDB_DB=k6  # 실행 시 'k6'라는 DB 자동 생성
-    volumes:
-      - influxdb-data:/var/lib/influxdb # 데이터 영구 저장
     networks:
       - mopl-net
 
@@ -55,5 +47,5 @@ networks:
     name: mopl-net
 
 volumes:
+  prometheus-data:
   grafana-data:
-  influxdb-data:

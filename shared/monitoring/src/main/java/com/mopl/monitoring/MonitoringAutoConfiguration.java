@@ -1,4 +1,4 @@
-package com.mopl.shared.monitoring;
+package com.mopl.monitoring;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Value;
