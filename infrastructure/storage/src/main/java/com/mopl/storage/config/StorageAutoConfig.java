@@ -10,6 +10,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.util.StringUtils;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -37,9 +39,7 @@ public class StorageAutoConfig {
         StorageProperties.S3 s3 = storageProperties.s3();
         S3ClientBuilder builder = S3Client.builder()
             .region(Region.of(s3.region()))
-            .credentialsProvider(StaticCredentialsProvider.create(
-                AwsBasicCredentials.create(s3.accessKey(), s3.secretKey())
-            ));
+            .credentialsProvider(resolveCredentialsProvider(s3));
         if (StringUtils.hasText(s3.endpoint())) {
             builder.endpointOverride(URI.create(s3.endpoint()))
                 .forcePathStyle(true);
@@ -53,13 +53,21 @@ public class StorageAutoConfig {
         StorageProperties.S3 s3 = storageProperties.s3();
         S3Presigner.Builder builder = S3Presigner.builder()
             .region(Region.of(s3.region()))
-            .credentialsProvider(StaticCredentialsProvider.create(
-                AwsBasicCredentials.create(s3.accessKey(), s3.secretKey())
-            ));
+            .credentialsProvider(resolveCredentialsProvider(s3));
         if (StringUtils.hasText(s3.endpoint())) {
             builder.endpointOverride(URI.create(s3.endpoint()));
         }
         return builder.build();
+    }
+
+    private AwsCredentialsProvider resolveCredentialsProvider(StorageProperties.S3 s3) {
+        if (StringUtils.hasText(s3.accessKey()) && StringUtils.hasText(s3.secretKey())) {
+            return StaticCredentialsProvider.create(
+                AwsBasicCredentials.create(s3.accessKey(), s3.secretKey())
+            );
+        }
+        // IAM Role 사용 (ECS Task Role, EC2 Instance Profile 등)
+        return DefaultCredentialsProvider.builder().build();
     }
 
     @Bean

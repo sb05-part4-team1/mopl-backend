@@ -25,8 +25,24 @@ public class ElasticsearchConfig extends ElasticsearchConfiguration {
     @Override
     @NonNull
     public ClientConfiguration clientConfiguration() {
-        ClientConfiguration.TerminalClientConfigurationBuilder builder = ClientConfiguration.builder()
-            .connectedTo(props.getUris())
+        String uri = props.getUris();
+        boolean useSsl = uri.startsWith("https://");
+
+        // 프로토콜 제거 후 host:port 추출
+        String hostAndPort = uri.replaceFirst("^https?://", "");
+
+        // 포트가 없으면 HTTPS는 443, HTTP는 9200
+        if (!hostAndPort.contains(":")) {
+            hostAndPort += ":" + (useSsl ? 443 : 9200);
+        }
+
+        ClientConfiguration.MaybeSecureClientConfigurationBuilder connectedBuilder = ClientConfiguration.builder().connectedTo(hostAndPort);
+
+        ClientConfiguration.TerminalClientConfigurationBuilder builder = useSsl
+            ? connectedBuilder.usingSsl()
+            : connectedBuilder;
+
+        builder = builder
             .withConnectTimeout(props.getConnectTimeout())
             .withSocketTimeout(props.getSocketTimeout());
 

@@ -4,7 +4,7 @@ mopl:
     index:
       recreate-on-startup: ${SEARCH_INDEX_RECREATE_ON_STARTUP:false}
     elasticsearch:
-      uris: ${SEARCH_ELASTICSEARCH_URIS:localhost:9200}
+      uris: ${SEARCH_ELASTICSEARCH_URIS:http://localhost:9200}
       username: ${SEARCH_ELASTICSEARCH_USERNAME:}
       password: ${SEARCH_ELASTICSEARCH_PASSWORD:}
       connect-timeout-millis: ${SEARCH_ELASTICSEARCH_CONNECT_TIMEOUT:1000}
