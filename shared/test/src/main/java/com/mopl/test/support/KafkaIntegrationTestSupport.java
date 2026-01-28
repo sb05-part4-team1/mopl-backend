@@ -19,15 +19,16 @@ import java.lang.annotation.Target;
  * <pre>{@code
  * @KafkaIntegrationTestSupport
  * class KafkaEventPublisherTest {
- *     @Autowired
- *     private KafkaTemplate<String, Object> kafkaTemplate;
+ * 
+ * @Autowired
+ *            private KafkaTemplate<String, Object> kafkaTemplate;
  *
- *     @Test
- *     void testPublish() {
- *         // test with real Kafka
- *     }
- * }
- * }</pre>
+ * @Test
+ *       void testPublish() {
+ *       // test with real Kafka
+ *       }
+ *       }
+ *       }</pre>
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

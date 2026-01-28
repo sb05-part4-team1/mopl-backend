@@ -19,15 +19,16 @@ import java.lang.annotation.Target;
  * <pre>{@code
  * @SearchIntegrationTestSupport
  * class ElasticsearchContentRepositoryTest {
- *     @Autowired
- *     private ContentSearchRepository repository;
+ * 
+ * @Autowired
+ *            private ContentSearchRepository repository;
  *
- *     @Test
- *     void testSearch() {
- *         // test with real Elasticsearch
- *     }
- * }
- * }</pre>
+ * @Test
+ *       void testSearch() {
+ *       // test with real Elasticsearch
+ *       }
+ *       }
+ *       }</pre>
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
