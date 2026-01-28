@@ -18,6 +18,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${project.properties["springDocOpenApiVersion"]}")
     // test
-    testImplementation("org.springframework.security:spring-security-test")
+    testImplementation(project(":shared:test-core"))
     testImplementation(testFixtures(project(":core:domain")))
 }

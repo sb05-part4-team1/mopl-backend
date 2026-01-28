@@ -13,7 +13,6 @@ import jakarta.validation.constraints.NotNull;
         """
 )
 public record UserRoleUpdateRequest(
-    @Schema(description = "역할", example = "ADMIN")
-    @NotNull UserModel.Role role
+    @Schema(description = "역할", example = "ADMIN") @NotNull UserModel.Role role
 ) {
 }

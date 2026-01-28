@@ -20,15 +20,16 @@ import java.lang.annotation.Target;
  * <pre>{@code
  * @IntegrationTestSupport
  * class MyIntegrationTest {
- *     @Autowired
- *     private MyRepository repository;
+ * 
+ * @Autowired
+ *            private MyRepository repository;
  *
- *     @Test
- *     void testSomething() {
- *         // test with real database
- *     }
- * }
- * }</pre>
+ * @Test
+ *       void testSomething() {
+ *       // test with real database
+ *       }
+ *       }
+ *       }</pre>
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

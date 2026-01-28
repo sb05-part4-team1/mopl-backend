@@ -19,10 +19,10 @@ import java.util.Set;
  * private DatabaseCleaner databaseCleaner;
  *
  * @BeforeEach
- * void setUp() {
- *     databaseCleaner.clear();
- * }
- * }</pre>
+ *             void setUp() {
+ *             databaseCleaner.clear();
+ *             }
+ *             }</pre>
  */
 @Component
 public class DatabaseCleaner {

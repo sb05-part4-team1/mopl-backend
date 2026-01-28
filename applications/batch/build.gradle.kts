@@ -12,5 +12,7 @@ dependencies {
     // batch
     implementation("org.springframework.boot:spring-boot-starter-batch")
     // test
+    testImplementation(project(":shared:test-core"))
     testImplementation(testFixtures(project(":core:domain")))
+    testImplementation("org.springframework.batch:spring-batch-test")
 }

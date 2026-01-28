@@ -18,18 +18,18 @@ import java.util.function.Supplier;
  * private TestTransaction testTransaction;
  *
  * @Test
- * void testTransactionalBehavior() {
- *     // Save in one transaction
- *     var savedEntity = testTransaction.execute(() -> {
- *         return repository.save(entity);
- *     });
+ *       void testTransactionalBehavior() {
+ *       // Save in one transaction
+ *       var savedEntity = testTransaction.execute(() -> {
+ *       return repository.save(entity);
+ *       });
  *
- *     // Query in another transaction
- *     var foundEntity = testTransaction.execute(() -> {
- *         return repository.findById(savedEntity.getId());
- *     });
- * }
- * }</pre>
+ *       // Query in another transaction
+ *       var foundEntity = testTransaction.execute(() -> {
+ *       return repository.findById(savedEntity.getId());
+ *       });
+ *       }
+ *       }</pre>
  */
 @Component
 public class TestTransaction {

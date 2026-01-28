@@ -16,14 +16,14 @@ import java.util.UUID;
  * <pre>{@code
  * @BeforeEach
  * void setUp() {
- *     SecurityTestSupport.authenticateAsUser(userId);
+ * SecurityTestSupport.authenticateAsUser(userId);
  * }
  *
  * @AfterEach
- * void tearDown() {
- *     SecurityTestSupport.clearAuthentication();
- * }
- * }</pre>
+ *            void tearDown() {
+ *            SecurityTestSupport.clearAuthentication();
+ *            }
+ *            }</pre>
  */
 public final class SecurityTestSupport {
 

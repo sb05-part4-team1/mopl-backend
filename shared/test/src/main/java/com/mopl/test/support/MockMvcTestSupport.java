@@ -21,19 +21,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * private MockMvc mockMvc;
  *
  * @Autowired
- * private ObjectMapper objectMapper;
+ *            private ObjectMapper objectMapper;
  *
  * @Test
- * void testApi() throws Exception {
- *     var support = new MockMvcTestSupport(mockMvc, objectMapper);
+ *       void testApi() throws Exception {
+ *       var support = new MockMvcTestSupport(mockMvc, objectMapper);
  *
- *     support.performGet("/api/users/1")
- *         .andExpect(status().isOk());
+ *       support.performGet("/api/users/1")
+ *       .andExpect(status().isOk());
  *
- *     support.performPost("/api/users", createRequest)
- *         .andExpect(status().isCreated());
- * }
- * }</pre>
+ *       support.performPost("/api/users", createRequest)
+ *       .andExpect(status().isCreated());
+ *       }
+ *       }</pre>
  */
 public class MockMvcTestSupport {
 

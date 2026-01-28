@@ -19,20 +19,21 @@ import java.lang.annotation.Target;
  * <p>Usage:</p>
  * <pre>{@code
  * @JpaIntegrationTestSupport
+ * 
  * @Import(JpaUserRepository.class)
- * class JpaUserRepositoryTest {
- *     @Autowired
- *     private JpaUserRepository repository;
+ *                                  class JpaUserRepositoryTest {
+ * @Autowired
+ *            private JpaUserRepository repository;
  *
- *     @Autowired
- *     private TestEntityManager em;
+ * @Autowired
+ *            private TestEntityManager em;
  *
- *     @Test
- *     void testSave() {
- *         // test with real MySQL
- *     }
- * }
- * }</pre>
+ * @Test
+ *       void testSave() {
+ *       // test with real MySQL
+ *       }
+ *       }
+ *       }</pre>
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
