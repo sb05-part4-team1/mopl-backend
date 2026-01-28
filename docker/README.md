@@ -9,11 +9,11 @@ docker network create mopl-net
 
 ## 서비스 구성
 
-| 파일                             | 서비스                                 | 용도         |
-|--------------------------------|-------------------------------------|------------|
-| docker-compose-infra.yaml      | Redis, Kafka, Elasticsearch, Kibana | 핵심 인프라     |
-| docker-compose-monitoring.yaml | Prometheus, Grafana, InfluxDB       | 모니터링       |
-| docker-compose-logging.yaml    | Fluent Bit                          | 로그 수집 (S3) |
+| 파일                             | 서비스                                                        | 용도         |
+|--------------------------------|------------------------------------------------------------|------------|
+| docker-compose-infra.yaml      | Redis, Kafka, Elasticsearch, Kibana                        | 핵심 인프라     |
+| docker-compose-monitoring.yaml | Prometheus, Grafana, Alertmanager, Zipkin, OpenSearch 등    | 모니터링       |
+| docker-compose-logging.yaml    | Fluent Bit                                                 | 로그 수집 (S3) |
 
 ## 실행
 
@@ -28,6 +28,8 @@ docker compose -f docker/docker-compose-infra.yaml up -d
 ```bash
 docker compose -f docker/docker-compose-monitoring.yaml up -d
 ```
+
+> 상세 사용법: [monitoring/README.md](monitoring/README.md)
 
 ### 로깅 (선택, S3 연동 시)
 
@@ -56,17 +58,22 @@ docker compose -f docker/docker-compose-logging.yaml up -d
 
 ### 모니터링
 
-| 서비스        | URL                   | 비고            |
-|------------|-----------------------|---------------|
-| Prometheus | http://localhost:9090 | 메트릭 수집        |
-| Grafana    | http://localhost:3000 | admin / admin |
-| InfluxDB   | http://localhost:8086 | k6 부하테스트용     |
+| 서비스                   | URL                   | 비고            |
+|-----------------------|-----------------------|---------------|
+| Prometheus            | http://localhost:9090 | 메트릭 수집        |
+| Grafana               | http://localhost:3000 | admin / admin |
+| Alertmanager          | http://localhost:9093 | 알림 관리         |
+| Zipkin                | http://localhost:9411 | 분산 추적         |
+| OpenSearch            | http://localhost:9201 | 로그 저장         |
+| OpenSearch Dashboards | http://localhost:5602 | 로그 검색 UI      |
 
 ### 로깅
 
 | 서비스        | URL                   | 비고             |
 |------------|-----------------------|----------------|
 | Fluent Bit | http://localhost:2020 | Health/Metrics |
+
+---
 
 ## UI 사용법
 
@@ -133,22 +140,7 @@ GET _cluster/health
 2. 패턴: `mopl-*` 입력
 3. Discover에서 데이터 검색
 
-### Grafana (http://localhost:3000)
-
-**로그인:** admin / admin
-
-**데이터소스 추가:**
-1. Configuration → Data Sources → Add data source
-2. Prometheus 선택
-3. URL: `http://prometheus:9090`
-4. Save & Test
-
-**대시보드:**
-- Dashboards → Import → Grafana.com ID 입력
-- 추천 대시보드:
-  - Spring Boot: `12900`
-  - JVM Micrometer: `4701`
-  - Redis: `11835`
+---
 
 ## 상태 확인
 
