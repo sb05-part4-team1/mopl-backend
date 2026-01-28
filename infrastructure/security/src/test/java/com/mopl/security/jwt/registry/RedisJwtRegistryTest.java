@@ -470,6 +470,133 @@ class RedisJwtRegistryTest {
             // then
             then(redisTemplate).should().delete(whitelistKey);
         }
+
+        @Test
+        @DisplayName("만료된 액세스 토큰은 블랙리스트에 추가하지 않는다")
+        void doesNotBlacklistExpiredAccessTokens() throws Exception {
+            // given
+            UUID userId = UUID.randomUUID();
+            String whitelistKey = "jwt:whitelist:" + userId;
+
+            UUID accessTokenJti = UUID.randomUUID();
+            long pastExpTime = System.currentTimeMillis() - 60000; // 이미 만료됨
+
+            String sessionJson = objectMapper.writeValueAsString(Map.of(
+                "accessTokenJti", accessTokenJti.toString(),
+                "accessTokenExp", pastExpTime,
+                "createdAt", 1704067200000L
+            ));
+
+            Map<Object, Object> sessions = new HashMap<>();
+            sessions.put("jti1", sessionJson);
+
+            given(hashOperations.entries(whitelistKey)).willReturn(sessions);
+
+            // when
+            redisJwtRegistry.revokeAllByUserId(userId);
+
+            // then
+            then(redisTemplate).should().delete(whitelistKey);
+            then(valueOperations).should(never()).set(anyString(), any(), anyLong(), any());
+        }
+
+        @Test
+        @DisplayName("null 또는 유효하지 않은 세션 정보는 건너뛴다")
+        void skipsNullOrInvalidSessionInfo() {
+            // given
+            UUID userId = UUID.randomUUID();
+            String whitelistKey = "jwt:whitelist:" + userId;
+
+            Map<Object, Object> sessions = new HashMap<>();
+            sessions.put("jti1", "invalid-json-format");
+            sessions.put("jti2", null);
+
+            given(hashOperations.entries(whitelistKey)).willReturn(sessions);
+
+            // when
+            redisJwtRegistry.revokeAllByUserId(userId);
+
+            // then - 예외 없이 완료되고 화이트리스트 키는 삭제됨
+            then(redisTemplate).should().delete(whitelistKey);
+        }
+    }
+
+    @Nested
+    @DisplayName("JSON 파싱 예외 처리")
+    class JsonParsingTest {
+
+        @Test
+        @DisplayName("register 시 JSON 파싱 오류가 발생해도 evicted session을 null로 처리")
+        @SuppressWarnings("unchecked")
+        void handlesJsonParsingErrorInRegister() {
+            // given
+            UUID userId = UUID.randomUUID();
+            JwtInformation jwtInfo = createJwtInformation(userId);
+
+            // 잘못된 JSON 형식 반환
+            String invalidJson = "{evictedJti: invalid}";
+            given(redisTemplate.execute(
+                any(RedisScript.class),
+                anyList(),
+                anyString(), anyString(), anyString(), anyString()
+            )).willReturn(invalidJson);
+
+            // when - 예외 없이 완료되어야 함
+            redisJwtRegistry.register(jwtInfo);
+
+            // then - 블랙리스트에 추가되지 않음 (파싱 실패)
+            then(valueOperations).should(never()).set(anyString(), any(), anyLong(), any());
+        }
+
+        @Test
+        @DisplayName("rotate 시 JSON 파싱 오류 발생 시 모든 세션 무효화")
+        @SuppressWarnings("unchecked")
+        void handlesJsonParsingErrorInRotate() {
+            // given
+            UUID userId = UUID.randomUUID();
+            UUID oldJti = UUID.randomUUID();
+            JwtInformation newJwtInfo = createJwtInformation(userId);
+
+            String invalidJson = "{oldSession: invalid}";
+            given(redisTemplate.execute(
+                any(RedisScript.class),
+                anyList(),
+                anyString(), anyString(), anyString(), anyString()
+            )).willReturn(invalidJson);
+            given(hashOperations.entries(anyString())).willReturn(new HashMap<>());
+
+            // when & then
+            assertThatThrownBy(() -> redisJwtRegistry.rotate(oldJti, newJwtInfo))
+                .isInstanceOf(InvalidTokenException.class);
+
+            then(redisTemplate).should().delete("jwt:whitelist:" + userId);
+        }
+
+        @Test
+        @DisplayName("evictedSession이 null인 경우 블랙리스트에 추가하지 않음")
+        @SuppressWarnings("unchecked")
+        void doesNotBlacklistWhenEvictedSessionIsNull() throws Exception {
+            // given
+            UUID userId = UUID.randomUUID();
+            JwtInformation jwtInfo = createJwtInformation(userId);
+
+            Map<String, Object> luaResultMap = new HashMap<>();
+            luaResultMap.put("evictedJti", "old-jti");
+            luaResultMap.put("evictedSession", null);  // null 세션
+            String luaResult = objectMapper.writeValueAsString(luaResultMap);
+
+            given(redisTemplate.execute(
+                any(RedisScript.class),
+                anyList(),
+                anyString(), anyString(), anyString(), anyString()
+            )).willReturn(luaResult);
+
+            // when
+            redisJwtRegistry.register(jwtInfo);
+
+            // then
+            then(valueOperations).should(never()).set(anyString(), any(), anyLong(), any());
+        }
     }
 
     @Nested

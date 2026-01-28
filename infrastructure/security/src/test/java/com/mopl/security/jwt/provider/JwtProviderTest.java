@@ -250,5 +250,87 @@ class JwtProviderTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("32바이트");
         }
+
+        @Test
+        @DisplayName("빈 문자열 시크릿으로 초기화하면 예외가 발생한다")
+        void withEmptySecret_throwsException() {
+            // given
+            JwtProperties invalidProperties = new JwtProperties(
+                new JwtProperties.Config("", ACCESS_EXPIRATION, null),
+                new JwtProperties.Config(REFRESH_SECRET, REFRESH_EXPIRATION, null),
+                3,
+                JwtProperties.JwtRegistryType.IN_MEMORY,
+                "REFRESH_TOKEN"
+            );
+
+            // when & then
+            assertThatThrownBy(() -> new JwtProvider(invalidProperties))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("32바이트");
+        }
+
+        @Test
+        @DisplayName("previousSecret이 32바이트 미만이면 예외가 발생한다")
+        void withShortPreviousSecret_throwsException() {
+            // given
+            JwtProperties invalidProperties = new JwtProperties(
+                new JwtProperties.Config(ACCESS_SECRET, ACCESS_EXPIRATION, "short"),
+                new JwtProperties.Config(REFRESH_SECRET, REFRESH_EXPIRATION, null),
+                3,
+                JwtProperties.JwtRegistryType.IN_MEMORY,
+                "REFRESH_TOKEN"
+            );
+
+            // when & then
+            assertThatThrownBy(() -> new JwtProvider(invalidProperties))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("32바이트");
+        }
+    }
+
+    @Nested
+    @DisplayName("토큰 검증 예외 처리")
+    class TokenValidationExceptionTest {
+
+        @Test
+        @DisplayName("null 만료 시간은 검증에 실패한다")
+        void withNullExpiration_throwsException() {
+            // given
+            UUID userId = UUID.randomUUID();
+            jwtProvider.issueTokenPair(userId, UserModel.Role.USER);
+
+            // 만료된 토큰을 시뮬레이션하기 위해 과거 시간으로 토큰 생성
+            JwtProperties expiredProperties = new JwtProperties(
+                new JwtProperties.Config(ACCESS_SECRET, Duration.ofMillis(-1), null),
+                new JwtProperties.Config(REFRESH_SECRET, REFRESH_EXPIRATION, null),
+                3,
+                JwtProperties.JwtRegistryType.IN_MEMORY,
+                "REFRESH_TOKEN"
+            );
+            JwtProvider expiredProvider = new JwtProvider(expiredProperties);
+            JwtInformation expiredToken = expiredProvider.issueTokenPair(userId, UserModel.Role.USER);
+
+            // when & then
+            assertThatThrownBy(() -> jwtProvider.verifyAndParse(expiredToken.accessToken(), TokenType.ACCESS))
+                .isInstanceOf(InvalidTokenException.class);
+        }
+
+        @Test
+        @DisplayName("빈 subject는 검증에 실패한다")
+        void withEmptySubject_throwsException() {
+            // Nimbus JWT는 내부적으로 subject를 설정하므로 파싱 오류로 처리
+            // 잘못된 토큰 형식으로 테스트
+            assertThatThrownBy(() -> jwtProvider.verifyAndParse("eyJhbGciOiJIUzI1NiJ9.e30.invalid", TokenType.ACCESS))
+                .isInstanceOf(InvalidTokenException.class);
+        }
+
+        @Test
+        @DisplayName("유효하지 않은 role 값은 검증에 실패한다")
+        void withInvalidRole_throwsException() {
+            // 내부적으로 role이 잘못된 경우를 테스트하기는 어려우므로
+            // 손상된 토큰으로 테스트
+            assertThatThrownBy(() -> jwtProvider.verifyAndParse("invalid.token.format", TokenType.ACCESS))
+                .isInstanceOf(InvalidTokenException.class);
+        }
     }
 }

@@ -6,7 +6,6 @@ import com.mopl.security.jwt.provider.JwtPayload;
 import com.mopl.security.jwt.provider.JwtProvider;
 import com.mopl.security.jwt.provider.TokenType;
 import com.mopl.security.userdetails.MoplUserDetails;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -206,6 +205,25 @@ class JwtChannelInterceptorTest {
         void withoutDestination_passesThrough() {
             // given
             StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.SUBSCRIBE);
+            Message<?> message = MessageBuilder.createMessage(new byte[0], accessor.getMessageHeaders());
+
+            // when
+            Message<?> result = interceptor.preSend(message, channel);
+
+            // then
+            assertThat(result).isNotNull();
+        }
+
+        @Test
+        @DisplayName("sessionAttributes가 null인 경우에도 정상 처리")
+        void withNullSessionAttributes_passesThrough() {
+            // given
+            UUID contentId = UUID.randomUUID();
+            String destination = "/sub/contents/" + contentId + "/watch";
+
+            StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.SUBSCRIBE);
+            accessor.setDestination(destination);
+            // sessionAttributes를 설정하지 않음 (null)
             Message<?> message = MessageBuilder.createMessage(new byte[0], accessor.getMessageHeaders());
 
             // when

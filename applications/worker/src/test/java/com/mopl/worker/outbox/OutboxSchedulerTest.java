@@ -230,6 +230,32 @@ class OutboxSchedulerTest {
             then(kafkaTemplate).should(times(2)).send(any(), any(), any());
             then(outboxRepository).should(times(2)).save(any());
         }
+
+        @Test
+        @DisplayName("이벤트 발행 실패 후 저장 실패해도 예외 처리")
+        void withPublishFailureAndSaveFailure_handlesException() {
+            // given
+            OutboxModel event = OutboxModelFixture.builder()
+                .set("topic", "test-topic")
+                .set("aggregateId", "agg-123")
+                .set("payload", "{\"data\":\"test\"}")
+                .set("status", OutboxModel.OutboxStatus.PENDING)
+                .set("retryCount", 0)
+                .sample();
+
+            given(outboxRepository.findPendingEvents(anyInt(), anyInt())).willReturn(List.of(event));
+
+            CompletableFuture<SendResult<String, Object>> failedFuture = new CompletableFuture<>();
+            failedFuture.completeExceptionally(new RuntimeException("Kafka error"));
+            given(kafkaTemplate.send(any(), any(), any())).willReturn(failedFuture);
+            given(outboxRepository.save(any())).willThrow(new RuntimeException("Save failed"));
+
+            // when
+            scheduler.publishPendingEvents();
+
+            // then
+            then(outboxRepository).should().save(any());
+        }
     }
 
     @Nested

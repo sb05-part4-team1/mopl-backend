@@ -64,7 +64,7 @@ class SseControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/sse")
-                    .with(user(mockUserDetails)))
+                .with(user(mockUserDetails)))
                 .andExpect(status().isOk());
         }
 
@@ -78,8 +78,8 @@ class SseControllerTest {
 
             // when & then
             mockMvc.perform(get("/api/sse")
-                    .param("lastEventId", lastEventId.toString())
-                    .with(user(mockUserDetails)))
+                .param("lastEventId", lastEventId.toString())
+                .with(user(mockUserDetails)))
                 .andExpect(status().isOk());
         }
     }

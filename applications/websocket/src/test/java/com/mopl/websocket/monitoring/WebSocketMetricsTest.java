@@ -8,6 +8,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("WebSocketMetrics 단위 테스트")
@@ -49,6 +51,19 @@ class WebSocketMetricsTest {
             Double value = meterRegistry.get("mopl.websocket.connections.active").gauge().value();
             assertThat(value).isEqualTo(3.0);
         }
+
+        @Test
+        @DisplayName("activeConnections가 null인 경우에도 예외 발생하지 않음")
+        void withNullActiveConnections_doesNotThrow() throws Exception {
+            // given - reflection으로 activeConnections를 null로 설정
+            Field activeConnectionsField = WebSocketMetrics.class.getDeclaredField("activeConnections");
+            activeConnectionsField.setAccessible(true);
+            activeConnectionsField.set(metrics, null);
+
+            // when & then - 예외 발생하지 않음
+            org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> metrics.onConnect());
+        }
+
     }
 
     @Nested
@@ -96,6 +111,19 @@ class WebSocketMetricsTest {
             Double value = meterRegistry.get("mopl.websocket.connections.active").gauge().value();
             assertThat(value).isEqualTo(0.0);
         }
+
+        @Test
+        @DisplayName("activeConnections가 null인 경우에도 예외 발생하지 않음")
+        void withNullActiveConnections_doesNotThrow() throws Exception {
+            // given - reflection으로 activeConnections를 null로 설정
+            Field activeConnectionsField = WebSocketMetrics.class.getDeclaredField("activeConnections");
+            activeConnectionsField.setAccessible(true);
+            activeConnectionsField.set(metrics, null);
+
+            // when & then - 예외 발생하지 않음
+            org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> metrics.onDisconnect());
+        }
+
     }
 
     @Nested

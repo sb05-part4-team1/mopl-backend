@@ -34,7 +34,7 @@ spring:
 mopl:
   batch:
     run-on-startup:
-      enabled: false  # true로 변경하면 시작 시 아래 jobs 실행
+      enabled: ${BATCH_RUN_ON_STARTUP_ENABLED:false}  # true로 변경하면 시작 시 아래 jobs 실행
       jobs:
         - tmdbGenreSyncJob
         - tsdbLeagueSyncJob

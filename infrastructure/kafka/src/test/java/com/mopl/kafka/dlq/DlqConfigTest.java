@@ -45,6 +45,7 @@ class DlqConfigTest {
 
     @Configuration
     static class CustomPublisherConfig {
+
         @Bean
         DlqAlertPublisher customDlqAlertPublisher() {
             return new CustomDlqAlertPublisher();
@@ -52,6 +53,7 @@ class DlqConfigTest {
     }
 
     static class CustomDlqAlertPublisher implements DlqAlertPublisher {
+
         @Override
         public void publish(DlqEvent event) {
             // custom implementation

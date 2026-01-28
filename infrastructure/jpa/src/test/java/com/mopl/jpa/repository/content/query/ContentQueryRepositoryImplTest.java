@@ -181,6 +181,21 @@ class ContentQueryRepositoryImplTest {
             assertThat(response.totalCount()).isZero();
             assertThat(response.hasNext()).isFalse();
         }
+
+        @Test
+        @DisplayName("빈 문자열 키워드로 필터링하면 전체 조회")
+        void withEmptyKeyword_returnsAll() {
+            // given
+            ContentQueryRequest request = new ContentQueryRequest(
+                null, "", null, null, null, 100, SortDirection.ASCENDING, ContentSortField.CREATED_AT
+            );
+
+            // when
+            CursorResponse<ContentModel> response = contentQueryRepository.findAll(request);
+
+            // then
+            assertThat(response.data()).hasSize(5);
+        }
     }
 
     @Nested

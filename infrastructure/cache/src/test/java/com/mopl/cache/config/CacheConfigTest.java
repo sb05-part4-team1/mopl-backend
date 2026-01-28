@@ -37,8 +37,7 @@ class CacheConfigTest {
         void withProperties_createsCaffeineCache() {
             contextRunner.run(context -> {
                 assertThat(context).hasSingleBean(Cache.class);
-                @SuppressWarnings("unchecked")
-                Cache<String, Object> cache = context.getBean(Cache.class);
+                @SuppressWarnings("unchecked") Cache<String, Object> cache = context.getBean(Cache.class);
                 assertThat(cache).isNotNull();
             });
         }
@@ -47,8 +46,7 @@ class CacheConfigTest {
         @DisplayName("recordStats가 true면 통계 기록 활성화")
         void withRecordStatsTrue_enablesStats() {
             contextRunner.run(context -> {
-                @SuppressWarnings("unchecked")
-                Cache<String, Object> cache = context.getBean(Cache.class);
+                @SuppressWarnings("unchecked") Cache<String, Object> cache = context.getBean(Cache.class);
                 cache.put("key", "value");
                 cache.getIfPresent("key");
                 assertThat(cache.stats().hitCount()).isEqualTo(1);
@@ -69,8 +67,7 @@ class CacheConfigTest {
                     "mopl.cache.redis-enabled=false"
                 )
                 .run(context -> {
-                    @SuppressWarnings("unchecked")
-                    Cache<String, Object> cache = context.getBean(Cache.class);
+                    @SuppressWarnings("unchecked") Cache<String, Object> cache = context.getBean(Cache.class);
                     cache.put("key", "value");
                     cache.getIfPresent("key");
                     assertThat(cache.stats().hitCount()).isZero();
@@ -121,6 +118,7 @@ class CacheConfigTest {
 
     @Configuration
     static class RedisTemplateConfig {
+
         @Bean
         @SuppressWarnings("unchecked")
         RedisTemplate<String, Object> redisTemplate() {

@@ -267,6 +267,16 @@ class NotificationRepositoryImplTest {
             // then
             assertThat(savedNotifications).isEmpty();
         }
+
+        @Test
+        @DisplayName("null 목록을 저장하면 빈 목록을 반환한다")
+        void withNullList_returnsEmptyList() {
+            // when
+            List<NotificationModel> savedNotifications = notificationRepository.saveAll(null);
+
+            // then
+            assertThat(savedNotifications).isEmpty();
+        }
     }
 
     @Nested

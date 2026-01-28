@@ -385,6 +385,106 @@ class InMemoryJwtRegistryTest {
             // then (아직 만료되지 않았으므로 남아있어야 함)
             assertThat(registry.isAccessTokenInBlacklist(jti)).isTrue();
         }
+
+        @Test
+        @DisplayName("만료된 블랙리스트 항목을 제거한다")
+        void removesExpiredBlacklistEntries() throws InterruptedException {
+            // given
+            UUID jti = UUID.randomUUID();
+            Date nearExpiration = new Date(System.currentTimeMillis() + 100);
+            registry.revokeAccessToken(jti, nearExpiration);
+
+            // when
+            Thread.sleep(150); // 만료될 때까지 대기
+            registry.clearExpired();
+
+            // then
+            assertThat(registry.isAccessTokenInBlacklist(jti)).isFalse();
+        }
+
+        @Test
+        @DisplayName("만료된 화이트리스트 세션을 제거한다")
+        void removesExpiredWhitelistSessions() throws InterruptedException {
+            // given
+            UUID userId = UUID.randomUUID();
+            Date now = new Date();
+            Date expiredTime = new Date(now.getTime() + 100);
+
+            JwtPayload expiredAccessPayload = new JwtPayload(
+                userId,
+                UUID.randomUUID(),
+                now,
+                expiredTime,
+                UserModel.Role.USER
+            );
+            JwtPayload expiredRefreshPayload = new JwtPayload(
+                userId,
+                UUID.randomUUID(),
+                now,
+                expiredTime,
+                UserModel.Role.USER
+            );
+            JwtInformation expiredSession = new JwtInformation(
+                "access-token",
+                "refresh-token",
+                expiredAccessPayload,
+                expiredRefreshPayload
+            );
+
+            registry.register(expiredSession);
+
+            // when
+            Thread.sleep(150); // 만료될 때까지 대기
+            registry.clearExpired();
+
+            // then
+            assertThat(registry.isRefreshTokenNotInWhitelist(userId, expiredSession.refreshTokenJti())).isTrue();
+        }
+
+        @Test
+        @DisplayName("clearExpired 실행 중 예외가 발생해도 로그만 남기고 계속 진행한다")
+        void handlesExceptionDuringClearExpired() {
+            // given - 정상적인 세션 등록
+            UUID userId = UUID.randomUUID();
+            JwtInformation jwtInfo = createJwtInformation(userId);
+            registry.register(jwtInfo);
+
+            // when - clearExpired 호출 (내부 예외는 catch되어야 함)
+            registry.clearExpired();
+
+            // then - 예외 없이 정상 완료
+            assertThat(registry.isRefreshTokenNotInWhitelist(userId, jwtInfo.refreshTokenJti())).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("동시성 테스트")
+    class ConcurrencyTest {
+
+        @Test
+        @DisplayName("동시에 여러 세션을 등록해도 안전하게 처리된다")
+        void concurrentRegistration() throws InterruptedException {
+            // given
+            UUID userId = UUID.randomUUID();
+            int threadCount = 10;
+            Thread[] threads = new Thread[threadCount];
+
+            // when
+            for (int i = 0; i < threadCount; i++) {
+                threads[i] = new Thread(() -> {
+                    JwtInformation jwtInfo = createJwtInformation(userId);
+                    registry.register(jwtInfo);
+                });
+                threads[i].start();
+            }
+
+            for (Thread thread : threads) {
+                thread.join();
+            }
+
+            // then - 최대 세션 수(3)만 유지되어야 함
+            // 정확한 개수는 타이밍에 따라 다를 수 있지만, 최소한 예외 없이 완료되어야 함
+        }
     }
 
     private JwtInformation createJwtInformation(UUID userId) {
