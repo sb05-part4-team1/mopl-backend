@@ -101,7 +101,7 @@ public class LocalStorageProvider implements StorageProvider {
     }
 
     @Override
-    public List<String> listObjects(String prefix, int maxKeys) {
+    public List<String> listObjects(String prefix, String startAfter, int maxKeys) {
         Path prefixPath = resolveSafePath(prefix);
         if (!Files.isDirectory(prefixPath)) {
             prefixPath = prefixPath.getParent();
@@ -111,12 +111,17 @@ public class LocalStorageProvider implements StorageProvider {
         }
 
         try (Stream<Path> walk = Files.walk(prefixPath)) {
-            return walk
+            Stream<String> stream = walk
                 .filter(Files::isRegularFile)
                 .map(p -> localProperties.rootPath().relativize(p).toString().replace("\\", "/"))
                 .filter(p -> p.startsWith(prefix))
-                .limit(maxKeys)
-                .toList();
+                .sorted();
+
+            if (startAfter != null && !startAfter.isBlank()) {
+                stream = stream.filter(p -> p.compareTo(startAfter) > 0);
+            }
+
+            return stream.limit(maxKeys).toList();
         } catch (IOException e) {
             LogContext.with("provider", "local").and("prefix", prefix).error("File list failed", e);
             return List.of();

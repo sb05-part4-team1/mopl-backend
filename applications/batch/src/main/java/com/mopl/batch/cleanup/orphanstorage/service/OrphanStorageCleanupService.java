@@ -27,19 +27,19 @@ public class OrphanStorageCleanupService {
         int totalDeleted = 0;
         int iterations = 0;
         int chunkSize = policyResolver.chunkSize(props.contentThumbnail());
+        String startAfter = null;
 
         while (iterations < MAX_ITERATIONS) {
-            List<String> storagePaths = storageProvider.listObjects(CONTENT_THUMBNAIL_PREFIX, chunkSize);
+            List<String> storagePaths = storageProvider.listObjects(CONTENT_THUMBNAIL_PREFIX, startAfter, chunkSize);
 
             if (storagePaths.isEmpty()) {
                 break;
             }
 
-            int deleted = 0;
             for (String path : storagePaths) {
                 if (orphanStorageCleanupRepository.findOneByThumbnailPath(path) == null) {
                     storageProvider.delete(path);
-                    deleted++;
+                    totalDeleted++;
                     LogContext.with("service", "orphanStorageCleanup")
                         .and("type", "contentThumbnail")
                         .and("path", path)
@@ -48,11 +48,10 @@ public class OrphanStorageCleanupService {
             }
 
             if (storagePaths.size() < chunkSize) {
-                totalDeleted += deleted;
                 break;
             }
 
-            totalDeleted += deleted;
+            startAfter = storagePaths.getLast();
             iterations++;
         }
 
@@ -71,19 +70,19 @@ public class OrphanStorageCleanupService {
         int totalDeleted = 0;
         int iterations = 0;
         int chunkSize = policyResolver.chunkSize(props.userProfileImage());
+        String startAfter = null;
 
         while (iterations < MAX_ITERATIONS) {
-            List<String> storagePaths = storageProvider.listObjects(USER_PROFILE_IMAGE_PREFIX, chunkSize);
+            List<String> storagePaths = storageProvider.listObjects(USER_PROFILE_IMAGE_PREFIX, startAfter, chunkSize);
 
             if (storagePaths.isEmpty()) {
                 break;
             }
 
-            int deleted = 0;
             for (String path : storagePaths) {
                 if (orphanStorageCleanupRepository.findOneByProfileImagePath(path) == null) {
                     storageProvider.delete(path);
-                    deleted++;
+                    totalDeleted++;
                     LogContext.with("service", "orphanStorageCleanup")
                         .and("type", "userProfileImage")
                         .and("path", path)
@@ -92,11 +91,10 @@ public class OrphanStorageCleanupService {
             }
 
             if (storagePaths.size() < chunkSize) {
-                totalDeleted += deleted;
                 break;
             }
 
-            totalDeleted += deleted;
+            startAfter = storagePaths.getLast();
             iterations++;
         }
 

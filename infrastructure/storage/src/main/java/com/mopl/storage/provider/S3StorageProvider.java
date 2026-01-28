@@ -127,14 +127,17 @@ public class S3StorageProvider implements StorageProvider {
     }
 
     @Override
-    public List<String> listObjects(String prefix, int maxKeys) {
-        ListObjectsV2Request request = ListObjectsV2Request.builder()
+    public List<String> listObjects(String prefix, String startAfter, int maxKeys) {
+        ListObjectsV2Request.Builder requestBuilder = ListObjectsV2Request.builder()
             .bucket(s3Properties.bucket())
             .prefix(prefix)
-            .maxKeys(maxKeys)
-            .build();
+            .maxKeys(maxKeys);
 
-        return s3Client.listObjectsV2(request).contents().stream()
+        if (startAfter != null && !startAfter.isBlank()) {
+            requestBuilder.startAfter(startAfter);
+        }
+
+        return s3Client.listObjectsV2(requestBuilder.build()).contents().stream()
             .map(S3Object::key)
             .toList();
     }
