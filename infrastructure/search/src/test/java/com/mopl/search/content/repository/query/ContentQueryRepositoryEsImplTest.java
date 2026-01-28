@@ -305,6 +305,112 @@ class ContentQueryRepositoryEsImplTest {
             assertThat(result.nextCursor()).isEqualTo("85.0");
             assertThat(result.nextIdAfter()).isEqualTo(contentId);
         }
+
+        @Test
+        @DisplayName("커서가 빈 문자열이면 커서 적용 안함")
+        void withBlankCursor_doesNotApplySearchAfter() {
+            // given
+            UUID idAfter = UUID.randomUUID();
+            ContentQueryRequest request = new ContentQueryRequest(
+                null, null, null, "   ", idAfter, 20, SortDirection.DESCENDING, ContentSortField.POPULARITY
+            );
+
+            given(operations.search(any(NativeQuery.class), eq(ContentDocument.class))).willReturn(searchHits);
+            given(searchHits.getSearchHits()).willReturn(List.of());
+
+            // when
+            CursorResponse<ContentModel> result = repository.findAll(request);
+
+            // then
+            assertThat(result.data()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("커서는 있지만 idAfter가 null이면 커서 적용 안함")
+        void withCursorButNullIdAfter_doesNotApplySearchAfter() {
+            // given
+            ContentQueryRequest request = new ContentQueryRequest(
+                null, null, null, "85.0", null, 20, SortDirection.DESCENDING, ContentSortField.POPULARITY
+            );
+
+            given(operations.search(any(NativeQuery.class), eq(ContentDocument.class))).willReturn(searchHits);
+            given(searchHits.getSearchHits()).willReturn(List.of());
+
+            // when
+            CursorResponse<ContentModel> result = repository.findAll(request);
+
+            // then
+            assertThat(result.data()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("sortDirection이 null로 전달되면 기본값 DESC 적용")
+        void withNullSortDirection_defaultsToDescending() {
+            // given - sortDirection이 null이면 ContentQueryRequest에서 DESCENDING으로 변환
+            ContentQueryRequest request = new ContentQueryRequest(
+                null, null, null, null, null, 20, null, ContentSortField.POPULARITY
+            );
+
+            UUID contentId = UUID.randomUUID();
+            ContentDocument doc = createContentDocument(contentId, 85.0);
+            SearchHit<ContentDocument> hit = createSearchHit(doc, List.of(85.0, contentId.toString()));
+
+            given(operations.search(any(NativeQuery.class), eq(ContentDocument.class))).willReturn(searchHits);
+            given(searchHits.getSearchHits()).willReturn(List.of(hit));
+            given(searchHits.getTotalHits()).willReturn(1L);
+
+            // when
+            CursorResponse<ContentModel> result = repository.findAll(request);
+
+            // then
+            assertThat(result.data()).hasSize(1);
+            assertThat(result.sortDirection()).isEqualTo(SortDirection.DESCENDING);
+        }
+
+        @Test
+        @DisplayName("sortValues가 1개만 있으면 idAfter는 document에서 추출")
+        void withSingleSortValue_extractsIdAfterFromDocument() {
+            // given
+            ContentQueryRequest request = new ContentQueryRequest(
+                null, null, null, null, null, 20, SortDirection.DESCENDING, ContentSortField.POPULARITY
+            );
+
+            UUID contentId = UUID.randomUUID();
+            ContentDocument doc = createContentDocument(contentId, 85.0);
+            SearchHit<ContentDocument> hit = createSearchHit(doc, List.of(85.0));
+
+            given(operations.search(any(NativeQuery.class), eq(ContentDocument.class))).willReturn(searchHits);
+            given(searchHits.getSearchHits()).willReturn(List.of(hit));
+            given(searchHits.getTotalHits()).willReturn(1L);
+
+            // when
+            CursorResponse<ContentModel> result = repository.findAll(request);
+
+            // then
+            assertThat(result.nextCursor()).isEqualTo("85.0");
+            assertThat(result.nextIdAfter()).isEqualTo(contentId);
+        }
+
+        @Test
+        @DisplayName("RATE 정렬 필드와 커서 기반 페이지네이션")
+        void withRateSortFieldAndCursor_appliesSearchAfter() {
+            // given
+            UUID idAfter = UUID.randomUUID();
+            ContentQueryRequest request = new ContentQueryRequest(
+                null, null, null, "4.5", idAfter, 20, SortDirection.DESCENDING, ContentSortField.RATE
+            );
+
+            given(operations.search(any(NativeQuery.class), eq(ContentDocument.class))).willReturn(searchHits);
+            given(searchHits.getSearchHits()).willReturn(List.of());
+
+            // when
+            repository.findAll(request);
+
+            // then
+            ArgumentCaptor<NativeQuery> captor = ArgumentCaptor.forClass(NativeQuery.class);
+            then(operations).should().search(captor.capture(), eq(ContentDocument.class));
+            assertThat(captor.getValue()).isNotNull();
+        }
     }
 
     private ContentDocument createContentDocument(UUID id, double popularityScore) {

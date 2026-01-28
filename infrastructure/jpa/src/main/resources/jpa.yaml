@@ -7,6 +7,10 @@ spring:
         default_batch_fetch_size: 300
         timezone.default_storage: NORMALIZE_UTC
         jdbc.time_zone: UTC
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
 
 ---
 spring.config.activate.on-profile: prod
@@ -19,7 +23,7 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD:}
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: validate
     show-sql: false
 
 ---
@@ -33,7 +37,7 @@ spring:
     password: ${LOCAL_SPRING_DATASOURCE_PASSWORD:}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: false
 
 ---
@@ -61,6 +65,8 @@ spring:
         default_batch_fetch_size: 100
         timezone:
           default_storage: NORMALIZE_UTC
+  flyway:
+    enabled: false
   sql:
     init:
       mode: never

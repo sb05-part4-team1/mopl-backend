@@ -8,6 +8,9 @@ dependencies {
     implementation(project(":shared:logging"))
     // jpa
     api("org.springframework.boot:spring-boot-starter-data-jpa")
+    // flyway
+    api("org.flywaydb:flyway-core")
+    api("org.flywaydb:flyway-mysql")
     // querydsl
     api("com.querydsl:querydsl-jpa::jakarta")
     annotationProcessor("com.querydsl:querydsl-apt::jakarta")

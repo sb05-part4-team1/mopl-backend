@@ -10,6 +10,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.connection.Message;
+import org.springframework.data.redis.connection.MessageListener;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
@@ -44,6 +46,28 @@ class RedisWebSocketMessageSubscriberTest {
             messagingTemplate,
             objectMapper
         );
+    }
+
+    @Nested
+    @DisplayName("subscribe()")
+    class SubscribeTest {
+
+        @Test
+        @DisplayName("Redis 채널에 메시지 리스너 등록")
+        void subscribe_registersMessageListener() {
+            // when
+            subscriber.subscribe();
+
+            // then
+            ArgumentCaptor<MessageListener> listenerCaptor = ArgumentCaptor.forClass(MessageListener.class);
+            ArgumentCaptor<ChannelTopic> topicCaptor = ArgumentCaptor.forClass(ChannelTopic.class);
+
+            then(redisMessageListenerContainer).should()
+                .addMessageListener(listenerCaptor.capture(), topicCaptor.capture());
+
+            assertThat(listenerCaptor.getValue()).isSameAs(subscriber);
+            assertThat(topicCaptor.getValue().getTopic()).isEqualTo("websocket:messages");
+        }
     }
 
     @Nested
