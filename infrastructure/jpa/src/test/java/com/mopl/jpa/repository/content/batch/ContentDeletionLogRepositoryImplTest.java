@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -221,7 +222,7 @@ class ContentDeletionLogRepositoryImplTest {
             // given
             UUID contentId = UUID.randomUUID();
             ContentDeletionLogEntity entity = createAndSaveLog(contentId, "path/to/image.jpg");
-            Instant processedAt = Instant.now();
+            Instant processedAt = Instant.now().truncatedTo(ChronoUnit.MICROS);
 
             // when
             contentDeletionLogRepository.markImageProcessed(List.of(entity.getId()), processedAt);
