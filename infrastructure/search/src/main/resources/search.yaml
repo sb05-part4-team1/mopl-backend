@@ -1,6 +1,6 @@
 mopl:
   search:
-    enabled: ${SEARCH_ENABLED:false}
+    enabled: ${SEARCH_ENABLED:true}
     index:
       recreate-on-startup: ${SEARCH_INDEX_RECREATE_ON_STARTUP:false}
     elasticsearch:
