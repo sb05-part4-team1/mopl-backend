@@ -161,3 +161,141 @@ groups:
         annotations:
           summary: "Database connection timeouts on {{ $labels.job }}"
           description: "{{ $value }} connection timeouts in the last 5 minutes on {{ $labels.job }}."
+
+  # MySQL
+  - name: mysql
+    rules:
+      - alert: MySQLDown
+        expr: mysql_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "MySQL is down"
+          description: "MySQL instance has been down for more than 1 minute."
+
+      - alert: MySQLConnectionsHigh
+        expr: |
+          mysql_global_status_threads_connected
+          /
+          mysql_global_variables_max_connections
+          > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High MySQL connections"
+          description: "MySQL connection usage is {{ $value | humanizePercentage }}."
+
+      - alert: MySQLSlowQueries
+        expr: rate(mysql_global_status_slow_queries[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "MySQL slow queries detected"
+          description: "{{ $value }} slow queries per second."
+
+      - alert: MySQLReplicationLag
+        expr: mysql_slave_status_seconds_behind_master > 30
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "MySQL replication lag"
+          description: "Replication lag is {{ $value }} seconds."
+
+  # Kafka
+  - name: kafka
+    rules:
+      - alert: KafkaDown
+        expr: kafka_brokers < 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Kafka broker is down"
+          description: "No Kafka brokers available."
+
+      - alert: KafkaConsumerLag
+        expr: kafka_consumergroup_lag > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Kafka consumer lag"
+          description: "Consumer group {{ $labels.consumergroup }} has lag of {{ $value }} on topic {{ $labels.topic }}."
+
+      - alert: KafkaConsumerLagCritical
+        expr: kafka_consumergroup_lag > 10000
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical Kafka consumer lag"
+          description: "Consumer group {{ $labels.consumergroup }} has critical lag of {{ $value }} on topic {{ $labels.topic }}."
+
+      - alert: KafkaUnderReplicatedPartitions
+        expr: kafka_topic_partition_under_replicated_partition > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Kafka under-replicated partitions"
+          description: "Topic {{ $labels.topic }} has {{ $value }} under-replicated partitions."
+
+  # Elasticsearch
+  - name: elasticsearch
+    rules:
+      - alert: ElasticsearchDown
+        expr: elasticsearch_cluster_health_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Elasticsearch is down"
+          description: "Elasticsearch cluster is not responding."
+
+      - alert: ElasticsearchClusterRed
+        expr: elasticsearch_cluster_health_status{color="red"} == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Elasticsearch cluster status is RED"
+          description: "Elasticsearch cluster health is RED. Some primary shards are unassigned."
+
+      - alert: ElasticsearchClusterYellow
+        expr: elasticsearch_cluster_health_status{color="yellow"} == 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Elasticsearch cluster status is YELLOW"
+          description: "Elasticsearch cluster health is YELLOW. Some replica shards are unassigned."
+
+      - alert: ElasticsearchHeapUsageHigh
+        expr: |
+          elasticsearch_jvm_memory_used_bytes{area="heap"}
+          /
+          elasticsearch_jvm_memory_max_bytes{area="heap"}
+          > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Elasticsearch heap usage"
+          description: "Elasticsearch heap usage is {{ $value | humanizePercentage }}."
+
+      - alert: ElasticsearchDiskSpaceLow
+        expr: |
+          elasticsearch_filesystem_data_available_bytes
+          /
+          elasticsearch_filesystem_data_size_bytes
+          < 0.15
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low Elasticsearch disk space"
+          description: "Elasticsearch has only {{ $value | humanizePercentage }} disk space available."

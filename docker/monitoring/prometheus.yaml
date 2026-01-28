@@ -51,3 +51,21 @@ scrape_configs:
       - targets: [ "redis-exporter:9121" ]
         labels:
           service: "redis"
+
+  - job_name: "mysql"
+    static_configs:
+      - targets: [ "mysql-exporter:9104" ]
+        labels:
+          service: "mysql"
+
+  - job_name: "kafka"
+    static_configs:
+      - targets: [ "kafka-exporter:9308" ]
+        labels:
+          service: "kafka"
+
+  - job_name: "elasticsearch"
+    static_configs:
+      - targets: [ "elasticsearch-exporter:9114" ]
+        labels:
+          service: "elasticsearch"
