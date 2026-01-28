@@ -1,17 +1,17 @@
 tmdb:
   api:
-    base-url: ${TMDB_API_BASE_URL}
-    access-token: ${TMDB_API_ACCESS_TOKEN}
-    api-key: ${TMDB_API_KEY}
+    base-url: ${TMDB_API_BASE_URL:https://api.themoviedb.org/3}
+    access-token: ${TMDB_API_ACCESS_TOKEN:}
+    api-key: ${TMDB_API_KEY:}
 
   image:
-    base-url: ${TMDB_IMAGE_BASE_URL}
+    base-url: ${TMDB_IMAGE_BASE_URL:https://image.tmdb.org/t/p}
     default-size: w500
 
 tsdb:
   api:
-    base-url: ${TSDB_API_BASE_URL}
-    api-key: ${TSDB_API_KEY}
+    base-url: ${TSDB_API_BASE_URL:https://www.thesportsdb.com/api/v1/json}
+    api-key: ${TSDB_API_KEY:}
 
   image:
     default-size: medium
@@ -19,3 +19,26 @@ tsdb:
 spring:
   webclient:
     max-in-memory-size: 10MB
+
+---
+# =============================================================================
+# Test Profile
+# =============================================================================
+# 테스트에서는 외부 API 호출을 모킹합니다.
+# 실제 API 키 없이도 테스트가 실행될 수 있도록 더미 값을 설정합니다.
+# =============================================================================
+spring.config.activate.on-profile: test
+
+tmdb:
+  api:
+    base-url: http://localhost:8089/tmdb
+    access-token: test-token
+    api-key: test-key
+
+  image:
+    base-url: http://localhost:8089/tmdb-image
+
+tsdb:
+  api:
+    base-url: http://localhost:8089/tsdb
+    api-key: test-key

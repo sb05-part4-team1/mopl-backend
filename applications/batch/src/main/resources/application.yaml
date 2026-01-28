@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port: 8080 # 8083 for local
 
 spring:
   main:
@@ -29,7 +29,7 @@ spring:
     job:
       enabled: false
     jdbc:
-      initialize-schema: always
+      initialize-schema: never
 
 mopl:
   batch:

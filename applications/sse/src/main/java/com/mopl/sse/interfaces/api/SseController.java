@@ -13,7 +13,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/sse")
+@RequestMapping("/sse/api/sse")
 @RequiredArgsConstructor
 public class SseController implements SseApiSpec {
 
