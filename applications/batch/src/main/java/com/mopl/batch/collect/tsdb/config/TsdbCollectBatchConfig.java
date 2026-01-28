@@ -25,8 +25,10 @@ public class TsdbCollectBatchConfig {
     private final TsdbLeagueSyncTxService tsdbLeagueSyncTxService;
 
     @Bean
-    public Job tsdbLeagueEventCollectJob(JobRepository jobRepository,
-                                         PlatformTransactionManager txManager) {
+    public Job tsdbLeagueEventCollectJob(
+        JobRepository jobRepository,
+        PlatformTransactionManager txManager
+    ) {
         return new JobBuilder("tsdbLeagueEventCollectJob", jobRepository)
             .start(tsdbPastLeagueEventStep(jobRepository, txManager))
             .next(tsdbNextLeagueEventStep(jobRepository, txManager))
@@ -34,8 +36,10 @@ public class TsdbCollectBatchConfig {
     }
 
     @Bean
-    public Job tsdbLeagueSyncJob(JobRepository jobRepository,
-                                 PlatformTransactionManager txManager) {
+    public Job tsdbLeagueSyncJob(
+        JobRepository jobRepository,
+        PlatformTransactionManager txManager
+    ) {
         return new JobBuilder("tsdbLeagueSyncJob", jobRepository)
             .start(tsdbLeagueSyncStep(jobRepository, txManager))
             .build();
@@ -66,8 +70,10 @@ public class TsdbCollectBatchConfig {
     }
 
     @Bean
-    public Step tsdbNextLeagueEventStep(JobRepository jobRepository,
-                                        PlatformTransactionManager txManager) {
+    public Step tsdbNextLeagueEventStep(
+        JobRepository jobRepository,
+        PlatformTransactionManager txManager
+    ) {
         return new StepBuilder("tsdbNextLeagueEventStep", jobRepository)
             .tasklet(tsdbNextLeagueEventTasklet(), txManager)
             .build();
@@ -90,8 +96,10 @@ public class TsdbCollectBatchConfig {
     }
 
     @Bean
-    public Step tsdbLeagueSyncStep(JobRepository jobRepository,
-                                   PlatformTransactionManager txManager) {
+    public Step tsdbLeagueSyncStep(
+        JobRepository jobRepository,
+        PlatformTransactionManager txManager
+    ) {
         return new StepBuilder("tsdbLeagueSyncStep", jobRepository)
             .tasklet(tsdbLeagueSyncTasklet(), txManager)
             .build();

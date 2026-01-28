@@ -16,8 +16,7 @@ import java.time.LocalDateTime;
 public class AuthFacade {
 
     private static final int TEMP_PASSWORD_LENGTH = 12;
-    private static final String TEMP_PASSWORD_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-                                                      + "0123456789!@#$%";
+    private static final String TEMP_PASSWORD_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%";
     private static final int TEMP_PASSWORD_EXPIRY_MINUTES = 3;
 
     private final UserService userService;

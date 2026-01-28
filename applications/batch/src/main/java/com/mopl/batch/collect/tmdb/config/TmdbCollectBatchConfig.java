@@ -40,8 +40,10 @@ public class TmdbCollectBatchConfig {
     }
 
     @Bean
-    public Step tmdbPopularMovieStep(JobRepository jobRepository,
-                                     PlatformTransactionManager txManager) {
+    public Step tmdbPopularMovieStep(
+        JobRepository jobRepository,
+        PlatformTransactionManager txManager
+    ) {
         return new StepBuilder("tmdbPopularMovieStep", jobRepository)
             .tasklet(tmdbPopularMovieTasklet(), txManager)
             .build();
@@ -65,7 +67,7 @@ public class TmdbCollectBatchConfig {
 
     @Bean
     public Step tmdbPopularTvStep(JobRepository jobRepository,
-                                  PlatformTransactionManager txManager) {
+        PlatformTransactionManager txManager) {
         return new StepBuilder("tmdbPopularTvStep", jobRepository)
             .tasklet(tmdbPopularTvTasklet(), txManager)
             .build();
@@ -89,7 +91,7 @@ public class TmdbCollectBatchConfig {
 
     @Bean
     public Step tmdbGenreSyncStep(JobRepository jobRepository,
-                                  PlatformTransactionManager txManager) {
+        PlatformTransactionManager txManager) {
         return new StepBuilder("tmdbGenreSyncStep", jobRepository)
             .tasklet(tmdbGenreSyncTasklet(), txManager)
             .build();

@@ -30,37 +30,37 @@ public class RedisJwtRegistry implements JwtRegistry {
         local sessionInfo = ARGV[2]
         local maxSessions = tonumber(ARGV[3])
         local ttlSeconds = tonumber(ARGV[4])
-        
+
         local currentSize = redis.call('HLEN', whitelistKey)
         local evictedJti = nil
         local evictedSession = nil
-        
+
         if currentSize >= maxSessions then
             local entries = redis.call('HGETALL', whitelistKey)
             local oldestJti = nil
             local oldestTime = nil
-        
+
             for i = 1, #entries, 2 do
                 local entryJti = entries[i]
                 local entryData = cjson.decode(entries[i + 1])
                 local createdAt = entryData.createdAt
-        
+
                 if oldestTime == nil or createdAt < oldestTime then
                     oldestTime = createdAt
                     oldestJti = entryJti
                     evictedSession = entries[i + 1]
                 end
             end
-        
+
             if oldestJti then
                 redis.call('HDEL', whitelistKey, oldestJti)
                 evictedJti = oldestJti
             end
         end
-        
+
         redis.call('HSET', whitelistKey, jti, sessionInfo)
         redis.call('EXPIRE', whitelistKey, ttlSeconds)
-        
+
         if evictedJti then
             return cjson.encode({evictedJti = evictedJti, evictedSession = evictedSession})
         end
@@ -73,16 +73,16 @@ public class RedisJwtRegistry implements JwtRegistry {
         local newJti = ARGV[2]
         local newSessionInfo = ARGV[3]
         local ttlSeconds = tonumber(ARGV[4])
-        
+
         local oldSession = redis.call('HGET', whitelistKey, oldJti)
         if not oldSession then
             return cjson.encode({error = 'INVALID_TOKEN'})
         end
-        
+
         redis.call('HDEL', whitelistKey, oldJti)
         redis.call('HSET', whitelistKey, newJti, newSessionInfo)
         redis.call('EXPIRE', whitelistKey, ttlSeconds)
-        
+
         return cjson.encode({oldSession = oldSession})
         """;
 

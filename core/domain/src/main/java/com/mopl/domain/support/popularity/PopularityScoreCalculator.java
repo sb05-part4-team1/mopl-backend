@@ -15,6 +15,6 @@ public final class PopularityScoreCalculator {
         double effectiveMinReviewCount = Math.max(minimumReviewCount, 1);
 
         return (((double) reviewCount / ((double) reviewCount + effectiveMinReviewCount)) * averageRating)
-               + ((effectiveMinReviewCount / ((double) reviewCount + effectiveMinReviewCount)) * globalAverageRating);
+            + ((effectiveMinReviewCount / ((double) reviewCount + effectiveMinReviewCount)) * globalAverageRating);
     }
 }
