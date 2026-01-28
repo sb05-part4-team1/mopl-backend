@@ -37,32 +37,30 @@ spring:
     show-sql: false
 
 ---
+# =============================================================================
+# Test Profile - Testcontainers 기반
+# =============================================================================
+# Testcontainers가 MySQL 컨테이너를 자동으로 시작하고 연결 정보를 주입합니다.
+# spring.datasource.* 설정은 Testcontainers의 @ServiceConnection이 자동 설정합니다.
+# =============================================================================
 spring.config.activate.on-profile: test
 
 spring:
-  datasource:
-    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          batch_size: 100
+          time_zone: UTC
+        order_inserts: true
+        order_updates: true
+        default_batch_fetch_size: 100
+        timezone:
+          default_storage: NORMALIZE_UTC
   sql:
     init:
-      mode: always
-      data-locations: classpath:data.sql
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-  jpa:
-    defer-datasource-initialization: true
-    hibernate:
-      ddl-auto: create
-    show-sql: true
-    properties:
-      hibernate.jdbc.batch_size: 100
-      hibernate.order_inserts: true
-      hibernate.order_updates: true
-      hibernate.format_sql: true
-      hibernate.default_batch_fetch_size: 100
-      hibernate.timezone.default_storage: NORMALIZE_UTC
-      hibernate.jdbc.time_zone: UTC
+      mode: never

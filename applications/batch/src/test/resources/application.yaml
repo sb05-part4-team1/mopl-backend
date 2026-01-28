@@ -1,0 +1,44 @@
+# =============================================================================
+# Batch Application Test Configuration
+# =============================================================================
+
+spring:
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
+
+mopl:
+  batch:
+    run-on-startup:
+      enabled: false
+    cleanup:
+      soft-delete:
+        defaults:
+          chunk-size: 10
+          retention-days: 1
+        storage:
+          chunk-size: 10
+      orphan:
+        defaults:
+          chunk-size: 10
+          grace-period-days: 0
+      orphan-storage:
+        defaults:
+          chunk-size: 10
+    collect:
+      tmdb:
+        defaults:
+          max-page: 1
+      tsdb:
+        defaults:
+          sleep-ms: 0
+    sync:
+      es:
+        initial-enabled: false
+        defaults:
+          chunk-size: 10
+      denormalized:
+        defaults:
+          chunk-size: 10

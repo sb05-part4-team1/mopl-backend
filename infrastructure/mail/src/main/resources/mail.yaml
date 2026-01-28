@@ -14,3 +14,25 @@ spring:
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000
+
+---
+# =============================================================================
+# Test Profile
+# =============================================================================
+# 테스트에서는 실제 메일을 전송하지 않습니다.
+# JavaMailSender를 모킹하거나 GreenMail 등의 테스트 서버를 사용합니다.
+# =============================================================================
+spring.config.activate.on-profile: test
+
+spring:
+  mail:
+    host: localhost
+    port: 3025
+    username: test
+    password: test
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
