@@ -52,7 +52,7 @@ class SseControllerTest {
     }
 
     @Nested
-    @DisplayName("GET /sse/api/sse")
+    @DisplayName("GET /sse")
     class SubscribeTest {
 
         @Test
@@ -63,7 +63,7 @@ class SseControllerTest {
             given(sseFacade.subscribe(mockUserId, null)).willReturn(expectedEmitter);
 
             // when & then
-            mockMvc.perform(get("/sse/api/sse")
+            mockMvc.perform(get("/sse")
                 .with(user(mockUserDetails)))
                 .andExpect(status().isOk());
         }
@@ -77,7 +77,7 @@ class SseControllerTest {
             given(sseFacade.subscribe(mockUserId, lastEventId)).willReturn(expectedEmitter);
 
             // when & then
-            mockMvc.perform(get("/sse/api/sse")
+            mockMvc.perform(get("/sse")
                 .param("lastEventId", lastEventId.toString())
                 .with(user(mockUserDetails)))
                 .andExpect(status().isOk());
