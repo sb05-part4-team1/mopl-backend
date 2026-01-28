@@ -80,7 +80,7 @@ public interface WatchingSessionApiSpec {
     );
 
     @Operation(summary = "특정 사용자의 시청 세션 조회 (nullable)")
-    @Parameter(name = "watcherId", required = true)
+    @Parameter(name = "watcherId", description = "시청자 ID", required = true, in = ParameterIn.PATH)
     @ApiResponse(
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = WatchingSessionResponse.class))

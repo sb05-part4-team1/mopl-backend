@@ -68,7 +68,7 @@ public interface NotificationApiSpec {
     );
 
     @Operation(summary = "알림 읽음 처리 (소프트 삭제)")
-    @Parameter(name = "notificationId", required = true)
+    @Parameter(name = "notificationId", description = "알림 ID", required = true, in = ParameterIn.PATH)
     @ApiResponse(responseCode = "204")
     @ApiErrorResponse.Default
     void readNotification(

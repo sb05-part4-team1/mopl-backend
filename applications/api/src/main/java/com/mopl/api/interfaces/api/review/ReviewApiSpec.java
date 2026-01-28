@@ -91,7 +91,7 @@ public interface ReviewApiSpec {
         summary = "리뷰 수정",
         description = "리뷰 작성자만 수정할 수 있습니다."
     )
-    @Parameter(name = "reviewId", required = true)
+    @Parameter(name = "reviewId", description = "리뷰 ID", required = true, in = ParameterIn.PATH)
     @ApiResponse(
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = ReviewResponse.class))
@@ -109,7 +109,7 @@ public interface ReviewApiSpec {
         summary = "리뷰 삭제",
         description = "리뷰 작성자만 삭제할 수 있습니다."
     )
-    @Parameter(name = "reviewId", required = true)
+    @Parameter(name = "reviewId", description = "리뷰 ID", required = true, in = ParameterIn.PATH)
     @ApiResponse(responseCode = "204")
     @ApiErrorResponse.Default
     @ApiErrorResponse.Forbidden
