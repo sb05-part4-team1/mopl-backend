@@ -61,5 +61,3 @@ mopl:
   oauth2:
     frontend-redirect-uri: http://localhost:3000
 
----
-spring.config.activate.on-profile: prod
