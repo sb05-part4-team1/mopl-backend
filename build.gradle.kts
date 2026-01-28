@@ -153,12 +153,17 @@ listOf("applications", "core", "infrastructure", "shared").forEach { name ->
     project(name) { tasks.configureEach { enabled = false } }
 }
 
+val testInfraModules = setOf(":shared:test", ":shared:test-core")
+
 tasks.named<JacocoReport>("jacocoTestReport") {
     description = "Generates an aggregate JaCoCo report from all subprojects"
-    dependsOn(subprojects.mapNotNull { it.tasks.findByName("jacocoTestReport") })
+
+    val targetSubprojects = subprojects.filter { it.path !in testInfraModules }
+
+    dependsOn(targetSubprojects.mapNotNull { it.tasks.findByName("jacocoTestReport") })
 
     executionData.setFrom(
-        files(subprojects.flatMap { subproject ->
+        files(targetSubprojects.flatMap { subproject ->
             subproject.layout.buildDirectory.asFile.get()
                 .resolve("jacoco")
                 .listFiles()
@@ -168,11 +173,11 @@ tasks.named<JacocoReport>("jacocoTestReport") {
     )
 
     sourceDirectories.setFrom(
-        files(subprojects.flatMap { it.the<SourceSetContainer>()["main"].allSource.srcDirs })
+        files(targetSubprojects.flatMap { it.the<SourceSetContainer>()["main"].allSource.srcDirs })
     )
 
     classDirectories.setFrom(
-        files(subprojects.flatMap { subproject ->
+        files(targetSubprojects.flatMap { subproject ->
             subproject.the<SourceSetContainer>()["main"].output.classesDirs.map {
                 fileTree(it).exclude(jacocoAggregateExclusions)
             }
