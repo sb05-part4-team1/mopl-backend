@@ -107,30 +107,11 @@ class StoragePropertiesTest {
         }
 
         @Test
-        @DisplayName("S3 타입인데 accessKey가 비어있으면 예외 발생")
-        void throwsExceptionWhenAccessKeyIsEmpty() {
+        @DisplayName("S3 타입에서 accessKey/secretKey는 선택적 (IAM Role 사용 시)")
+        void allowsEmptyCredentialsForIamRole() {
             // given
             S3 s3 = new S3(
                 "",
-                "secretKey",
-                "ap-northeast-2",
-                "test-bucket",
-                Duration.ofMinutes(10),
-                null
-            );
-
-            // when & then
-            assertThatThrownBy(() -> new StorageProperties(StorageType.S3, null, s3))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("mopl.storage.s3.access-key must not be empty");
-        }
-
-        @Test
-        @DisplayName("S3 타입인데 secretKey가 비어있으면 예외 발생")
-        void throwsExceptionWhenSecretKeyIsEmpty() {
-            // given
-            S3 s3 = new S3(
-                "accessKey",
                 "",
                 "ap-northeast-2",
                 "test-bucket",
@@ -138,10 +119,12 @@ class StoragePropertiesTest {
                 null
             );
 
-            // when & then
-            assertThatThrownBy(() -> new StorageProperties(StorageType.S3, null, s3))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("mopl.storage.s3.secret-key must not be empty");
+            // when
+            StorageProperties properties = new StorageProperties(StorageType.S3, null, s3);
+
+            // then
+            assertThat(properties.s3().accessKey()).isEmpty();
+            assertThat(properties.s3().secretKey()).isEmpty();
         }
 
         @Test
