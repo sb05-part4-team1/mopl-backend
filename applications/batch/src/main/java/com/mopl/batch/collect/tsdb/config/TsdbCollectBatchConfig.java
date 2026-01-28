@@ -46,8 +46,10 @@ public class TsdbCollectBatchConfig {
     }
 
     @Bean
-    public Step tsdbPastLeagueEventStep(JobRepository jobRepository,
-                                        PlatformTransactionManager txManager) {
+    public Step tsdbPastLeagueEventStep(
+        JobRepository jobRepository,
+        PlatformTransactionManager txManager
+    ) {
         return new StepBuilder("tsdbPastLeagueEventStep", jobRepository)
             .tasklet(tsdbPastLeagueEventTasklet(), txManager)
             .build();
