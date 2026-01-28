@@ -20,5 +20,6 @@ include(
     ":shared:jackson",
     ":shared:logging",
     ":shared:monitoring",
+    ":shared:test-core",
     ":shared:test"
 )
