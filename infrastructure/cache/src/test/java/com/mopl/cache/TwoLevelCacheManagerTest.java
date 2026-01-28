@@ -41,7 +41,7 @@ class TwoLevelCacheManagerTest {
             false,
             null
         );
-        cacheManager = new TwoLevelCacheManager(l1Cache, redisTemplate, properties);
+        cacheManager = new TwoLevelCacheManager(l1Cache, redisTemplate, properties, null);
     }
 
     @Nested
@@ -127,7 +127,7 @@ class TwoLevelCacheManagerTest {
 
         @BeforeEach
         void setUp() {
-            cacheManager = new TwoLevelCacheManager(l1Cache, null, properties);
+            cacheManager = new TwoLevelCacheManager(l1Cache, null, properties, null);
         }
 
         @Test

@@ -5,7 +5,7 @@ global:
 alerting:
   alertmanagers:
     - static_configs:
-        - targets: ["alertmanager:9093"]
+        - targets: [ "alertmanager:9093" ]
 
 rule_files:
   - "/etc/prometheus/alert-rules.yaml"
@@ -14,26 +14,40 @@ scrape_configs:
   - job_name: "mopl-api"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["host.docker.internal:8080"]
+      - targets: [ "host.docker.internal:8080" ]
         labels:
           service: "api"
 
   - job_name: "mopl-websocket"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["host.docker.internal:8081"]
+      - targets: [ "host.docker.internal:8081" ]
         labels:
           service: "websocket"
 
   - job_name: "mopl-sse"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["host.docker.internal:8082"]
+      - targets: [ "host.docker.internal:8082" ]
         labels:
           service: "sse"
 
+  - job_name: "mopl-batch"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: [ "host.docker.internal:8083" ]
+        labels:
+          service: "batch"
+
+  - job_name: "mopl-worker"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: [ "host.docker.internal:8084" ]
+        labels:
+          service: "worker"
+
   - job_name: "redis"
     static_configs:
-      - targets: ["redis-exporter:9121"]
+      - targets: [ "redis-exporter:9121" ]
         labels:
           service: "redis"

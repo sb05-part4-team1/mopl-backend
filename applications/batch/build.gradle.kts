@@ -6,6 +6,9 @@ dependencies {
     implementation(project(":infrastructure:storage"))
     implementation(project(":infrastructure:search"))
     implementation(project(":shared:logging"))
+    implementation(project(":shared:monitoring"))
+    // web (for actuator endpoints)
+    implementation("org.springframework.boot:spring-boot-starter-web")
     // batch
     implementation("org.springframework.boot:spring-boot-starter-batch")
     // test

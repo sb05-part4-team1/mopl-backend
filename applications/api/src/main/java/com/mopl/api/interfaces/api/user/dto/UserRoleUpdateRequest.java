@@ -20,5 +20,5 @@ public record UserRoleUpdateRequest(
             "USER", "ADMIN"
         }
     ) @NotNull UserModel.Role role
-){
+) {
 }

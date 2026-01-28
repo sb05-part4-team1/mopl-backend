@@ -1,9 +1,10 @@
 server:
+  port: 8084
   shutdown: graceful
 
 spring:
   main:
-    web-application-type: none
+    web-application-type: servlet
   application:
     name: mopl-worker
   profiles:
@@ -11,6 +12,7 @@ spring:
   config:
     import:
       - optional:file:.env[.properties]
+      - actuator.yaml
       - jpa.yaml
       - kafka.yaml
       - logging.yaml

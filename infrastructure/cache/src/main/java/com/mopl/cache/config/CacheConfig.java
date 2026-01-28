@@ -2,6 +2,7 @@ package com.mopl.cache.config;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.mopl.cache.CacheMetrics;
 import com.mopl.cache.TwoLevelCacheManager;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
@@ -33,12 +34,14 @@ public class CacheConfig {
     public CacheManager cacheManager(
         Cache<String, Object> caffeineCache,
         @Nullable RedisTemplate<String, Object> redisTemplate,
-        CacheProperties properties
+        CacheProperties properties,
+        @Nullable CacheMetrics cacheMetrics
     ) {
         return new TwoLevelCacheManager(
             caffeineCache,
             properties.redisEnabled() ? redisTemplate : null,
-            properties
+            properties,
+            cacheMetrics
         );
     }
 }

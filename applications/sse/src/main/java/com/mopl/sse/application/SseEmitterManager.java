@@ -40,19 +40,19 @@ public class SseEmitterManager {
 
     @PostConstruct
     public void initMetrics() {
-        Gauge.builder("sse.connections", emitterRepository.getLocalEmitters(), Map::size)
+        Gauge.builder("mopl.sse.connections.active", emitterRepository.getLocalEmitters(), Map::size)
             .description("Current SSE connections")
             .register(meterRegistry);
 
-        eventSentCounter = Counter.builder("sse.events.sent")
+        eventSentCounter = Counter.builder("mopl.sse.events.sent")
             .description("SSE events sent successfully")
             .register(meterRegistry);
 
-        eventFailedCounter = Counter.builder("sse.events.failed")
+        eventFailedCounter = Counter.builder("mopl.sse.events.failed")
             .description("SSE events failed to send")
             .register(meterRegistry);
 
-        resendCounter = Counter.builder("sse.events.resent")
+        resendCounter = Counter.builder("mopl.sse.events.resent")
             .description("SSE events resent")
             .register(meterRegistry);
     }

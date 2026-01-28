@@ -18,16 +18,19 @@ public class TwoLevelCacheManager implements CacheManager {
     private final Cache<String, Object> l1Cache;
     private final RedisTemplate<String, Object> redisTemplate;
     private final CacheProperties properties;
+    private final CacheMetrics metrics;
     private final Map<String, TwoLevelCache> caches = new ConcurrentHashMap<>();
 
     public TwoLevelCacheManager(
         Cache<String, Object> l1Cache,
         @Nullable RedisTemplate<String, Object> redisTemplate,
-        CacheProperties properties
+        CacheProperties properties,
+        @Nullable CacheMetrics metrics
     ) {
         this.l1Cache = l1Cache;
         this.redisTemplate = redisTemplate;
         this.properties = properties;
+        this.metrics = metrics;
 
         for (String cacheName : CacheName.all()) {
             caches.put(cacheName, createCache(cacheName));
@@ -56,7 +59,8 @@ public class TwoLevelCacheManager implements CacheManager {
             l1Cache,
             redisTemplate,
             properties,
-            properties.getTtlFor(name)
+            properties.getTtlFor(name),
+            metrics
         );
     }
 }
