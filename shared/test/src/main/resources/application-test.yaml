@@ -26,6 +26,10 @@ spring:
         timezone:
           default_storage: NORMALIZE_UTC
 
+  # Flyway 비활성화 (테스트는 ddl-auto: create-drop 사용)
+  flyway:
+    enabled: false
+
   sql:
     init:
       mode: never

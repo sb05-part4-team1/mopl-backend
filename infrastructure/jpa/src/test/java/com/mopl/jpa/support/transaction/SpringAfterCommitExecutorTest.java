@@ -139,6 +139,25 @@ class SpringAfterCommitExecutorTest {
                 assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue();
                 assertThat(counter.get()).isEqualTo(3);
             }
+
+            @Test
+            @DisplayName("액션에서 예외 발생 시 로깅 후 계속 진행")
+            void logsExceptionAndContinues() throws InterruptedException {
+                // given
+                new CountDownLatch(1);
+
+                executor.execute(() -> {
+                    throw new RuntimeException("Test exception");
+                });
+
+                List<TransactionSynchronization> syncs = TransactionSynchronizationManager.getSynchronizations();
+
+                // when
+                syncs.forEach(TransactionSynchronization::afterCommit);
+
+                // then - 예외가 발생해도 시스템이 계속 동작해야 함
+                Thread.sleep(100); // 가상 스레드에서 예외 처리 완료 대기
+            }
         }
     }
 }

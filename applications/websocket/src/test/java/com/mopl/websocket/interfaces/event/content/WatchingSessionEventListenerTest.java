@@ -187,6 +187,21 @@ class WatchingSessionEventListenerTest {
             then(watchingSessionFacade).shouldHaveNoInteractions();
             then(webSocketBroadcaster).shouldHaveNoInteractions();
         }
+
+        @Test
+        @DisplayName("destination이 올바르지 않은 형식인 경우 무시 - 배열 인덱스 초과")
+        void withMalformedDestination_ignores() {
+            // given - destination의 분할 시 배열 인덱스 초과
+            String destination = "/sub/watch"; // contentId가 없는 짧은 경로
+            SessionSubscribeEvent event = createSubscribeEvent(destination);
+
+            // when
+            listener.handleSubscribe(event);
+
+            // then
+            then(watchingSessionFacade).shouldHaveNoInteractions();
+            then(webSocketBroadcaster).shouldHaveNoInteractions();
+        }
     }
 
     @Nested

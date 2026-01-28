@@ -13,7 +13,7 @@ public class SecurityRegistryImpl implements SecurityRegistry {
         AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth
     ) {
         auth
-            .requestMatchers("/sse/**").authenticated()
+            .requestMatchers("/api/sse/**").authenticated()
             .requestMatchers(
                 "/actuator/health",
                 "/actuator/info",

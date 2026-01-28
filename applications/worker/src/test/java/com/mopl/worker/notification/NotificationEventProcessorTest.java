@@ -460,4 +460,72 @@ class NotificationEventProcessorTest {
             then(acknowledgment).should(never()).acknowledge();
         }
     }
+
+    @Nested
+    @DisplayName("handlePlaylistCreated() - Exception Tests")
+    class HandlePlaylistCreatedExceptionTest {
+
+        @Test
+        @DisplayName("잘못된 JSON 페이로드 처리 시 예외 발생")
+        void withInvalidPayload_throwsException() {
+            // given
+            String invalidPayload = "{ invalid json }";
+
+            // when & then
+            assertThatThrownBy(() -> processor.handlePlaylistCreated(invalidPayload, acknowledgment))
+                .isInstanceOf(RuntimeException.class);
+            then(acknowledgment).should(never()).acknowledge();
+        }
+    }
+
+    @Nested
+    @DisplayName("handlePlaylistUpdated() - Exception Tests")
+    class HandlePlaylistUpdatedExceptionTest {
+
+        @Test
+        @DisplayName("잘못된 JSON 페이로드 처리 시 예외 발생")
+        void withInvalidPayload_throwsException() {
+            // given
+            String invalidPayload = "{ invalid json }";
+
+            // when & then
+            assertThatThrownBy(() -> processor.handlePlaylistUpdated(invalidPayload, acknowledgment))
+                .isInstanceOf(RuntimeException.class);
+            then(acknowledgment).should(never()).acknowledge();
+        }
+    }
+
+    @Nested
+    @DisplayName("handlePlaylistSubscribed() - Exception Tests")
+    class HandlePlaylistSubscribedExceptionTest {
+
+        @Test
+        @DisplayName("잘못된 JSON 페이로드 처리 시 예외 발생")
+        void withInvalidPayload_throwsException() {
+            // given
+            String invalidPayload = "{ invalid json }";
+
+            // when & then
+            assertThatThrownBy(() -> processor.handlePlaylistSubscribed(invalidPayload, acknowledgment))
+                .isInstanceOf(RuntimeException.class);
+            then(acknowledgment).should(never()).acknowledge();
+        }
+    }
+
+    @Nested
+    @DisplayName("handlePlaylistContentAdded() - Exception Tests")
+    class HandlePlaylistContentAddedExceptionTest {
+
+        @Test
+        @DisplayName("잘못된 JSON 페이로드 처리 시 예외 발생")
+        void withInvalidPayload_throwsException() {
+            // given
+            String invalidPayload = "{ invalid json }";
+
+            // when & then
+            assertThatThrownBy(() -> processor.handlePlaylistContentAdded(invalidPayload, acknowledgment))
+                .isInstanceOf(RuntimeException.class);
+            then(acknowledgment).should(never()).acknowledge();
+        }
+    }
 }

@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.mopl.cache.config.CacheProperties;
 import com.mopl.cache.config.CacheProperties.L1Config;
 import com.mopl.cache.config.CacheProperties.L2Config;
+import io.micrometer.core.instrument.Timer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -501,6 +502,181 @@ class TwoLevelCacheTest {
             assertThatThrownBy(() -> cache.get(null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Cache key must not be null");
+        }
+    }
+
+    @Nested
+    @DisplayName("metrics recording")
+    class MetricsRecordingTest {
+
+        @Mock
+        private CacheMetrics metrics;
+
+        @Mock
+        private Timer.Sample timerSample;
+
+        private TwoLevelCache cacheWithMetrics;
+
+        @BeforeEach
+        void setUp() {
+            CacheProperties properties = new CacheProperties(
+                KEY_PREFIX,
+                new L1Config(10000, Duration.ofSeconds(30), true),
+                new L2Config(TTL),
+                false,
+                null
+            );
+            cacheWithMetrics = new TwoLevelCache(CACHE_NAME, l1Cache, redisTemplate, properties, TTL, metrics);
+        }
+
+        @Test
+        @DisplayName("L1 히트시 recordL1Hit 호출")
+        void withL1Hit_recordsL1Hit() {
+            // given
+            String key = "1";
+            String fullKey = KEY_PREFIX + CACHE_NAME + "::" + key;
+            given(l1Cache.getIfPresent(fullKey)).willReturn("value");
+
+            // when
+            cacheWithMetrics.get(key);
+
+            // then
+            then(metrics).should().recordL1Hit(CACHE_NAME);
+        }
+
+        @Test
+        @DisplayName("L2 히트시 recordL2Hit 호출")
+        void withL2Hit_recordsL2Hit() {
+            // given
+            String key = "1";
+            String fullKey = KEY_PREFIX + CACHE_NAME + "::" + key;
+            given(l1Cache.getIfPresent(fullKey)).willReturn(null);
+            given(redisTemplate.opsForValue()).willReturn(valueOperations);
+            given(valueOperations.get(fullKey)).willReturn("value");
+            given(metrics.startTimer()).willReturn(timerSample);
+
+            // when
+            cacheWithMetrics.get(key);
+
+            // then
+            then(metrics).should().recordL2Hit(CACHE_NAME);
+            then(metrics).should().recordRedisLatency(timerSample, CACHE_NAME, "get");
+        }
+
+        @Test
+        @DisplayName("캐시 미스시 recordMiss 호출")
+        void withCacheMiss_recordsMiss() {
+            // given
+            String key = "1";
+            String fullKey = KEY_PREFIX + CACHE_NAME + "::" + key;
+            given(l1Cache.getIfPresent(fullKey)).willReturn(null);
+            given(redisTemplate.opsForValue()).willReturn(valueOperations);
+            given(valueOperations.get(fullKey)).willReturn(null);
+            given(metrics.startTimer()).willReturn(timerSample);
+
+            // when
+            cacheWithMetrics.get(key);
+
+            // then
+            then(metrics).should().recordMiss(CACHE_NAME);
+        }
+
+        @Test
+        @DisplayName("put시 recordPut 호출")
+        void withPut_recordsPut() {
+            // given
+            String key = "1";
+            given(redisTemplate.opsForValue()).willReturn(valueOperations);
+            given(metrics.startTimer()).willReturn(timerSample);
+
+            // when
+            cacheWithMetrics.put(key, "value");
+
+            // then
+            then(metrics).should().recordPut(CACHE_NAME);
+            then(metrics).should().recordRedisLatency(timerSample, CACHE_NAME, "set");
+        }
+
+        @Test
+        @DisplayName("evict시 recordEvict 호출")
+        void withEvict_recordsEvict() {
+            // given
+            String key = "1";
+            given(metrics.startTimer()).willReturn(timerSample);
+
+            // when
+            cacheWithMetrics.evict(key);
+
+            // then
+            then(metrics).should().recordEvict(CACHE_NAME);
+            then(metrics).should().recordRedisLatency(timerSample, CACHE_NAME, "delete");
+        }
+
+        @Test
+        @DisplayName("Redis get 실패시 recordRedisError 호출")
+        void withRedisGetFailure_recordsRedisError() {
+            // given
+            String key = "1";
+            String fullKey = KEY_PREFIX + CACHE_NAME + "::" + key;
+            given(l1Cache.getIfPresent(fullKey)).willReturn(null);
+            given(redisTemplate.opsForValue()).willReturn(valueOperations);
+            given(valueOperations.get(fullKey)).willThrow(new RuntimeException("Redis error"));
+            given(metrics.startTimer()).willReturn(timerSample);
+
+            // when
+            cacheWithMetrics.get(key);
+
+            // then
+            then(metrics).should().recordRedisError(CACHE_NAME, "get");
+        }
+
+        @Test
+        @DisplayName("Redis set 실패시 recordRedisError 호출")
+        void withRedisPutFailure_recordsRedisError() {
+            // given
+            String key = "1";
+            given(redisTemplate.opsForValue()).willReturn(valueOperations);
+            willThrow(new RuntimeException("Redis error"))
+                .given(valueOperations).set(anyString(), any(), any(Duration.class));
+            given(metrics.startTimer()).willReturn(timerSample);
+
+            // when
+            cacheWithMetrics.put(key, "value");
+
+            // then
+            then(metrics).should().recordRedisError(CACHE_NAME, "set");
+        }
+
+        @Test
+        @DisplayName("Redis delete 실패시 recordRedisError 호출")
+        void withRedisDeleteFailure_recordsRedisError() {
+            // given
+            String key = "1";
+            String fullKey = KEY_PREFIX + CACHE_NAME + "::" + key;
+            willThrow(new RuntimeException("Redis error"))
+                .given(redisTemplate).delete(fullKey);
+            given(metrics.startTimer()).willReturn(timerSample);
+
+            // when
+            cacheWithMetrics.evict(key);
+
+            // then
+            then(metrics).should().recordRedisError(CACHE_NAME, "delete");
+        }
+
+        @Test
+        @DisplayName("timerSample이 null이면 recordRedisLatency 호출 안 함")
+        void withNullTimerSample_doesNotRecordLatency() {
+            // given
+            String key = "1";
+            given(redisTemplate.opsForValue()).willReturn(valueOperations);
+            given(metrics.startTimer()).willReturn(null);
+
+            // when
+            cacheWithMetrics.put(key, "value");
+
+            // then
+            then(metrics).should(never()).recordRedisLatency(any(), anyString(), anyString());
         }
     }
 }

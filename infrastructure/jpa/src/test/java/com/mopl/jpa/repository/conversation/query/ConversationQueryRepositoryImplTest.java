@@ -191,6 +191,21 @@ class ConversationQueryRepositoryImplTest {
         }
 
         @Test
+        @DisplayName("빈 문자열 키워드로 필터링하면 전체 조회")
+        void withEmptyKeyword_returnsAll() {
+            // given
+            ConversationQueryRequest request = new ConversationQueryRequest(
+                "", null, null, 100, SortDirection.DESCENDING, ConversationSortField.CREATED_AT
+            );
+
+            // when
+            CursorResponse<ConversationModel> response = conversationQueryRepository.findAll(userId, request);
+
+            // then
+            assertThat(response.data()).hasSize(3);
+        }
+
+        @Test
         @DisplayName("조건에 맞는 데이터가 없으면 빈 결과 반환")
         void withNoMatchingData_returnsEmptyResult() {
             // given

@@ -191,6 +191,28 @@ class UserQueryRepositoryImplTest {
         }
 
         @Test
+        @DisplayName("빈 문자열 이메일로 필터링하면 전체 조회")
+        void withEmptyEmail_returnsAll() {
+            // given
+            UserQueryRequest request = new UserQueryRequest(
+                "",
+                null,
+                null,
+                null,
+                null,
+                100,
+                SortDirection.ASCENDING,
+                UserSortField.NAME
+            );
+
+            // when
+            CursorResponse<UserModel> response = userQueryRepository.findAll(request);
+
+            // then
+            assertThat(response.data()).hasSize(5);
+        }
+
+        @Test
         @DisplayName("조건에 맞는 데이터가 없으면 빈 결과 반환")
         void withNoMatchingData_returnsEmptyResult() {
             // given

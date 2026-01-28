@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -342,6 +343,150 @@ class LocalStorageProviderTest {
 
             // then
             assertThat(result).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("listObjects()")
+    class ListObjectsTest {
+
+        @Test
+        @DisplayName("prefix에 해당하는 파일 목록 반환")
+        void listsFilesWithPrefix() throws IOException {
+            // given
+            Path subDir = tempDir.resolve("images");
+            Files.createDirectories(subDir);
+            Files.createFile(subDir.resolve("a.png"));
+            Files.createFile(subDir.resolve("b.png"));
+            Files.createFile(subDir.resolve("c.png"));
+
+            // when
+            List<String> result = storageProvider.listObjects("images/", null, 10);
+
+            // then
+            assertThat(result).containsExactly("images/a.png", "images/b.png", "images/c.png");
+        }
+
+        @Test
+        @DisplayName("startAfter 이후 파일만 반환")
+        void listsFilesAfterStartAfter() throws IOException {
+            // given
+            Path subDir = tempDir.resolve("files");
+            Files.createDirectories(subDir);
+            Files.createFile(subDir.resolve("1.txt"));
+            Files.createFile(subDir.resolve("2.txt"));
+            Files.createFile(subDir.resolve("3.txt"));
+
+            // when
+            List<String> result = storageProvider.listObjects("files/", "files/1.txt", 10);
+
+            // then
+            assertThat(result).containsExactly("files/2.txt", "files/3.txt");
+        }
+
+        @Test
+        @DisplayName("maxKeys만큼만 반환")
+        void limitsResultByMaxKeys() throws IOException {
+            // given
+            Path subDir = tempDir.resolve("limited");
+            Files.createDirectories(subDir);
+            Files.createFile(subDir.resolve("1.txt"));
+            Files.createFile(subDir.resolve("2.txt"));
+            Files.createFile(subDir.resolve("3.txt"));
+
+            // when
+            List<String> result = storageProvider.listObjects("limited/", null, 2);
+
+            // then
+            assertThat(result).hasSize(2);
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 디렉토리면 빈 리스트 반환")
+        void returnsEmptyListForNonExistingDirectory() {
+            // when
+            List<String> result = storageProvider.listObjects("non-existent/", null, 10);
+
+            // then
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("파일 경로를 prefix로 사용하면 부모 디렉토리 기준으로 검색")
+        void usesParentDirectoryWhenPrefixIsFile() throws IOException {
+            // given
+            Path subDir = tempDir.resolve("docs");
+            Files.createDirectories(subDir);
+            Files.createFile(subDir.resolve("readme.md"));
+
+            // when
+            List<String> result = storageProvider.listObjects("docs/readme.md", null, 10);
+
+            // then
+            assertThat(result).containsExactly("docs/readme.md");
+        }
+
+        @Test
+        @DisplayName("startAfter가 빈 문자열이면 무시")
+        void ignoresEmptyStartAfter() throws IOException {
+            // given
+            Path subDir = tempDir.resolve("blank-test");
+            Files.createDirectories(subDir);
+            Files.createFile(subDir.resolve("1.txt"));
+            Files.createFile(subDir.resolve("2.txt"));
+
+            // when
+            List<String> result = storageProvider.listObjects("blank-test/", "", 10);
+
+            // then
+            assertThat(result).containsExactly("blank-test/1.txt", "blank-test/2.txt");
+        }
+
+        @Test
+        @DisplayName("startAfter가 공백 문자열이면 무시")
+        void ignoresBlankStartAfter() throws IOException {
+            // given
+            Path subDir = tempDir.resolve("whitespace-test");
+            Files.createDirectories(subDir);
+            Files.createFile(subDir.resolve("a.txt"));
+
+            // when
+            List<String> result = storageProvider.listObjects("whitespace-test/", "   ", 10);
+
+            // then
+            assertThat(result).containsExactly("whitespace-test/a.txt");
+        }
+
+        @Test
+        @DisplayName("prefix의 부모 디렉토리가 존재하지 않으면 빈 리스트 반환")
+        void returnsEmptyListWhenParentDirectoryNotExists() {
+            // when - 존재하지 않는 경로의 파일을 prefix로 사용
+            List<String> result = storageProvider.listObjects("non-existent-dir/file.txt", null, 10);
+
+            // then
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("디렉토리 탐색 중 IOException 발생 시 빈 리스트 반환")
+        @DisabledOnOs(OS.WINDOWS)
+        void returnsEmptyListOnIOException() throws IOException {
+            // given
+            Path subDir = tempDir.resolve("walk-error");
+            Files.createDirectories(subDir);
+            Files.createFile(subDir.resolve("file.txt"));
+            Files.setPosixFilePermissions(subDir, PosixFilePermissions.fromString("--x--x--x"));
+
+            // when
+            List<String> result;
+            try {
+                result = storageProvider.listObjects("walk-error/", null, 10);
+            } finally {
+                Files.setPosixFilePermissions(subDir, PosixFilePermissions.fromString("rwxr-xr-x"));
+            }
+
+            // then
+            assertThat(result).isEmpty();
         }
     }
 }

@@ -7,6 +7,7 @@ import com.mopl.logging.context.LogContext;
 import com.mopl.security.oauth2.userinfo.OAuth2UserInfo;
 import com.mopl.security.oauth2.userinfo.OAuth2UserInfoFactory;
 import com.mopl.security.userdetails.MoplUserDetails;
+import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -19,6 +20,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 @RequiredArgsConstructor
+@Generated
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;

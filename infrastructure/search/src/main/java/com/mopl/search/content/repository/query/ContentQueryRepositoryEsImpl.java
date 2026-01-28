@@ -6,6 +6,7 @@ import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.repository.content.query.ContentQueryRepository;
 import com.mopl.domain.repository.content.query.ContentQueryRequest;
 import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.domain.support.cursor.SortDirection;
 import com.mopl.search.content.mapper.ContentDocumentMapper;
 import com.mopl.search.document.ContentDocument;
 import lombok.RequiredArgsConstructor;
@@ -123,7 +124,6 @@ public class ContentQueryRepositoryEsImpl implements ContentQueryRepository {
     }
 
     private boolean isAsc(ContentQueryRequest request) {
-        return request.sortDirection() != null
-            && request.sortDirection().name().equalsIgnoreCase("asc");
+        return request.sortDirection() == SortDirection.ASCENDING;
     }
 }
