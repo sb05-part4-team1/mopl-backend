@@ -106,5 +106,29 @@ class DlqEventProcessorTest {
             // then
             then(acknowledgment).should().acknowledge();
         }
+
+        @Test
+        @DisplayName("헤더 값이 null이면 unknown으로 처리")
+        void withNullHeaderValue_usesUnknownValues() {
+            // given
+            ConsumerRecord<String, String> record = new ConsumerRecord<>(
+                "dlq-topic", 0, 100L, "test-key", "test-payload"
+            );
+            record.headers().add("kafka_dlt-original-topic", null);
+            record.headers().add("kafka_dlt-exception-message", null);
+
+            // when
+            processor.handleDeadLetter(record, acknowledgment);
+
+            // then
+            ArgumentCaptor<DlqEvent> captor = ArgumentCaptor.forClass(DlqEvent.class);
+            then(dlqAlertPublisher).should().publish(captor.capture());
+
+            DlqEvent event = captor.getValue();
+            assertThat(event.originalTopic()).isEqualTo("unknown");
+            assertThat(event.exceptionMessage()).isEqualTo("unknown");
+
+            then(acknowledgment).should().acknowledge();
+        }
     }
 }

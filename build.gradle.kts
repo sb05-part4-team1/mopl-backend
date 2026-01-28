@@ -153,12 +153,18 @@ listOf("applications", "core", "infrastructure", "shared").forEach { name ->
     project(name) { tasks.configureEach { enabled = false } }
 }
 
-val testInfraModules = setOf(":shared:test", ":shared:test-core")
+val coverageExcludedModules = setOf(
+    ":shared:test",
+    ":shared:test-core",
+    ":shared:logging",
+    ":applications:batch",
+    ":infrastructure:openapi"
+)
 
 tasks.named<JacocoReport>("jacocoTestReport") {
     description = "Generates an aggregate JaCoCo report from all subprojects"
 
-    val targetSubprojects = subprojects.filter { it.path !in testInfraModules }
+    val targetSubprojects = subprojects.filter { it.path !in coverageExcludedModules }
 
     dependsOn(targetSubprojects.mapNotNull { it.tasks.findByName("jacocoTestReport") })
 

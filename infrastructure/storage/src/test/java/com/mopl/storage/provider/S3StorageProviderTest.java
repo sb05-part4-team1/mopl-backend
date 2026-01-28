@@ -20,10 +20,13 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
@@ -33,6 +36,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -264,6 +268,70 @@ class S3StorageProviderTest {
 
             // then
             assertThat(result).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("listObjects()")
+    class ListObjectsTest {
+
+        @Test
+        @DisplayName("prefix에 해당하는 파일 목록 반환")
+        void listsObjectsWithPrefix() {
+            // given
+            String prefix = "images/";
+            ListObjectsV2Response response = ListObjectsV2Response.builder()
+                .contents(
+                    S3Object.builder().key("images/a.png").build(),
+                    S3Object.builder().key("images/b.png").build()
+                )
+                .build();
+
+            given(s3Client.listObjectsV2(any(ListObjectsV2Request.class)))
+                .willReturn(response);
+
+            // when
+            var result = storageProvider.listObjects(prefix, null, 10);
+
+            // then
+            assertThat(result).containsExactly("images/a.png", "images/b.png");
+        }
+
+        @Test
+        @DisplayName("startAfter 파라미터가 전달됨")
+        void passesStartAfterParameter() {
+            // given
+            ListObjectsV2Response response = ListObjectsV2Response.builder()
+                .contents(S3Object.builder().key("files/2.txt").build())
+                .build();
+
+            given(s3Client.listObjectsV2(any(ListObjectsV2Request.class)))
+                .willReturn(response);
+
+            // when
+            var result = storageProvider.listObjects("files/", "files/1.txt", 10);
+
+            // then
+            assertThat(result).containsExactly("files/2.txt");
+            then(s3Client).should().listObjectsV2(any(ListObjectsV2Request.class));
+        }
+
+        @Test
+        @DisplayName("빈 결과 반환")
+        void returnsEmptyListWhenNoObjects() {
+            // given
+            ListObjectsV2Response response = ListObjectsV2Response.builder()
+                .contents(List.of())
+                .build();
+
+            given(s3Client.listObjectsV2(any(ListObjectsV2Request.class)))
+                .willReturn(response);
+
+            // when
+            var result = storageProvider.listObjects("non-existent/", null, 10);
+
+            // then
+            assertThat(result).isEmpty();
         }
     }
 }

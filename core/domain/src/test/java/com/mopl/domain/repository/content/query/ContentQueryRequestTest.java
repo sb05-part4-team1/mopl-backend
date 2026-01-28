@@ -23,7 +23,7 @@ class ContentQueryRequestTest {
         @DisplayName("limit이 null이면 DEFAULT_LIMIT이 적용된다")
         void withNullLimit_appliesDefaultLimit() {
             // when
-            var request = new ContentQueryRequest(
+            ContentQueryRequest request = new ContentQueryRequest(
                 null, null, null, null, null,
                 null, null, null
             );
@@ -36,7 +36,7 @@ class ContentQueryRequestTest {
         @DisplayName("limit이 MAX_LIMIT 이하면 그대로 유지된다")
         void withLimitBelowMax_keepsLimit() {
             // when
-            var request = new ContentQueryRequest(
+            ContentQueryRequest request = new ContentQueryRequest(
                 null, null, null, null, null,
                 50, null, null
             );
@@ -49,7 +49,7 @@ class ContentQueryRequestTest {
         @DisplayName("limit이 MAX_LIMIT을 초과하면 MAX_LIMIT으로 제한된다")
         void withLimitAboveMax_capsToMaxLimit() {
             // when
-            var request = new ContentQueryRequest(
+            ContentQueryRequest request = new ContentQueryRequest(
                 null, null, null, null, null,
                 200, null, null
             );
@@ -62,7 +62,7 @@ class ContentQueryRequestTest {
         @DisplayName("limit이 정확히 MAX_LIMIT이면 그대로 유지된다")
         void withLimitAtMax_keepsLimit() {
             // when
-            var request = new ContentQueryRequest(
+            ContentQueryRequest request = new ContentQueryRequest(
                 null, null, null, null, null,
                 ContentQueryRequest.MAX_LIMIT, null, null
             );
@@ -80,7 +80,7 @@ class ContentQueryRequestTest {
         @DisplayName("sortDirection이 null이면 DESCENDING이 적용된다")
         void withNullSortDirection_appliesDescending() {
             // when
-            var request = new ContentQueryRequest(
+            ContentQueryRequest request = new ContentQueryRequest(
                 null, null, null, null, null,
                 null, null, null
             );
@@ -93,7 +93,7 @@ class ContentQueryRequestTest {
         @DisplayName("sortDirection이 ASCENDING이면 그대로 유지된다")
         void withAscending_keepsAscending() {
             // when
-            var request = new ContentQueryRequest(
+            ContentQueryRequest request = new ContentQueryRequest(
                 null, null, null, null, null,
                 null, SortDirection.ASCENDING, null
             );
@@ -111,7 +111,7 @@ class ContentQueryRequestTest {
         @DisplayName("sortBy가 null이면 POPULARITY가 적용된다")
         void withNullSortBy_appliesPopularity() {
             // when
-            var request = new ContentQueryRequest(
+            ContentQueryRequest request = new ContentQueryRequest(
                 null, null, null, null, null,
                 null, null, null
             );
@@ -124,7 +124,7 @@ class ContentQueryRequestTest {
         @DisplayName("sortBy가 CREATED_AT이면 그대로 유지된다")
         void withCreatedAt_keepsCreatedAt() {
             // when
-            var request = new ContentQueryRequest(
+            ContentQueryRequest request = new ContentQueryRequest(
                 null, null, null, null, null,
                 null, null, ContentSortField.CREATED_AT
             );
@@ -143,7 +143,7 @@ class ContentQueryRequestTest {
         @DisplayName("null 또는 빈 문자열이면 null로 정규화된다")
         void withNullOrEmpty_normalizesToNull(String keyword) {
             // when
-            var request = new ContentQueryRequest(
+            ContentQueryRequest request = new ContentQueryRequest(
                 null, keyword, null, null, null,
                 null, null, null
             );
@@ -157,7 +157,7 @@ class ContentQueryRequestTest {
         @DisplayName("공백만 있으면 null로 정규화된다")
         void withOnlyWhitespace_normalizesToNull(String keyword) {
             // when
-            var request = new ContentQueryRequest(
+            ContentQueryRequest request = new ContentQueryRequest(
                 null, keyword, null, null, null,
                 null, null, null
             );
@@ -171,7 +171,7 @@ class ContentQueryRequestTest {
         @DisplayName("한글 자모만 있으면 null로 정규화된다")
         void withHangulJamoOnly_normalizesToNull(String keyword) {
             // when
-            var request = new ContentQueryRequest(
+            ContentQueryRequest request = new ContentQueryRequest(
                 null, keyword, null, null, null,
                 null, null, null
             );
@@ -185,7 +185,7 @@ class ContentQueryRequestTest {
         @DisplayName("한글 1글자는 null로 정규화된다")
         void withSingleKoreanChar_normalizesToNull(String keyword) {
             // when
-            var request = new ContentQueryRequest(
+            ContentQueryRequest request = new ContentQueryRequest(
                 null, keyword, null, null, null,
                 null, null, null
             );
@@ -199,7 +199,7 @@ class ContentQueryRequestTest {
         @DisplayName("한글 2글자 이상이면 유지된다")
         void withTwoOrMoreKoreanChars_keepsKeyword(String keyword) {
             // when
-            var request = new ContentQueryRequest(
+            ContentQueryRequest request = new ContentQueryRequest(
                 null, keyword, null, null, null,
                 null, null, null
             );
@@ -213,7 +213,7 @@ class ContentQueryRequestTest {
         @DisplayName("영문 2글자 이하는 null로 정규화된다")
         void withTwoOrLessEnglishChars_normalizesToNull(String keyword) {
             // when
-            var request = new ContentQueryRequest(
+            ContentQueryRequest request = new ContentQueryRequest(
                 null, keyword, null, null, null,
                 null, null, null
             );
@@ -227,7 +227,7 @@ class ContentQueryRequestTest {
         @DisplayName("영문 3글자 이상이면 유지된다")
         void withThreeOrMoreEnglishChars_keepsKeyword(String keyword) {
             // when
-            var request = new ContentQueryRequest(
+            ContentQueryRequest request = new ContentQueryRequest(
                 null, keyword, null, null, null,
                 null, null, null
             );
@@ -245,7 +245,7 @@ class ContentQueryRequestTest {
         @DisplayName("한글이 포함되면 2글자 이상이면 유지된다")
         void withMixedKorean_appliesKoreanRule(String input, String expected) {
             // when
-            var request = new ContentQueryRequest(
+            ContentQueryRequest request = new ContentQueryRequest(
                 null, input, null, null, null,
                 null, null, null
             );
@@ -265,7 +265,7 @@ class ContentQueryRequestTest {
         @DisplayName("앞뒤 공백은 trim 된다")
         void withLeadingTrailingSpaces_trimmed() {
             // when
-            var request = new ContentQueryRequest(
+            ContentQueryRequest request = new ContentQueryRequest(
                 null, "  영화  ", null, null, null,
                 null, null, null
             );
@@ -279,7 +279,7 @@ class ContentQueryRequestTest {
         @DisplayName("숫자/특수문자만 2글자는 null로 정규화된다 (영문 규칙 적용)")
         void withTwoSpecialChars_normalizesToNull(String keyword) {
             // when
-            var request = new ContentQueryRequest(
+            ContentQueryRequest request = new ContentQueryRequest(
                 null, keyword, null, null, null,
                 null, null, null
             );
@@ -293,12 +293,29 @@ class ContentQueryRequestTest {
         @DisplayName("숫자/특수문자만 3글자 이상이면 유지된다")
         void withThreeOrMoreSpecialChars_keepsKeyword(String keyword) {
             // when
-            var request = new ContentQueryRequest(
+            ContentQueryRequest request = new ContentQueryRequest(
                 null, keyword, null, null, null,
                 null, null, null
             );
 
             // then
+            assertThat(request.keywordLike()).isEqualTo(keyword);
+        }
+
+        @Test
+        @DisplayName("한글 자모 확장 영역 문자는 완성형으로 인식되지 않는다")
+        void withHangulJamoExtended_notRecognizedAsSyllable() {
+            // given - 한글 자모 확장 A 영역 (U+D7B0~U+D7FF)
+            // 이 문자는 '가'(U+AC00) 이상이지만 '힣'(U+D7A3) 초과
+            String keyword = "ab\uD7B0";
+
+            // when
+            ContentQueryRequest request = new ContentQueryRequest(
+                null, keyword, null, null, null,
+                null, null, null
+            );
+
+            // then - 한글 완성형이 없으므로 영문 규칙(3글자 이상) 적용
             assertThat(request.keywordLike()).isEqualTo(keyword);
         }
     }
@@ -311,7 +328,7 @@ class ContentQueryRequestTest {
         @DisplayName("모든 필드가 정상적으로 전달된다")
         void withAllFields_allFieldsPreserved() {
             // when
-            var request = new ContentQueryRequest(
+            ContentQueryRequest request = new ContentQueryRequest(
                 ContentType.movie,
                 "인셉션",
                 java.util.List.of("SF", "액션"),

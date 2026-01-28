@@ -1,91 +1,86 @@
 package com.mopl.sse.interfaces.api;
 
-import com.mopl.domain.model.user.UserModel;
 import com.mopl.security.userdetails.MoplUserDetails;
 import com.mopl.sse.application.SseFacade;
+import com.mopl.sse.config.TestSecurityConfig;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.time.Instant;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
-@DisplayName("SseController 단위 테스트")
+@WebMvcTest(controllers = SseController.class)
+@Import(TestSecurityConfig.class)
+@DisplayName("SseController 슬라이스 테스트")
 class SseControllerTest {
 
-    @Mock
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
     private SseFacade sseFacade;
 
-    @InjectMocks
-    private SseController sseController;
+    private MoplUserDetails mockUserDetails;
+    private UUID mockUserId;
+
+    @BeforeEach
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    void setUp() {
+        mockUserId = UUID.randomUUID();
+
+        mockUserDetails = mock(MoplUserDetails.class);
+        given(mockUserDetails.userId()).willReturn(mockUserId);
+        given(mockUserDetails.getAuthorities()).willReturn(
+            (Collection) Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+        );
+    }
 
     @Nested
-    @DisplayName("subscribe()")
+    @DisplayName("GET /api/sse")
     class SubscribeTest {
 
         @Test
-        @DisplayName("lastEventId 없이 구독 요청")
-        void withoutLastEventId_subscribes() {
+        @DisplayName("lastEventId 없이 구독 요청 시 200 OK 반환")
+        void withoutLastEventId_returns200() throws Exception {
             // given
-            UUID userId = UUID.randomUUID();
-            MoplUserDetails userDetails = MoplUserDetails.builder()
-                .userId(userId)
-                .role(UserModel.Role.USER)
-                .createdAt(Instant.now())
-                .password("encoded")
-                .email("test@example.com")
-                .name("홍길동")
-                .profileImagePath(null)
-                .locked(false)
-                .build();
-
             SseEmitter expectedEmitter = new SseEmitter();
-            given(sseFacade.subscribe(userId, null)).willReturn(expectedEmitter);
+            given(sseFacade.subscribe(mockUserId, null)).willReturn(expectedEmitter);
 
-            // when
-            SseEmitter result = sseController.subscribe(userDetails, null);
-
-            // then
-            assertThat(result).isEqualTo(expectedEmitter);
-            then(sseFacade).should().subscribe(userId, null);
+            // when & then
+            mockMvc.perform(get("/api/sse")
+                    .with(user(mockUserDetails)))
+                .andExpect(status().isOk());
         }
 
         @Test
-        @DisplayName("lastEventId와 함께 구독 요청")
-        void withLastEventId_subscribes() {
+        @DisplayName("lastEventId와 함께 구독 요청 시 200 OK 반환")
+        void withLastEventId_returns200() throws Exception {
             // given
-            UUID userId = UUID.randomUUID();
             UUID lastEventId = UUID.randomUUID();
-            MoplUserDetails userDetails = MoplUserDetails.builder()
-                .userId(userId)
-                .role(UserModel.Role.USER)
-                .createdAt(Instant.now())
-                .password("encoded")
-                .email("test@example.com")
-                .name("홍길동")
-                .profileImagePath(null)
-                .locked(false)
-                .build();
-
             SseEmitter expectedEmitter = new SseEmitter();
-            given(sseFacade.subscribe(userId, lastEventId)).willReturn(expectedEmitter);
+            given(sseFacade.subscribe(mockUserId, lastEventId)).willReturn(expectedEmitter);
 
-            // when
-            SseEmitter result = sseController.subscribe(userDetails, lastEventId);
-
-            // then
-            assertThat(result).isEqualTo(expectedEmitter);
-            then(sseFacade).should().subscribe(userId, lastEventId);
+            // when & then
+            mockMvc.perform(get("/api/sse")
+                    .param("lastEventId", lastEventId.toString())
+                    .with(user(mockUserDetails)))
+                .andExpect(status().isOk());
         }
     }
 }
