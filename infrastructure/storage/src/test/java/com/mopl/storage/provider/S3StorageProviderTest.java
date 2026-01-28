@@ -291,7 +291,7 @@ class S3StorageProviderTest {
                 .willReturn(response);
 
             // when
-            var result = storageProvider.listObjects(prefix, null, 10);
+            List<String> result = storageProvider.listObjects(prefix, null, 10);
 
             // then
             assertThat(result).containsExactly("images/a.png", "images/b.png");
@@ -309,7 +309,7 @@ class S3StorageProviderTest {
                 .willReturn(response);
 
             // when
-            var result = storageProvider.listObjects("files/", "files/1.txt", 10);
+            List<String> result = storageProvider.listObjects("files/", "files/1.txt", 10);
 
             // then
             assertThat(result).containsExactly("files/2.txt");
@@ -328,10 +328,49 @@ class S3StorageProviderTest {
                 .willReturn(response);
 
             // when
-            var result = storageProvider.listObjects("non-existent/", null, 10);
+            List<String> result = storageProvider.listObjects("non-existent/", null, 10);
 
             // then
             assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("startAfter가 빈 문자열이면 무시")
+        void ignoresEmptyStartAfter() {
+            // given
+            ListObjectsV2Response response = ListObjectsV2Response.builder()
+                .contents(
+                    S3Object.builder().key("files/1.txt").build(),
+                    S3Object.builder().key("files/2.txt").build()
+                )
+                .build();
+
+            given(s3Client.listObjectsV2(any(ListObjectsV2Request.class)))
+                .willReturn(response);
+
+            // when
+            List<String> result = storageProvider.listObjects("files/", "", 10);
+
+            // then
+            assertThat(result).containsExactly("files/1.txt", "files/2.txt");
+        }
+
+        @Test
+        @DisplayName("startAfter가 공백 문자열이면 무시")
+        void ignoresBlankStartAfter() {
+            // given
+            ListObjectsV2Response response = ListObjectsV2Response.builder()
+                .contents(S3Object.builder().key("docs/a.txt").build())
+                .build();
+
+            given(s3Client.listObjectsV2(any(ListObjectsV2Request.class)))
+                .willReturn(response);
+
+            // when
+            List<String> result = storageProvider.listObjects("docs/", "   ", 10);
+
+            // then
+            assertThat(result).containsExactly("docs/a.txt");
         }
     }
 }

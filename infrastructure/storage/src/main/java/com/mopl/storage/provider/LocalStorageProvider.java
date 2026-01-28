@@ -106,7 +106,7 @@ public class LocalStorageProvider implements StorageProvider {
         if (!Files.isDirectory(prefixPath)) {
             prefixPath = prefixPath.getParent();
         }
-        if (prefixPath == null || !Files.exists(prefixPath)) {
+        if (!Files.exists(prefixPath)) {
             return List.of();
         }
 

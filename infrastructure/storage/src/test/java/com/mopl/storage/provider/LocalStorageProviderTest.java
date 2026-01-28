@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -360,7 +361,7 @@ class LocalStorageProviderTest {
             Files.createFile(subDir.resolve("c.png"));
 
             // when
-            var result = storageProvider.listObjects("images/", null, 10);
+            List<String> result = storageProvider.listObjects("images/", null, 10);
 
             // then
             assertThat(result).containsExactly("images/a.png", "images/b.png", "images/c.png");
@@ -377,7 +378,7 @@ class LocalStorageProviderTest {
             Files.createFile(subDir.resolve("3.txt"));
 
             // when
-            var result = storageProvider.listObjects("files/", "files/1.txt", 10);
+            List<String> result = storageProvider.listObjects("files/", "files/1.txt", 10);
 
             // then
             assertThat(result).containsExactly("files/2.txt", "files/3.txt");
@@ -394,7 +395,7 @@ class LocalStorageProviderTest {
             Files.createFile(subDir.resolve("3.txt"));
 
             // when
-            var result = storageProvider.listObjects("limited/", null, 2);
+            List<String> result = storageProvider.listObjects("limited/", null, 2);
 
             // then
             assertThat(result).hasSize(2);
@@ -404,7 +405,7 @@ class LocalStorageProviderTest {
         @DisplayName("존재하지 않는 디렉토리면 빈 리스트 반환")
         void returnsEmptyListForNonExistingDirectory() {
             // when
-            var result = storageProvider.listObjects("non-existent/", null, 10);
+            List<String> result = storageProvider.listObjects("non-existent/", null, 10);
 
             // then
             assertThat(result).isEmpty();
@@ -419,7 +420,7 @@ class LocalStorageProviderTest {
             Files.createFile(subDir.resolve("readme.md"));
 
             // when
-            var result = storageProvider.listObjects("docs/readme.md", null, 10);
+            List<String> result = storageProvider.listObjects("docs/readme.md", null, 10);
 
             // then
             assertThat(result).containsExactly("docs/readme.md");
@@ -435,7 +436,7 @@ class LocalStorageProviderTest {
             Files.createFile(subDir.resolve("2.txt"));
 
             // when
-            var result = storageProvider.listObjects("blank-test/", "", 10);
+            List<String> result = storageProvider.listObjects("blank-test/", "", 10);
 
             // then
             assertThat(result).containsExactly("blank-test/1.txt", "blank-test/2.txt");
@@ -450,7 +451,7 @@ class LocalStorageProviderTest {
             Files.createFile(subDir.resolve("a.txt"));
 
             // when
-            var result = storageProvider.listObjects("whitespace-test/", "   ", 10);
+            List<String> result = storageProvider.listObjects("whitespace-test/", "   ", 10);
 
             // then
             assertThat(result).containsExactly("whitespace-test/a.txt");
@@ -460,7 +461,29 @@ class LocalStorageProviderTest {
         @DisplayName("prefix의 부모 디렉토리가 존재하지 않으면 빈 리스트 반환")
         void returnsEmptyListWhenParentDirectoryNotExists() {
             // when - 존재하지 않는 경로의 파일을 prefix로 사용
-            var result = storageProvider.listObjects("non-existent-dir/file.txt", null, 10);
+            List<String> result = storageProvider.listObjects("non-existent-dir/file.txt", null, 10);
+
+            // then
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("디렉토리 탐색 중 IOException 발생 시 빈 리스트 반환")
+        @DisabledOnOs(OS.WINDOWS)
+        void returnsEmptyListOnIOException() throws IOException {
+            // given
+            Path subDir = tempDir.resolve("walk-error");
+            Files.createDirectories(subDir);
+            Files.createFile(subDir.resolve("file.txt"));
+            Files.setPosixFilePermissions(subDir, PosixFilePermissions.fromString("--x--x--x"));
+
+            // when
+            List<String> result;
+            try {
+                result = storageProvider.listObjects("walk-error/", null, 10);
+            } finally {
+                Files.setPosixFilePermissions(subDir, PosixFilePermissions.fromString("rwxr-xr-x"));
+            }
 
             // then
             assertThat(result).isEmpty();
