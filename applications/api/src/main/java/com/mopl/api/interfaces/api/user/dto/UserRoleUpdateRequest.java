@@ -12,10 +12,8 @@ import jakarta.validation.constraints.NotNull;
         }
         """
 )
-// @formatter:off
 public record UserRoleUpdateRequest(
-    @Schema(description = "할당할 역할", allowableValues = {"USER", "ADMIN"}, example = "ADMIN")
+    @Schema(description = "역할", example = "ADMIN")
     @NotNull UserModel.Role role
 ) {
 }
-// @formatter:on
