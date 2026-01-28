@@ -20,7 +20,6 @@ public class FileController implements FileApiSpec {
 
     private final StorageProvider storageProvider;
 
-    @Override
     @GetMapping("/display")
     public ResponseEntity<Resource> display(@RequestParam String path) {
         Resource resource = storageProvider.download(path);
