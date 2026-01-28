@@ -6,13 +6,33 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yaml"
       - "--storage.tsdb.path=/prometheus"
       - "--storage.tsdb.retention.time=15d"
+      - "--web.enable-lifecycle"
     volumes:
       - ./monitoring/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
+      - ./monitoring/alert-rules.yaml:/etc/prometheus/alert-rules.yaml:ro
       - prometheus-data:/prometheus
     ports:
       - "9090:9090"
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    depends_on:
+      - alertmanager
+    networks:
+      - mopl-net
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: mopl-alertmanager
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yaml"
+      - "--storage.path=/alertmanager"
+    volumes:
+      - ./monitoring/alertmanager.yaml:/etc/alertmanager/alertmanager.yaml:ro
+      - alertmanager-data:/alertmanager
+    ports:
+      - "9093:9093"
+    environment:
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL:-}
     networks:
       - mopl-net
 
@@ -48,4 +68,5 @@ networks:
 
 volumes:
   prometheus-data:
+  alertmanager-data:
   grafana-data:
