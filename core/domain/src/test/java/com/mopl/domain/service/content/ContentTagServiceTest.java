@@ -310,7 +310,7 @@ class ContentTagServiceTest {
             UUID contentId = UUID.randomUUID();
 
             // when
-            contentTagService.deleteAllByContentId(contentId);
+            contentTagService.deleteByContentId(contentId);
 
             // then
             then(contentTagRepository).should().deleteByContentId(contentId);

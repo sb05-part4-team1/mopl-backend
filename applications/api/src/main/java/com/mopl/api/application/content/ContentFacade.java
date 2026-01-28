@@ -121,7 +121,7 @@ public class ContentFacade {
             ContentModel saved = contentService.update(updatedContentModel);
 
             if (request.tags() != null) {
-                contentTagService.deleteAllByContentId(saved.getId());
+                contentTagService.deleteByContentId(saved.getId());
                 contentTagService.applyTags(saved.getId(), request.tags());
             }
 
