@@ -28,7 +28,7 @@ public class OutboxScheduler {
     @Scheduled(fixedDelay = 1000)
     @SchedulerLock(name = "outbox_publish", lockAtLeastFor = "PT1S", lockAtMostFor = "PT5M")
     public void publishPendingEvents() {
-        try (var ignored = LogContext.scoped("job", "outboxPublish")) {
+        try (LogContext.Scope ignored = LogContext.scoped("job", "outboxPublish")) {
             List<OutboxModel> pendingEvents = outboxRepository.findPendingEvents(MAX_RETRY, BATCH_SIZE);
 
             for (OutboxModel event : pendingEvents) {
