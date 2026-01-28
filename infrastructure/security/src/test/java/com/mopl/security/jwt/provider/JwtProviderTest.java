@@ -332,5 +332,25 @@ class JwtProviderTest {
             assertThatThrownBy(() -> jwtProvider.verifyAndParse("invalid.token.format", TokenType.ACCESS))
                 .isInstanceOf(InvalidTokenException.class);
         }
+
+        @Test
+        @DisplayName("만료 시간이 현재 시간과 같으면 검증에 실패한다")
+        void withExpirationEqualToNow_throwsException() {
+            // given - Duration.ZERO로 토큰 생성 시 즉시 만료
+            JwtProperties zeroExpProperties = new JwtProperties(
+                new JwtProperties.Config(ACCESS_SECRET, Duration.ZERO, null),
+                new JwtProperties.Config(REFRESH_SECRET, REFRESH_EXPIRATION, null),
+                3,
+                JwtProperties.JwtRegistryType.IN_MEMORY,
+                "REFRESH_TOKEN"
+            );
+            JwtProvider zeroExpProvider = new JwtProvider(zeroExpProperties);
+            UUID userId = UUID.randomUUID();
+            JwtInformation token = zeroExpProvider.issueTokenPair(userId, UserModel.Role.USER);
+
+            // when & then - 즉시 만료되어야 함
+            assertThatThrownBy(() -> jwtProvider.verifyAndParse(token.accessToken(), TokenType.ACCESS))
+                .isInstanceOf(InvalidTokenException.class);
+        }
     }
 }

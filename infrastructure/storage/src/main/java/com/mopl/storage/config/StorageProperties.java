@@ -42,8 +42,7 @@ public record StorageProperties(
         }
         if (type == StorageType.S3) {
             Assert.notNull(s3, "mopl.storage.s3 must not be null when type is S3");
-            Assert.hasText(s3.accessKey(), "mopl.storage.s3.access-key must not be empty when type is S3");
-            Assert.hasText(s3.secretKey(), "mopl.storage.s3.secret-key must not be empty when type is S3");
+            // accessKey, secretKey는 선택사항 (미설정 시 IAM Role/DefaultCredentialsProvider 사용)
             Assert.hasText(s3.region(), "mopl.storage.s3.region must not be empty when type is S3");
             Assert.hasText(s3.bucket(), "mopl.storage.s3.bucket must not be empty when type is S3");
             Assert.notNull(s3.presignedUrlExpiration(), "mopl.storage.s3.presigned-url-expiration must not be null when type is S3");

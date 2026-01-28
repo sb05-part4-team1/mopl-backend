@@ -614,6 +614,156 @@ class RedisJwtRegistryTest {
         }
     }
 
+    @Nested
+    @DisplayName("추가 엣지 케이스")
+    class AdditionalEdgeCasesTest {
+
+        @Test
+        @DisplayName("register 시 evictedSession이 있으나 accessTokenJti가 null인 경우 블랙리스트에 추가하지 않음")
+        @SuppressWarnings("unchecked")
+        void doesNotBlacklistWhenAccessTokenJtiIsNull() throws Exception {
+            // given
+            UUID userId = UUID.randomUUID();
+            JwtInformation jwtInfo = createJwtInformation(userId);
+
+            // accessTokenJti가 없는 세션 (비정상 데이터)
+            Map<String, Object> evictedSessionMap = new HashMap<>();
+            evictedSessionMap.put("accessTokenExp", System.currentTimeMillis() + 60000);
+            evictedSessionMap.put("createdAt", 1704067200000L);
+            // accessTokenJti 누락
+            String evictedSessionJson = objectMapper.writeValueAsString(evictedSessionMap);
+
+            Map<String, Object> luaResultMap = new HashMap<>();
+            luaResultMap.put("evictedJti", "old-jti");
+            luaResultMap.put("evictedSession", evictedSessionJson);
+            String luaResult = objectMapper.writeValueAsString(luaResultMap);
+
+            given(redisTemplate.execute(
+                any(RedisScript.class),
+                anyList(),
+                anyString(), anyString(), anyString(), anyString()
+            )).willReturn(luaResult);
+
+            // when
+            redisJwtRegistry.register(jwtInfo);
+
+            // then - 파싱 실패로 블랙리스트에 추가되지 않음
+            then(valueOperations).should(never()).set(anyString(), any(), anyLong(), any());
+        }
+
+        @Test
+        @DisplayName("rotate 시 oldSession이 null인 경우에도 정상 처리됨")
+        @SuppressWarnings("unchecked")
+        void handlesNullOldSessionInRotate() throws Exception {
+            // given
+            UUID userId = UUID.randomUUID();
+            UUID oldJti = UUID.randomUUID();
+            JwtInformation newJwtInfo = createJwtInformation(userId);
+
+            Map<String, Object> luaResultMap = new HashMap<>();
+            luaResultMap.put("oldSession", null);
+            String luaResult = objectMapper.writeValueAsString(luaResultMap);
+
+            given(redisTemplate.execute(
+                any(RedisScript.class),
+                anyList(),
+                anyString(), anyString(), anyString(), anyString()
+            )).willReturn(luaResult);
+
+            // when
+            redisJwtRegistry.rotate(oldJti, newJwtInfo);
+
+            // then - 블랙리스트에 추가되지 않고 정상 완료
+            then(valueOperations).should(never()).set(anyString(), any(), anyLong(), any());
+        }
+
+        @Test
+        @DisplayName("addToBlacklist 시 accessTokenJti가 null이면 무시")
+        @SuppressWarnings("unchecked")
+        void skipsBlacklistWhenAccessTokenJtiIsNullInRotate() throws Exception {
+            // given
+            UUID userId = UUID.randomUUID();
+            UUID oldJti = UUID.randomUUID();
+            JwtInformation newJwtInfo = createJwtInformation(userId);
+
+            // accessTokenJti가 null인 세션
+            Map<String, Object> oldSessionMap = new HashMap<>();
+            oldSessionMap.put("accessTokenJti", null);
+            oldSessionMap.put("accessTokenExp", System.currentTimeMillis() + 60000);
+            oldSessionMap.put("createdAt", 1704067200000L);
+            String oldSessionJson = objectMapper.writeValueAsString(oldSessionMap);
+
+            Map<String, Object> luaResultMap = new HashMap<>();
+            luaResultMap.put("oldSession", oldSessionJson);
+            String luaResult = objectMapper.writeValueAsString(luaResultMap);
+
+            given(redisTemplate.execute(
+                any(RedisScript.class),
+                anyList(),
+                anyString(), anyString(), anyString(), anyString()
+            )).willReturn(luaResult);
+
+            // when
+            redisJwtRegistry.rotate(oldJti, newJwtInfo);
+
+            // then - accessTokenJti가 null이면 블랙리스트에 추가되지 않음
+            then(valueOperations).should(never()).set(anyString(), any(), anyLong(), any());
+        }
+
+        @Test
+        @DisplayName("revokeAllByUserId 시 세션의 accessTokenExp가 null인 경우 블랙리스트에 추가하지 않음")
+        void skipsBlacklistWhenAccessTokenExpIsNull() throws Exception {
+            // given
+            UUID userId = UUID.randomUUID();
+            String whitelistKey = "jwt:whitelist:" + userId;
+
+            // accessTokenExp가 없는 비정상 세션
+            Map<String, Object> sessionMap = new HashMap<>();
+            sessionMap.put("accessTokenJti", UUID.randomUUID().toString());
+            sessionMap.put("createdAt", 1704067200000L);
+            // accessTokenExp 누락
+            String sessionJson = objectMapper.writeValueAsString(sessionMap);
+
+            Map<Object, Object> sessions = new HashMap<>();
+            sessions.put("jti1", sessionJson);
+
+            given(hashOperations.entries(whitelistKey)).willReturn(sessions);
+
+            // when
+            redisJwtRegistry.revokeAllByUserId(userId);
+
+            // then - 파싱 실패로 블랙리스트에 추가되지 않음
+            then(redisTemplate).should().delete(whitelistKey);
+            then(valueOperations).should(never()).set(anyString(), any(), anyLong(), any());
+        }
+
+        @Test
+        @DisplayName("register 시 evictedJti가 없는 경우에도 정상 처리됨")
+        @SuppressWarnings("unchecked")
+        void handlesResultWithoutEvictedJti() throws Exception {
+            // given
+            UUID userId = UUID.randomUUID();
+            JwtInformation jwtInfo = createJwtInformation(userId);
+
+            // evictedJti 없는 결과 (세션 퇴출 없음)
+            Map<String, Object> luaResultMap = new HashMap<>();
+            luaResultMap.put("someOtherField", "value");
+            String luaResult = objectMapper.writeValueAsString(luaResultMap);
+
+            given(redisTemplate.execute(
+                any(RedisScript.class),
+                anyList(),
+                anyString(), anyString(), anyString(), anyString()
+            )).willReturn(luaResult);
+
+            // when
+            redisJwtRegistry.register(jwtInfo);
+
+            // then - 정상 완료
+            then(valueOperations).should(never()).set(anyString(), any(), anyLong(), any());
+        }
+    }
+
     private JwtInformation createJwtInformation(UUID userId) {
         Date now = new Date();
         Date accessExpiry = new Date(now.getTime() + 1800_000);

@@ -323,6 +323,24 @@ class InMemoryJwtRegistryTest {
             // when & then
             registry.revokeRefreshToken(userId, randomJti);
         }
+
+        @Test
+        @DisplayName("마지막 세션을 제거하면 사용자의 화이트리스트 엔트리가 삭제된다")
+        void whenLastSessionRemoved_userEntryIsDeleted() {
+            // given
+            UUID userId = UUID.randomUUID();
+            JwtInformation jwtInfo = createJwtInformation(userId);
+
+            registry.register(jwtInfo);
+
+            // when
+            registry.revokeRefreshToken(userId, jwtInfo.refreshTokenJti());
+
+            // then - 이후 새 세션을 등록해도 정상 동작해야 함
+            JwtInformation newSession = createJwtInformation(userId);
+            registry.register(newSession);
+            assertThat(registry.isRefreshTokenNotInWhitelist(userId, newSession.refreshTokenJti())).isFalse();
+        }
     }
 
     @Nested
@@ -365,6 +383,54 @@ class InMemoryJwtRegistryTest {
             // then
             assertThat(registry.isAccessTokenInBlacklist(session1.accessTokenPayload().jti())).isTrue();
             assertThat(registry.isAccessTokenInBlacklist(session2.accessTokenPayload().jti())).isTrue();
+        }
+
+        @Test
+        @DisplayName("등록되지 않은 사용자의 세션 무효화 시 예외가 발생하지 않는다")
+        void withUnregisteredUser_doesNotThrowException() {
+            // given
+            UUID unregisteredUserId = UUID.randomUUID();
+
+            // when & then - null sessions 처리 확인
+            registry.revokeAllByUserId(unregisteredUserId);
+        }
+
+        @Test
+        @DisplayName("만료된 액세스 토큰은 블랙리스트에 추가되지 않는다")
+        void expiredAccessTokens_areNotBlacklisted() {
+            // given
+            UUID userId = UUID.randomUUID();
+            Date now = new Date();
+            Date pastTime = new Date(now.getTime() - 60000); // 이미 만료됨
+
+            JwtPayload expiredAccessPayload = new JwtPayload(
+                userId,
+                UUID.randomUUID(),
+                new Date(now.getTime() - 120000),
+                pastTime,
+                UserModel.Role.USER
+            );
+            JwtPayload refreshPayload = new JwtPayload(
+                userId,
+                UUID.randomUUID(),
+                now,
+                new Date(now.getTime() + 604800_000),
+                UserModel.Role.USER
+            );
+            JwtInformation sessionWithExpiredAccess = new JwtInformation(
+                "access-token",
+                "refresh-token",
+                expiredAccessPayload,
+                refreshPayload
+            );
+
+            registry.register(sessionWithExpiredAccess);
+
+            // when
+            registry.revokeAllByUserId(userId);
+
+            // then - 이미 만료된 액세스 토큰은 블랙리스트에 추가되지 않음
+            assertThat(registry.isAccessTokenInBlacklist(expiredAccessPayload.jti())).isFalse();
         }
     }
 
