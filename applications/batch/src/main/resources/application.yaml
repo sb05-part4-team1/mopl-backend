@@ -12,9 +12,10 @@ spring:
     import:
       - optional:file:.env[.properties]
       - jpa.yaml
-      - storage.yaml
+      - logging.yaml
       - openapi.yaml
       - search.yaml
+      - storage.yaml
 
   threads:
     virtual:

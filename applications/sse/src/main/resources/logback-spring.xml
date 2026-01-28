@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="logback-common.xml"/>
+
+    <!-- test 프로파일 -->
+    <springProfile name="test">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+        <logger name="org.springframework" level="WARN"/>
+        <logger name="org.hibernate" level="WARN"/>
+        <logger name="com.mopl" level="DEBUG"/>
+    </springProfile>
+
+    <!-- local 프로파일 -->
+    <springProfile name="local">
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+        <logger name="org.springframework" level="INFO"/>
+    </springProfile>
+
+    <!-- dev 프로파일 -->
+    <springProfile name="dev">
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="TEXT_FILE"/>
+        </root>
+        <logger name="org.springframework" level="INFO"/>
+    </springProfile>
+
+    <!-- prod 프로파일 -->
+    <springProfile name="prod">
+        <root level="INFO">
+            <appender-ref ref="ASYNC_JSON_FILE"/>
+            <appender-ref ref="ASYNC_SLACK"/>
+        </root>
+        <logger name="org.springframework" level="WARN"/>
+        <logger name="com.mopl" level="INFO"/>
+    </springProfile>
+</configuration>

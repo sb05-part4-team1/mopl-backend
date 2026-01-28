@@ -10,7 +10,7 @@ plugins {
 }
 
 val springBootVersion: String by project
-val checkstyleVersion = "10.12.3"
+val checkstyleVersion: String by project
 
 val jacocoExclusions = listOf(
     "**/entity/**/Q*.class",
@@ -32,8 +32,10 @@ java {
     }
 }
 
+val projectGroup: String by project
+
 allprojects {
-    group = "com.mopl"
+    group = projectGroup
     version = "0.0.1"
 
     repositories {

@@ -1,5 +1,6 @@
 package com.mopl.mail.service;
 
+import com.mopl.logging.context.LogContext;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +25,11 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    public void sendTemporaryPassword(String to, String temporaryPassword,
-        LocalDateTime expiresAt) {
+    public void sendTemporaryPassword(
+        String to,
+        String temporaryPassword,
+        LocalDateTime expiresAt
+    ) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -36,13 +40,17 @@ public class EmailService {
             helper.setText(buildTemporaryPasswordEmailHtml(temporaryPassword, expiresAt), true);
 
             mailSender.send(message);
+            LogContext.with("to", to).and("type", "temporaryPassword").info("Email sent");
         } catch (MessagingException e) {
+            LogContext.with("to", to).and("type", "temporaryPassword").error("Email send failed", e);
             throw new RuntimeException("이메일 발송에 실패했습니다.", e);
         }
     }
 
-    private String buildTemporaryPasswordEmailHtml(String temporaryPassword,
-        LocalDateTime expiresAt) {
+    private String buildTemporaryPasswordEmailHtml(
+        String temporaryPassword,
+        LocalDateTime expiresAt
+    ) {
         String formattedExpiresAt = expiresAt.format(DATE_FORMATTER);
 
         return """

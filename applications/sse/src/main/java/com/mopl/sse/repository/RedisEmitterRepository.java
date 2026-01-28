@@ -3,7 +3,6 @@ package com.mopl.sse.repository;
 import com.mopl.sse.config.SseProperties;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Repository;
@@ -19,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
 @RequiredArgsConstructor
-@Slf4j
 public class RedisEmitterRepository {
 
     private static final String EVENT_CACHE_KEY_PREFIX = "sse:events:";
@@ -31,7 +29,6 @@ public class RedisEmitterRepository {
 
     public void save(UUID userId, SseEmitter emitter) {
         localEmitters.put(userId, emitter);
-        log.debug("Saved emitter for user: {}", userId);
     }
 
     public Optional<SseEmitter> findByUserId(UUID userId) {
@@ -40,7 +37,6 @@ public class RedisEmitterRepository {
 
     public void deleteByUserId(UUID userId) {
         localEmitters.remove(userId);
-        log.debug("Deleted emitter for user: {}", userId);
     }
 
     public boolean existsLocally(UUID userId) {

@@ -13,8 +13,8 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 import org.springframework.lang.NonNull;
 
 @Configuration
-@EnableConfigurationProperties(ElasticsearchProperties.class)
 @EnableElasticsearchRepositories(basePackages = "com.mopl.search.content.repository")
+@EnableConfigurationProperties(ElasticsearchProperties.class)
 @RequiredArgsConstructor
 public class ElasticsearchConfig extends ElasticsearchConfiguration {
 

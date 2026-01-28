@@ -1,17 +1,16 @@
 package com.mopl.security.oauth2.handler;
 
+import com.mopl.logging.context.LogContext;
 import com.mopl.security.config.OAuth2Properties;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 
-@Slf4j
 @RequiredArgsConstructor
 public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
@@ -23,7 +22,7 @@ public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler 
         HttpServletResponse response,
         AuthenticationException exception
     ) throws IOException {
-        log.error("OAuth2 로그인 실패: {}", exception.getMessage());
+        LogContext.with("reason", exception.getMessage()).warn("OAuth2 sign-in failed");
 
         String redirectUrl = UriComponentsBuilder
             .fromUriString(oAuth2Properties.frontendRedirectUri())

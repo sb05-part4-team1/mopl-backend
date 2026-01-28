@@ -2,10 +2,10 @@ package com.mopl.websocket.interfaces.redis;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mopl.logging.context.LogContext;
 import com.mopl.redis.pubsub.WebSocketMessagePublisher;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 @Component
 @ConditionalOnProperty(name = "websocket.broadcaster", havingValue = "redis")
 @RequiredArgsConstructor
-@Slf4j
 public class RedisWebSocketMessageSubscriber implements MessageListener {
 
     private final RedisMessageListenerContainer redisMessageListenerContainer;
@@ -31,7 +30,7 @@ public class RedisWebSocketMessageSubscriber implements MessageListener {
             this,
             new ChannelTopic(WebSocketMessagePublisher.CHANNEL)
         );
-        log.info("Subscribed to Redis channel: {}", WebSocketMessagePublisher.CHANNEL);
+        LogContext.with("channel", WebSocketMessagePublisher.CHANNEL).info("Subscribed to Redis channel");
     }
 
     @Override
@@ -42,9 +41,9 @@ public class RedisWebSocketMessageSubscriber implements MessageListener {
             JsonNode payload = rootNode.get("payload");
 
             messagingTemplate.convertAndSend(destination, payload);
-            log.debug("Forwarded Redis message to WebSocket destination: {}", destination);
+            LogContext.with("destination", destination).debug("Forwarded Redis message to WebSocket");
         } catch (Exception e) {
-            log.error("Failed to process Redis WebSocket message", e);
+            LogContext.with("subscriber", "websocket").error("Failed to process Redis message", e);
         }
     }
 }

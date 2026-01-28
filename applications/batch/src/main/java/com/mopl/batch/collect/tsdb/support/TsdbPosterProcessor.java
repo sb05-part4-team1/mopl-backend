@@ -2,15 +2,14 @@ package com.mopl.batch.collect.tsdb.support;
 
 import com.mopl.external.tsdb.client.TsdbClient;
 import com.mopl.external.tsdb.exception.TsdbImageDownloadException;
+import com.mopl.logging.context.LogContext;
 import com.mopl.storage.provider.StorageProvider;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TsdbPosterProcessor {
@@ -36,24 +35,22 @@ public class TsdbPosterProcessor {
             return filePath;
 
         } catch (TsdbImageDownloadException e) {
-            log.warn(
-                "TSDB poster download failed: externalId={}, url={}",
-                externalId, e.getImageUrl()
-            );
+            LogContext.with("processor", "tsdbPoster")
+                .and("externalId", externalId)
+                .and("url", e.getImageUrl())
+                .warn("Poster download failed");
             return null;
 
         } catch (IOException e) {
-            log.error(
-                "Failed to read image stream: externalId={}",
-                externalId, e
-            );
+            LogContext.with("processor", "tsdbPoster")
+                .and("externalId", externalId)
+                .error("Failed to read image stream", e);
             return null;
 
         } catch (Exception e) {
-            log.error(
-                "Unexpected error while processing TSDB poster: externalId={}",
-                externalId, e
-            );
+            LogContext.with("processor", "tsdbPoster")
+                .and("externalId", externalId)
+                .error("Unexpected error while processing poster", e);
             return null;
         }
     }

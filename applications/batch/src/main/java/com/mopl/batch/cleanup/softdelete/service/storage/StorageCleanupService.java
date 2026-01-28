@@ -4,15 +4,14 @@ import com.mopl.batch.cleanup.softdelete.config.SoftDeleteCleanupPolicyResolver;
 import com.mopl.batch.cleanup.softdelete.config.SoftDeleteCleanupProperties;
 import com.mopl.domain.repository.content.batch.ContentDeletionLogItem;
 import com.mopl.domain.repository.content.batch.ContentDeletionLogRepository;
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class StorageCleanupService {
 
     private static final int MAX_ITERATIONS = 10000;
@@ -38,8 +37,10 @@ public class StorageCleanupService {
 
             int deleted = storageCleanupTxService.cleanupBatch(targets);
             if (deleted == 0) {
-                log.warn("[SoftDeleteCleanup] storage found {} targets but deleted 0, breaking to prevent infinite loop",
-                    targets.size());
+                LogContext.with("service", "softDeleteCleanup")
+                    .and("entity", "storage")
+                    .and("foundTargets", targets.size())
+                    .warn("Found targets but deleted 0, breaking to prevent infinite loop");
                 break;
             }
 
@@ -48,8 +49,11 @@ public class StorageCleanupService {
         }
 
         if (iterations >= MAX_ITERATIONS) {
-            log.warn("[SoftDeleteCleanup] storage reached max iterations={}, totalDeletedFiles={}",
-                MAX_ITERATIONS, totalDeletedFiles);
+            LogContext.with("service", "softDeleteCleanup")
+                .and("entity", "storage")
+                .and("maxIterations", MAX_ITERATIONS)
+                .and("totalDeletedFiles", totalDeletedFiles)
+                .warn("Reached max iterations");
         }
 
         return totalDeletedFiles;

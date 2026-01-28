@@ -3,16 +3,15 @@ package com.mopl.batch.cleanup.orphanstorage.service;
 import com.mopl.batch.cleanup.orphanstorage.config.OrphanStorageCleanupPolicyResolver;
 import com.mopl.batch.cleanup.orphanstorage.config.OrphanStorageCleanupProperties;
 import com.mopl.jpa.repository.orphanstorage.JpaOrphanStorageCleanupRepository;
+import com.mopl.logging.context.LogContext;
 import com.mopl.storage.provider.StorageProvider;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class OrphanStorageCleanupService {
 
     private static final String CONTENT_THUMBNAIL_PREFIX = "contents/";
@@ -28,35 +27,40 @@ public class OrphanStorageCleanupService {
         int totalDeleted = 0;
         int iterations = 0;
         int chunkSize = policyResolver.chunkSize(props.contentThumbnail());
+        String startAfter = null;
 
         while (iterations < MAX_ITERATIONS) {
-            List<String> storagePaths = storageProvider.listObjects(CONTENT_THUMBNAIL_PREFIX, chunkSize);
+            List<String> storagePaths = storageProvider.listObjects(CONTENT_THUMBNAIL_PREFIX, startAfter, chunkSize);
 
             if (storagePaths.isEmpty()) {
                 break;
             }
 
-            int deleted = 0;
             for (String path : storagePaths) {
                 if (orphanStorageCleanupRepository.findOneByThumbnailPath(path) == null) {
                     storageProvider.delete(path);
-                    deleted++;
-                    log.info("[OrphanStorageCleanup] deleted orphan content thumbnail: {}", path);
+                    totalDeleted++;
+                    LogContext.with("service", "orphanStorageCleanup")
+                        .and("type", "contentThumbnail")
+                        .and("path", path)
+                        .debug("Deleted orphan file");
                 }
             }
 
             if (storagePaths.size() < chunkSize) {
-                totalDeleted += deleted;
                 break;
             }
 
-            totalDeleted += deleted;
+            startAfter = storagePaths.getLast();
             iterations++;
         }
 
         if (iterations >= MAX_ITERATIONS) {
-            log.warn("[OrphanStorageCleanup] contentThumbnail reached max iterations={}, totalDeleted={}",
-                MAX_ITERATIONS, totalDeleted);
+            LogContext.with("service", "orphanStorageCleanup")
+                .and("type", "contentThumbnail")
+                .and("maxIterations", MAX_ITERATIONS)
+                .and("totalDeleted", totalDeleted)
+                .warn("Reached max iterations");
         }
 
         return totalDeleted;
@@ -66,35 +70,40 @@ public class OrphanStorageCleanupService {
         int totalDeleted = 0;
         int iterations = 0;
         int chunkSize = policyResolver.chunkSize(props.userProfileImage());
+        String startAfter = null;
 
         while (iterations < MAX_ITERATIONS) {
-            List<String> storagePaths = storageProvider.listObjects(USER_PROFILE_IMAGE_PREFIX, chunkSize);
+            List<String> storagePaths = storageProvider.listObjects(USER_PROFILE_IMAGE_PREFIX, startAfter, chunkSize);
 
             if (storagePaths.isEmpty()) {
                 break;
             }
 
-            int deleted = 0;
             for (String path : storagePaths) {
                 if (orphanStorageCleanupRepository.findOneByProfileImagePath(path) == null) {
                     storageProvider.delete(path);
-                    deleted++;
-                    log.info("[OrphanStorageCleanup] deleted orphan user profile image: {}", path);
+                    totalDeleted++;
+                    LogContext.with("service", "orphanStorageCleanup")
+                        .and("type", "userProfileImage")
+                        .and("path", path)
+                        .debug("Deleted orphan file");
                 }
             }
 
             if (storagePaths.size() < chunkSize) {
-                totalDeleted += deleted;
                 break;
             }
 
-            totalDeleted += deleted;
+            startAfter = storagePaths.getLast();
             iterations++;
         }
 
         if (iterations >= MAX_ITERATIONS) {
-            log.warn("[OrphanStorageCleanup] userProfileImage reached max iterations={}, totalDeleted={}",
-                MAX_ITERATIONS, totalDeleted);
+            LogContext.with("service", "orphanStorageCleanup")
+                .and("type", "userProfileImage")
+                .and("maxIterations", MAX_ITERATIONS)
+                .and("totalDeleted", totalDeleted)
+                .warn("Reached max iterations");
         }
 
         return totalDeleted;

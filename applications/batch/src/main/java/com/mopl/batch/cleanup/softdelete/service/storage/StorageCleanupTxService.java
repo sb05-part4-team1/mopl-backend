@@ -2,9 +2,9 @@ package com.mopl.batch.cleanup.softdelete.service.storage;
 
 import com.mopl.domain.repository.content.batch.ContentDeletionLogItem;
 import com.mopl.domain.repository.content.batch.ContentDeletionLogRepository;
+import com.mopl.logging.context.LogContext;
 import com.mopl.storage.provider.StorageProvider;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +15,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class StorageCleanupTxService {
 
     private final StorageProvider storageProvider;
@@ -34,13 +33,11 @@ public class StorageCleanupTxService {
                 storageProvider.delete(path);
                 successLogIds.add(target.logId());
             } catch (Exception e) {
-                log.warn(
-                    "thumbnail delete failed. logId={}, contentId={}, path={}",
-                    target.logId(),
-                    target.contentId(),
-                    path,
-                    e
-                );
+                LogContext.with("service", "storageCleanupTx")
+                    .and("logId", target.logId())
+                    .and("contentId", target.contentId())
+                    .and("path", path)
+                    .warn("Thumbnail delete failed", e);
             }
         }
 

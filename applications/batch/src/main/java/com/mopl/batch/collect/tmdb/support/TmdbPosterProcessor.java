@@ -3,15 +3,14 @@ package com.mopl.batch.collect.tmdb.support;
 import com.mopl.domain.model.content.ContentModel.ContentType;
 import com.mopl.external.tmdb.client.TmdbClient;
 import com.mopl.external.tmdb.exception.TmdbImageDownloadException;
+import com.mopl.logging.context.LogContext;
 import com.mopl.storage.provider.StorageProvider;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TmdbPosterProcessor {
@@ -36,22 +35,23 @@ public class TmdbPosterProcessor {
             storageProvider.upload(resource.getInputStream(), resource.contentLength(), filePath);
             return filePath;
         } catch (TmdbImageDownloadException e) {
-            log.warn(
-                "TMDB poster download failed: type={}, externalId={}, path={}",
-                type, externalId, e.getPosterPath()
-            );
+            LogContext.with("processor", "tmdbPoster")
+                .and("type", type)
+                .and("externalId", externalId)
+                .and("path", e.getPosterPath())
+                .warn("Poster download failed");
 
         } catch (IOException e) {
-            log.error(
-                "Failed to read image stream: type={}, externalId={}",
-                type, externalId, e
-            );
+            LogContext.with("processor", "tmdbPoster")
+                .and("type", type)
+                .and("externalId", externalId)
+                .error("Failed to read image stream", e);
 
         } catch (Exception e) {
-            log.error(
-                "Unexpected error while processing TMDB poster: type={}, externalId={}",
-                type, externalId, e
-            );
+            LogContext.with("processor", "tmdbPoster")
+                .and("type", type)
+                .and("externalId", externalId)
+                .error("Unexpected error while processing poster", e);
         }
         return null;
     }

@@ -17,5 +17,5 @@ public interface StorageProvider {
 
     boolean exists(String path);
 
-    List<String> listObjects(String prefix, int maxKeys);
+    List<String> listObjects(String prefix, String startAfter, int maxKeys);
 }

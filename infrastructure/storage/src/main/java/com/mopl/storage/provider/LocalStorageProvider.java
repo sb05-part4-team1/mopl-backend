@@ -3,10 +3,10 @@ package com.mopl.storage.provider;
 import com.mopl.domain.exception.storage.FileDeleteException;
 import com.mopl.domain.exception.storage.FileNotFoundException;
 import com.mopl.domain.exception.storage.FileUploadException;
+import com.mopl.logging.context.LogContext;
 import com.mopl.storage.config.StorageProperties;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 
@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor
-@Slf4j
 public class LocalStorageProvider implements StorageProvider {
 
     private final StorageProperties.Local localProperties;
@@ -32,10 +31,10 @@ public class LocalStorageProvider implements StorageProvider {
         try {
             if (Files.notExists(localProperties.rootPath())) {
                 Files.createDirectories(localProperties.rootPath());
-                log.info("로컬 스토리지 루트 디렉토리 생성: {}", localProperties.rootPath());
+                LogContext.with("provider", "local").and("rootPath", localProperties.rootPath()).info("Root directory created");
             }
         } catch (IOException e) {
-            log.error("스토리지 초기화 실패", e);
+            LogContext.with("provider", "local").error("Storage initialization failed", e);
             throw new RuntimeException("스토리지 초기화에 실패했습니다.", e);
         }
     }
@@ -46,9 +45,9 @@ public class LocalStorageProvider implements StorageProvider {
         try (inputStream) {
             Files.createDirectories(targetPath.getParent());
             Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
-            log.info("파일 업로드 성공: path={}, size={}", targetPath, contentLength);
+            LogContext.with("provider", "local").and("path", path).and("size", contentLength).info("File uploaded");
         } catch (IOException e) {
-            log.error("파일 업로드 실패: {}", path, e);
+            LogContext.with("provider", "local").and("path", path).error("File upload failed", e);
             throw FileUploadException.withPathAndCause(path, e.getMessage());
         }
     }
@@ -69,12 +68,12 @@ public class LocalStorageProvider implements StorageProvider {
             Resource resource = new UrlResource(filePath.toUri());
 
             if (!resource.exists() || !resource.isReadable()) {
-                log.warn("파일을 찾을 수 없거나 읽을 수 없음: {}", filePath);
+                LogContext.with("provider", "local").and("path", path).warn("File not found or not readable");
                 throw FileNotFoundException.withPath(path);
             }
             return resource;
         } catch (MalformedURLException | IllegalArgumentException e) {
-            log.error("잘못된 파일 경로: {}", path, e);
+            LogContext.with("provider", "local").and("path", path).error("Invalid file path", e);
             throw FileNotFoundException.withPath(path);
         }
     }
@@ -85,12 +84,12 @@ public class LocalStorageProvider implements StorageProvider {
             Path targetPath = resolveSafePath(path);
             boolean deleted = Files.deleteIfExists(targetPath);
             if (deleted) {
-                log.info("파일 삭제 성공: {}", targetPath);
+                LogContext.with("provider", "local").and("path", path).info("File deleted");
             } else {
-                log.warn("삭제 대상 파일이 없음: {}", targetPath);
+                LogContext.with("provider", "local").and("path", path).warn("File not found for deletion");
             }
         } catch (IOException e) {
-            log.error("파일 삭제 실패: {}", path, e);
+            LogContext.with("provider", "local").and("path", path).error("File delete failed", e);
             throw FileDeleteException.withPathAndCause(path, e.getMessage());
         }
     }
@@ -102,7 +101,7 @@ public class LocalStorageProvider implements StorageProvider {
     }
 
     @Override
-    public List<String> listObjects(String prefix, int maxKeys) {
+    public List<String> listObjects(String prefix, String startAfter, int maxKeys) {
         Path prefixPath = resolveSafePath(prefix);
         if (!Files.isDirectory(prefixPath)) {
             prefixPath = prefixPath.getParent();
@@ -112,14 +111,19 @@ public class LocalStorageProvider implements StorageProvider {
         }
 
         try (Stream<Path> walk = Files.walk(prefixPath)) {
-            return walk
+            Stream<String> stream = walk
                 .filter(Files::isRegularFile)
                 .map(p -> localProperties.rootPath().relativize(p).toString().replace("\\", "/"))
                 .filter(p -> p.startsWith(prefix))
-                .limit(maxKeys)
-                .toList();
+                .sorted();
+
+            if (startAfter != null && !startAfter.isBlank()) {
+                stream = stream.filter(p -> p.compareTo(startAfter) > 0);
+            }
+
+            return stream.limit(maxKeys).toList();
         } catch (IOException e) {
-            log.error("파일 목록 조회 실패: prefix={}", prefix, e);
+            LogContext.with("provider", "local").and("prefix", prefix).error("File list failed", e);
             return List.of();
         }
     }

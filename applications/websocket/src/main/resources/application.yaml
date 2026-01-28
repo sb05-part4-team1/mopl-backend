@@ -17,6 +17,7 @@ spring:
     import:
       - optional:file:.env[.properties]
       - jpa.yaml
+      - logging.yaml
       - redis.yaml
       - security.yaml
       - storage.yaml

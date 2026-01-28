@@ -5,10 +5,10 @@ import com.mopl.domain.exception.ApiErrorCode;
 import com.mopl.domain.exception.ErrorCode;
 import com.mopl.domain.exception.ErrorResponse;
 import com.mopl.domain.exception.MoplException;
+import com.mopl.logging.context.LogContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.Generated;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.elasticsearch.UncategorizedElasticsearchException;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 
 @RestControllerAdvice
-@Slf4j
 @Generated
 public class ApiControllerAdvice {
 
@@ -208,17 +207,11 @@ public class ApiControllerAdvice {
             root = root.getCause();
         }
 
-        log.error("[ElasticsearchError] {} {} : {}",
-            request.getMethod(),
-            request.getRequestURI(),
-            exception.getMessage(),
-            exception
-        );
-
-        log.error("[ElasticsearchRootCause] {}",
-            root.getMessage(),
-            root
-        );
+        LogContext.with("method", request.getMethod())
+            .and("uri", request.getRequestURI())
+            .and("rootCause", root.getClass().getSimpleName())
+            .and("rootMessage", root.getMessage())
+            .error("[ElasticsearchError]", exception);
 
         return buildResponse(ApiErrorCode.ELASTICSEARCH_UNAVAILABLE, "ElasticsearchError", Map.of(
             "rootCause", root.getClass().getSimpleName(),
@@ -233,13 +226,10 @@ public class ApiControllerAdvice {
         Exception exception,
         HttpServletRequest request
     ) {
-        log.error("[{}] {} {} :{}",
-            exception.getClass().getSimpleName(),
-            request.getMethod(),
-            request.getRequestURI(),
-            exception.getMessage(),
-            exception
-        );
+        LogContext.with("exceptionType", exception.getClass().getSimpleName())
+            .and("method", request.getMethod())
+            .and("uri", request.getRequestURI())
+            .error("[InternalServerError]", exception);
 
         return buildResponse(ApiErrorCode.INTERNAL_SERVER_ERROR, "InternalServerError", Map.of());
     }

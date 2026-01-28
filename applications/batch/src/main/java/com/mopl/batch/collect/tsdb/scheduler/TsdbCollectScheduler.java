@@ -1,7 +1,7 @@
 package com.mopl.batch.collect.tsdb.scheduler;
 
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -9,7 +9,6 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TsdbCollectScheduler {
@@ -20,6 +19,7 @@ public class TsdbCollectScheduler {
 
     @Scheduled(cron = "0 10 2 * * *")
     public void runTsdbCollect() {
+        LogContext.with("job", "tsdbCollect").info("Scheduled job started");
         try {
             JobParameters params = new JobParametersBuilder()
                 .addLong("time", System.currentTimeMillis())
@@ -27,12 +27,13 @@ public class TsdbCollectScheduler {
 
             jobLauncher.run(tsdbLeagueEventCollectJob, params);
         } catch (Exception e) {
-            log.error("TSDB collect batch failed", e);
+            LogContext.with("job", "tsdbCollect").error("Batch failed", e);
         }
     }
 
     @Scheduled(cron = "0 30 3 * * MON")
     public void runTsdbLeagueSync() {
+        LogContext.with("job", "tsdbLeagueSync").info("Scheduled job started");
         try {
             JobParameters params = new JobParametersBuilder()
                 .addLong("time", System.currentTimeMillis())
@@ -40,7 +41,7 @@ public class TsdbCollectScheduler {
 
             jobLauncher.run(tsdbLeagueSyncJob, params);
         } catch (Exception e) {
-            log.error("TSDB league sync batch failed", e);
+            LogContext.with("job", "tsdbLeagueSync").error("Batch failed", e);
         }
     }
 }

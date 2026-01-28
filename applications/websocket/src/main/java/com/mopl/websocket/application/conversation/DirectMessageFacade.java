@@ -11,13 +11,15 @@ import com.mopl.domain.service.conversation.ReadStatusService;
 import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.dto.conversation.DirectMessageResponse;
 import com.mopl.dto.conversation.DirectMessageResponseMapper;
-import com.mopl.redis.pubsub.DirectMessagePublisher;
 import com.mopl.dto.outbox.DomainEventOutboxMapper;
+import com.mopl.logging.context.LogContext;
+import com.mopl.redis.pubsub.DirectMessagePublisher;
 import com.mopl.websocket.interfaces.api.conversation.dto.DirectMessageSendRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Component
@@ -44,7 +46,7 @@ public class DirectMessageFacade {
 
         DirectMessageModel directMessage = DirectMessageModel.create(content, sender, conversation);
 
-        DirectMessageModel savedDirectMessage = transactionTemplate.execute(status -> {
+        DirectMessageModel savedDirectMessage = Objects.requireNonNull(transactionTemplate.execute(status -> {
             DirectMessageModel saved = directMessageService.save(directMessage);
 
             if (receiver != null) {
@@ -60,10 +62,15 @@ public class DirectMessageFacade {
             }
 
             return saved;
-        });
+        }));
 
         DirectMessageResponse response = directMessageResponseMapper.toResponse(savedDirectMessage, receiver);
         directMessagePublisher.publish(response);
+
+        LogContext.with("senderId", senderId)
+            .and("conversationId", conversationId)
+            .and("messageId", savedDirectMessage.getId())
+            .info("Direct message sent");
 
         return response;
     }

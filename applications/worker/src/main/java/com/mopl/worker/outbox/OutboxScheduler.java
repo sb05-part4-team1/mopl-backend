@@ -2,8 +2,8 @@ package com.mopl.worker.outbox;
 
 import com.mopl.domain.model.outbox.OutboxModel;
 import com.mopl.domain.repository.outbox.OutboxRepository;
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,7 +14,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class OutboxScheduler {
@@ -29,31 +28,37 @@ public class OutboxScheduler {
     @Scheduled(fixedDelay = 1000)
     @SchedulerLock(name = "outbox_publish", lockAtLeastFor = "PT1S", lockAtMostFor = "PT5M")
     public void publishPendingEvents() {
-        List<OutboxModel> pendingEvents = outboxRepository.findPendingEvents(MAX_RETRY, BATCH_SIZE);
+        try (var ignored = LogContext.scoped("job", "outboxPublish")) {
+            List<OutboxModel> pendingEvents = outboxRepository.findPendingEvents(MAX_RETRY, BATCH_SIZE);
 
-        for (OutboxModel event : pendingEvents) {
-            try {
-                kafkaTemplate.send(
-                    event.getTopic(),
-                    event.getAggregateId(),
-                    event.getPayload()
-                ).get(5, TimeUnit.SECONDS);
-                event.markAsPublished();
-                outboxRepository.save(event);
-                log.debug("Published event: {} to topic: {}", event.getId(), event.getTopic());
-            } catch (Exception e) {
-                log.error("Error publishing event: {}", event.getId(), e);
-                event.incrementRetryCount();
-
-                if (event.getRetryCount() >= MAX_RETRY) {
-                    event.markAsFailed();
-                    log.error("Event marked as FAILED after {} retries: {}", MAX_RETRY, event.getId());
-                }
-
+            for (OutboxModel event : pendingEvents) {
                 try {
+                    kafkaTemplate.send(
+                        event.getTopic(),
+                        event.getAggregateId(),
+                        event.getPayload()
+                    ).get(5, TimeUnit.SECONDS);
+                    event.markAsPublished();
                     outboxRepository.save(event);
-                } catch (Exception saveEx) {
-                    log.error("Failed to save event status: {}", event.getId(), saveEx);
+                    LogContext.with("eventId", event.getId())
+                        .and("topic", event.getTopic())
+                        .debug("Published event");
+                } catch (Exception e) {
+                    LogContext.with("eventId", event.getId()).error("Error publishing event", e);
+                    event.incrementRetryCount();
+
+                    if (event.getRetryCount() >= MAX_RETRY) {
+                        event.markAsFailed();
+                        LogContext.with("eventId", event.getId())
+                            .and("maxRetry", MAX_RETRY)
+                            .error("Event marked as FAILED after max retries");
+                    }
+
+                    try {
+                        outboxRepository.save(event);
+                    } catch (Exception saveEx) {
+                        LogContext.with("eventId", event.getId()).error("Failed to save event status", saveEx);
+                    }
                 }
             }
         }
@@ -64,6 +69,8 @@ public class OutboxScheduler {
     public void cleanupOldEvents() {
         Instant cutoff = Instant.now().minus(RETENTION_DAYS, ChronoUnit.DAYS);
         int deleted = outboxRepository.deletePublishedEventsBefore(cutoff);
-        log.info("Cleaned up {} old outbox events", deleted);
+        LogContext.with("job", "outboxCleanup")
+            .and("deletedCount", deleted)
+            .info("Cleaned up old outbox events");
     }
 }

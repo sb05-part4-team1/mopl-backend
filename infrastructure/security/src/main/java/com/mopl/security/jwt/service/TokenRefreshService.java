@@ -4,6 +4,7 @@ import com.mopl.domain.exception.auth.AccountLockedException;
 import com.mopl.domain.exception.auth.InvalidTokenException;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.service.user.UserService;
+import com.mopl.logging.context.LogContext;
 import com.mopl.security.jwt.dto.JwtResponse;
 import com.mopl.security.jwt.provider.JwtCookieProvider;
 import com.mopl.security.jwt.provider.JwtInformation;
@@ -14,10 +15,8 @@ import com.mopl.security.jwt.registry.JwtRegistry;
 import com.mopl.security.userdetails.MoplUserDetails;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
-@Slf4j
 public class TokenRefreshService {
 
     private final JwtProvider jwtProvider;
@@ -29,14 +28,12 @@ public class TokenRefreshService {
         JwtPayload payload = jwtProvider.verifyAndParse(refreshToken, TokenType.REFRESH);
 
         if (jwtRegistry.isRefreshTokenNotInWhitelist(payload.sub(), payload.jti())) {
-            log.debug("리프레시 토큰이 화이트리스트에 없음: userId={}, jti={}", payload.sub(), payload.jti());
             throw InvalidTokenException.create();
         }
 
         UserModel user = userService.getById(payload.sub());
 
         if (user.isLocked()) {
-            log.debug("차단된 사용자의 토큰 갱신 시도: userId={}", payload.sub());
             throw AccountLockedException.withId(user.getId());
         }
 
@@ -53,7 +50,7 @@ public class TokenRefreshService {
         );
         JwtResponse jwtResponse = JwtResponse.from(userDetails, newJwtInformation.accessToken());
 
-        log.info("토큰 갱신 완료: userId={}", userDetails.userId());
+        LogContext.with("userId", userDetails.userId()).debug("Token refreshed");
 
         return new TokenRefreshResult(jwtResponse, refreshTokenCookie);
     }

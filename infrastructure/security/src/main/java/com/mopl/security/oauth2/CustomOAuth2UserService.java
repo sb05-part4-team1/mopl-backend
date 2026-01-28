@@ -3,11 +3,11 @@ package com.mopl.security.oauth2;
 import com.mopl.domain.model.user.UserModel;
 import com.mopl.domain.repository.user.UserRepository;
 import com.mopl.domain.service.user.UserService;
+import com.mopl.logging.context.LogContext;
 import com.mopl.security.oauth2.userinfo.OAuth2UserInfo;
 import com.mopl.security.oauth2.userinfo.OAuth2UserInfoFactory;
 import com.mopl.security.userdetails.MoplUserDetails;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -18,7 +18,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import java.util.Locale;
 import java.util.Optional;
 
-@Slf4j
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
@@ -61,14 +60,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private void validateExistingUser(UserModel user, OAuth2UserInfo userInfo) {
         if (user.isLocked()) {
-            log.warn("OAuth2 로그인 실패: 계정이 잠겨 있습니다. email={}", user.getEmail());
+            LogContext.with("email", user.getEmail()).warn("OAuth2 sign-in failed: account is locked");
             throw new LockedException("계정이 잠겨 있습니다.");
         }
 
         if (user.getAuthProvider() != userInfo.getProvider()) {
-            log.warn(
-                "OAuth2 로그인 실패: 다른 제공자로 가입된 계정입니다. email={}, existingProvider={}, attemptedProvider={}",
-                user.getEmail(), user.getAuthProvider(), userInfo.getProvider());
+            LogContext.with("email", user.getEmail())
+                .and("existingProvider", user.getAuthProvider())
+                .and("attemptedProvider", userInfo.getProvider())
+                .warn("OAuth2 sign-in failed: provider mismatch");
             throw new OAuth2AuthenticationException(
                 new OAuth2Error("provider_mismatch"),
                 "이미 " + user.getAuthProvider().name() + "(으)로 가입된 계정입니다."
@@ -77,7 +77,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     private UserModel registerNewUser(OAuth2UserInfo userInfo, String email) {
-        log.info("OAuth2 신규 사용자 등록: email={}, provider={}", email, userInfo.getProvider());
+        LogContext.with("email", email).and("provider", userInfo.getProvider()).info("OAuth2 new user registration");
 
         UserModel newUser = UserModel.createOAuthUser(
             userInfo.getProvider(),

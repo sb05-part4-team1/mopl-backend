@@ -8,14 +8,13 @@ import com.mopl.domain.support.transaction.AfterCommitExecutor;
 import com.mopl.external.tmdb.client.TmdbClient;
 import com.mopl.external.tmdb.model.TmdbTvItem;
 import com.mopl.external.tmdb.model.TmdbTvResponse;
+import com.mopl.logging.context.LogContext;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TmdbPopularTvContentCollectService {
@@ -36,20 +35,18 @@ public class TmdbPopularTvContentCollectService {
             TmdbTvResponse response = tmdbClient.fetchPopularTvSeries(page);
 
             if (response == null || response.results() == null) {
-                log.debug(
-                    "TMDB tv results empty: page={}",
-                    page
-                );
+                LogContext.with("service", "tmdbTvCollect")
+                    .and("page", page)
+                    .debug("Results empty");
                 continue;
             }
 
             for (TmdbTvItem item : response.results()) {
                 if (!isValid(item)) {
-                    log.debug(
-                        "TMDB invalid tv skipped: page={}, externalId={}",
-                        page,
-                        item == null ? null : item.id()
-                    );
+                    LogContext.with("service", "tmdbTvCollect")
+                        .and("page", page)
+                        .and("externalId", item == null ? null : item.id())
+                        .debug("Invalid tv skipped");
                     continue;
                 }
 
@@ -60,27 +57,24 @@ public class TmdbPopularTvContentCollectService {
                     }
 
                 } catch (DataIntegrityViolationException e) {
-                    log.debug(
-                        "TMDB duplicate skipped: externalId={}",
-                        item.id()
-                    );
+                    LogContext.with("service", "tmdbTvCollect")
+                        .and("externalId", item.id())
+                        .debug("Duplicate skipped");
 
                 } catch (RuntimeException e) {
-                    log.warn(
-                        "Failed to process TMDB tv: name={}, reason={}",
-                        item.name(),
-                        e.getMessage()
-                    );
+                    LogContext.with("service", "tmdbTvCollect")
+                        .and("name", item.name())
+                        .and("reason", e.getMessage())
+                        .warn("Failed to process tv");
                 }
             }
         }
 
         afterCommitExecutor.execute(() -> contentSearchSyncPort.upsertAll(inserted));
 
-        log.info(
-            "TMDB tv collect done. inserted={}",
-            inserted.size()
-        );
+        LogContext.with("service", "tmdbTvCollect")
+            .and("inserted", inserted.size())
+            .info("Collect completed");
 
         return inserted.size();
     }

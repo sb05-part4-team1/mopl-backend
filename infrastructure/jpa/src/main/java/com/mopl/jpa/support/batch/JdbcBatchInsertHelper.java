@@ -15,19 +15,20 @@ public class JdbcBatchInsertHelper {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
-    public <T> int[] batchInsert(
+    @SuppressWarnings("SqlSourceToSinkFlow")
+    public <T> void batchInsert(
         String sql,
         List<T> items,
         Function<T, MapSqlParameterSource> parameterMapper
     ) {
         if (items == null || items.isEmpty()) {
-            return new int[0];
+            return;
         }
 
         SqlParameterSource[] batchParams = items.stream()
             .map(parameterMapper)
             .toArray(SqlParameterSource[]::new);
 
-        return jdbcTemplate.batchUpdate(sql, batchParams);
+        jdbcTemplate.batchUpdate(sql, batchParams);
     }
 }

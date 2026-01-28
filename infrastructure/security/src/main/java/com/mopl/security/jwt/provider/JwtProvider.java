@@ -2,6 +2,7 @@ package com.mopl.security.jwt.provider;
 
 import com.mopl.domain.exception.auth.InvalidTokenException;
 import com.mopl.domain.model.user.UserModel;
+import com.mopl.logging.context.LogContext;
 import com.mopl.security.config.JwtProperties;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -12,7 +13,6 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
@@ -26,7 +26,6 @@ import java.util.UUID;
 
 import static org.springframework.util.StringUtils.hasText;
 
-@Slf4j
 public class JwtProvider {
 
     private static final int MIN_SECRET_BYTES = 32;
@@ -71,7 +70,6 @@ public class JwtProvider {
 
             return extractPayload(claims);
         } catch (ParseException | JOSEException e) {
-            log.debug("JWT 검증 실패: {}", e.getMessage());
             throw InvalidTokenException.create();
         }
     }
@@ -101,7 +99,7 @@ public class JwtProvider {
 
             return new IssuedToken(encoded, payload);
         } catch (JOSEException e) {
-            log.error("{} 토큰 생성 실패: userId={}", tokenType, userId, e);
+            LogContext.with("tokenType", tokenType).and("userId", userId).error("Token generation failed", e);
             throw new IllegalStateException("토큰 발행 중 오류가 발생했습니다.", e);
         }
     }
@@ -112,12 +110,11 @@ public class JwtProvider {
         for (int i = 0; i < typeVerifiers.size(); i++) {
             if (jwt.verify(typeVerifiers.get(i))) {
                 if (i > 0) {
-                    log.info("{} 토큰이 이전 시크릿으로 검증되었습니다. (Key Rotation)", type);
+                    LogContext.with("tokenType", type).info("Token verified with previous secret (Key Rotation)");
                 }
                 return;
             }
         }
-        log.debug("토큰 서명 검증 실패: type={}", type);
         throw InvalidTokenException.create();
     }
 
@@ -133,33 +130,29 @@ public class JwtProvider {
 
     private void validateExpiration(Date expiration) {
         if (expiration == null || expiration.before(new Date())) {
-            log.debug("토큰 만료됨");
             throw InvalidTokenException.create();
         }
     }
 
+    @SuppressWarnings("unused")
     private UUID parseUuidClaim(String value, String claimName) {
         if (!hasText(value)) {
-            log.debug("토큰에 {} 클레임 누락", claimName);
             throw InvalidTokenException.create();
         }
         try {
             return UUID.fromString(value);
         } catch (IllegalArgumentException e) {
-            log.debug("토큰의 {} 클레임 형식 오류: {}", claimName, value);
             throw InvalidTokenException.create();
         }
     }
 
     private UserModel.Role parseRoleClaim(String value) {
         if (!hasText(value)) {
-            log.debug("토큰에 role 클레임 누락");
             throw InvalidTokenException.create();
         }
         try {
             return UserModel.Role.valueOf(value);
         } catch (IllegalArgumentException e) {
-            log.debug("토큰의 role 클레임 형식 오류: {}", value);
             throw InvalidTokenException.create();
         }
     }
@@ -184,7 +177,7 @@ public class JwtProvider {
         if (hasText(config.previousSecret())) {
             validateSecret(config.previousSecret());
             list.add(new MACVerifier(toBytes(config.previousSecret())));
-            log.info("{} 토큰 Key Rotation 검증기가 활성화되었습니다.", type);
+            LogContext.with("tokenType", type).info("Key rotation verifier enabled");
         }
 
         return List.copyOf(list);

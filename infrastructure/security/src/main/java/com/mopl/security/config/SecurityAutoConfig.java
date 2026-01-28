@@ -1,6 +1,7 @@
 package com.mopl.security.config;
 
 import com.mopl.domain.model.user.UserModel;
+import com.mopl.logging.mdc.MdcUserContextFilter;
 import com.mopl.security.authentication.handler.SignInFailureHandler;
 import com.mopl.security.authentication.handler.SignInSuccessHandler;
 import com.mopl.security.authentication.handler.SignOutHandler;
@@ -116,8 +117,8 @@ public class SecurityAutoConfig {
                     new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT)
                 )
             )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        // MDC Filter, ExceptionTranslationFilter, Rate Limiting Filters can be added here as needed
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(new MdcUserContextFilter(), JwtAuthenticationFilter.class);
 
         return http.build();
     }

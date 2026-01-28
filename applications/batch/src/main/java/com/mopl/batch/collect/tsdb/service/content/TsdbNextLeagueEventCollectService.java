@@ -10,8 +10,8 @@ import com.mopl.domain.support.transaction.AfterCommitExecutor;
 import com.mopl.external.tsdb.client.TsdbClient;
 import com.mopl.external.tsdb.model.EventItem;
 import com.mopl.external.tsdb.model.EventResponse;
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class TsdbNextLeagueEventCollectService {
 
     private final TsdbClient tsdbClient;
@@ -41,20 +40,18 @@ public class TsdbNextLeagueEventCollectService {
             EventResponse response = tsdbClient.fetchNextLeagueEvent(leagueId);
 
             if (response == null || response.events() == null) {
-                log.debug(
-                    "TSDB next events empty: leagueId={}",
-                    leagueId
-                );
+                LogContext.with("service", "tsdbNextEventCollect")
+                    .and("leagueId", leagueId)
+                    .debug("Events empty");
                 continue;
             }
 
             for (EventItem item : response.events()) {
                 if (!isValid(item)) {
-                    log.debug(
-                        "TSDB invalid next event skipped: leagueId={}, eventId={}",
-                        leagueId,
-                        item == null ? null : item.idEvent()
-                    );
+                    LogContext.with("service", "tsdbNextEventCollect")
+                        .and("leagueId", leagueId)
+                        .and("eventId", item == null ? null : item.idEvent())
+                        .debug("Invalid event skipped");
                     continue;
                 }
 
@@ -65,17 +62,15 @@ public class TsdbNextLeagueEventCollectService {
                     }
 
                 } catch (DataIntegrityViolationException e) {
-                    log.debug(
-                        "TSDB duplicate skipped: externalId={}",
-                        item.idEvent()
-                    );
+                    LogContext.with("service", "tsdbNextEventCollect")
+                        .and("externalId", item.idEvent())
+                        .debug("Duplicate skipped");
 
                 } catch (RuntimeException e) {
-                    log.warn(
-                        "Failed to process TSDB next event: eventId={}, reason={}",
-                        item.idEvent(),
-                        e.getMessage()
-                    );
+                    LogContext.with("service", "tsdbNextEventCollect")
+                        .and("eventId", item.idEvent())
+                        .and("reason", e.getMessage())
+                        .warn("Failed to process event");
                 }
 
                 sleepQuietly(sleepMs);
@@ -84,10 +79,9 @@ public class TsdbNextLeagueEventCollectService {
 
         afterCommitExecutor.execute(() -> contentSearchSyncPort.upsertAll(inserted));
 
-        log.info(
-            "TSDB next league events collect done. inserted={}",
-            inserted.size()
-        );
+        LogContext.with("service", "tsdbNextEventCollect")
+            .and("inserted", inserted.size())
+            .info("Collect completed");
 
         return inserted.size();
     }

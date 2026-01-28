@@ -1,9 +1,9 @@
 package com.mopl.search.content.index;
 
+import com.mopl.logging.context.LogContext;
 import com.mopl.search.config.properties.SearchIndexProperties;
 import com.mopl.search.document.ContentDocument;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 @Order(1)
 @ConditionalOnProperty(prefix = "mopl.search", name = "enabled", havingValue = "true")
 @RequiredArgsConstructor
-@Slf4j
 public class ContentIndexInitializer implements ApplicationRunner {
 
     private final ElasticsearchOperations operations;
@@ -31,28 +30,27 @@ public class ContentIndexInitializer implements ApplicationRunner {
             boolean exists = indexOps.exists();
 
             if (exists && !indexProps.isRecreateOnStartup()) {
-                log.info("Content index already exists. skip init. index={}", indexName);
+                LogContext.with("index", indexName).info("Content index already exists - skip init");
                 return;
             }
 
             if (exists) {
                 boolean deleted = indexOps.delete();
-                log.warn("Content index recreate enabled. index={}, deleted={}", indexName, deleted);
+                LogContext.with("index", indexName).and("deleted", deleted)
+                    .warn("Content index recreate enabled");
             } else {
-                log.info("Content index not found. create index. index={}", indexName);
+                LogContext.with("index", indexName).info("Content index not found - creating");
             }
 
             boolean created = indexOps.create();
             boolean mappingApplied = indexOps.putMapping(indexOps.createMapping(ContentDocument.class));
 
-            log.info(
-                "Content index init done. index={}, created={}, mappingApplied={}",
-                indexName,
-                created,
-                mappingApplied
-            );
+            LogContext.with("index", indexName)
+                .and("created", created)
+                .and("mappingApplied", mappingApplied)
+                .info("Content index init completed");
         } catch (RuntimeException e) {
-            log.error("Content index init failed. index={}", indexName, e);
+            LogContext.with("index", indexName).error("Content index init failed", e);
             throw e;
         }
     }

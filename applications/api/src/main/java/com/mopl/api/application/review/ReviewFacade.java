@@ -14,6 +14,7 @@ import com.mopl.domain.support.search.ContentSearchSyncPort;
 import com.mopl.domain.support.transaction.AfterCommitExecutor;
 import com.mopl.dto.review.ReviewResponse;
 import com.mopl.dto.review.ReviewResponseMapper;
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +50,12 @@ public class ReviewFacade {
 
         syncContentAfterCommit(content.getId());
 
+        LogContext.with("reviewId", savedReview.getId())
+            .and("contentId", content.getId())
+            .and("authorId", requesterId)
+            .and("rating", request.rating())
+            .info("Review created");
+
         return reviewResponseMapper.toResponse(savedReview);
     }
 
@@ -77,6 +84,11 @@ public class ReviewFacade {
         UUID contentId = reviewService.deleteAndGetContentId(reviewId, requesterId);
 
         syncContentAfterCommit(contentId);
+
+        LogContext.with("reviewId", reviewId)
+            .and("contentId", contentId)
+            .and("authorId", requesterId)
+            .info("Review deleted");
     }
 
     private void syncContentAfterCommit(UUID contentId) {

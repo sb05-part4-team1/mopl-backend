@@ -13,6 +13,7 @@ spring:
       - optional:file:.env[.properties]
       - jpa.yaml
       - kafka.yaml
+      - logging.yaml
       - redis.yaml
   threads:
     virtual:

@@ -5,6 +5,7 @@ plugins {
 dependencies {
     // project modules
     implementation(project(":core:domain"))
+    implementation(project(":shared:logging"))
     // spring
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework:spring-context")

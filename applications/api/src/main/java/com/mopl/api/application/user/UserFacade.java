@@ -14,6 +14,7 @@ import com.mopl.domain.repository.user.UserQueryRequest;
 import com.mopl.domain.service.outbox.OutboxService;
 import com.mopl.domain.service.user.UserService;
 import com.mopl.domain.support.cursor.CursorResponse;
+import com.mopl.logging.context.LogContext;
 import com.mopl.security.jwt.registry.JwtRegistry;
 import com.mopl.storage.provider.StorageProvider;
 import lombok.RequiredArgsConstructor;
@@ -59,7 +60,11 @@ public class UserFacade {
             encodedPassword
         );
 
-        return userService.create(userModel);
+        UserModel created = userService.create(userModel);
+        LogContext.with("userId", created.getId())
+            .and("email", email)
+            .info("User signed up");
+        return created;
     }
 
     public UserModel updateRole(
@@ -92,6 +97,11 @@ public class UserFacade {
 
         jwtRegistry.revokeAllByUserId(userId);
 
+        LogContext.with("userId", userId)
+            .and("oldRole", oldRole)
+            .and("newRole", role.name())
+            .info("User role updated");
+
         return updatedUser;
     }
 
@@ -107,6 +117,10 @@ public class UserFacade {
         UserModel updatedUserModel = request.locked() ? userModel.lock() : userModel.unlock();
         userService.update(updatedUserModel);
         jwtRegistry.revokeAllByUserId(targetUserId);
+
+        LogContext.with("userId", targetUserId)
+            .and("locked", request.locked())
+            .info("User lock status updated");
     }
 
     public UserModel updateProfile(UUID userId, UserUpdateRequest request, MultipartFile image) {
@@ -131,6 +145,8 @@ public class UserFacade {
         userService.update(updatedUserModel);
 
         temporaryPasswordRepository.deleteByEmail(userModel.getEmail());
+
+        LogContext.with("userId", userId).info("Password changed");
     }
 
     private String uploadProfileImage(UUID userId, MultipartFile image) {

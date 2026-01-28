@@ -3,8 +3,8 @@ package com.mopl.batch.sync.denormalized.service;
 import com.mopl.batch.sync.denormalized.config.DenormalizedSyncPolicyResolver;
 import com.mopl.batch.sync.denormalized.config.DenormalizedSyncProperties;
 import com.mopl.jpa.repository.denormalized.JpaDenormalizedSyncRepository;
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,7 +12,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ContentReviewStatsSyncService {
 
     private static final UUID MIN_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
@@ -44,13 +43,22 @@ public class ContentReviewStatsSyncService {
 
             lastContentId = contentIds.getLast();
             iterations++;
-            log.debug("[ContentReviewStatsSync] processed chunk={} lastContentId={}", contentIds.size(), lastContentId);
+            LogContext.with("service", "contentReviewStatsSync")
+                .and("chunkSize", contentIds.size())
+                .and("lastContentId", lastContentId)
+                .debug("Chunk processed");
         }
 
         if (iterations >= MAX_ITERATIONS) {
-            log.warn("[ContentReviewStatsSync] reached max iterations={}, totalSynced={}", MAX_ITERATIONS, totalSynced);
+            LogContext.with("service", "contentReviewStatsSync")
+                .and("maxIterations", MAX_ITERATIONS)
+                .and("totalSynced", totalSynced)
+                .warn("Reached max iterations");
         } else {
-            log.info("[ContentReviewStatsSync] completed iterations={} synced={}", iterations, totalSynced);
+            LogContext.with("service", "contentReviewStatsSync")
+                .and("iterations", iterations)
+                .and("synced", totalSynced)
+                .info("Sync completed");
         }
 
         return totalSynced;

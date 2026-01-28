@@ -1,8 +1,8 @@
 package com.mopl.batch.cleanup.orphanstorage.config;
 
 import com.mopl.batch.cleanup.orphanstorage.service.OrphanStorageCleanupService;
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -16,7 +16,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 @RequiredArgsConstructor
-@Slf4j
 public class OrphanStorageCleanupBatchConfig {
 
     private final OrphanStorageCleanupService orphanStorageCleanupService;
@@ -41,10 +40,12 @@ public class OrphanStorageCleanupBatchConfig {
     public Tasklet orphanContentThumbnailTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-            log.info("[OrphanStorageCleanup] contentThumbnail start");
+            LogContext.with("task", "contentThumbnail").info("[OrphanStorageCleanup] start");
             int deleted = orphanStorageCleanupService.cleanupContentThumbnails();
-            log.info("[OrphanStorageCleanup] contentThumbnail end deleted={} durationMs={}",
-                deleted, System.currentTimeMillis() - start);
+            LogContext.with("task", "contentThumbnail")
+                .and("deleted", deleted)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[OrphanStorageCleanup] end");
             return RepeatStatus.FINISHED;
         };
     }
@@ -61,10 +62,12 @@ public class OrphanStorageCleanupBatchConfig {
     public Tasklet orphanUserProfileImageTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-            log.info("[OrphanStorageCleanup] userProfileImage start");
+            LogContext.with("task", "userProfileImage").info("[OrphanStorageCleanup] start");
             int deleted = orphanStorageCleanupService.cleanupUserProfileImages();
-            log.info("[OrphanStorageCleanup] userProfileImage end deleted={} durationMs={}",
-                deleted, System.currentTimeMillis() - start);
+            LogContext.with("task", "userProfileImage")
+                .and("deleted", deleted)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[OrphanStorageCleanup] end");
             return RepeatStatus.FINISHED;
         };
     }

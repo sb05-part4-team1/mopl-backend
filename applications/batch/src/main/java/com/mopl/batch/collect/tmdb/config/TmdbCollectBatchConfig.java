@@ -1,12 +1,11 @@
 package com.mopl.batch.collect.tmdb.config;
 
-import com.mopl.batch.collect.tmdb.service.genre.TmdbGenreSyncTxService;
 import com.mopl.batch.collect.tmdb.service.content.TmdbPopularMovieContentCollectService;
 import com.mopl.batch.collect.tmdb.service.content.TmdbPopularTvContentCollectService;
+import com.mopl.batch.collect.tmdb.service.genre.TmdbGenreSyncTxService;
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -15,8 +14,8 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.batch.core.Step;
 
-@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class TmdbCollectBatchConfig {
@@ -41,8 +40,10 @@ public class TmdbCollectBatchConfig {
     }
 
     @Bean
-    public Step tmdbPopularMovieStep(JobRepository jobRepository,
-        PlatformTransactionManager txManager) {
+    public Step tmdbPopularMovieStep(
+        JobRepository jobRepository,
+        PlatformTransactionManager txManager
+    ) {
         return new StepBuilder("tmdbPopularMovieStep", jobRepository)
             .tasklet(tmdbPopularMovieTasklet(), txManager)
             .build();
@@ -53,10 +54,12 @@ public class TmdbCollectBatchConfig {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
 
-            log.info("[TMDB Collect] movieContent start");
+            LogContext.with("task", "movieContent").info("[TMDB Collect] start");
             int processed = tmdbPopularMovieService.collectPopularMovies();
-            log.info("[TMDB Collect] movieContent end processed={} durationMs={}", processed, System
-                .currentTimeMillis() - start);
+            LogContext.with("task", "movieContent")
+                .and("processed", processed)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[TMDB Collect] end");
 
             return RepeatStatus.FINISHED;
         };
@@ -75,10 +78,12 @@ public class TmdbCollectBatchConfig {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
 
-            log.info("[TMDB Collect] tvContent start");
+            LogContext.with("task", "tvContent").info("[TMDB Collect] start");
             int processed = tmdbPopularTvService.collectPopularTvSeries();
-            log.info("[TMDB Collect] tvContent end processed={} durationMs={}", processed, System
-                .currentTimeMillis() - start);
+            LogContext.with("task", "tvContent")
+                .and("processed", processed)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[TMDB Collect] end");
 
             return RepeatStatus.FINISHED;
         };
@@ -97,10 +102,12 @@ public class TmdbCollectBatchConfig {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
 
-            log.info("[TMDB GenreSync] start");
+            LogContext.with("task", "genreSync").info("[TMDB GenreSync] start");
             int inserted = tmdbGenreSyncTxService.syncAll();
-            log.info("[TMDB GenreSync] end inserted={} durationMs={}", inserted, System
-                .currentTimeMillis() - start);
+            LogContext.with("task", "genreSync")
+                .and("inserted", inserted)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[TMDB GenreSync] end");
 
             return RepeatStatus.FINISHED;
         };

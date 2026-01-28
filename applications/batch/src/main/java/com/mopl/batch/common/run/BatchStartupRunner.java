@@ -1,8 +1,8 @@
 package com.mopl.batch.common.run;
 
 import com.mopl.batch.common.config.BatchStartupProperties;
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -20,7 +20,6 @@ import java.util.Map;
 @ConditionalOnProperty(prefix = "mopl.batch", name = "run-on-startup.enabled", havingValue = "true")
 @EnableConfigurationProperties(BatchStartupProperties.class)
 @RequiredArgsConstructor
-@Slf4j
 public class BatchStartupRunner implements ApplicationRunner {
 
     private final JobLauncher jobLauncher;
@@ -32,36 +31,48 @@ public class BatchStartupRunner implements ApplicationRunner {
         List<String> jobNames = properties.getRunOnStartup().getJobs();
 
         if (jobNames.isEmpty()) {
-            log.info("[BatchStartup] No jobs configured to run on startup");
+            LogContext.with("runner", "batchStartup").info("No jobs configured to run on startup");
             return;
         }
 
-        log.info("[BatchStartup] Starting {} jobs: {}", jobNames.size(), jobNames);
+        LogContext.with("runner", "batchStartup")
+            .and("jobCount", jobNames.size())
+            .and("jobs", jobNames)
+            .info("Starting jobs");
 
         for (String jobName : jobNames) {
             runJob(jobName);
         }
 
-        log.info("[BatchStartup] All startup jobs completed");
+        LogContext.with("runner", "batchStartup").info("All startup jobs completed");
     }
 
     private void runJob(String jobName) {
         Job job = jobs.get(jobName);
         if (job == null) {
-            log.warn("[BatchStartup] Job not found: {}. Available: {}", jobName, jobs.keySet());
+            LogContext.with("runner", "batchStartup")
+                .and("jobName", jobName)
+                .and("available", jobs.keySet())
+                .warn("Job not found");
             return;
         }
 
         try {
-            log.info("[BatchStartup] Running job: {}", jobName);
+            LogContext.with("runner", "batchStartup")
+                .and("jobName", jobName)
+                .info("Running job");
             JobParameters params = new JobParametersBuilder()
                 .addLong("time", System.currentTimeMillis())
                 .toJobParameters();
 
             jobLauncher.run(job, params);
-            log.info("[BatchStartup] Job completed: {}", jobName);
+            LogContext.with("runner", "batchStartup")
+                .and("jobName", jobName)
+                .info("Job completed");
         } catch (Exception e) {
-            log.error("[BatchStartup] Job failed: {}", jobName, e);
+            LogContext.with("runner", "batchStartup")
+                .and("jobName", jobName)
+                .error("Job failed", e);
         }
     }
 }

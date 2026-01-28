@@ -5,6 +5,7 @@ import com.mopl.external.tmdb.model.TmdbGenreResponse;
 import com.mopl.external.tmdb.model.TmdbMovieResponse;
 import com.mopl.external.tmdb.model.TmdbTvResponse;
 import com.mopl.external.tmdb.properties.TmdbProperties;
+import com.mopl.logging.context.LogContext;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,7 @@ public class TmdbClient {
     }
 
     public TmdbGenreResponse fetchMovieGenres() {
+        LogContext.with("api", "tmdb").and("endpoint", "movieGenres").debug("Fetching");
         return tmdbWebClient.get()
             .uri(uriBuilder -> uriBuilder
                 .path("/genre/movie/list")
@@ -40,6 +42,7 @@ public class TmdbClient {
     }
 
     public TmdbGenreResponse fetchTvGenres() {
+        LogContext.with("api", "tmdb").and("endpoint", "tvGenres").debug("Fetching");
         return tmdbWebClient.get()
             .uri(uriBuilder -> uriBuilder
                 .path("/genre/tv/list")
@@ -52,6 +55,7 @@ public class TmdbClient {
     }
 
     public TmdbMovieResponse fetchPopularMovies(int page) {
+        LogContext.with("api", "tmdb").and("endpoint", "popularMovies").and("page", page).debug("Fetching");
         return tmdbWebClient.get()
             .uri(uriBuilder -> uriBuilder
                 .path("/movie/popular")
@@ -65,6 +69,7 @@ public class TmdbClient {
     }
 
     public TmdbTvResponse fetchPopularTvSeries(int page) {
+        LogContext.with("api", "tmdb").and("endpoint", "popularTv").and("page", page).debug("Fetching");
         return tmdbWebClient.get()
             .uri(uriBuilder -> uriBuilder
                 .path("/tv/popular")

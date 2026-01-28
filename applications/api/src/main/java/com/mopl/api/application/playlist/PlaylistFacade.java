@@ -6,7 +6,6 @@ import com.mopl.domain.event.playlist.PlaylistContentAddedEvent;
 import com.mopl.domain.event.playlist.PlaylistCreatedEvent;
 import com.mopl.domain.event.playlist.PlaylistSubscribedEvent;
 import com.mopl.domain.event.playlist.PlaylistUpdatedEvent;
-import com.mopl.domain.exception.playlist.PlaylistContentAlreadyExistsException;
 import com.mopl.domain.exception.playlist.PlaylistForbiddenException;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.playlist.PlaylistModel;
@@ -21,8 +20,8 @@ import com.mopl.domain.support.cursor.CursorResponse;
 import com.mopl.dto.outbox.DomainEventOutboxMapper;
 import com.mopl.dto.playlist.PlaylistResponse;
 import com.mopl.dto.playlist.PlaylistResponseMapper;
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -30,6 +29,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -108,19 +108,26 @@ public class PlaylistFacade {
             owner
         );
 
-        PlaylistModel playlistModel = transactionTemplate.execute(status -> {
-            PlaylistModel created = playlistService.create(newPlaylist);
+        PlaylistModel playlistModel = Objects.requireNonNull(
+            transactionTemplate.execute(status -> {
+                PlaylistModel created = playlistService.create(newPlaylist);
 
-            PlaylistCreatedEvent event = PlaylistCreatedEvent.builder()
-                .playlistId(created.getId())
-                .playlistTitle(created.getTitle())
-                .ownerId(owner.getId())
-                .ownerName(owner.getName())
-                .build();
-            outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
+                PlaylistCreatedEvent event = PlaylistCreatedEvent.builder()
+                    .playlistId(created.getId())
+                    .playlistTitle(created.getTitle())
+                    .ownerId(owner.getId())
+                    .ownerName(owner.getName())
+                    .build();
+                outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
 
-            return created;
-        });
+                return created;
+            })
+        );
+
+        LogContext.with("playlistId", playlistModel.getId())
+            .and("ownerId", requesterId)
+            .and("title", playlistModel.getTitle())
+            .info("Playlist created");
 
         return playlistResponseMapper.toResponse(playlistModel);
     }
@@ -169,6 +176,11 @@ public class PlaylistFacade {
         validateOwner(playlist, requesterId);
 
         transactionTemplate.executeWithoutResult(status -> playlistService.delete(playlistId));
+
+        LogContext.with("playlistId", playlistId)
+            .and("ownerId", requesterId)
+            .and("title", playlist.getTitle())
+            .info("Playlist deleted");
     }
 
     public void addContentToPlaylist(
@@ -192,11 +204,7 @@ public class PlaylistFacade {
             .build();
 
         transactionTemplate.executeWithoutResult(status -> {
-            try {
-                playlistService.addContent(playlistId, contentId);
-            } catch (DataIntegrityViolationException exception) {
-                throw PlaylistContentAlreadyExistsException.withPlaylistIdAndContentId(playlistId, contentId);
-            }
+            playlistService.addContent(playlistId, contentId);
             outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
         });
     }

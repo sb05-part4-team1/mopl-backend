@@ -4,8 +4,8 @@ import com.mopl.batch.cleanup.softdelete.strategy.content.ContentDeletionStrateg
 import com.mopl.domain.repository.content.batch.ContentCleanupRepository;
 import com.mopl.domain.support.search.ContentSearchSyncPort;
 import com.mopl.domain.support.transaction.AfterCommitExecutor;
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +15,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ContentCleanupTxService {
 
     private final ContentCleanupRepository contentCleanupRepository;
@@ -32,22 +31,20 @@ public class ContentCleanupTxService {
         int deletedContents = contentCleanupRepository.deleteByIdIn(contentIds);
 
         if (deletedContents != contentIds.size()) {
-            log.warn(
-                "content delete mismatch. requested={} deleted={}",
-                contentIds.size(),
-                deletedContents
-            );
+            LogContext.with("service", "contentCleanupTx")
+                .and("requested", contentIds.size())
+                .and("deleted", deletedContents)
+                .warn("Content delete mismatch");
         }
 
         afterCommitExecutor.execute(() -> contentSearchSyncPort.deleteAll(contentIds));
 
-        log.info(
-            "content cleanup batch done. requested={} deletedContents={} affectedThumbnails={}/{}",
-            contentIds.size(),
-            deletedContents,
-            affectedThumbnails,
-            thumbnailPaths.size()
-        );
+        LogContext.with("service", "contentCleanupTx")
+            .and("requested", contentIds.size())
+            .and("deletedContents", deletedContents)
+            .and("affectedThumbnails", affectedThumbnails)
+            .and("totalThumbnails", thumbnailPaths.size())
+            .info("Cleanup batch completed");
 
         return deletedContents;
     }

@@ -4,8 +4,8 @@ import com.mopl.batch.cleanup.orphan.config.OrphanCleanupPolicyResolver;
 import com.mopl.batch.cleanup.orphan.config.OrphanCleanupProperties;
 import com.mopl.batch.cleanup.orphan.config.OrphanCleanupProperties.PolicyProperties;
 import com.mopl.jpa.repository.orphan.JpaOrphanCleanupRepository;
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -17,7 +17,6 @@ import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class OrphanCleanupService {
 
     private final JpaOrphanCleanupRepository orphanCleanupRepository;
@@ -158,19 +157,27 @@ public class OrphanCleanupService {
 
             int deleted = deleteOrphans.apply(orphanIds);
             if (deleted == 0) {
-                log.warn("[OrphanCleanup] {} found {} orphans but deleted 0, breaking to prevent infinite loop",
-                    name, orphanIds.size());
+                LogContext.with("service", "orphanCleanup")
+                    .and("entity", name)
+                    .and("foundOrphans", orphanIds.size())
+                    .warn("Found orphans but deleted 0, breaking to prevent infinite loop");
                 break;
             }
 
             totalDeleted += deleted;
             iterations++;
-            log.debug("[OrphanCleanup] {} deleted batch={}", name, deleted);
+            LogContext.with("service", "orphanCleanup")
+                .and("entity", name)
+                .and("deletedBatch", deleted)
+                .debug("Batch deleted");
         }
 
         if (iterations >= MAX_ITERATIONS) {
-            log.warn("[OrphanCleanup] {} reached max iterations={}, totalDeleted={}",
-                name, MAX_ITERATIONS, totalDeleted);
+            LogContext.with("service", "orphanCleanup")
+                .and("entity", name)
+                .and("maxIterations", MAX_ITERATIONS)
+                .and("totalDeleted", totalDeleted)
+                .warn("Reached max iterations");
         }
 
         return totalDeleted;

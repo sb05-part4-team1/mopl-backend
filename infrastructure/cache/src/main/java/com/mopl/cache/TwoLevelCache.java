@@ -2,7 +2,7 @@ package com.mopl.cache;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.mopl.cache.config.CacheProperties;
-import lombok.extern.slf4j.Slf4j;
+import com.mopl.logging.context.LogContext;
 import org.springframework.cache.support.AbstractValueAdaptingCache;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -13,7 +13,6 @@ import org.springframework.lang.Nullable;
 import java.time.Duration;
 import java.util.concurrent.Callable;
 
-@Slf4j
 public class TwoLevelCache extends AbstractValueAdaptingCache {
 
     private final String name;
@@ -56,13 +55,13 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
 
         Object l1Value = l1Cache.getIfPresent(fullKey);
         if (l1Value != null) {
-            log.debug("L1 hit: [cache={}, key={}]", name, key);
+            LogContext.with("cache", name).and("key", key).debug("L1 hit");
             return l1Value;
         }
 
         Object l2Value = getFromRedis(fullKey);
         if (l2Value != null) {
-            log.debug("L2 hit: [cache={}, key={}]", name, key);
+            LogContext.with("cache", name).and("key", key).debug("L2 hit");
             l1Cache.put(fullKey, l2Value);
             return l2Value;
         }
@@ -84,7 +83,7 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
             if (loadedValue != null) {
                 put(key, loadedValue);
             }
-            log.debug("Cache loaded: [cache={}, key={}]", name, key);
+            LogContext.with("cache", name).and("key", key).debug("Cache loaded");
             return loadedValue;
         } catch (Exception e) {
             throw new ValueRetrievalException(key, valueLoader, e);
@@ -102,7 +101,7 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
         boolean redisSuccess = putToRedis(fullKey, value);
         l1Cache.put(fullKey, value);
 
-        log.debug("Cache put: [cache={}, key={}, ttl={}, redis={}]", name, key, ttl, redisSuccess);
+        LogContext.with("cache", name).and("key", key).and("ttl", ttl).and("redis", redisSuccess).debug("Cache put");
     }
 
     @Override
@@ -111,7 +110,7 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
         deleteFromRedis(fullKey);
         l1Cache.invalidate(fullKey);
 
-        log.debug("Cache evict: [cache={}, key={}]", name, key);
+        LogContext.with("cache", name).and("key", key).debug("Cache evict");
     }
 
     @Override
@@ -124,7 +123,7 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
 
         clearRedis(prefix);
 
-        log.debug("Cache clear: [cache={}]", name);
+        LogContext.with("cache", name).debug("Cache clear");
     }
 
     private String generateKey(Object key) {
@@ -142,7 +141,7 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
         try {
             return redisTemplate.opsForValue().get(key);
         } catch (Exception e) {
-            log.warn("Redis get failed: [key={}] {}", key, e.getMessage());
+            LogContext.with("key", key).warn("Redis get failed: " + e.getMessage());
             return null;
         }
     }
@@ -153,10 +152,9 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
         }
         try {
             redisTemplate.opsForValue().set(key, value, ttl);
-            log.debug("Redis put success: [key={}]", key);
             return true;
         } catch (Exception e) {
-            log.error("Redis put failed: [key={}]", key, e);
+            LogContext.with("key", key).error("Redis put failed", e);
             return false;
         }
     }
@@ -168,7 +166,7 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
         try {
             redisTemplate.delete(key);
         } catch (Exception e) {
-            log.warn("Redis delete failed: [key={}] {}", key, e.getMessage());
+            LogContext.with("key", key).warn("Redis delete failed: " + e.getMessage());
         }
     }
 
@@ -188,7 +186,7 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
                 }
             }
         } catch (Exception e) {
-            log.warn("Redis clear failed: [prefix={}] {}", prefix, e.getMessage());
+            LogContext.with("prefix", prefix).warn("Redis clear failed: " + e.getMessage());
         }
     }
 }

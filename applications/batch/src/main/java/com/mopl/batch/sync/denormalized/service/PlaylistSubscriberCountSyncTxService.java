@@ -2,8 +2,8 @@ package com.mopl.batch.sync.denormalized.service;
 
 import com.mopl.jpa.repository.denormalized.JpaDenormalizedSyncRepository;
 import com.mopl.jpa.repository.playlist.JpaPlaylistRepository;
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +12,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class PlaylistSubscriberCountSyncTxService {
 
     private final JpaPlaylistRepository jpaPlaylistRepository;
@@ -27,8 +26,11 @@ public class PlaylistSubscriberCountSyncTxService {
 
                 if (currentCount != actualCount) {
                     denormalizedSyncRepository.updateSubscriberCount(playlistId, actualCount);
-                    log.info("[PlaylistSubscriberCountSync] synced playlistId={} from={} to={}",
-                        playlistId, currentCount, actualCount);
+                    LogContext.with("service", "playlistSubscriberCountSyncTx")
+                        .and("playlistId", playlistId)
+                        .and("countBefore", currentCount)
+                        .and("countAfter", actualCount)
+                        .debug("Count synced");
                     return true;
                 }
                 return false;

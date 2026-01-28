@@ -2,8 +2,8 @@ package com.mopl.batch.sync.denormalized.config;
 
 import com.mopl.batch.sync.denormalized.service.ContentReviewStatsSyncService;
 import com.mopl.batch.sync.denormalized.service.PlaylistSubscriberCountSyncService;
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -17,7 +17,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 @RequiredArgsConstructor
-@Slf4j
 public class DenormalizedSyncBatchConfig {
 
     private final PlaylistSubscriberCountSyncService playlistSubscriberCountSyncService;
@@ -43,10 +42,12 @@ public class DenormalizedSyncBatchConfig {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
 
-            log.info("[DenormalizedSync] playlist subscriber count sync start");
+            LogContext.with("task", "playlistSubscriberCount").info("[DenormalizedSync] start");
             int synced = playlistSubscriberCountSyncService.sync();
-            log.info("[DenormalizedSync] playlist subscriber count sync end synced={} durationMs={}",
-                synced, System.currentTimeMillis() - start);
+            LogContext.with("task", "playlistSubscriberCount")
+                .and("synced", synced)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[DenormalizedSync] end");
 
             return RepeatStatus.FINISHED;
         };
@@ -64,10 +65,12 @@ public class DenormalizedSyncBatchConfig {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
 
-            log.info("[DenormalizedSync] content review stats sync start");
+            LogContext.with("task", "contentReviewStats").info("[DenormalizedSync] start");
             int synced = contentReviewStatsSyncService.sync();
-            log.info("[DenormalizedSync] content review stats sync end synced={} durationMs={}",
-                synced, System.currentTimeMillis() - start);
+            LogContext.with("task", "contentReviewStats")
+                .and("synced", synced)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[DenormalizedSync] end");
 
             return RepeatStatus.FINISHED;
         };

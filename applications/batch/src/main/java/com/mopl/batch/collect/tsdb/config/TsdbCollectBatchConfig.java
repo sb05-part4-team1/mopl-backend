@@ -1,10 +1,10 @@
 package com.mopl.batch.collect.tsdb.config;
 
-import com.mopl.batch.collect.tsdb.service.content.TsdbPastLeagueEventCollectService;
 import com.mopl.batch.collect.tsdb.service.content.TsdbNextLeagueEventCollectService;
+import com.mopl.batch.collect.tsdb.service.content.TsdbPastLeagueEventCollectService;
 import com.mopl.batch.collect.tsdb.service.league.TsdbLeagueSyncTxService;
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -18,7 +18,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 @RequiredArgsConstructor
-@Slf4j
 public class TsdbCollectBatchConfig {
 
     private final TsdbPastLeagueEventCollectService tsdbPastLeagueEventService;
@@ -26,8 +25,10 @@ public class TsdbCollectBatchConfig {
     private final TsdbLeagueSyncTxService tsdbLeagueSyncTxService;
 
     @Bean
-    public Job tsdbLeagueEventCollectJob(JobRepository jobRepository,
-        PlatformTransactionManager txManager) {
+    public Job tsdbLeagueEventCollectJob(
+        JobRepository jobRepository,
+        PlatformTransactionManager txManager
+    ) {
         return new JobBuilder("tsdbLeagueEventCollectJob", jobRepository)
             .start(tsdbPastLeagueEventStep(jobRepository, txManager))
             .next(tsdbNextLeagueEventStep(jobRepository, txManager))
@@ -35,16 +36,20 @@ public class TsdbCollectBatchConfig {
     }
 
     @Bean
-    public Job tsdbLeagueSyncJob(JobRepository jobRepository,
-        PlatformTransactionManager txManager) {
+    public Job tsdbLeagueSyncJob(
+        JobRepository jobRepository,
+        PlatformTransactionManager txManager
+    ) {
         return new JobBuilder("tsdbLeagueSyncJob", jobRepository)
             .start(tsdbLeagueSyncStep(jobRepository, txManager))
             .build();
     }
 
     @Bean
-    public Step tsdbPastLeagueEventStep(JobRepository jobRepository,
-        PlatformTransactionManager txManager) {
+    public Step tsdbPastLeagueEventStep(
+        JobRepository jobRepository,
+        PlatformTransactionManager txManager
+    ) {
         return new StepBuilder("tsdbPastLeagueEventStep", jobRepository)
             .tasklet(tsdbPastLeagueEventTasklet(), txManager)
             .build();
@@ -55,19 +60,22 @@ public class TsdbCollectBatchConfig {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
 
-            log.info("[TSDB Collect] pastLeagueEvent start");
+            LogContext.with("task", "pastLeagueEvent").info("[TSDB Collect] start");
             int processed = tsdbPastLeagueEventService.collectPastLeagueEvents();
-            log.info("[TSDB Collect] pastLeagueEvent end processed={} durationMs={}",
-                processed,
-                System.currentTimeMillis() - start);
+            LogContext.with("task", "pastLeagueEvent")
+                .and("processed", processed)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[TSDB Collect] end");
 
             return RepeatStatus.FINISHED;
         };
     }
 
     @Bean
-    public Step tsdbNextLeagueEventStep(JobRepository jobRepository,
-        PlatformTransactionManager txManager) {
+    public Step tsdbNextLeagueEventStep(
+        JobRepository jobRepository,
+        PlatformTransactionManager txManager
+    ) {
         return new StepBuilder("tsdbNextLeagueEventStep", jobRepository)
             .tasklet(tsdbNextLeagueEventTasklet(), txManager)
             .build();
@@ -78,19 +86,22 @@ public class TsdbCollectBatchConfig {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
 
-            log.info("[TSDB Collect] nextLeagueEvent start");
+            LogContext.with("task", "nextLeagueEvent").info("[TSDB Collect] start");
             int processed = tsdbNextLeagueEventService.collectNextLeagueEvents();
-            log.info("[TSDB Collect] nextLeagueEvent end processed={} durationMs={}",
-                processed,
-                System.currentTimeMillis() - start);
+            LogContext.with("task", "nextLeagueEvent")
+                .and("processed", processed)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[TSDB Collect] end");
 
             return RepeatStatus.FINISHED;
         };
     }
 
     @Bean
-    public Step tsdbLeagueSyncStep(JobRepository jobRepository,
-        PlatformTransactionManager txManager) {
+    public Step tsdbLeagueSyncStep(
+        JobRepository jobRepository,
+        PlatformTransactionManager txManager
+    ) {
         return new StepBuilder("tsdbLeagueSyncStep", jobRepository)
             .tasklet(tsdbLeagueSyncTasklet(), txManager)
             .build();
@@ -101,11 +112,12 @@ public class TsdbCollectBatchConfig {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
 
-            log.info("[TSDB LeagueSync] start");
+            LogContext.with("task", "leagueSync").info("[TSDB LeagueSync] start");
             int inserted = tsdbLeagueSyncTxService.syncAll();
-            log.info("[TSDB LeagueSync] end inserted={} durationMs={}",
-                inserted,
-                System.currentTimeMillis() - start);
+            LogContext.with("task", "leagueSync")
+                .and("inserted", inserted)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[TSDB LeagueSync] end");
 
             return RepeatStatus.FINISHED;
         };

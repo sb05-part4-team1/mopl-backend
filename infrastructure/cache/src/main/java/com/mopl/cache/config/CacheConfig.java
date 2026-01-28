@@ -3,7 +3,6 @@ package com.mopl.cache.config;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.mopl.cache.TwoLevelCacheManager;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -12,10 +11,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.lang.Nullable;
 
-@Slf4j
 @Configuration
-@EnableCaching
 @EnableConfigurationProperties(CacheProperties.class)
+@EnableCaching
 public class CacheConfig {
 
     @Bean

@@ -12,9 +12,9 @@ import com.mopl.domain.model.notification.NotificationModel;
 import com.mopl.domain.service.follow.FollowService;
 import com.mopl.domain.service.notification.NotificationService;
 import com.mopl.domain.service.playlist.PlaylistSubscriptionService;
+import com.mopl.logging.context.LogContext;
 import com.mopl.redis.pubsub.NotificationPublisher;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.UUID;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class NotificationEventProcessor {
@@ -51,9 +50,11 @@ public class NotificationEventProcessor {
             publishToSse(savedNotificationModel);
 
             ack.acknowledge();
-            log.debug("Processed UserFollowedEvent for user: {}", event.getFolloweeId());
+            LogContext.with("event", "UserFollowed")
+                .and("followeeId", event.getFolloweeId())
+                .debug("Processed event");
         } catch (Exception e) {
-            log.error("Failed to process UserFollowedEvent: {}", payload, e);
+            LogContext.with("event", "UserFollowed").error("Failed to process event", e);
             throw new RuntimeException(e);
         }
     }
@@ -74,9 +75,11 @@ public class NotificationEventProcessor {
             createAndPublishNotifications(title, content, followerIds);
 
             ack.acknowledge();
-            log.debug("Processed PlaylistCreatedEvent for playlist: {}", event.getPlaylistId());
+            LogContext.with("event", "PlaylistCreated")
+                .and("playlistId", event.getPlaylistId())
+                .debug("Processed event");
         } catch (Exception e) {
-            log.error("Failed to process PlaylistCreatedEvent: {}", payload, e);
+            LogContext.with("event", "PlaylistCreated").error("Failed to process event", e);
             throw new RuntimeException(e);
         }
     }
@@ -97,9 +100,11 @@ public class NotificationEventProcessor {
             createAndPublishNotifications(title, content, subscriberIds);
 
             ack.acknowledge();
-            log.debug("Processed PlaylistUpdatedEvent for playlist: {}", event.getPlaylistId());
+            LogContext.with("event", "PlaylistUpdated")
+                .and("playlistId", event.getPlaylistId())
+                .debug("Processed event");
         } catch (Exception e) {
-            log.error("Failed to process PlaylistUpdatedEvent: {}", payload, e);
+            LogContext.with("event", "PlaylistUpdated").error("Failed to process event", e);
             throw new RuntimeException(e);
         }
     }
@@ -122,9 +127,11 @@ public class NotificationEventProcessor {
             publishToSse(saved);
 
             ack.acknowledge();
-            log.debug("Processed PlaylistSubscribedEvent for user: {}", event.getOwnerId());
+            LogContext.with("event", "PlaylistSubscribed")
+                .and("ownerId", event.getOwnerId())
+                .debug("Processed event");
         } catch (Exception e) {
-            log.error("Failed to process PlaylistSubscribedEvent: {}", payload, e);
+            LogContext.with("event", "PlaylistSubscribed").error("Failed to process event", e);
             throw new RuntimeException(e);
         }
     }
@@ -145,9 +152,11 @@ public class NotificationEventProcessor {
             createAndPublishNotifications(title, content, subscriberIds);
 
             ack.acknowledge();
-            log.debug("Processed PlaylistContentAddedEvent for playlist: {}", event.getPlaylistId());
+            LogContext.with("event", "PlaylistContentAdded")
+                .and("playlistId", event.getPlaylistId())
+                .debug("Processed event");
         } catch (Exception e) {
-            log.error("Failed to process PlaylistContentAddedEvent: {}", payload, e);
+            LogContext.with("event", "PlaylistContentAdded").error("Failed to process event", e);
             throw new RuntimeException(e);
         }
     }
@@ -170,9 +179,11 @@ public class NotificationEventProcessor {
             publishToSse(savedNotification);
 
             ack.acknowledge();
-            log.debug("Processed DirectMessageSentEvent for receiver: {}", event.getReceiverId());
+            LogContext.with("event", "DirectMessageSent")
+                .and("receiverId", event.getReceiverId())
+                .debug("Processed event");
         } catch (Exception e) {
-            log.error("Failed to process DirectMessageSentEvent: {}", payload, e);
+            LogContext.with("event", "DirectMessageSent").error("Failed to process event", e);
             throw new RuntimeException(e);
         }
     }

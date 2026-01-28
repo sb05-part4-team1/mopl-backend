@@ -4,6 +4,7 @@ import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedEpochGenerator;
 import com.mopl.domain.repository.content.batch.ContentDeletionLogItem;
 import com.mopl.domain.repository.content.batch.ContentDeletionLogRepository;
+import com.mopl.jpa.support.UuidBinaryConverter;
 import com.mopl.jpa.support.batch.JdbcBatchInsertHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -63,21 +64,10 @@ public class ContentDeletionLogRepositoryImpl implements ContentDeletionLogRepos
 
     private MapSqlParameterSource toParameterSource(UUID contentId, String thumbnailPath, Instant createdAt) {
         return new MapSqlParameterSource()
-            .addValue("id", uuidToBytes(UUID_GENERATOR.generate()))
-            .addValue("contentId", uuidToBytes(contentId))
+            .addValue("id", UuidBinaryConverter.toBytes(UUID_GENERATOR.generate()))
+            .addValue("contentId", UuidBinaryConverter.toBytes(contentId))
             .addValue("thumbnailPath", thumbnailPath)
             .addValue("createdAt", createdAt);
-    }
-
-    private byte[] uuidToBytes(UUID uuid) {
-        byte[] bytes = new byte[16];
-        long msb = uuid.getMostSignificantBits();
-        long lsb = uuid.getLeastSignificantBits();
-        for (int i = 0; i < 8; i++) {
-            bytes[i] = (byte) (msb >>> (8 * (7 - i)));
-            bytes[i + 8] = (byte) (lsb >>> (8 * (7 - i)));
-        }
-        return bytes;
     }
 
     @Override
