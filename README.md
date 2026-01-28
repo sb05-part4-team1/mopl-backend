@@ -2,6 +2,9 @@
 
 <img src="./applications/api/src/main/resources/static/favicon.svg" alt="Mopl Logo" width="48" height="48">
 
+[![codecov](https://codecov.io/gh/sb05-part4-team1/mopl-backend/graph/badge.svg)](https://codecov.io/gh/moplmopl/mopl-backend)
+[![Test](https://github.com/sb05-part4-team1/mopl-backend/actions/workflows/test.yml/badge.svg)](https://github.com/sb05-part4-team1/mopl-backend/actions/workflows/test.yml)
+
 **실시간 같이 보기 기능과 큐레이팅을 제공하는 소셜 서비스**
 
 ---
