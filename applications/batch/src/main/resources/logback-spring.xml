@@ -17,6 +17,7 @@
     <springProfile name="local">
         <root level="DEBUG">
             <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_OPENSEARCH"/>
         </root>
         <logger name="org.springframework" level="INFO"/>
         <logger name="org.hibernate" level="INFO"/>
@@ -28,6 +29,7 @@
         <root level="DEBUG">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="TEXT_FILE"/>
+            <appender-ref ref="ASYNC_OPENSEARCH"/>
         </root>
         <logger name="org.springframework" level="INFO"/>
         <logger name="org.hibernate" level="INFO"/>

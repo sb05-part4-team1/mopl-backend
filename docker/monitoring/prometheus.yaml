@@ -69,3 +69,16 @@ scrape_configs:
       - targets: [ "elasticsearch-exporter:9114" ]
         labels:
           service: "elasticsearch"
+
+  - job_name: "zipkin"
+    static_configs:
+      - targets: [ "zipkin:9411" ]
+        labels:
+          service: "zipkin"
+
+  - job_name: "opensearch"
+    metrics_path: "/_prometheus/metrics"
+    static_configs:
+      - targets: [ "opensearch:9200" ]
+        labels:
+          service: "opensearch"
