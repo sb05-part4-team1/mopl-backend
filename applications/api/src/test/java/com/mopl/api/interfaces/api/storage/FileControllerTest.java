@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
+import org.springframework.core.io.AbstractResource;
 import org.springframework.http.MediaType;
+import org.springframework.lang.NonNull;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.BDDMockito.given;
@@ -45,7 +45,25 @@ class FileControllerTest {
             // given
             String path = "images/test-image.png";
             byte[] imageBytes = new byte[]{0x00, 0x01, 0x02, 0x03};
-            Resource resource = new ByteArrayResource(imageBytes);
+            AbstractResource resource = new AbstractResource() {
+
+                @Override
+                @NonNull
+                public String getDescription() {
+                    return "test-image.png";
+                }
+
+                @Override
+                @NonNull
+                public java.io.InputStream getInputStream() {
+                    return new java.io.ByteArrayInputStream(imageBytes);
+                }
+
+                @Override
+                public String getFilename() {
+                    return "test-image.png";
+                }
+            };
 
             given(storageProvider.download(path)).willReturn(resource);
 

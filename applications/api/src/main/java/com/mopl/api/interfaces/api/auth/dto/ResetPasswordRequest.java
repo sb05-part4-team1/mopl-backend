@@ -12,7 +12,9 @@ import jakarta.validation.constraints.NotBlank;
         """
 )
 public record ResetPasswordRequest(
-    @Schema(description = "비밀번호를 재설정할 사용자 이메일", example = "test@example.com")
-    @NotBlank String email
+    @Schema(
+        description = "비밀번호를 재설정할 사용자 이메일",
+        example = "test@example.com"
+    ) @NotBlank String email
 ) {
 }

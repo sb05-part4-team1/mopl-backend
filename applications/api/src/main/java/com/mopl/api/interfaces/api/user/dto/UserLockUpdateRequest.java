@@ -12,7 +12,9 @@ import jakarta.validation.constraints.NotNull;
         """
 )
 public record UserLockUpdateRequest(
-    @Schema(description = "계정 잠금 여부 (true: 잠금, false: 잠금 해제)", example = "true")
-    @NotNull Boolean locked
+    @Schema(
+        description = "계정 잠금 여부 (true: 잠금, false: 잠금 해제)",
+        example = "true"
+    ) @NotNull Boolean locked
 ) {
 }

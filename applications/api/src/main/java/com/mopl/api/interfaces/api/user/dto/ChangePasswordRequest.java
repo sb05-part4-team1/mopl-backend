@@ -15,7 +15,10 @@ import static com.mopl.domain.model.user.UserModel.RAW_PASSWORD_MAX_LENGTH;
         """
 )
 public record ChangePasswordRequest(
-    @Schema(description = "새 비밀번호", example = "P@ssw0rd!", maxLength = 72)
-    @NotBlank @Size(max = RAW_PASSWORD_MAX_LENGTH) String password
+    @Schema(
+        description = "새 비밀번호",
+        example = "P@ssw0rd!",
+        maxLength = RAW_PASSWORD_MAX_LENGTH
+    ) @NotBlank @Size(max = RAW_PASSWORD_MAX_LENGTH) String password
 ) {
 }
