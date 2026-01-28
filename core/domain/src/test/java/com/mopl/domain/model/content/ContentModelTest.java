@@ -484,4 +484,132 @@ class ContentModelTest {
                 .isInstanceOf(InvalidContentDataException.class);
         }
     }
+
+    @Nested
+    @DisplayName("recalculatePopularity()")
+    class RecalculatePopularityTest {
+
+        @Test
+        @DisplayName("리뷰가 없으면 인기도 점수는 글로벌 평균 평점에 수렴한다")
+        void withNoReviews_popularityConvergesToGlobalAverage() {
+            // given
+            ContentModel content = createDefaultContent();
+            double globalAverageRating = 3.5;
+            int minimumReviewCount = 10;
+
+            // when
+            ContentModel result = content.recalculatePopularity(globalAverageRating, minimumReviewCount);
+
+            // then
+            assertThat(result).isNotSameAs(content);
+            // reviewCount=0일 때: (0/(0+10))*0 + (10/(0+10))*3.5 = 3.5
+            assertThat(result.getPopularityScore()).isCloseTo(3.5, within(0.001));
+        }
+
+        @Test
+        @DisplayName("리뷰 수가 많으면 인기도 점수는 평균 평점에 수렴한다")
+        void withManyReviews_popularityConvergesToAverageRating() {
+            // given
+            ContentModel content = ContentModel.builder()
+                .type(ContentModel.ContentType.movie)
+                .title(DEFAULT_TITLE)
+                .description(DEFAULT_DESCRIPTION)
+                .thumbnailPath(DEFAULT_THUMBNAIL_PATH)
+                .reviewCount(1000)
+                .averageRating(4.8)
+                .popularityScore(0.0)
+                .build();
+
+            double globalAverageRating = 3.0;
+            int minimumReviewCount = 10;
+
+            // when
+            ContentModel result = content.recalculatePopularity(globalAverageRating, minimumReviewCount);
+
+            // then
+            // reviewCount=1000일 때: (1000/(1000+10))*4.8 + (10/(1000+10))*3.0
+            // = (1000/1010)*4.8 + (10/1010)*3.0
+            // ≈ 0.9901*4.8 + 0.0099*3.0 ≈ 4.782
+            assertThat(result.getPopularityScore()).isCloseTo(4.8, within(0.05));
+        }
+
+        @Test
+        @DisplayName("리뷰 수가 minimumReviewCount와 같으면 인기도 점수는 두 평균의 중간값이다")
+        void withEqualReviewCount_popularityIsMiddleValue() {
+            // given
+            ContentModel content = ContentModel.builder()
+                .type(ContentModel.ContentType.movie)
+                .title(DEFAULT_TITLE)
+                .description(DEFAULT_DESCRIPTION)
+                .thumbnailPath(DEFAULT_THUMBNAIL_PATH)
+                .reviewCount(10)
+                .averageRating(5.0)
+                .popularityScore(0.0)
+                .build();
+
+            double globalAverageRating = 3.0;
+            int minimumReviewCount = 10;
+
+            // when
+            ContentModel result = content.recalculatePopularity(globalAverageRating, minimumReviewCount);
+
+            // then
+            // reviewCount=10, minReviewCount=10일 때:
+            // (10/(10+10))*5.0 + (10/(10+10))*3.0 = 0.5*5.0 + 0.5*3.0 = 4.0
+            assertThat(result.getPopularityScore()).isCloseTo(4.0, within(0.001));
+        }
+
+        @Test
+        @DisplayName("minimumReviewCount가 0이면 1로 처리된다")
+        void withZeroMinimumReviewCount_treatedAsOne() {
+            // given
+            ContentModel content = ContentModel.builder()
+                .type(ContentModel.ContentType.movie)
+                .title(DEFAULT_TITLE)
+                .description(DEFAULT_DESCRIPTION)
+                .thumbnailPath(DEFAULT_THUMBNAIL_PATH)
+                .reviewCount(1)
+                .averageRating(5.0)
+                .popularityScore(0.0)
+                .build();
+
+            double globalAverageRating = 3.0;
+            int minimumReviewCount = 0;
+
+            // when
+            ContentModel result = content.recalculatePopularity(globalAverageRating, minimumReviewCount);
+
+            // then
+            // minimumReviewCount=0은 1로 처리됨
+            // (1/(1+1))*5.0 + (1/(1+1))*3.0 = 0.5*5.0 + 0.5*3.0 = 4.0
+            assertThat(result.getPopularityScore()).isCloseTo(4.0, within(0.001));
+        }
+
+        @Test
+        @DisplayName("인기도 재계산 후 다른 필드는 변경되지 않는다")
+        void recalculatePopularity_preservesOtherFields() {
+            // given
+            ContentModel content = ContentModel.builder()
+                .type(ContentModel.ContentType.tvSeries)
+                .title(DEFAULT_TITLE)
+                .description(DEFAULT_DESCRIPTION)
+                .thumbnailPath(DEFAULT_THUMBNAIL_PATH)
+                .reviewCount(5)
+                .averageRating(4.2)
+                .popularityScore(0.0)
+                .build();
+
+            // when
+            ContentModel result = content.recalculatePopularity(3.5, 10);
+
+            // then
+            assertThat(result.getType()).isEqualTo(ContentModel.ContentType.tvSeries);
+            assertThat(result.getTitle()).isEqualTo(DEFAULT_TITLE);
+            assertThat(result.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+            assertThat(result.getThumbnailPath()).isEqualTo(DEFAULT_THUMBNAIL_PATH);
+            assertThat(result.getReviewCount()).isEqualTo(5);
+            assertThat(result.getAverageRating()).isEqualTo(4.2);
+            assertThat(result.getPopularityScore()).isNotZero();
+        }
+    }
 }
