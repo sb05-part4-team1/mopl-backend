@@ -14,9 +14,9 @@ dependencies {
     api("org.springframework.boot:spring-boot-testcontainers")
     // testcontainers
     api("org.testcontainers:junit-jupiter")
-    api("org.testcontainers:mysql")
-    api("org.testcontainers:kafka")
-    api("org.testcontainers:elasticsearch")
+    api("org.testcontainers:testcontainers-mysql")
+    api("org.testcontainers:testcontainers-kafka")
+    api("org.testcontainers:testcontainers-elasticsearch")
     // fixture monkey
     api("com.navercorp.fixturemonkey:fixture-monkey-starter:${project.properties["fixtureMonkeyVersion"]}")
 }
