@@ -78,7 +78,7 @@ public interface ConversationApiSpec {
     );
 
     @Operation(summary = "대화 상세 조회")
-    @Parameter(name = "conversationId", description = "대화 ID", required = true)
+    @Parameter(name = "conversationId", description = "대화 ID", required = true, in = ParameterIn.PATH)
     @ApiResponse(
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = ConversationResponse.class))
@@ -92,7 +92,7 @@ public interface ConversationApiSpec {
     );
 
     @Operation(summary = "특정 사용자와의 대화 조회")
-    @Parameter(name = "userId", description = "상대 사용자 ID", required = true)
+    @Parameter(name = "userId", description = "상대 사용자 ID", required = true, in = ParameterIn.QUERY)
     @ApiResponse(
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = ConversationResponse.class))
@@ -124,7 +124,7 @@ public interface ConversationApiSpec {
         summary = "DM 목록 조회 (커서 페이지네이션)",
         description = "특정 대화의 DM 목록을 조회합니다. 해당 대화의 참여자만 조회할 수 있습니다."
     )
-    @Parameter(name = "conversationId", description = "대화 ID", required = true)
+    @Parameter(name = "conversationId", description = "대화 ID", required = true, in = ParameterIn.PATH)
     @Parameters({
         @Parameter(
             name = "cursor",
@@ -171,8 +171,8 @@ public interface ConversationApiSpec {
     );
 
     @Operation(summary = "대화 읽음 처리")
-    @Parameter(name = "conversationId", description = "대화 ID", required = true)
-    @Parameter(name = "directMessageId", description = "메시지 ID", required = true)
+    @Parameter(name = "conversationId", description = "대화 ID", required = true, in = ParameterIn.PATH)
+    @Parameter(name = "directMessageId", description = "메시지 ID", required = true, in = ParameterIn.PATH)
     @ApiResponse(responseCode = "204", description = "성공")
     @ApiErrorResponse.Default
     @ApiErrorResponse.Forbidden

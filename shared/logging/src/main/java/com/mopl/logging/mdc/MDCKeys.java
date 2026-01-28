@@ -1,9 +1,9 @@
 package com.mopl.logging.mdc;
 
-public final class MdcKeys {
+import lombok.NoArgsConstructor;
 
-    private MdcKeys() {
-    }
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+public final class MdcKeys {
 
     public static final String REQUEST_ID = "requestId";
     public static final String TRACE_ID = "traceId";

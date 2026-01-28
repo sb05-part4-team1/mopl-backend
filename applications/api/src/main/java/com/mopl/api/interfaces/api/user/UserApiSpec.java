@@ -88,7 +88,7 @@ public interface UserApiSpec {
     CursorResponse<UserResponse> getUsers(@Parameter(hidden = true) UserQueryRequest request);
 
     @Operation(summary = "사용자 상세 조회")
-    @Parameter(name = "userId", description = "조회할 사용자 ID", required = true)
+    @Parameter(name = "userId", description = "조회할 사용자 ID", required = true, in = ParameterIn.PATH)
     @ApiResponse(
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = UserResponse.class))
@@ -107,15 +107,35 @@ public interface UserApiSpec {
     UserResponse signUp(UserCreateRequest request);
 
     @Operation(summary = "비밀번호 변경", description = "본인의 비밀번호만 변경할 수 있습니다.")
-    @Parameter(name = "userId", description = "사용자 ID", required = true)
+    @Parameter(name = "userId", description = "사용자 ID", required = true, in = ParameterIn.PATH)
     @ApiResponse(responseCode = "204", description = "성공")
     @ApiErrorResponse.Default
     @ApiErrorResponse.Forbidden
     @ApiErrorResponse.NotFound
     void updatePassword(UUID userId, ChangePasswordRequest request);
 
-    @Operation(summary = "사용자 프로필 변경", description = "본인의 프로필만 변경할 수 있습니다.")
-    @Parameter(name = "userId", description = "수정할 User ID", required = true)
+    @Operation(
+        summary = "사용자 프로필 변경",
+        description = "본인의 프로필만 변경할 수 있습니다. multipart/form-data 형식으로 요청합니다."
+    )
+    @Parameters({
+        @Parameter(
+            name = "userId",
+            description = "수정할 User ID",
+            required = true,
+            in = ParameterIn.PATH
+        ),
+        @Parameter(
+            name = "request",
+            description = "프로필 수정 요청 데이터",
+            required = false
+        ),
+        @Parameter(
+            name = "image",
+            description = "프로필 이미지 파일 (PNG, JPEG 지원)",
+            required = false
+        )
+    })
     @ApiResponse(
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = UserResponse.class))
@@ -126,7 +146,7 @@ public interface UserApiSpec {
     UserResponse updateProfile(UUID userId, UserUpdateRequest request, MultipartFile image);
 
     @Operation(summary = "[어드민] 사용자 역할 수정")
-    @Parameter(name = "userId", description = "수정할 사용자 ID", required = true)
+    @Parameter(name = "userId", description = "수정할 사용자 ID", required = true, in = ParameterIn.PATH)
     @ApiResponse(responseCode = "204", description = "성공")
     @ApiErrorResponse.Default
     @ApiErrorResponse.Forbidden
@@ -138,7 +158,7 @@ public interface UserApiSpec {
     );
 
     @Operation(summary = "[어드민] 계정 잠금 상태 수정")
-    @Parameter(name = "userId", description = "수정할 사용자 ID", required = true)
+    @Parameter(name = "userId", description = "수정할 사용자 ID", required = true, in = ParameterIn.PATH)
     @ApiResponse(responseCode = "204", description = "성공")
     @ApiErrorResponse.Default
     @ApiErrorResponse.Forbidden

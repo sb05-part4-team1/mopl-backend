@@ -7,6 +7,8 @@ dependencies {
     implementation(project(":shared:jackson"))
     implementation(project(":shared:logging"))
     implementation(project(":shared:monitoring"))
+    // web (for actuator endpoints)
+    implementation("org.springframework.boot:spring-boot-starter-web")
     // shedlock
     implementation("net.javacrumbs.shedlock:shedlock-spring:${project.properties["shedlockVersion"]}")
     implementation("net.javacrumbs.shedlock:shedlock-provider-redis-spring:${project.properties["shedlockVersion"]}")

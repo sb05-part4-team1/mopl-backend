@@ -14,3 +14,29 @@ mopl:
       users-by-email: 1h
       content-tags: 24h
       playlist-contents: 5m
+
+---
+# =============================================================================
+# Test Profile
+# =============================================================================
+# 테스트에서는 Redis 캐시를 비활성화하고 L1 캐시만 사용합니다.
+# 필요시 Testcontainers Redis와 함께 redis-enabled: true로 설정할 수 있습니다.
+# =============================================================================
+spring.config.activate.on-profile: test
+
+mopl:
+  cache:
+    key-prefix: "test:"
+    redis-enabled: false
+    l1:
+      maximum-size: 1000
+      ttl: 10s
+      record-stats: false
+    l2:
+      default-ttl: 1m
+    ttl:
+      presigned-urls: 1m
+      users: 1m
+      users-by-email: 1m
+      content-tags: 1m
+      playlist-contents: 1m

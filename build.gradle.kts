@@ -11,6 +11,7 @@ plugins {
 
 val springBootVersion: String by project
 val checkstyleVersion: String by project
+val testcontainersVersion: String by project
 
 val jacocoExclusions = listOf(
     "**/entity/**/Q*.class",
@@ -53,6 +54,7 @@ subprojects {
     dependencyManagement {
         imports {
             mavenBom("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
+            mavenBom("org.testcontainers:testcontainers-bom:$testcontainersVersion")
         }
     }
 

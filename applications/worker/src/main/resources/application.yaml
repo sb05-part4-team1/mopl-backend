@@ -1,9 +1,10 @@
 server:
+  port: 8084
   shutdown: graceful
 
 spring:
   main:
-    web-application-type: none
+    web-application-type: servlet
   application:
     name: mopl-worker
   profiles:
@@ -11,6 +12,7 @@ spring:
   config:
     import:
       - optional:file:.env[.properties]
+      - actuator.yaml
       - jpa.yaml
       - kafka.yaml
       - logging.yaml
@@ -18,17 +20,3 @@ spring:
   threads:
     virtual:
       enabled: true
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,prometheus
-  endpoint:
-    health:
-      probes:
-        enabled: true
-  metrics:
-    tags:
-      application: ${spring.application.name}
-      environment: ${SPRING_PROFILES_ACTIVE:local}

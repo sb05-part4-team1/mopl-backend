@@ -23,3 +23,26 @@ spring:
       security.protocol: ${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}
       sasl.mechanism: ${KAFKA_SASL_MECHANISM:PLAIN}
       sasl.jaas.config: ${KAFKA_SASL_JAAS_CONFIG:}
+
+---
+# =============================================================================
+# Test Profile - Testcontainers 기반
+# =============================================================================
+# Testcontainers가 Kafka 컨테이너를 자동으로 시작하고 연결 정보를 주입합니다.
+# spring.kafka.bootstrap-servers는 Testcontainers의 @ServiceConnection이 자동 설정합니다.
+# =============================================================================
+spring.config.activate.on-profile: test
+
+spring:
+  kafka:
+    consumer:
+      group-id: test-consumer-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      properties:
+        spring.json.trusted.packages: com.mopl.*
+    producer:
+      acks: all
+      retries: 1
+    properties:
+      security.protocol: PLAINTEXT

@@ -88,7 +88,7 @@ public interface PlaylistApiSpec {
     );
 
     @Operation(summary = "플레이리스트 상세 조회")
-    @Parameter(name = "playlistId", required = true)
+    @Parameter(name = "playlistId", description = "플레이리스트 ID", required = true, in = ParameterIn.PATH)
     @ApiResponse(
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = PlaylistResponse.class))
@@ -118,7 +118,7 @@ public interface PlaylistApiSpec {
         summary = "플레이리스트 수정",
         description = "플레이리스트 소유자만 수정할 수 있습니다."
     )
-    @Parameter(name = "playlistId", required = true)
+    @Parameter(name = "playlistId", description = "플레이리스트 ID", required = true, in = ParameterIn.PATH)
     @ApiResponse(
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = PlaylistResponse.class))
@@ -136,7 +136,7 @@ public interface PlaylistApiSpec {
         summary = "플레이리스트 삭제",
         description = "플레이리스트 소유자만 삭제할 수 있습니다."
     )
-    @Parameter(name = "playlistId", required = true)
+    @Parameter(name = "playlistId", description = "플레이리스트 ID", required = true, in = ParameterIn.PATH)
     @ApiResponse(responseCode = "204")
     @ApiErrorResponse.Default
     @ApiErrorResponse.Forbidden
@@ -150,8 +150,8 @@ public interface PlaylistApiSpec {
         summary = "플레이리스트에 콘텐츠 추가",
         description = "플레이리스트 소유자만 콘텐츠를 추가할 수 있습니다."
     )
-    @Parameter(name = "playlistId", required = true)
-    @Parameter(name = "contentId", required = true)
+    @Parameter(name = "playlistId", description = "플레이리스트 ID", required = true, in = ParameterIn.PATH)
+    @Parameter(name = "contentId", description = "추가할 콘텐츠 ID", required = true, in = ParameterIn.PATH)
     @ApiResponse(responseCode = "204")
     @ApiErrorResponse.Default
     @ApiErrorResponse.Forbidden
@@ -167,8 +167,8 @@ public interface PlaylistApiSpec {
         summary = "플레이리스트에서 콘텐츠 삭제",
         description = "플레이리스트 소유자만 콘텐츠를 삭제할 수 있습니다."
     )
-    @Parameter(name = "playlistId", required = true)
-    @Parameter(name = "contentId", required = true)
+    @Parameter(name = "playlistId", description = "플레이리스트 ID", required = true, in = ParameterIn.PATH)
+    @Parameter(name = "contentId", description = "삭제할 콘텐츠 ID", required = true, in = ParameterIn.PATH)
     @ApiResponse(responseCode = "204")
     @ApiErrorResponse.Default
     @ApiErrorResponse.Forbidden
@@ -180,7 +180,7 @@ public interface PlaylistApiSpec {
     );
 
     @Operation(summary = "플레이리스트 구독")
-    @Parameter(name = "playlistId", required = true)
+    @Parameter(name = "playlistId", description = "구독할 플레이리스트 ID", required = true, in = ParameterIn.PATH)
     @ApiResponse(responseCode = "204")
     @ApiErrorResponse.Default
     @ApiErrorResponse.NotFound
@@ -191,7 +191,7 @@ public interface PlaylistApiSpec {
     );
 
     @Operation(summary = "플레이리스트 구독 취소")
-    @Parameter(name = "playlistId", required = true)
+    @Parameter(name = "playlistId", description = "구독 취소할 플레이리스트 ID", required = true, in = ParameterIn.PATH)
     @ApiResponse(responseCode = "204")
     @ApiErrorResponse.Default
     @ApiErrorResponse.NotFound

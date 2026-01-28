@@ -59,7 +59,7 @@ class TwoLevelCacheTest {
             false,
             null
         );
-        cache = new TwoLevelCache(CACHE_NAME, l1Cache, redisTemplate, properties, TTL);
+        cache = new TwoLevelCache(CACHE_NAME, l1Cache, redisTemplate, properties, TTL, null);
     }
 
     @Nested
@@ -368,7 +368,7 @@ class TwoLevelCacheTest {
                 false,
                 null
             );
-            cache = new TwoLevelCache(CACHE_NAME, l1Cache, null, properties, TTL);
+            cache = new TwoLevelCache(CACHE_NAME, l1Cache, null, properties, TTL, null);
         }
 
         @Test

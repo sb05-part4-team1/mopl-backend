@@ -40,4 +40,26 @@ spring:
             user-name-attribute: id
 
 ---
+# =============================================================================
+# Test Profile
+# =============================================================================
+# 테스트용 고정된 JWT 시크릿과 짧은 만료 시간을 사용합니다.
+# OAuth2는 테스트에서 일반적으로 모킹됩니다.
+# =============================================================================
+spring.config.activate.on-profile: test
+
+mopl:
+  jwt:
+    access-token:
+      secret: test-access-token-secret-key-for-testing-purposes-only-32bytes!!
+      expiration: 1h
+    refresh-token:
+      secret: test-refresh-token-secret-key-for-testing-purposes-only-32bytes!!
+      expiration: 1d
+    max-sessions: 5
+    registry-type: in-memory
+  oauth2:
+    frontend-redirect-uri: http://localhost:3000
+
+---
 spring.config.activate.on-profile: prod

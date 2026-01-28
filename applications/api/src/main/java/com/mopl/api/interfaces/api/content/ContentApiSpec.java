@@ -86,7 +86,7 @@ public interface ContentApiSpec {
     CursorResponse<ContentResponse> getContents(@Parameter(hidden = true) ContentQueryRequest request);
 
     @Operation(summary = "콘텐츠 상세 조회")
-    @Parameter(name = "contentId", required = true)
+    @Parameter(name = "contentId", description = "콘텐츠 ID", required = true, in = ParameterIn.PATH)
     @ApiResponse(
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = ContentResponse.class))
@@ -95,20 +95,52 @@ public interface ContentApiSpec {
     @ApiErrorResponse.NotFound
     ContentResponse getContent(UUID contentId);
 
-    @Operation(summary = "[어드민] 콘텐츠 생성")
+    @Operation(
+        summary = "[어드민] 콘텐츠 생성",
+        description = "multipart/form-data 형식으로 콘텐츠 정보와 썸네일 이미지를 함께 업로드합니다."
+    )
+    @Parameters({
+        @Parameter(
+            name = "request",
+            description = "콘텐츠 생성 요청 데이터",
+            required = true
+        ),
+        @Parameter(
+            name = "thumbnail",
+            description = "썸네일 이미지 파일 (PNG, JPEG 지원)",
+            required = true
+        )
+    })
     @ApiResponse(
         responseCode = "201",
         content = @Content(schema = @Schema(implementation = ContentResponse.class))
     )
     @ApiErrorResponse.Default
     @ApiErrorResponse.Forbidden
-    ContentResponse upload(
-        @Parameter(required = true) ContentCreateRequest request,
-        @Parameter(description = "썸네일 이미지 파일", required = true) MultipartFile thumbnail
-    );
+    ContentResponse upload(ContentCreateRequest request, MultipartFile thumbnail);
 
-    @Operation(summary = "[어드민] 콘텐츠 수정")
-    @Parameter(name = "contentId", required = true)
+    @Operation(
+        summary = "[어드민] 콘텐츠 수정",
+        description = "multipart/form-data 형식으로 콘텐츠 정보와 썸네일 이미지를 함께 업로드합니다."
+    )
+    @Parameters({
+        @Parameter(
+            name = "contentId",
+            description = "콘텐츠 ID",
+            required = true,
+            in = ParameterIn.PATH
+        ),
+        @Parameter(
+            name = "request",
+            description = "콘텐츠 수정 요청 데이터",
+            required = true
+        ),
+        @Parameter(
+            name = "thumbnail",
+            description = "새 썸네일 이미지 파일 (PNG, JPEG 지원, 선택사항)",
+            required = false
+        )
+    })
     @ApiResponse(
         responseCode = "200",
         content = @Content(schema = @Schema(implementation = ContentResponse.class))
@@ -116,11 +148,7 @@ public interface ContentApiSpec {
     @ApiErrorResponse.Default
     @ApiErrorResponse.Forbidden
     @ApiErrorResponse.NotFound
-    ContentResponse update(
-        UUID contentId,
-        @Parameter(required = true) ContentUpdateRequest request,
-        @Parameter(description = "새 썸네일 이미지 파일") MultipartFile thumbnail
-    );
+    ContentResponse update(UUID contentId, ContentUpdateRequest request, MultipartFile thumbnail);
 
     @Operation(
         summary = "[어드민] 콘텐츠 삭제",
@@ -130,7 +158,7 @@ public interface ContentApiSpec {
             - 연관 데이터: Review, ContentTag, PlaylistContent
             """
     )
-    @Parameter(name = "contentId", required = true)
+    @Parameter(name = "contentId", description = "콘텐츠 ID", required = true, in = ParameterIn.PATH)
     @ApiResponse(responseCode = "204")
     @ApiErrorResponse.Default
     @ApiErrorResponse.Forbidden

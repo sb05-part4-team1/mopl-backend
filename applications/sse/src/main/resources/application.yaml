@@ -12,6 +12,7 @@ spring:
   config:
     import:
       - optional:file:.env[.properties]
+      - actuator.yaml
       - jpa.yaml
       - logging.yaml
       - redis.yaml
@@ -29,17 +30,3 @@ mopl:
     event-cache:
       ttl: ${SSE_EVENT_CACHE_TTL:5m}
       max-size: ${SSE_EVENT_CACHE_MAX_SIZE:100}
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,prometheus
-  endpoint:
-    health:
-      probes:
-        enabled: true
-  metrics:
-    tags:
-      application: ${spring.application.name}
-      environment: ${SPRING_PROFILES_ACTIVE:local}

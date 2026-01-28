@@ -1,0 +1,301 @@
+groups:
+  # 서비스 가용성
+  - name: service-availability
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "{{ $labels.job }} has been down for more than 1 minute."
+
+      - alert: ServiceHighRestartRate
+        expr: increase(process_uptime_seconds[1h]) < 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Service {{ $labels.job }} restarting frequently"
+          description: "{{ $labels.job }} has restarted within the last hour."
+
+  # HTTP 요청 관련
+  - name: http-requests
+    rules:
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(http_server_requests_seconds_count{status=~"5.."}[5m])) by (job)
+          /
+          sum(rate(http_server_requests_seconds_count[5m])) by (job)
+          > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate on {{ $labels.job }}"
+          description: "Error rate is {{ $value | humanizePercentage }} on {{ $labels.job }}."
+
+      - alert: CriticalErrorRate
+        expr: |
+          sum(rate(http_server_requests_seconds_count{status=~"5.."}[5m])) by (job)
+          /
+          sum(rate(http_server_requests_seconds_count[5m])) by (job)
+          > 0.1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical error rate on {{ $labels.job }}"
+          description: "Error rate is {{ $value | humanizePercentage }} on {{ $labels.job }}."
+
+      - alert: HighResponseLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_server_requests_seconds_bucket[5m])) by (job, le)
+          ) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response latency on {{ $labels.job }}"
+          description: "95th percentile latency is {{ $value | humanizeDuration }} on {{ $labels.job }}."
+
+  # JVM 관련
+  - name: jvm
+    rules:
+      - alert: JvmMemoryHigh
+        expr: |
+          jvm_memory_used_bytes{area="heap"}
+          /
+          jvm_memory_max_bytes{area="heap"}
+          > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High JVM heap usage on {{ $labels.job }}"
+          description: "Heap usage is {{ $value | humanizePercentage }} on {{ $labels.job }}."
+
+      - alert: JvmMemoryCritical
+        expr: |
+          jvm_memory_used_bytes{area="heap"}
+          /
+          jvm_memory_max_bytes{area="heap"}
+          > 0.95
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical JVM heap usage on {{ $labels.job }}"
+          description: "Heap usage is {{ $value | humanizePercentage }} on {{ $labels.job }}."
+
+      - alert: HighGcPause
+        expr: |
+          rate(jvm_gc_pause_seconds_sum[5m])
+          /
+          rate(jvm_gc_pause_seconds_count[5m])
+          > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High GC pause time on {{ $labels.job }}"
+          description: "Average GC pause is {{ $value | humanizeDuration }} on {{ $labels.job }}."
+
+  # Redis 관련
+  - name: redis
+    rules:
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis is down"
+          description: "Redis instance has been down for more than 1 minute."
+
+      - alert: RedisMemoryHigh
+        expr: |
+          redis_memory_used_bytes
+          /
+          redis_memory_max_bytes
+          > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Redis memory usage"
+          description: "Redis memory usage is {{ $value | humanizePercentage }}."
+
+      - alert: RedisConnectionsHigh
+        expr: redis_connected_clients > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Redis connections"
+          description: "Redis has {{ $value }} connected clients."
+
+  # 데이터베이스 커넥션 풀
+  - name: database
+    rules:
+      - alert: DatabaseConnectionPoolExhausted
+        expr: |
+          hikaricp_connections_active
+          /
+          hikaricp_connections_max
+          > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Database connection pool nearly exhausted on {{ $labels.job }}"
+          description: "Connection pool usage is {{ $value | humanizePercentage }} on {{ $labels.job }}."
+
+      - alert: DatabaseConnectionTimeout
+        expr: increase(hikaricp_connections_timeout_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Database connection timeouts on {{ $labels.job }}"
+          description: "{{ $value }} connection timeouts in the last 5 minutes on {{ $labels.job }}."
+
+  # MySQL
+  - name: mysql
+    rules:
+      - alert: MySQLDown
+        expr: mysql_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "MySQL is down"
+          description: "MySQL instance has been down for more than 1 minute."
+
+      - alert: MySQLConnectionsHigh
+        expr: |
+          mysql_global_status_threads_connected
+          /
+          mysql_global_variables_max_connections
+          > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High MySQL connections"
+          description: "MySQL connection usage is {{ $value | humanizePercentage }}."
+
+      - alert: MySQLSlowQueries
+        expr: rate(mysql_global_status_slow_queries[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "MySQL slow queries detected"
+          description: "{{ $value }} slow queries per second."
+
+      - alert: MySQLReplicationLag
+        expr: mysql_slave_status_seconds_behind_master > 30
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "MySQL replication lag"
+          description: "Replication lag is {{ $value }} seconds."
+
+  # Kafka
+  - name: kafka
+    rules:
+      - alert: KafkaDown
+        expr: kafka_brokers < 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Kafka broker is down"
+          description: "No Kafka brokers available."
+
+      - alert: KafkaConsumerLag
+        expr: kafka_consumergroup_lag > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Kafka consumer lag"
+          description: "Consumer group {{ $labels.consumergroup }} has lag of {{ $value }} on topic {{ $labels.topic }}."
+
+      - alert: KafkaConsumerLagCritical
+        expr: kafka_consumergroup_lag > 10000
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical Kafka consumer lag"
+          description: "Consumer group {{ $labels.consumergroup }} has critical lag of {{ $value }} on topic {{ $labels.topic }}."
+
+      - alert: KafkaUnderReplicatedPartitions
+        expr: kafka_topic_partition_under_replicated_partition > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Kafka under-replicated partitions"
+          description: "Topic {{ $labels.topic }} has {{ $value }} under-replicated partitions."
+
+  # Elasticsearch
+  - name: elasticsearch
+    rules:
+      - alert: ElasticsearchDown
+        expr: elasticsearch_cluster_health_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Elasticsearch is down"
+          description: "Elasticsearch cluster is not responding."
+
+      - alert: ElasticsearchClusterRed
+        expr: elasticsearch_cluster_health_status{color="red"} == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Elasticsearch cluster status is RED"
+          description: "Elasticsearch cluster health is RED. Some primary shards are unassigned."
+
+      - alert: ElasticsearchClusterYellow
+        expr: elasticsearch_cluster_health_status{color="yellow"} == 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Elasticsearch cluster status is YELLOW"
+          description: "Elasticsearch cluster health is YELLOW. Some replica shards are unassigned."
+
+      - alert: ElasticsearchHeapUsageHigh
+        expr: |
+          elasticsearch_jvm_memory_used_bytes{area="heap"}
+          /
+          elasticsearch_jvm_memory_max_bytes{area="heap"}
+          > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Elasticsearch heap usage"
+          description: "Elasticsearch heap usage is {{ $value | humanizePercentage }}."
+
+      - alert: ElasticsearchDiskSpaceLow
+        expr: |
+          elasticsearch_filesystem_data_available_bytes
+          /
+          elasticsearch_filesystem_data_size_bytes
+          < 0.15
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low Elasticsearch disk space"
+          description: "Elasticsearch has only {{ $value | humanizePercentage }} disk space available."

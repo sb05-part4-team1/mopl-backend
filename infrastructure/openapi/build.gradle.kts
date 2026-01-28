@@ -12,4 +12,6 @@ dependencies {
     // AWS S3 SDK
     implementation(platform("software.amazon.awssdk:bom:${property("awsS3SdkVersion")}"))
     implementation("software.amazon.awssdk:s3")
+    // metrics
+    implementation("io.micrometer:micrometer-core")
 }
