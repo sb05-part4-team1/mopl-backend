@@ -16,13 +16,16 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
 import java.io.InputStream;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -122,5 +125,18 @@ public class S3StorageProvider implements StorageProvider {
         } catch (NoSuchKeyException e) {
             return false;
         }
+    }
+
+    @Override
+    public List<String> listObjects(String prefix, int maxKeys) {
+        ListObjectsV2Request request = ListObjectsV2Request.builder()
+            .bucket(s3Properties.bucket())
+            .prefix(prefix)
+            .maxKeys(maxKeys)
+            .build();
+
+        return s3Client.listObjectsV2(request).contents().stream()
+            .map(S3Object::key)
+            .toList();
     }
 }

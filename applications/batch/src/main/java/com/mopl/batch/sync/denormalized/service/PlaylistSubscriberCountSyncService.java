@@ -1,37 +1,58 @@
 package com.mopl.batch.sync.denormalized.service;
 
-import com.mopl.jpa.repository.playlist.JpaPlaylistSubscriberRepository;
+import com.mopl.batch.sync.denormalized.config.DenormalizedSyncPolicyResolver;
+import com.mopl.batch.sync.denormalized.config.DenormalizedSyncProperties;
+import com.mopl.jpa.repository.denormalized.JpaDenormalizedSyncRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PlaylistSubscriberCountSyncService {
 
-    private final JpaPlaylistSubscriberRepository jpaPlaylistSubscriberRepository;
+    private static final UUID MIN_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+    private static final int MAX_ITERATIONS = 10000;
+
+    private final JpaDenormalizedSyncRepository denormalizedSyncRepository;
     private final PlaylistSubscriberCountSyncTxService txService;
+    private final DenormalizedSyncProperties props;
+    private final DenormalizedSyncPolicyResolver policyResolver;
 
     public int sync() {
-        Set<UUID> playlistIds = jpaPlaylistSubscriberRepository.findAllPlaylistIds();
-
-        if (playlistIds.isEmpty()) {
-            log.info("[PlaylistSubscriberCountSync] no playlists with subscribers found");
-            return 0;
-        }
-
+        int chunkSize = policyResolver.chunkSize(props.playlistSubscriberCount());
         int totalSynced = 0;
-        for (UUID playlistId : playlistIds) {
-            if (txService.syncOne(playlistId)) {
-                totalSynced++;
+        int iterations = 0;
+        UUID lastPlaylistId = MIN_UUID;
+
+        while (iterations < MAX_ITERATIONS) {
+            List<UUID> playlistIds = denormalizedSyncRepository.findPlaylistIdsAfter(lastPlaylistId, chunkSize);
+
+            if (playlistIds.isEmpty()) {
+                break;
             }
+
+            for (UUID playlistId : playlistIds) {
+                if (txService.syncOne(playlistId)) {
+                    totalSynced++;
+                }
+            }
+
+            lastPlaylistId = playlistIds.getLast();
+            iterations++;
+            log.debug("[PlaylistSubscriberCountSync] processed chunk={} lastPlaylistId={}", playlistIds.size(), lastPlaylistId);
         }
 
-        log.info("[PlaylistSubscriberCountSync] completed total={} synced={}", playlistIds.size(), totalSynced);
+        if (iterations >= MAX_ITERATIONS) {
+            log.warn("[PlaylistSubscriberCountSync] reached max iterations={}, totalSynced={}", MAX_ITERATIONS, totalSynced);
+        } else {
+            log.info("[PlaylistSubscriberCountSync] completed iterations={} synced={}", iterations, totalSynced);
+        }
+
         return totalSynced;
     }
 }

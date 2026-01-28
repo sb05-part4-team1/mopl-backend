@@ -3,6 +3,7 @@ package com.mopl.storage.provider;
 import org.springframework.core.io.Resource;
 
 import java.io.InputStream;
+import java.util.List;
 
 public interface StorageProvider {
 
@@ -15,4 +16,6 @@ public interface StorageProvider {
     void delete(String path);
 
     boolean exists(String path);
+
+    List<String> listObjects(String prefix, int maxKeys);
 }

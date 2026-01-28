@@ -4,6 +4,7 @@ import com.mopl.domain.repository.content.batch.ContentDeletionLogItem;
 import com.mopl.domain.repository.content.batch.ContentDeletionLogRepository;
 import com.mopl.jpa.config.JpaConfig;
 import com.mopl.jpa.entity.content.ContentDeletionLogEntity;
+import com.mopl.jpa.support.batch.JdbcBatchInsertHelper;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -22,7 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest(showSql = false)
 @Import({
     JpaConfig.class,
-    ContentDeletionLogRepositoryImpl.class
+    ContentDeletionLogRepositoryImpl.class,
+    JdbcBatchInsertHelper.class
 })
 @DisplayName("ContentDeletionLogRepositoryImpl 슬라이스 테스트")
 class ContentDeletionLogRepositoryImplTest {
@@ -317,6 +319,7 @@ class ContentDeletionLogRepositoryImplTest {
             int result = contentDeletionLogRepository.deleteByIdIn(
                 List.of(entity1.getId(), entity2.getId())
             );
+            entityManager.clear();
 
             // then
             assertThat(result).isEqualTo(2);

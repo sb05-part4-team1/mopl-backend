@@ -1,7 +1,7 @@
 package com.mopl.batch.collect.tmdb.service.content;
 
-import com.mopl.batch.collect.tmdb.config.properties.TmdbCollectPolicyResolver;
-import com.mopl.batch.collect.tmdb.config.properties.TmdbCollectProperties;
+import com.mopl.batch.collect.tmdb.config.TmdbCollectPolicyResolver;
+import com.mopl.batch.collect.tmdb.config.TmdbCollectProperties;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.support.search.ContentSearchSyncPort;
 import com.mopl.domain.support.transaction.AfterCommitExecutor;
@@ -29,7 +29,7 @@ public class TmdbPopularTvContentCollectService {
     private final ContentSearchSyncPort contentSearchSyncPort;
 
     public int collectPopularTvSeries() {
-        int maxPage = policyResolver.maxPage(collectProperties.getTvContent());
+        int maxPage = policyResolver.maxPage(collectProperties.tvContent());
         List<ContentModel> inserted = new ArrayList<>();
 
         for (int page = 1; page <= maxPage; page++) {

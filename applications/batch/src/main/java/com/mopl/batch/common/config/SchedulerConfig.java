@@ -6,15 +6,15 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
-@EnableScheduling
 @Configuration
+@EnableScheduling
 public class SchedulerConfig {
 
     @Bean
     public TaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
 
-        scheduler.setPoolSize(5);
+        scheduler.setPoolSize(6);
         scheduler.setThreadNamePrefix("mopl_scheduler-");
         scheduler.setWaitForTasksToCompleteOnShutdown(true);
         scheduler.setAwaitTerminationSeconds(30);

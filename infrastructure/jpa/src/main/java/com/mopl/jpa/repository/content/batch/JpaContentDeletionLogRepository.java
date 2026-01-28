@@ -5,7 +5,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.util.List;
@@ -19,7 +18,7 @@ public interface JpaContentDeletionLogRepository extends
             from ContentDeletionLogEntity l
             where l.contentId in :contentIds
         """)
-    List<UUID> findExistingContentIds(@Param("contentIds") List<UUID> contentIds);
+    List<UUID> findExistingContentIds(List<UUID> contentIds);
 
     @Query("""
             select
@@ -34,16 +33,13 @@ public interface JpaContentDeletionLogRepository extends
         """)
     List<ContentDeletionLogRow> findImageCleanupTargets(Pageable pageable);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query("""
             update ContentDeletionLogEntity l
             set l.imageProcessedAt = :now
             where l.id in :logIds
         """)
-    void markImageProcessed(
-        List<UUID> logIds,
-        Instant now
-    );
+    void markImageProcessed(List<UUID> logIds, Instant now);
 
     @Query("""
             select l.id
@@ -53,7 +49,7 @@ public interface JpaContentDeletionLogRepository extends
         """)
     List<UUID> findFullyProcessedLogIds(Pageable pageable);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query("""
             delete from ContentDeletionLogEntity l
             where l.id in :logIds

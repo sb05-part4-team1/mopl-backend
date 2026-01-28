@@ -1,21 +1,22 @@
 package com.mopl.batch.sync.es.service.content;
 
-import com.mopl.batch.sync.es.config.properties.EsSyncPolicyResolver;
-import com.mopl.batch.sync.es.config.properties.EsSyncProperties;
+import com.mopl.batch.sync.es.config.EsSyncPolicyResolver;
+import com.mopl.batch.sync.es.config.EsSyncProperties;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.support.search.ContentSearchSyncPort;
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
-@Slf4j
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
 @Service
-@RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "mopl.search", name = "enabled", havingValue = "true")
+@RequiredArgsConstructor
+@Slf4j
 public class ContentEsSyncService {
 
     private final EsSyncProperties props;
@@ -29,7 +30,7 @@ public class ContentEsSyncService {
         Instant lastCreatedAt = null;
         UUID lastId = null;
 
-        int chunkSize = resolver.chunkSize(props.getContent());
+        int chunkSize = resolver.chunkSize(props.content());
 
         while (true) {
             List<ContentModel> chunk = txService.fetchChunk(lastCreatedAt, lastId, chunkSize);

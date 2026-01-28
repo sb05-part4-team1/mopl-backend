@@ -1,7 +1,7 @@
 package com.mopl.batch.collect.tsdb.service.content;
 
-import com.mopl.batch.collect.tsdb.config.properties.TsdbCollectPolicyResolver;
-import com.mopl.batch.collect.tsdb.config.properties.TsdbCollectProperties;
+import com.mopl.batch.collect.tsdb.config.TsdbCollectPolicyResolver;
+import com.mopl.batch.collect.tsdb.config.TsdbCollectProperties;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.league.LeagueModel;
 import com.mopl.domain.repository.league.LeagueRepository;
@@ -18,9 +18,9 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TsdbNextLeagueEventCollectService {
 
     private final TsdbClient tsdbClient;
@@ -33,7 +33,7 @@ public class TsdbNextLeagueEventCollectService {
     private final ContentSearchSyncPort contentSearchSyncPort;
 
     public int collectNextLeagueEvents() {
-        int sleepMs = policyResolver.sleepMs(collectProperties.getLeagueEvent());
+        int sleepMs = policyResolver.sleepMs(collectProperties.leagueEvent());
         List<ContentModel> inserted = new ArrayList<>();
 
         for (LeagueModel league : leagueRepository.findAll()) {

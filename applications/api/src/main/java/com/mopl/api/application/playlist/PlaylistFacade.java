@@ -6,6 +6,7 @@ import com.mopl.domain.event.playlist.PlaylistContentAddedEvent;
 import com.mopl.domain.event.playlist.PlaylistCreatedEvent;
 import com.mopl.domain.event.playlist.PlaylistSubscribedEvent;
 import com.mopl.domain.event.playlist.PlaylistUpdatedEvent;
+import com.mopl.domain.exception.playlist.PlaylistContentAlreadyExistsException;
 import com.mopl.domain.exception.playlist.PlaylistForbiddenException;
 import com.mopl.domain.model.content.ContentModel;
 import com.mopl.domain.model.playlist.PlaylistModel;
@@ -21,6 +22,7 @@ import com.mopl.dto.outbox.DomainEventOutboxMapper;
 import com.mopl.dto.playlist.PlaylistResponse;
 import com.mopl.dto.playlist.PlaylistResponseMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -190,7 +192,11 @@ public class PlaylistFacade {
             .build();
 
         transactionTemplate.executeWithoutResult(status -> {
-            playlistService.addContent(playlistId, contentId);
+            try {
+                playlistService.addContent(playlistId, contentId);
+            } catch (DataIntegrityViolationException exception) {
+                throw PlaylistContentAlreadyExistsException.withPlaylistIdAndContentId(playlistId, contentId);
+            }
             outboxService.save(domainEventOutboxMapper.toOutboxModel(event));
         });
     }

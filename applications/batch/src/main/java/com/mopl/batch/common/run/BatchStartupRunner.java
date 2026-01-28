@@ -31,7 +31,7 @@ public class BatchStartupRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         List<String> jobNames = properties.getRunOnStartup().getJobs();
 
-        if (jobNames == null || jobNames.isEmpty()) {
+        if (jobNames.isEmpty()) {
             log.info("[BatchStartup] No jobs configured to run on startup");
             return;
         }

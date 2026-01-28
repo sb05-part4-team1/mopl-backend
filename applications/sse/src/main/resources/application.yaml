@@ -20,6 +20,15 @@ spring:
     virtual:
       enabled: true
 
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080}
+
+mopl:
+  sse:
+    event-cache:
+      ttl: ${SSE_EVENT_CACHE_TTL:5m}
+      max-size: ${SSE_EVENT_CACHE_MAX_SIZE:100}
+
 logging:
   level:
     root: INFO
@@ -37,12 +46,3 @@ management:
     tags:
       application: ${spring.application.name}
       environment: ${SPRING_PROFILES_ACTIVE:local}
-
-cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080}
-
-mopl:
-  sse:
-    event-cache:
-      ttl: ${SSE_EVENT_CACHE_TTL:5m}
-      max-size: ${SSE_EVENT_CACHE_MAX_SIZE:100}

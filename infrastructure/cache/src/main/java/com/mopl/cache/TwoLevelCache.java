@@ -131,7 +131,7 @@ public class TwoLevelCache extends AbstractValueAdaptingCache {
         if (key == null) {
             throw new IllegalArgumentException("Cache key must not be null");
         }
-        return properties.keyPrefix() + name + "::" + key.toString();
+        return properties.keyPrefix() + name + "::" + key;
     }
 
     @Nullable

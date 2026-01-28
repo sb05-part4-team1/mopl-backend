@@ -33,16 +33,4 @@ public interface JpaPlaylistSubscriberRepository extends
     boolean existsByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId);
 
     int deleteByPlaylistIdAndSubscriberId(UUID playlistId, UUID subscriberId);
-
-    // denormalized sync batch 전용
-    @Query("SELECT DISTINCT ps.playlist.id FROM PlaylistSubscriberEntity ps")
-    Set<UUID> findAllPlaylistIds();
-
-    @Query("""
-        SELECT COUNT(ps)
-        FROM PlaylistSubscriberEntity ps
-        JOIN ps.subscriber
-        WHERE ps.playlist.id = :playlistId
-        """)
-    int countByPlaylistId(UUID playlistId);
 }

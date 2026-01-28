@@ -3,7 +3,6 @@ package com.mopl.jpa.repository.content.sync.es;
 import com.mopl.jpa.entity.content.ContentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.util.List;
@@ -36,9 +35,5 @@ public interface JpaContentEsSyncRepository extends JpaRepository<ContentEntity,
             """,
         nativeQuery = true
     )
-    List<ContentEsSyncRow> findSyncTargets(
-        @Param("lastCreatedAt") Instant lastCreatedAt,
-        @Param("lastId") String lastId,
-        @Param("limit") int limit
-    );
+    List<ContentEsSyncRow> findSyncTargets(Instant lastCreatedAt, String lastId, int limit);
 }

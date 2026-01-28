@@ -48,14 +48,13 @@ class BaseUpdatableEntityTest {
             // given
             UUID id = UUID.randomUUID();
             Instant createdAt = Instant.now();
-            Instant deletedAt = null;
             Instant updatedAt = Instant.now();
 
             // when
             TestEntity entity = TestEntity.builder()
                 .id(id)
                 .createdAt(createdAt)
-                .deletedAt(deletedAt)
+                .deletedAt(null)
                 .updatedAt(updatedAt)
                 .build();
 
