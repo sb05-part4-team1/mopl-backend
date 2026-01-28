@@ -1,5 +1,5 @@
 server:
-  port: 8084
+  port: 8080 # 8084 for local
   shutdown: graceful
 
 spring:
