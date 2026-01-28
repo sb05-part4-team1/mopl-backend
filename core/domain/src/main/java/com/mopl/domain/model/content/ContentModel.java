@@ -2,6 +2,7 @@ package com.mopl.domain.model.content;
 
 import com.mopl.domain.exception.content.InvalidContentDataException;
 import com.mopl.domain.model.base.BaseUpdatableModel;
+import com.mopl.domain.support.popularity.PopularityScoreCalculator;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -146,13 +147,13 @@ public class ContentModel extends BaseUpdatableModel {
             .build();
     }
 
-    public ContentModel recalculatePopularity(double globalAverageRating, int minReviewCount) {
-        double reviewCountAsDouble = this.reviewCount;
-        double effectiveMinReviewCount = Math.max(minReviewCount, 1);
-        double contentAverageRating = this.averageRating;
-
-        double popularityScore = ((reviewCountAsDouble / (reviewCountAsDouble + effectiveMinReviewCount)) * contentAverageRating)
-            + ((effectiveMinReviewCount / (reviewCountAsDouble + effectiveMinReviewCount)) * globalAverageRating);
+    public ContentModel recalculatePopularity(double globalAverageRating, int minimumReviewCount) {
+        double popularityScore = PopularityScoreCalculator.calculate(
+            this.reviewCount,
+            this.averageRating,
+            globalAverageRating,
+            minimumReviewCount
+        );
 
         return this.toBuilder()
             .popularityScore(popularityScore)

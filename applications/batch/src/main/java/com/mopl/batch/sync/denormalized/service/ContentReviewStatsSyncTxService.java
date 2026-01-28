@@ -33,7 +33,7 @@ public class ContentReviewStatsSyncTxService {
                 ReviewStatsProjection stats = denormalizedSyncRepository.findReviewStatsByContentId(contentId);
                 int actualReviewCount = stats != null ? stats.getReviewCount().intValue() : 0;
                 double actualAverageRating = stats != null ? stats.getAverageRating() : 0.0;
-                double actualPopularityScore = calculatePopularityScore(actualReviewCount, actualAverageRating);
+                double actualPopularityScore = popularityPolicy.calculatePopularityScore(actualReviewCount, actualAverageRating);
 
                 boolean reviewCountMismatch = currentReviewCount != actualReviewCount;
                 boolean ratingMismatch = Math.abs(currentAverageRating - actualAverageRating) > EPSILON;
@@ -55,14 +55,5 @@ public class ContentReviewStatsSyncTxService {
                 return false;
             })
             .orElse(false);
-    }
-
-    private double calculatePopularityScore(int reviewCount, double averageRating) {
-        double globalAverageRating = popularityPolicy.globalAverageRating();
-        int minReviewCount = popularityPolicy.minimumReviewCount();
-        double effectiveMinReviewCount = Math.max(minReviewCount, 1);
-
-        return ((reviewCount / (reviewCount + effectiveMinReviewCount)) * averageRating)
-            + ((effectiveMinReviewCount / (reviewCount + effectiveMinReviewCount)) * globalAverageRating);
     }
 }
