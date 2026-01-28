@@ -1,8 +1,8 @@
 package com.mopl.batch.cleanup.orphan.config;
 
 import com.mopl.batch.cleanup.orphan.service.OrphanCleanupService;
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -16,7 +16,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 @RequiredArgsConstructor
-@Slf4j
 public class OrphanCleanupBatchConfig {
 
     private final OrphanCleanupService orphanCleanupService;
@@ -52,10 +51,12 @@ public class OrphanCleanupBatchConfig {
     public Tasklet orphanConversationTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-            log.info("[OrphanCleanup] conversation start");
+            LogContext.with("task", "conversation").info("[OrphanCleanup] start");
             int deleted = orphanCleanupService.cleanupConversations();
-            log.info("[OrphanCleanup] conversation end deleted={} durationMs={}",
-                deleted, System.currentTimeMillis() - start);
+            LogContext.with("task", "conversation")
+                .and("deleted", deleted)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[OrphanCleanup] end");
             return RepeatStatus.FINISHED;
         };
     }
@@ -72,10 +73,12 @@ public class OrphanCleanupBatchConfig {
     public Tasklet orphanDirectMessageTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-            log.info("[OrphanCleanup] directMessage start");
+            LogContext.with("task", "directMessage").info("[OrphanCleanup] start");
             int deleted = orphanCleanupService.cleanupDirectMessages();
-            log.info("[OrphanCleanup] directMessage end deleted={} durationMs={}",
-                deleted, System.currentTimeMillis() - start);
+            LogContext.with("task", "directMessage")
+                .and("deleted", deleted)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[OrphanCleanup] end");
             return RepeatStatus.FINISHED;
         };
     }
@@ -92,10 +95,12 @@ public class OrphanCleanupBatchConfig {
     public Tasklet orphanPlaylistTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-            log.info("[OrphanCleanup] playlist start");
+            LogContext.with("task", "playlist").info("[OrphanCleanup] start");
             int deleted = orphanCleanupService.cleanupPlaylists();
-            log.info("[OrphanCleanup] playlist end deleted={} durationMs={}",
-                deleted, System.currentTimeMillis() - start);
+            LogContext.with("task", "playlist")
+                .and("deleted", deleted)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[OrphanCleanup] end");
             return RepeatStatus.FINISHED;
         };
     }
@@ -112,10 +117,12 @@ public class OrphanCleanupBatchConfig {
     public Tasklet orphanPlaylistContentTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-            log.info("[OrphanCleanup] playlistContent start");
+            LogContext.with("task", "playlistContent").info("[OrphanCleanup] start");
             int deleted = orphanCleanupService.cleanupPlaylistContents();
-            log.info("[OrphanCleanup] playlistContent end deleted={} durationMs={}",
-                deleted, System.currentTimeMillis() - start);
+            LogContext.with("task", "playlistContent")
+                .and("deleted", deleted)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[OrphanCleanup] end");
             return RepeatStatus.FINISHED;
         };
     }
@@ -132,10 +139,12 @@ public class OrphanCleanupBatchConfig {
     public Tasklet orphanPlaylistSubscriberTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-            log.info("[OrphanCleanup] playlistSubscriber start");
+            LogContext.with("task", "playlistSubscriber").info("[OrphanCleanup] start");
             int deleted = orphanCleanupService.cleanupPlaylistSubscribers();
-            log.info("[OrphanCleanup] playlistSubscriber end deleted={} durationMs={}",
-                deleted, System.currentTimeMillis() - start);
+            LogContext.with("task", "playlistSubscriber")
+                .and("deleted", deleted)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[OrphanCleanup] end");
             return RepeatStatus.FINISHED;
         };
     }
@@ -152,10 +161,12 @@ public class OrphanCleanupBatchConfig {
     public Tasklet orphanReviewTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-            log.info("[OrphanCleanup] review start");
+            LogContext.with("task", "review").info("[OrphanCleanup] start");
             int deleted = orphanCleanupService.cleanupReviews();
-            log.info("[OrphanCleanup] review end deleted={} durationMs={}",
-                deleted, System.currentTimeMillis() - start);
+            LogContext.with("task", "review")
+                .and("deleted", deleted)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[OrphanCleanup] end");
             return RepeatStatus.FINISHED;
         };
     }
@@ -172,10 +183,12 @@ public class OrphanCleanupBatchConfig {
     public Tasklet orphanContentTagTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-            log.info("[OrphanCleanup] contentTag start");
+            LogContext.with("task", "contentTag").info("[OrphanCleanup] start");
             int deleted = orphanCleanupService.cleanupContentTags();
-            log.info("[OrphanCleanup] contentTag end deleted={} durationMs={}",
-                deleted, System.currentTimeMillis() - start);
+            LogContext.with("task", "contentTag")
+                .and("deleted", deleted)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[OrphanCleanup] end");
             return RepeatStatus.FINISHED;
         };
     }
@@ -192,10 +205,12 @@ public class OrphanCleanupBatchConfig {
     public Tasklet orphanContentExternalMappingTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-            log.info("[OrphanCleanup] contentExternalMapping start");
+            LogContext.with("task", "contentExternalMapping").info("[OrphanCleanup] start");
             int deleted = orphanCleanupService.cleanupContentExternalMappings();
-            log.info("[OrphanCleanup] contentExternalMapping end deleted={} durationMs={}",
-                deleted, System.currentTimeMillis() - start);
+            LogContext.with("task", "contentExternalMapping")
+                .and("deleted", deleted)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[OrphanCleanup] end");
             return RepeatStatus.FINISHED;
         };
     }
@@ -212,10 +227,12 @@ public class OrphanCleanupBatchConfig {
     public Tasklet orphanNotificationTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-            log.info("[OrphanCleanup] notification start");
+            LogContext.with("task", "notification").info("[OrphanCleanup] start");
             int deleted = orphanCleanupService.cleanupNotifications();
-            log.info("[OrphanCleanup] notification end deleted={} durationMs={}",
-                deleted, System.currentTimeMillis() - start);
+            LogContext.with("task", "notification")
+                .and("deleted", deleted)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[OrphanCleanup] end");
             return RepeatStatus.FINISHED;
         };
     }
@@ -232,10 +249,12 @@ public class OrphanCleanupBatchConfig {
     public Tasklet orphanFollowTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-            log.info("[OrphanCleanup] follow start");
+            LogContext.with("task", "follow").info("[OrphanCleanup] start");
             int deleted = orphanCleanupService.cleanupFollows();
-            log.info("[OrphanCleanup] follow end deleted={} durationMs={}",
-                deleted, System.currentTimeMillis() - start);
+            LogContext.with("task", "follow")
+                .and("deleted", deleted)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[OrphanCleanup] end");
             return RepeatStatus.FINISHED;
         };
     }
@@ -252,10 +271,12 @@ public class OrphanCleanupBatchConfig {
     public Tasklet orphanReadStatusTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-            log.info("[OrphanCleanup] readStatus start");
+            LogContext.with("task", "readStatus").info("[OrphanCleanup] start");
             int deleted = orphanCleanupService.cleanupReadStatuses();
-            log.info("[OrphanCleanup] readStatus end deleted={} durationMs={}",
-                deleted, System.currentTimeMillis() - start);
+            LogContext.with("task", "readStatus")
+                .and("deleted", deleted)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[OrphanCleanup] end");
             return RepeatStatus.FINISHED;
         };
     }

@@ -3,8 +3,8 @@ package com.mopl.batch.cleanup.softdelete.config;
 import com.mopl.batch.cleanup.softdelete.service.content.ContentCleanupService;
 import com.mopl.batch.cleanup.softdelete.service.log.ContentDeletionLogCleanupService;
 import com.mopl.batch.cleanup.softdelete.service.storage.StorageCleanupService;
+import com.mopl.logging.context.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -18,7 +18,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 @RequiredArgsConstructor
-@Slf4j
 public class SoftDeleteCleanupBatchConfig {
 
     private final ContentCleanupService contentCleanupService;
@@ -46,10 +45,12 @@ public class SoftDeleteCleanupBatchConfig {
     public Tasklet contentTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-            log.info("[SoftDeleteCleanup] content start");
+            LogContext.with("task", "content").info("[SoftDeleteCleanup] start");
             int processed = contentCleanupService.cleanup();
-            log.info("[SoftDeleteCleanup] content end processed={} durationMs={}",
-                processed, System.currentTimeMillis() - start);
+            LogContext.with("task", "content")
+                .and("processed", processed)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[SoftDeleteCleanup] end");
             return RepeatStatus.FINISHED;
         };
     }
@@ -66,10 +67,12 @@ public class SoftDeleteCleanupBatchConfig {
     public Tasklet storageTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-            log.info("[SoftDeleteCleanup] storage start");
+            LogContext.with("task", "storage").info("[SoftDeleteCleanup] start");
             int deletedFiles = storageCleanupService.cleanup();
-            log.info("[SoftDeleteCleanup] storage end deletedFiles={} durationMs={}",
-                deletedFiles, System.currentTimeMillis() - start);
+            LogContext.with("task", "storage")
+                .and("deletedFiles", deletedFiles)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[SoftDeleteCleanup] end");
             return RepeatStatus.FINISHED;
         };
     }
@@ -86,10 +89,12 @@ public class SoftDeleteCleanupBatchConfig {
     public Tasklet deletionLogTasklet() {
         return (contribution, chunkContext) -> {
             long start = System.currentTimeMillis();
-            log.info("[SoftDeleteCleanup] deletionLog start");
+            LogContext.with("task", "deletionLog").info("[SoftDeleteCleanup] start");
             int processed = contentDeletionLogCleanupService.cleanup();
-            log.info("[SoftDeleteCleanup] deletionLog end processed={} durationMs={}",
-                processed, System.currentTimeMillis() - start);
+            LogContext.with("task", "deletionLog")
+                .and("processed", processed)
+                .and("durationMs", System.currentTimeMillis() - start)
+                .info("[SoftDeleteCleanup] end");
             return RepeatStatus.FINISHED;
         };
     }
