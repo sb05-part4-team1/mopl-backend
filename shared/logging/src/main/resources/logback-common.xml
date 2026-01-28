@@ -93,64 +93,6 @@
         <appender-ref ref="SLACK"/>
     </appender>
 
-    <!-- OpenSearch Appender (실시간 로그 검색) -->
-    <appender name="OPENSEARCH" class="com.internetitem.logback.elasticsearch.ElasticsearchAppender">
-        <url>${OPENSEARCH_URL:-http://localhost:9201}/_bulk</url>
-        <index>mopl-logs-%date{yyyy-MM-dd}</index>
-        <type>_doc</type>
-        <connectTimeout>5000</connectTimeout>
-        <readTimeout>30000</readTimeout>
-        <errorsToStderr>false</errorsToStderr>
-        <logsToStderr>false</logsToStderr>
-        <maxQueueSize>1024</maxQueueSize>
-        <includeMdc>true</includeMdc>
-        <maxRetries>3</maxRetries>
-        <sleepTime>1000</sleepTime>
-        <properties>
-            <property>
-                <name>service</name>
-                <value>${SERVICE_NAME}</value>
-            </property>
-            <property>
-                <name>env</name>
-                <value>${ENV}</value>
-            </property>
-            <property>
-                <name>host</name>
-                <value>${HOSTNAME:-unknown}</value>
-            </property>
-            <property>
-                <name>level</name>
-                <value>%level</value>
-            </property>
-            <property>
-                <name>thread</name>
-                <value>%thread</value>
-            </property>
-            <property>
-                <name>logger</name>
-                <value>%logger</value>
-            </property>
-            <property>
-                <name>message</name>
-                <value>%message</value>
-            </property>
-            <property>
-                <name>stacktrace</name>
-                <value>%ex</value>
-            </property>
-        </properties>
-    </appender>
-
-    <!-- 비동기 OpenSearch Appender -->
-    <appender name="ASYNC_OPENSEARCH" class="ch.qos.logback.classic.AsyncAppender">
-        <queueSize>1024</queueSize>
-        <discardingThreshold>0</discardingThreshold>
-        <includeCallerData>false</includeCallerData>
-        <neverBlock>true</neverBlock>
-        <appender-ref ref="OPENSEARCH"/>
-    </appender>
-
     <!-- 노이즈 감소 로거 (모든 환경 공통) -->
     <logger name="org.apache.kafka" level="WARN"/>
     <logger name="org.springframework.kafka" level="WARN"/>
