@@ -76,7 +76,7 @@ class ContentModelTest {
         }
 
         @ParameterizedTest(name = "{0}")
-        @MethodSource("com.mopl.domain.model.content.ContentModelTest#blankStringProvider")
+        @MethodSource("blankStringProvider")
         @DisplayName("제목이 비어있으면 예외 발생")
         void withBlankTitle_throwsException(String description, String title) {
             assertThatThrownBy(() -> ContentModel.create(
@@ -106,7 +106,7 @@ class ContentModelTest {
         }
 
         @ParameterizedTest(name = "{0}")
-        @MethodSource("com.mopl.domain.model.content.ContentModelTest#blankStringProvider")
+        @MethodSource("blankStringProvider")
         @DisplayName("설명이 비어있으면 예외 발생")
         void withBlankDescription_throwsException(String desc, String description) {
             assertThatThrownBy(() -> ContentModel.create(
@@ -136,7 +136,7 @@ class ContentModelTest {
         }
 
         @ParameterizedTest(name = "{0}")
-        @MethodSource("com.mopl.domain.model.content.ContentModelTest#blankStringProvider")
+        @MethodSource("blankStringProvider")
         @DisplayName("썸네일 경로가 비어있으면 예외 발생")
         void withBlankThumbnailPath_throwsException(String desc, String thumbnailPath) {
             assertThatThrownBy(() -> ContentModel.create(

@@ -64,7 +64,7 @@ class UserModelTest {
         }
 
         @ParameterizedTest(name = "{0}")
-        @MethodSource("com.mopl.domain.model.user.UserModelTest#blankStringProvider")
+        @MethodSource("blankStringProvider")
         @DisplayName("이메일이 비어있으면 예외 발생")
         void withBlankEmail_throwsException(String description, String email) {
             assertThatThrownBy(() -> UserModel.create(email, DEFAULT_NAME, DEFAULT_PASSWORD))
@@ -91,7 +91,7 @@ class UserModelTest {
         }
 
         @ParameterizedTest(name = "{0}")
-        @MethodSource("com.mopl.domain.model.user.UserModelTest#blankStringProvider")
+        @MethodSource("blankStringProvider")
         @DisplayName("이름이 비어있으면 예외 발생")
         void withBlankName_throwsException(String description, String name) {
             assertThatThrownBy(() -> UserModel.create(DEFAULT_EMAIL, name, DEFAULT_PASSWORD))
@@ -118,7 +118,7 @@ class UserModelTest {
         }
 
         @ParameterizedTest(name = "{0}")
-        @MethodSource("com.mopl.domain.model.user.UserModelTest#blankStringProvider")
+        @MethodSource("blankStringProvider")
         @DisplayName("비밀번호가 비어있으면 예외 발생")
         void withBlankPassword_throwsException(String description, String password) {
             assertThatThrownBy(() -> UserModel.create(DEFAULT_EMAIL, DEFAULT_NAME, password))
@@ -193,7 +193,7 @@ class UserModelTest {
         }
 
         @ParameterizedTest(name = "{0}")
-        @MethodSource("com.mopl.domain.model.user.UserModelTest#blankStringProvider")
+        @MethodSource("blankStringProvider")
         @DisplayName("이메일이 비어있으면 예외 발생")
         void withBlankEmail_throwsException(String description, String email) {
             assertThatThrownBy(() -> UserModel.createOAuthUser(
@@ -223,7 +223,7 @@ class UserModelTest {
         }
 
         @ParameterizedTest(name = "{0}")
-        @MethodSource("com.mopl.domain.model.user.UserModelTest#blankStringProvider")
+        @MethodSource("blankStringProvider")
         @DisplayName("이름이 비어있으면 예외 발생")
         void withBlankName_throwsException(String description, String name) {
             assertThatThrownBy(() -> UserModel.createOAuthUser(

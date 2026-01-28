@@ -71,7 +71,7 @@ class PlaylistModelTest {
         }
 
         @ParameterizedTest(name = "{0}")
-        @MethodSource("com.mopl.domain.model.playlist.PlaylistModelTest#blankStringProvider")
+        @MethodSource("blankStringProvider")
         @DisplayName("제목이 비어있으면 예외 발생")
         void withBlankTitle_throwsException(String description, String title) {
             UserModel owner = UserModelFixture.create();
