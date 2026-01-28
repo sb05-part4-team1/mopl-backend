@@ -1,0 +1,22 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 80%
+    patch:
+      default:
+        target: 90%
+
+ignore:
+  # 모듈 제외
+  - "shared/test/**"
+  - "shared/test-core/**"
+  - "shared/logging/**"
+  - "applications/batch/**"
+  - "infrastructure/openapi/**"
+  # 클래스 패턴 제외
+  - "**/entity/**/Q*.java"
+  - "**/*Application.java"
+  - "**/*Config.java"
+  - "**/*Properties.java"
+  - "**/*Event.java"
