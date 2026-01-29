@@ -1,5 +1,6 @@
 server:
-  port: 8080 # 8083 for local
+  # port: 8080
+  port: 8083 # local
   shutdown: graceful
 
 spring:
