@@ -21,54 +21,20 @@
         </encoder>
     </appender>
 
-    <!-- 텍스트 파일 Appender (로컬/개발용) -->
-    <appender name="TEXT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}/${SERVICE_NAME}.log</file>
-        <encoder>
-            <pattern>${FILE_PATTERN}</pattern>
-        </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/${SERVICE_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
-            <maxHistory>7</maxHistory>
-            <totalSizeCap>1GB</totalSizeCap>
-        </rollingPolicy>
-    </appender>
-
-    <!-- JSON 파일 Appender (프로덕션용 - Fluent Bit 수집 대상) -->
-    <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}/${SERVICE_NAME}.json</file>
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <includeMdcKeyName>traceId</includeMdcKeyName>
-            <includeMdcKeyName>requestId</includeMdcKeyName>
-            <includeMdcKeyName>requestMethod</includeMdcKeyName>
-            <includeMdcKeyName>requestUri</includeMdcKeyName>
-            <includeMdcKeyName>userId</includeMdcKeyName>
-            <customFields>{"service":"${SERVICE_NAME}","env":"${ENV}"}</customFields>
-            <timestampPattern>yyyy-MM-dd'T'HH:mm:ss.SSSZ</timestampPattern>
-            <fieldNames>
-                <timestamp>timestamp</timestamp>
-                <thread>thread</thread>
-                <logger>logger</logger>
-                <level>level</level>
-                <message>message</message>
-                <stackTrace>exception</stackTrace>
-            </fieldNames>
-        </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/${SERVICE_NAME}.%d{yyyy-MM-dd-HH}.json</fileNamePattern>
-            <maxHistory>168</maxHistory> <!-- 7일 * 24시간 -->
-            <totalSizeCap>10GB</totalSizeCap>
-        </rollingPolicy>
-    </appender>
-
-    <!-- 비동기 JSON Appender (프로덕션 성능 최적화) -->
-    <appender name="ASYNC_JSON_FILE" class="ch.qos.logback.classic.AsyncAppender">
-        <queueSize>1024</queueSize>
-        <discardingThreshold>0</discardingThreshold>
-        <includeCallerData>false</includeCallerData>
-        <neverBlock>true</neverBlock>
-        <appender-ref ref="JSON_FILE"/>
-    </appender>
+    <!-- 텍스트 파일 Appender (dev 프로파일에서만 초기화) -->
+    <springProfile name="dev,local">
+        <appender name="TEXT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_PATH}/${SERVICE_NAME}.log</file>
+            <encoder>
+                <pattern>${FILE_PATTERN}</pattern>
+            </encoder>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <fileNamePattern>${LOG_PATH}/${SERVICE_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
+                <maxHistory>7</maxHistory>
+                <totalSizeCap>1GB</totalSizeCap>
+            </rollingPolicy>
+        </appender>
+    </springProfile>
 
     <!-- Slack Appender (프로덕션 ERROR 알림) -->
     <appender name="SLACK" class="com.github.maricn.logback.SlackAppender">
