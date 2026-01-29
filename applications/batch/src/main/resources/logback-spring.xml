@@ -37,7 +37,7 @@
     <!-- prod 프로파일 -->
     <springProfile name="prod">
         <root level="INFO">
-            <appender-ref ref="ASYNC_JSON_FILE"/>
+            <appender-ref ref="CONSOLE"/>
             <appender-ref ref="ASYNC_SLACK"/>
         </root>
         <logger name="org.springframework" level="WARN"/>
